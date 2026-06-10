@@ -1,2 +1,10 @@
-# ci-dashboard
-Continuous Improvement Dashboard for OEE, Waste, Downtime and Variant Analysis
+# CI Dashboard
+
+Dashboard Continuous Improvement untuk monitoring:
+
+- OEE
+- Waste
+- Downtime
+- Variant Analysis
+- CI Projects
+- Cost Saving
