@@ -1,50 +1,124 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>CI Dashboard</title>
-    <style>
-        body {
-            font-family: Arial;
-            margin: 20px;
-        }
+<meta charset="UTF-8">
+<title>CI Dashboard</title>
 
-        .card {
-            display: inline-block;
-            width: 200px;
-            margin: 10px;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 0 5px #ccc;
-        }
+<style>
+body{
+    margin:0;
+    font-family:Arial, sans-serif;
+}
 
-        h1 {
-            color: #333;
-        }
+/* Top Bar */
+.topbar{
+    background:#1f2937;
+    color:white;
+    padding:15px;
+    display:flex;
+    align-items:center;
+}
 
-        .value {
-            font-size: 30px;
-            font-weight: bold;
-        }
-    </style>
+.menu-btn{
+    font-size:28px;
+    cursor:pointer;
+    margin-right:15px;
+}
+
+/* Sidebar */
+.sidebar{
+    height:100%;
+    width:250px;
+    position:fixed;
+    top:0;
+    left:-250px;
+    background:#111827;
+    transition:0.3s;
+    padding-top:60px;
+}
+
+.sidebar a{
+    display:block;
+    color:white;
+    padding:15px 20px;
+    text-decoration:none;
+}
+
+.sidebar a:hover{
+    background:#374151;
+}
+
+.main{
+    padding:20px;
+}
+
+/* KPI Card */
+.card{
+    display:inline-block;
+    width:220px;
+    margin:10px;
+    padding:20px;
+    border-radius:10px;
+    box-shadow:0 0 5px #ccc;
+}
+
+.value{
+    font-size:36px;
+    font-weight:bold;
+}
+</style>
 </head>
+
 <body>
 
-<h1>CI Dashboard</h1>
-
-<div class="card">
-    <h3>OEE</h3>
-    <div class="value">82%</div>
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+    <a href="#">Dashboard Utama</a>
+    <a href="#">OEE</a>
+    <a href="#">Waste</a>
+    <a href="#">Downtime</a>
+    <a href="#">Variant</a>
+    <a href="#">Cost Saving</a>
+    <a href="#">CI Projects</a>
 </div>
 
-<div class="card">
-    <h3>Waste</h3>
-    <div class="value">1.8%</div>
+<!-- Top Bar -->
+<div class="topbar">
+    <span class="menu-btn" onclick="toggleMenu()">☰</span>
+    <h2 style="margin:0;">CI Dashboard</h2>
 </div>
 
-<div class="card">
-    <h3>Downtime</h3>
-    <div class="value">120</div>
+<!-- Main Content -->
+<div class="main">
+
+    <div class="card">
+        <h3>OEE</h3>
+        <div class="value">82%</div>
+    </div>
+
+    <div class="card">
+        <h3>Waste</h3>
+        <div class="value">1.8%</div>
+    </div>
+
+    <div class="card">
+        <h3>Downtime</h3>
+        <div class="value">120</div>
+    </div>
+
 </div>
+
+<script>
+function toggleMenu() {
+    let sidebar = document.getElementById("sidebar");
+
+    if(sidebar.style.left === "0px"){
+        sidebar.style.left = "-250px";
+    } else {
+        sidebar.style.left = "0px";
+    }
+}
+</script>
 
 </body>
 </html>
