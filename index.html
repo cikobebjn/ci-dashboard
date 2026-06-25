@@ -18,6 +18,7 @@ body { margin:0; font-family:Arial, sans-serif; }
 }
 .sidebar a { display:block; color:white; padding:15px 20px; text-decoration:none; }
 .sidebar a:hover { background:#374151; }
+.sidebar a.active { background:#3b82f6; }
 .main { padding:80px 20px 20px 20px; }
 .card {
     display:inline-block; width:220px; margin:10px;
@@ -25,8 +26,6 @@ body { margin:0; font-family:Arial, sans-serif; }
 }
 .value { font-size:36px; font-weight:bold; }
 .value.loading { font-size:20px; color:#9ca3af; }
-
-/* Form input data */
 .form-card {
     background:#f9fafb; border:1px solid #e5e7eb;
     border-radius:10px; padding:20px; margin:10px;
@@ -47,8 +46,6 @@ body { margin:0; font-family:Arial, sans-serif; }
 .status-msg { font-size:13px; margin-top:8px; color:#6b7280; }
 .status-msg.success { color:#16a34a; }
 .status-msg.error { color:#dc2626; }
-
-/* Label tanggal */
 .card-date { font-size:12px; color:#9ca3af; margin-top:4px; }
 </style>
 </head>
@@ -56,8 +53,8 @@ body { margin:0; font-family:Arial, sans-serif; }
 
 <!-- Sidebar -->
 <div class="sidebar" id="sidebar">
-    <a href="#">Dashboard Utama</a>
-    <a href="#">OEE</a>
+    <a href="index.html" class="active">Dashboard Utama</a>
+    <a href="oee.html">OEE</a>
     <a href="#">Waste</a>
     <a href="#">Downtime</a>
     <a href="#">Variant</a>
@@ -74,7 +71,6 @@ body { margin:0; font-family:Arial, sans-serif; }
 <!-- Main Content -->
 <div class="main">
 
-    <!-- KPI Cards -->
     <div class="card">
         <h3>OEE</h3>
         <div class="value loading" id="val-oee">...</div>
@@ -104,9 +100,6 @@ body { margin:0; font-family:Arial, sans-serif; }
         <label>Tanggal</label>
         <input type="date" id="inp-tanggal" />
 
-        <label>OEE (%)</label>
-        <input type="number" id="inp-oee" placeholder="contoh: 82" step="0.1" />
-
         <label>Waste (%)</label>
         <input type="number" id="inp-waste" placeholder="contoh: 1.8" step="0.1" />
 
@@ -122,57 +115,68 @@ body { margin:0; font-family:Arial, sans-serif; }
 
 </div>
 
-<!-- Supabase SDK -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-// ⚠️ GANTI INI dengan kredensial Supabase kamu
-const SUPABASE_URL  = 'https://bmnhtxalfsfaefacgtpm.supabase.co';
-const SUPABASE_KEY  = 'sb_publishable_VItBKenz-q2sYz7MsibODA_nYtLXv9Q';
+const SUPABASE_URL = 'https://bmnhtxalfsfaefacgtpm.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_VItBKenz-q2sYz7MsibODA_nYtLXv9Q';
 
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// ── Set default tanggal hari ini ──
 document.getElementById('inp-tanggal').valueAsDate = new Date();
 
-// ── Sidebar toggle ──
 function toggleMenu() {
     let sidebar = document.getElementById('sidebar');
     sidebar.style.left = sidebar.style.left === '0px' ? '-250px' : '0px';
 }
 
-// ── Load data terbaru dari Supabase ──
 async function loadData() {
-    const { data, error } = await db
+    // ── OEE dari tabel oee_daily (diisi via oee.html) ──
+    const { data: oeeData } = await db
+        .from('oee_daily')
+        .select('*')
+        .order('tanggal', { ascending: false })
+        .limit(1)
+        .single();
+
+    if (oeeData) {
+        const tgl = new Date(oeeData.tanggal).toLocaleDateString('id-ID');
+        document.getElementById('val-oee').textContent = oeeData.oee.toFixed(1) + '%';
+        document.getElementById('val-oee').className = 'value';
+        document.getElementById('date-oee').textContent = tgl;
+    } else {
+        document.getElementById('val-oee').textContent = '-';
+        document.getElementById('val-oee').className = 'value';
+    }
+
+    // ── Waste, Downtime, Tonase dari tabel monitoring ──
+    const { data: monData } = await db
         .from('monitoring')
         .select('*')
         .order('tanggal', { ascending: false })
         .limit(1)
         .single();
 
-    if (error || !data) {
-        ['oee','waste','downtime','tonase'].forEach(k => {
+    if (monData) {
+        const tgl = new Date(monData.tanggal).toLocaleDateString('id-ID');
+        const fmt = (v, suffix='') => v !== null ? v + suffix : '-';
+
+        document.getElementById('val-waste').textContent    = fmt(monData.waste, '%');
+        document.getElementById('val-downtime').textContent = fmt(monData.downtime);
+        document.getElementById('val-tonase').textContent   = fmt(monData.tonase);
+
+        ['waste','downtime','tonase'].forEach(k => {
+            document.getElementById('val-' + k).className = 'value';
+            document.getElementById('date-' + k).textContent = tgl;
+        });
+    } else {
+        ['waste','downtime','tonase'].forEach(k => {
             document.getElementById('val-' + k).textContent = '-';
             document.getElementById('val-' + k).className = 'value';
         });
-        return;
     }
-
-    const fmt = (v, suffix='') => v !== null ? v + suffix : '-';
-    const tgl = data.tanggal ? new Date(data.tanggal).toLocaleDateString('id-ID') : '';
-
-    document.getElementById('val-oee').textContent      = fmt(data.oee, '%');
-    document.getElementById('val-waste').textContent    = fmt(data.waste, '%');
-    document.getElementById('val-downtime').textContent = fmt(data.downtime);
-    document.getElementById('val-tonase').textContent   = fmt(data.tonase);
-
-    ['oee','waste','downtime','tonase'].forEach(k => {
-        document.getElementById('val-' + k).className = 'value';
-        document.getElementById('date-' + k).textContent = tgl;
-    });
 }
 
-// ── Simpan data baru ──
 async function simpanData() {
     const msg = document.getElementById('status-msg');
     msg.textContent = 'Menyimpan...';
@@ -180,7 +184,6 @@ async function simpanData() {
 
     const payload = {
         tanggal  : document.getElementById('inp-tanggal').value,
-        oee      : parseFloat(document.getElementById('inp-oee').value)      || null,
         waste    : parseFloat(document.getElementById('inp-waste').value)    || null,
         downtime : parseFloat(document.getElementById('inp-downtime').value) || null,
         tonase   : parseFloat(document.getElementById('inp-tonase').value)   || null,
@@ -200,11 +203,10 @@ async function simpanData() {
     } else {
         msg.textContent = '✅ Data berhasil disimpan!';
         msg.className = 'status-msg success';
-        loadData(); // refresh KPI cards
+        loadData();
     }
 }
 
-// ── Load saat halaman dibuka ──
 loadData();
 </script>
 </body>
