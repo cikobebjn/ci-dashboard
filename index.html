@@ -1,14 +1,16 @@
+
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
 <title>Bojonegoro Monitoring</title>
 <style>
-body { margin:0; font-family:Arial, sans-serif; }
+body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
 .topbar {
     background:#1f2937; color:white; padding:15px;
     display:flex; align-items:center;
     position:fixed; top:0; left:0; width:100%; z-index:1000;
+    box-sizing:border-box;
 }
 .menu-btn { font-size:28px; cursor:pointer; margin-right:15px; }
 .sidebar {
@@ -19,39 +21,38 @@ body { margin:0; font-family:Arial, sans-serif; }
 .sidebar a { display:block; color:white; padding:15px 20px; text-decoration:none; }
 .sidebar a:hover { background:#374151; }
 .sidebar a.active { background:#3b82f6; }
-.main { padding:80px 20px 20px 20px; }
+.main { padding:80px 24px 24px 24px; }
+
+.kpi-grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
+    gap:16px;
+}
 .card {
-    display:inline-block; width:220px; margin:10px;
-    padding:20px; border-radius:10px; box-shadow:0 0 5px #ccc;
+    background:white; border-radius:12px; padding:20px 24px;
+    box-shadow:0 1px 3px rgba(0,0,0,0.08);
+    border-top:4px solid #e5e7eb;
 }
-.value { font-size:36px; font-weight:bold; }
+.card.oee-card      { border-top-color:#6366f1; }
+.card.waste-card    { border-top-color:#f59e0b; }
+.card.downtime-card { border-top-color:#ef4444; }
+.card.tonase-card   { border-top-color:#10b981; }
+
+.card h3 { margin:0 0 8px; font-size:13px; color:#6b7280; font-weight:600;
+           text-transform:uppercase; letter-spacing:0.05em; }
+.value { font-size:36px; font-weight:700; color:#1f2937; }
 .value.loading { font-size:20px; color:#9ca3af; }
-.form-card {
-    background:#f9fafb; border:1px solid #e5e7eb;
-    border-radius:10px; padding:20px; margin:10px;
-    display:inline-block; width:300px; vertical-align:top;
+.value.good { color:#16a34a; }   /* ≥ 55% → hijau */
+.value.low  { color:#dc2626; }   /* < 55% → merah */
+.card-date { font-size:11px; color:#9ca3af; margin-top:6px; }
+.target-badge {
+    font-size:10px; color:#6b7280; background:#f3f4f6;
+    border-radius:4px; padding:2px 6px; margin-top:6px; display:inline-block;
 }
-.form-card h3 { margin-top:0; }
-.form-card input {
-    width:100%; padding:8px; margin:5px 0 10px;
-    border:1px solid #d1d5db; border-radius:6px;
-    font-size:14px; box-sizing:border-box;
-}
-.form-card button {
-    background:#1f2937; color:white; border:none;
-    padding:10px 20px; border-radius:6px;
-    cursor:pointer; font-size:14px; width:100%;
-}
-.form-card button:hover { background:#374151; }
-.status-msg { font-size:13px; margin-top:8px; color:#6b7280; }
-.status-msg.success { color:#16a34a; }
-.status-msg.error { color:#dc2626; }
-.card-date { font-size:12px; color:#9ca3af; margin-top:4px; }
 </style>
 </head>
 <body>
 
-<!-- Sidebar -->
 <div class="sidebar" id="sidebar">
     <a href="index.html" class="active">Dashboard Utama</a>
     <a href="oee.html">OEE</a>
@@ -62,76 +63,53 @@ body { margin:0; font-family:Arial, sans-serif; }
     <a href="#">CI Projects</a>
 </div>
 
-<!-- Top Bar -->
 <div class="topbar">
     <span class="menu-btn" onclick="toggleMenu()">☰</span>
     <h2 style="margin:0;">Bojonegoro Monitoring</h2>
 </div>
 
-<!-- Main Content -->
 <div class="main">
-
-    <div class="card">
-        <h3>OEE</h3>
-        <div class="value loading" id="val-oee">...</div>
-        <div class="card-date" id="date-oee"></div>
+    <div class="kpi-grid">
+        <div class="card oee-card">
+            <h3>OEE</h3>
+            <div class="value loading" id="val-oee">...</div>
+            <div class="card-date" id="date-oee"></div>
+            <span class="target-badge">Target: ≥ 55%</span>
+        </div>
+        <div class="card waste-card">
+            <h3>Waste</h3>
+            <div class="value loading" id="val-waste">...</div>
+            <div class="card-date" id="date-waste"></div>
+        </div>
+        <div class="card downtime-card">
+            <h3>Downtime</h3>
+            <div class="value loading" id="val-downtime">...</div>
+            <div class="card-date" id="date-downtime"></div>
+        </div>
+        <div class="card tonase-card">
+            <h3>Tonase</h3>
+            <div class="value loading" id="val-tonase">...</div>
+            <div class="card-date" id="date-tonase"></div>
+        </div>
     </div>
-    <div class="card">
-        <h3>Waste</h3>
-        <div class="value loading" id="val-waste">...</div>
-        <div class="card-date" id="date-waste"></div>
-    </div>
-    <div class="card">
-        <h3>Downtime</h3>
-        <div class="value loading" id="val-downtime">...</div>
-        <div class="card-date" id="date-downtime"></div>
-    </div>
-    <div class="card">
-        <h3>Tonase</h3>
-        <div class="value loading" id="val-tonase">...</div>
-        <div class="card-date" id="date-tonase"></div>
-    </div>
-
-    <br><br>
-
-    <!-- Form Input -->
-    <div class="form-card">
-        <h3>📥 Input Data Harian</h3>
-        <label>Tanggal</label>
-        <input type="date" id="inp-tanggal" />
-
-        <label>Waste (%)</label>
-        <input type="number" id="inp-waste" placeholder="contoh: 1.8" step="0.1" />
-
-        <label>Downtime (menit)</label>
-        <input type="number" id="inp-downtime" placeholder="contoh: 120" />
-
-        <label>Tonase (ton)</label>
-        <input type="number" id="inp-tonase" placeholder="contoh: 520" />
-
-        <button onclick="simpanData()">Simpan ke Supabase</button>
-        <div class="status-msg" id="status-msg"></div>
-    </div>
-
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const SUPABASE_URL = 'https://bmnhtxalfsfaefacgtpm.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_VItBKenz-q2sYz7MsibODA_nYtLXv9Q';
-
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-document.getElementById('inp-tanggal').valueAsDate = new Date();
+const OEE_TARGET = 55;
 
 function toggleMenu() {
-    let sidebar = document.getElementById('sidebar');
-    sidebar.style.left = sidebar.style.left === '0px' ? '-250px' : '0px';
+    const s = document.getElementById('sidebar');
+    s.style.left = s.style.left === '0px' ? '-250px' : '0px';
 }
 
 async function loadData() {
-    // ── OEE dari tabel oee_daily (diisi via oee.html) ──
+    // ── OEE dari tabel oee_daily ──
     const { data: oeeData } = await db
         .from('oee_daily')
         .select('*')
@@ -139,14 +117,19 @@ async function loadData() {
         .limit(1)
         .single();
 
+    const oeeEl   = document.getElementById('val-oee');
+    const oeeDate = document.getElementById('date-oee');
+
     if (oeeData) {
-        const tgl = new Date(oeeData.tanggal).toLocaleDateString('id-ID');
-        document.getElementById('val-oee').textContent = oeeData.oee.toFixed(1) + '%';
-        document.getElementById('val-oee').className = 'value';
-        document.getElementById('date-oee').textContent = tgl;
+        const val = oeeData.oee;
+        oeeEl.textContent = val.toFixed(1) + '%';
+        oeeEl.className   = 'value ' + (val >= OEE_TARGET ? 'good' : 'low');
+        oeeDate.textContent = new Date(oeeData.tanggal).toLocaleDateString('id-ID', {
+            day:'2-digit', month:'short', year:'numeric'
+        });
     } else {
-        document.getElementById('val-oee').textContent = '-';
-        document.getElementById('val-oee').className = 'value';
+        oeeEl.textContent = '-';
+        oeeEl.className   = 'value';
     }
 
     // ── Waste, Downtime, Tonase dari tabel monitoring ──
@@ -157,14 +140,15 @@ async function loadData() {
         .limit(1)
         .single();
 
+    const fmt = (v, suffix='') => v !== null && v !== undefined ? v + suffix : '-';
+
     if (monData) {
-        const tgl = new Date(monData.tanggal).toLocaleDateString('id-ID');
-        const fmt = (v, suffix='') => v !== null ? v + suffix : '-';
-
+        const tgl = new Date(monData.tanggal).toLocaleDateString('id-ID', {
+            day:'2-digit', month:'short', year:'numeric'
+        });
         document.getElementById('val-waste').textContent    = fmt(monData.waste, '%');
-        document.getElementById('val-downtime').textContent = fmt(monData.downtime);
-        document.getElementById('val-tonase').textContent   = fmt(monData.tonase);
-
+        document.getElementById('val-downtime').textContent = fmt(monData.downtime, ' mnt');
+        document.getElementById('val-tonase').textContent   = fmt(monData.tonase, ' ton');
         ['waste','downtime','tonase'].forEach(k => {
             document.getElementById('val-' + k).className = 'value';
             document.getElementById('date-' + k).textContent = tgl;
@@ -174,36 +158,6 @@ async function loadData() {
             document.getElementById('val-' + k).textContent = '-';
             document.getElementById('val-' + k).className = 'value';
         });
-    }
-}
-
-async function simpanData() {
-    const msg = document.getElementById('status-msg');
-    msg.textContent = 'Menyimpan...';
-    msg.className = 'status-msg';
-
-    const payload = {
-        tanggal  : document.getElementById('inp-tanggal').value,
-        waste    : parseFloat(document.getElementById('inp-waste').value)    || null,
-        downtime : parseFloat(document.getElementById('inp-downtime').value) || null,
-        tonase   : parseFloat(document.getElementById('inp-tonase').value)   || null,
-    };
-
-    if (!payload.tanggal) {
-        msg.textContent = '⚠️ Tanggal wajib diisi.';
-        msg.className = 'status-msg error';
-        return;
-    }
-
-    const { error } = await db.from('monitoring').insert([payload]);
-
-    if (error) {
-        msg.textContent = '❌ Gagal: ' + error.message;
-        msg.className = 'status-msg error';
-    } else {
-        msg.textContent = '✅ Data berhasil disimpan!';
-        msg.className = 'status-msg success';
-        loadData();
     }
 }
 
