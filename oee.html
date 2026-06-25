@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -67,11 +68,14 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
 .kpi-card.daily  { border-top-color:#6366f1; }
 .kpi-label { font-size:12px; color:#6b7280; margin:0 0 6px; }
 .kpi-value { font-size:32px; font-weight:700; margin:0; color:#1f2937; }
-.kpi-value.low    { color:#dc2626; }
-.kpi-value.medium { color:#f59e0b; }
-.kpi-value.good   { color:#16a34a; }
+.kpi-value.low    { color:#dc2626; }   /* < 55% → merah */
+.kpi-value.good   { color:#16a34a; }  /* ≥ 55% → hijau */
 .kpi-date { font-size:11px; color:#9ca3af; margin-top:4px; }
 .kpi-empty { font-size:20px; color:#d1d5db; }
+.target-badge {
+    font-size:10px; color:#6b7280; background:#f3f4f6;
+    border-radius:4px; padding:2px 6px; margin-top:4px; display:inline-block;
+}
 .status-bar {
     background:white; border-radius:8px;
     padding:12px 16px; margin-bottom:16px;
@@ -90,6 +94,12 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
 }
 .btn-save:hover { background:#2563eb; }
 .btn-save:disabled { background:#93c5fd; cursor:not-allowed; }
+.warning-badge {
+    background:#fef3c7; border:1px solid #fbbf24; color:#92400e;
+    border-radius:6px; padding:8px 12px; font-size:12px;
+    margin-top:10px; display:none;
+}
+.warning-badge.show { display:block; }
 </style>
 </head>
 <body>
@@ -124,10 +134,13 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
             <div style="font-size:12px; margin-top:4px;">Format: OEE_-_BOJONEGORO_2026.xlsx</div>
         </div>
         <div id="file-name"></div>
-        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+        <div class="warning-badge" id="warning-badge">
+            ⚠️ <strong>Perhatian:</strong> Menyimpan file baru akan <strong>menghapus semua data lama</strong> di Supabase dan menggantinya dengan data terbaru.
+        </div>
+        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-top:12px;">
             <button class="btn-upload" id="btn-proses" onclick="prosesExcel()">🔍 Proses Excel</button>
             <button class="btn-save" id="btn-save" onclick="simpanKeSupabase()" disabled style="display:none;">
-                💾 Simpan ke Supabase
+                🔄 Perbarui Data Supabase
             </button>
         </div>
     </div>
@@ -143,16 +156,19 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
             <div class="kpi-label">Shift 1</div>
             <div class="kpi-value kpi-empty" id="val-s1">—</div>
             <div class="kpi-date" id="date-s1"></div>
+            <span class="target-badge">Target: ≥ 55%</span>
         </div>
         <div class="kpi-card shift2">
             <div class="kpi-label">Shift 2</div>
             <div class="kpi-value kpi-empty" id="val-s2">—</div>
             <div class="kpi-date" id="date-s2"></div>
+            <span class="target-badge">Target: ≥ 55%</span>
         </div>
         <div class="kpi-card shift3">
             <div class="kpi-label">Shift 3</div>
             <div class="kpi-value kpi-empty" id="val-s3">—</div>
             <div class="kpi-date" id="date-s3"></div>
+            <span class="target-badge">Target: ≥ 55%</span>
         </div>
     </div>
 
@@ -162,6 +178,7 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
             <div class="kpi-label">OEE Bojonegoro</div>
             <div class="kpi-value kpi-empty" id="val-daily">—</div>
             <div class="kpi-date" id="date-daily"></div>
+            <span class="target-badge">Target: ≥ 55%</span>
         </div>
     </div>
 
@@ -171,11 +188,12 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-// ⚠️ GANTI INI
 const SUPABASE_URL = 'https://bmnhtxalfsfaefacgtpm.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_VItBKenz-q2sYz7MsibODA_nYtLXv9Q';
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const OEE_TARGET = 55; // Target OEE dalam persen
 
 let parsedData = null;
 
@@ -200,6 +218,12 @@ function handleFile(file) {
     document.getElementById('btn-proses').classList.add('visible');
     window._pendingFile = file;
     setStatus('default', 'File siap diproses: ' + file.name);
+    // Reset tombol simpan & warning
+    const btnSave = document.getElementById('btn-save');
+    btnSave.style.display = 'none';
+    btnSave.disabled = true;
+    document.getElementById('warning-badge').classList.remove('show');
+    parsedData = null;
 }
 
 function prosesExcel() {
@@ -216,18 +240,18 @@ function prosesExcel() {
             const wsShiftly = wb.Sheets['OEE SHIFTLY'];
             const shiftlyArr = XLSX.utils.sheet_to_json(wsShiftly, { header:1, raw:false, dateNF:'yyyy-mm-dd' });
 
-            const dateRow  = shiftlyArr[1];   // row 2 = tanggal
-            const shiftRow = shiftlyArr[2];   // row 3 = shift
-            const oeeRow   = shiftlyArr[18];  // row 19 = total BOJONEGORO
+            const dateRow  = shiftlyArr[1];
+            const shiftRow = shiftlyArr[2];
+            const oeeRow   = shiftlyArr[18];
 
             // ── OEE DAILY ──
             const wsDaily = wb.Sheets['OEE DAILY'];
             const dailyArr = XLSX.utils.sheet_to_json(wsDaily, { header:1, raw:false, dateNF:'yyyy-mm-dd' });
 
-            const dateDRow = dailyArr[1];   // row 2 = tanggal
-            const oeeDRow  = dailyArr[13];  // row 14 = total BOJONEGORO
+            const dateDRow = dailyArr[1];
+            const oeeDRow  = dailyArr[13];
 
-            // Parse shiftly per tanggal
+            // Parse shiftly
             let curDate = null;
             const byDate = {};
             for (let i = 3; i < dateRow.length; i++) {
@@ -239,7 +263,7 @@ function prosesExcel() {
                 const val = parseFloat(ov);
                 if (isNaN(val)) continue;
                 if (!byDate[curDate]) byDate[curDate] = {};
-               byDate[curDate][sh.toString().trim()] = +val.toFixed(2);
+                byDate[curDate][sh.toString().trim()] = +val.toFixed(2);
             }
 
             const sortedDates = Object.keys(byDate).sort();
@@ -274,6 +298,10 @@ function prosesExcel() {
             const btnSave = document.getElementById('btn-save');
             btnSave.style.display = 'inline-block';
             btnSave.disabled = false;
+            btnSave.textContent = '🔄 Perbarui Data Supabase';
+
+            // Tampilkan warning hapus data lama
+            document.getElementById('warning-badge').classList.add('show');
 
         } catch(err) {
             setStatus('error', '❌ Gagal membaca Excel: ' + err.message);
@@ -294,10 +322,14 @@ function setVal(valId, dateId, val, date) {
     const el = document.getElementById(valId);
     const de = document.getElementById(dateId);
     if (val === null || val === undefined) {
-        el.textContent = '—'; el.className = 'kpi-value kpi-empty'; de.textContent = ''; return;
+        el.textContent = '—';
+        el.className = 'kpi-value kpi-empty';
+        de.textContent = '';
+        return;
     }
     el.textContent = val.toFixed(2) + '%';
-    el.className = 'kpi-value ' + (val >= 55 ? 'good' : 'low');
+    // ≥ 55% hijau, < 55% merah
+    el.className = 'kpi-value ' + (val >= OEE_TARGET ? 'good' : 'low');
     de.textContent = date;
 }
 
@@ -320,10 +352,26 @@ function setStatus(type, msg) {
 async function simpanKeSupabase() {
     if (!parsedData) return;
     const btn = document.getElementById('btn-save');
-    btn.disabled = true; btn.textContent = '⏳ Menyimpan...';
-    setStatus('loading', 'Menyimpan ke Supabase...');
+    btn.disabled = true;
+    btn.textContent = '⏳ Memperbarui...';
+    setStatus('loading', 'Menghapus data lama & menyimpan data baru...');
 
     try {
+        // ── STEP 1: Hapus SEMUA data lama di oee_shiftly ──
+        const { error: delShiftly } = await db
+            .from('oee_shiftly')
+            .delete()
+            .neq('tanggal', '');
+        if (delShiftly) throw delShiftly;
+
+        // ── STEP 2: Hapus SEMUA data lama di oee_daily ──
+        const { error: delDaily } = await db
+            .from('oee_daily')
+            .delete()
+            .neq('tanggal', '');
+        if (delDaily) throw delDaily;
+
+        // ── STEP 3: Insert data shiftly baru ──
         if (parsedData.date) {
             const rows = [
                 { tanggal: parsedData.date, shift: 'SHIFT 1', oee: parsedData.shift1 },
@@ -331,25 +379,27 @@ async function simpanKeSupabase() {
                 { tanggal: parsedData.date, shift: 'SHIFT 3', oee: parsedData.shift3 },
             ].filter(r => r.oee !== null);
 
-            const { error: e1 } = await db.from('oee_shiftly')
-                .upsert(rows, { onConflict: 'tanggal,shift' });
-            if (e1) throw e1;
+            const { error: insShiftly } = await db.from('oee_shiftly').insert(rows);
+            if (insShiftly) throw insShiftly;
         }
 
+        // ── STEP 4: Insert data daily baru ──
         if (parsedData.daily_date && parsedData.daily_oee !== null) {
-            const { error: e2 } = await db.from('oee_daily')
-                .upsert([{ tanggal: parsedData.daily_date, oee: parsedData.daily_oee }],
-                        { onConflict: 'tanggal' });
-            if (e2) throw e2;
+            const { error: insDaily } = await db.from('oee_daily').insert([
+                { tanggal: parsedData.daily_date, oee: parsedData.daily_oee }
+            ]);
+            if (insDaily) throw insDaily;
         }
 
-        setStatus('active', '✅ Data berhasil disimpan ke Supabase!');
-        btn.textContent = '✅ Tersimpan';
+        setStatus('active', '✅ Data berhasil diperbarui! Data lama dihapus, data baru tersimpan.');
+        btn.textContent = '✅ Diperbarui';
+        document.getElementById('warning-badge').classList.remove('show');
 
     } catch(err) {
-        setStatus('error', '❌ Gagal simpan: ' + err.message);
+        setStatus('error', '❌ Gagal memperbarui: ' + err.message);
         btn.disabled = false;
-        btn.textContent = '💾 Simpan ke Supabase';
+        btn.textContent = '🔄 Perbarui Data Supabase';
+        console.error(err);
     }
 }
 </script>
