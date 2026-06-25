@@ -239,7 +239,7 @@ function prosesExcel() {
                 const val = parseFloat(ov);
                 if (isNaN(val)) continue;
                 if (!byDate[curDate]) byDate[curDate] = {};
-                byDate[curDate][sh.toString().trim()] = +(val * 100).toFixed(2);
+               byDate[curDate][sh.toString().trim()] = +val.toFixed(2);
             }
 
             const sortedDates = Object.keys(byDate).sort();
@@ -256,7 +256,7 @@ function prosesExcel() {
                 const val = parseFloat(ov);
                 if (isNaN(val)) continue;
                 lastDailyDate = dt;
-                lastDailyVal = +(val * 100).toFixed(2);
+                lastDailyVal = +val.toFixed(2);
             }
 
             parsedData = {
@@ -296,7 +296,7 @@ function setVal(valId, dateId, val, date) {
     if (val === null || val === undefined) {
         el.textContent = '—'; el.className = 'kpi-value kpi-empty'; de.textContent = ''; return;
     }
-    el.textContent = val.toFixed(1) + '%';
+    el.textContent = val.toFixed(2) + '%';
     el.className = 'kpi-value ' + (val >= 75 ? 'good' : val >= 55 ? 'medium' : 'low');
     de.textContent = date;
 }
