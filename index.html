@@ -3,85 +3,59 @@
 <head>
 <meta charset="UTF-8">
 <title>Bojonegoro Monitoring</title>
-
 <style>
-body{
-    margin:0;
-    font-family:Arial, sans-serif;
+body { margin:0; font-family:Arial, sans-serif; }
+.topbar {
+    background:#1f2937; color:white; padding:15px;
+    display:flex; align-items:center;
+    position:fixed; top:0; left:0; width:100%; z-index:1000;
 }
-
-/* Top Bar */
-.topbar{
-    background:#1f2937;
-    color:white;
-    padding:15px;
-    display:flex;
-    align-items:center;
-    position:fixed;
-    top:0;
-    left:0;
-    width:100%;
-    z-index:1000;
+.menu-btn { font-size:28px; cursor:pointer; margin-right:15px; }
+.sidebar {
+    height:100%; width:250px; position:fixed;
+    top:0; left:-250px; background:#111827;
+    transition:0.3s; padding-top:60px; z-index:999;
 }
-
-.menu-btn{
-    font-size:28px;
-    cursor:pointer;
-    margin-right:15px;
+.sidebar a { display:block; color:white; padding:15px 20px; text-decoration:none; }
+.sidebar a:hover { background:#374151; }
+.main { padding:80px 20px 20px 20px; }
+.card {
+    display:inline-block; width:220px; margin:10px;
+    padding:20px; border-radius:10px; box-shadow:0 0 5px #ccc;
 }
+.value { font-size:36px; font-weight:bold; }
+.value.loading { font-size:20px; color:#9ca3af; }
 
-/* Sidebar */
-.sidebar{
-    height:100%;
-    width:250px;
-    position:fixed;
-    top:0;
-    left:-250px;
-    background:#111827;
-    transition:0.3s;
-    padding-top:60px;
-    z-index:999;
+/* Form input data */
+.form-card {
+    background:#f9fafb; border:1px solid #e5e7eb;
+    border-radius:10px; padding:20px; margin:10px;
+    display:inline-block; width:300px; vertical-align:top;
 }
-.sidebar a{
-    display:block;
-    color:white;
-    padding:15px 20px;
-    text-decoration:none;
+.form-card h3 { margin-top:0; }
+.form-card input {
+    width:100%; padding:8px; margin:5px 0 10px;
+    border:1px solid #d1d5db; border-radius:6px;
+    font-size:14px; box-sizing:border-box;
 }
-
-.sidebar a:hover{
-    background:#374151;
+.form-card button {
+    background:#1f2937; color:white; border:none;
+    padding:10px 20px; border-radius:6px;
+    cursor:pointer; font-size:14px; width:100%;
 }
+.form-card button:hover { background:#374151; }
+.status-msg { font-size:13px; margin-top:8px; color:#6b7280; }
+.status-msg.success { color:#16a34a; }
+.status-msg.error { color:#dc2626; }
 
-
-/* SAMPAI SINI */
-
-.main{
-    padding:80px 20px 20px 20px;
-}
-
-/* KPI Card */
-.card{
-    display:inline-block;
-    width:220px;
-    margin:10px;
-    padding:20px;
-    border-radius:10px;
-    box-shadow:0 0 5px #ccc;
-}
-
-.value{
-    font-size:36px;
-    font-weight:bold;
-}
+/* Label tanggal */
+.card-date { font-size:12px; color:#9ca3af; margin-top:4px; }
 </style>
 </head>
-
 <body>
 
 <!-- Sidebar -->
 <div class="sidebar" id="sidebar">
-
     <a href="#">Dashboard Utama</a>
     <a href="#">OEE</a>
     <a href="#">Waste</a>
@@ -89,7 +63,6 @@ body{
     <a href="#">Variant</a>
     <a href="#">Cost Saving</a>
     <a href="#">CI Projects</a>
-
 </div>
 
 <!-- Top Bar -->
@@ -101,39 +74,138 @@ body{
 <!-- Main Content -->
 <div class="main">
 
+    <!-- KPI Cards -->
     <div class="card">
         <h3>OEE</h3>
-        <div class="value">82%</div>
+        <div class="value loading" id="val-oee">...</div>
+        <div class="card-date" id="date-oee"></div>
     </div>
-
     <div class="card">
         <h3>Waste</h3>
-        <div class="value">1.8%</div>
+        <div class="value loading" id="val-waste">...</div>
+        <div class="card-date" id="date-waste"></div>
     </div>
-
     <div class="card">
         <h3>Downtime</h3>
-        <div class="value">120</div>
+        <div class="value loading" id="val-downtime">...</div>
+        <div class="card-date" id="date-downtime"></div>
+    </div>
+    <div class="card">
+        <h3>Tonase</h3>
+        <div class="value loading" id="val-tonase">...</div>
+        <div class="card-date" id="date-tonase"></div>
     </div>
 
-     <div class="card">
-        <h3>Tonase</h3>
-        <div class="value">520</div>
+    <br><br>
+
+    <!-- Form Input -->
+    <div class="form-card">
+        <h3>📥 Input Data Harian</h3>
+        <label>Tanggal</label>
+        <input type="date" id="inp-tanggal" />
+
+        <label>OEE (%)</label>
+        <input type="number" id="inp-oee" placeholder="contoh: 82" step="0.1" />
+
+        <label>Waste (%)</label>
+        <input type="number" id="inp-waste" placeholder="contoh: 1.8" step="0.1" />
+
+        <label>Downtime (menit)</label>
+        <input type="number" id="inp-downtime" placeholder="contoh: 120" />
+
+        <label>Tonase (ton)</label>
+        <input type="number" id="inp-tonase" placeholder="contoh: 520" />
+
+        <button onclick="simpanData()">Simpan ke Supabase</button>
+        <div class="status-msg" id="status-msg"></div>
     </div>
-    
+
 </div>
 
+<!-- Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-function toggleMenu() {
-    let sidebar = document.getElementById("sidebar");
+// ⚠️ GANTI INI dengan kredensial Supabase kamu
+const SUPABASE_URL  = 'https://bmnhtxalfsfaefacgtpm.supabase.co/rest/v1/';
+const SUPABASE_KEY  = 'sb_publishable_VItBKenz-q2sYz7MsibODA_nYtLXv9Q';
 
-    if(sidebar.style.left === "0px"){
-        sidebar.style.left = "-250px";
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ── Set default tanggal hari ini ──
+document.getElementById('inp-tanggal').valueAsDate = new Date();
+
+// ── Sidebar toggle ──
+function toggleMenu() {
+    let sidebar = document.getElementById('sidebar');
+    sidebar.style.left = sidebar.style.left === '0px' ? '-250px' : '0px';
+}
+
+// ── Load data terbaru dari Supabase ──
+async function loadData() {
+    const { data, error } = await db
+        .from('monitoring')
+        .select('*')
+        .order('tanggal', { ascending: false })
+        .limit(1)
+        .single();
+
+    if (error || !data) {
+        ['oee','waste','downtime','tonase'].forEach(k => {
+            document.getElementById('val-' + k).textContent = '-';
+            document.getElementById('val-' + k).className = 'value';
+        });
+        return;
+    }
+
+    const fmt = (v, suffix='') => v !== null ? v + suffix : '-';
+    const tgl = data.tanggal ? new Date(data.tanggal).toLocaleDateString('id-ID') : '';
+
+    document.getElementById('val-oee').textContent      = fmt(data.oee, '%');
+    document.getElementById('val-waste').textContent    = fmt(data.waste, '%');
+    document.getElementById('val-downtime').textContent = fmt(data.downtime);
+    document.getElementById('val-tonase').textContent   = fmt(data.tonase);
+
+    ['oee','waste','downtime','tonase'].forEach(k => {
+        document.getElementById('val-' + k).className = 'value';
+        document.getElementById('date-' + k).textContent = tgl;
+    });
+}
+
+// ── Simpan data baru ──
+async function simpanData() {
+    const msg = document.getElementById('status-msg');
+    msg.textContent = 'Menyimpan...';
+    msg.className = 'status-msg';
+
+    const payload = {
+        tanggal  : document.getElementById('inp-tanggal').value,
+        oee      : parseFloat(document.getElementById('inp-oee').value)      || null,
+        waste    : parseFloat(document.getElementById('inp-waste').value)    || null,
+        downtime : parseFloat(document.getElementById('inp-downtime').value) || null,
+        tonase   : parseFloat(document.getElementById('inp-tonase').value)   || null,
+    };
+
+    if (!payload.tanggal) {
+        msg.textContent = '⚠️ Tanggal wajib diisi.';
+        msg.className = 'status-msg error';
+        return;
+    }
+
+    const { error } = await db.from('monitoring').insert([payload]);
+
+    if (error) {
+        msg.textContent = '❌ Gagal: ' + error.message;
+        msg.className = 'status-msg error';
     } else {
-        sidebar.style.left = "0px";
+        msg.textContent = '✅ Data berhasil disimpan!';
+        msg.className = 'status-msg success';
+        loadData(); // refresh KPI cards
     }
 }
-</script>
 
+// ── Load saat halaman dibuka ──
+loadData();
+</script>
 </body>
 </html>
