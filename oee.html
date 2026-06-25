@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>OEE - Bojonegoro</title>
+<style>
+body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
+.topbar {
+    background:#1f2937; color:white; padding:15px;
+    display:flex; align-items:center;
+    position:fixed; top:0; left:0; width:100%; z-index:1000;
+    box-sizing:border-box;
+}
+.menu-btn { font-size:28px; cursor:pointer; margin-right:15px; }
+.sidebar {
+    height:100%; width:250px; position:fixed;
+    top:0; left:-250px; background:#111827;
+    transition:0.3s; padding-top:60px; z-index:999;
+}
+.sidebar a { display:block; color:white; padding:15px 20px; text-decoration:none; }
+.sidebar a:hover { background:#374151; }
+.sidebar a.active { background:#3b82f6; }
+.main { padding:80px 24px 24px 24px; }
+.upload-card {
+    background:white; border-radius:12px;
+    padding:24px; margin-bottom:20px;
+    box-shadow:0 1px 3px rgba(0,0,0,0.1);
+}
+.upload-card h3 { margin:0 0 16px; color:#1f2937; font-size:16px; }
+.drop-zone {
+    border:2px dashed #d1d5db; border-radius:8px;
+    padding:32px; text-align:center; cursor:pointer;
+    transition:0.2s; color:#6b7280; font-size:14px;
+}
+.drop-zone:hover, .drop-zone.dragover {
+    border-color:#3b82f6; background:#eff6ff; color:#3b82f6;
+}
+.drop-zone input[type=file] { display:none; }
+.drop-icon { font-size:32px; margin-bottom:8px; }
+.btn-upload {
+    background:#1f2937; color:white; border:none;
+    padding:10px 20px; border-radius:8px; cursor:pointer;
+    font-size:14px; margin-top:12px;
+    display:none;
+}
+.btn-upload:hover { background:#374151; }
+.btn-upload.visible { display:inline-block; }
+#file-name { font-size:13px; color:#374151; margin-top:8px; }
+.section-title {
+    font-size:13px; font-weight:600; color:#6b7280;
+    text-transform:uppercase; letter-spacing:0.05em;
+    margin:20px 0 10px;
+}
+.kpi-grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(160px, 1fr));
+    gap:12px; margin-bottom:20px;
+}
+.kpi-card {
+    background:white; border-radius:12px; padding:18px 20px;
+    box-shadow:0 1px 3px rgba(0,0,0,0.08);
+    border-top:4px solid #e5e7eb;
+}
+.kpi-card.shift1 { border-top-color:#3b82f6; }
+.kpi-card.shift2 { border-top-color:#10b981; }
+.kpi-card.shift3 { border-top-color:#f59e0b; }
+.kpi-card.daily  { border-top-color:#6366f1; }
+.kpi-label { font-size:12px; color:#6b7280; margin:0 0 6px; }
+.kpi-value { font-size:32px; font-weight:700; margin:0; color:#1f2937; }
+.kpi-value.low    { color:#dc2626; }
+.kpi-value.medium { color:#f59e0b; }
+.kpi-value.good   { color:#16a34a; }
+.kpi-date { font-size:11px; color:#9ca3af; margin-top:4px; }
+.kpi-empty { font-size:20px; color:#d1d5db; }
+.status-bar {
+    background:white; border-radius:8px;
+    padding:12px 16px; margin-bottom:16px;
+    font-size:13px; color:#6b7280;
+    display:flex; align-items:center; gap:8px;
+    box-shadow:0 1px 3px rgba(0,0,0,0.06);
+}
+.status-dot { width:8px; height:8px; border-radius:50%; background:#d1d5db; }
+.status-dot.active { background:#16a34a; }
+.status-bar.loading { color:#3b82f6; }
+.status-bar.error   { color:#dc2626; }
+.btn-save {
+    background:#3b82f6; color:white; border:none;
+    padding:10px 20px; border-radius:8px; cursor:pointer;
+    font-size:14px; margin-left:auto;
+}
+.btn-save:hover { background:#2563eb; }
+.btn-save:disabled { background:#93c5fd; cursor:not-allowed; }
+</style>
+</head>
+<body>
+
+<div class="sidebar" id="sidebar">
+    <a href="index.html">Dashboard Utama</a>
+    <a href="oee.html" class="active">OEE</a>
+    <a href="#">Waste</a>
+    <a href="#">Downtime</a>
+    <a href="#">Variant</a>
+    <a href="#">Cost Saving</a>
+    <a href="#">CI Projects</a>
+</div>
+
+<div class="topbar">
+    <span class="menu-btn" onclick="toggleMenu()">☰</span>
+    <h2 style="margin:0;">OEE - Bojonegoro</h2>
+</div>
+
+<div class="main">
+
+    <div class="upload-card">
+        <h3>📤 Import Excel OEE</h3>
+        <div class="drop-zone" id="drop-zone"
+             onclick="document.getElementById('file-input').click()"
+             ondragover="handleDrag(event,true)"
+             ondragleave="handleDrag(event,false)"
+             ondrop="handleDrop(event)">
+            <input type="file" id="file-input" accept=".xlsx" onchange="handleFile(this.files[0])">
+            <div class="drop-icon">📂</div>
+            <div>Klik atau drag file Excel ke sini</div>
+            <div style="font-size:12px; margin-top:4px;">Format: OEE_-_BOJONEGORO_2026.xlsx</div>
+        </div>
+        <div id="file-name"></div>
+        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+            <button class="btn-upload" id="btn-proses" onclick="prosesExcel()">🔍 Proses Excel</button>
+            <button class="btn-save" id="btn-save" onclick="simpanKeSupabase()" disabled style="display:none;">
+                💾 Simpan ke Supabase
+            </button>
+        </div>
+    </div>
+
+    <div class="status-bar" id="status-bar">
+        <div class="status-dot" id="status-dot"></div>
+        <span id="status-text">Belum ada data. Import Excel untuk memulai.</span>
+    </div>
+
+    <div class="section-title">OEE Shiftly — Hari Terakhir</div>
+    <div class="kpi-grid">
+        <div class="kpi-card shift1">
+            <div class="kpi-label">Shift 1</div>
+            <div class="kpi-value kpi-empty" id="val-s1">—</div>
+            <div class="kpi-date" id="date-s1"></div>
+        </div>
+        <div class="kpi-card shift2">
+            <div class="kpi-label">Shift 2</div>
+            <div class="kpi-value kpi-empty" id="val-s2">—</div>
+            <div class="kpi-date" id="date-s2"></div>
+        </div>
+        <div class="kpi-card shift3">
+            <div class="kpi-label">Shift 3</div>
+            <div class="kpi-value kpi-empty" id="val-s3">—</div>
+            <div class="kpi-date" id="date-s3"></div>
+        </div>
+    </div>
+
+    <div class="section-title">OEE Daily — Hari Terakhir</div>
+    <div class="kpi-grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));">
+        <div class="kpi-card daily">
+            <div class="kpi-label">OEE Bojonegoro</div>
+            <div class="kpi-value kpi-empty" id="val-daily">—</div>
+            <div class="kpi-date" id="date-daily"></div>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+// ⚠️ GANTI INI
+const SUPABASE_URL = 'https://bmnhtxalfsfaefacgtpm.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_VItBKenz-q2sYz7MsibODA_nYtLXv9Q';
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let parsedData = null;
+
+function toggleMenu() {
+    const s = document.getElementById('sidebar');
+    s.style.left = s.style.left === '0px' ? '-250px' : '0px';
+}
+
+function handleDrag(e, over) {
+    e.preventDefault();
+    document.getElementById('drop-zone').classList.toggle('dragover', over);
+}
+function handleDrop(e) {
+    e.preventDefault();
+    handleDrag(e, false);
+    const file = e.dataTransfer.files[0];
+    if (file) handleFile(file);
+}
+function handleFile(file) {
+    if (!file) return;
+    document.getElementById('file-name').textContent = '📄 ' + file.name;
+    document.getElementById('btn-proses').classList.add('visible');
+    window._pendingFile = file;
+    setStatus('default', 'File siap diproses: ' + file.name);
+}
+
+function prosesExcel() {
+    const file = window._pendingFile;
+    if (!file) return;
+    setStatus('loading', 'Membaca file Excel...');
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const wb = XLSX.read(e.target.result, { type:'array', cellDates:true });
+
+            // ── OEE SHIFTLY ──
+            const wsShiftly = wb.Sheets['OEE SHIFTLY'];
+            const shiftlyArr = XLSX.utils.sheet_to_json(wsShiftly, { header:1, raw:false, dateNF:'yyyy-mm-dd' });
+
+            const dateRow  = shiftlyArr[1];   // row 2 = tanggal
+            const shiftRow = shiftlyArr[2];   // row 3 = shift
+            const oeeRow   = shiftlyArr[18];  // row 19 = total BOJONEGORO
+
+            // ── OEE DAILY ──
+            const wsDaily = wb.Sheets['OEE DAILY'];
+            const dailyArr = XLSX.utils.sheet_to_json(wsDaily, { header:1, raw:false, dateNF:'yyyy-mm-dd' });
+
+            const dateDRow = dailyArr[1];   // row 2 = tanggal
+            const oeeDRow  = dailyArr[13];  // row 14 = total BOJONEGORO
+
+            // Parse shiftly per tanggal
+            let curDate = null;
+            const byDate = {};
+            for (let i = 3; i < dateRow.length; i++) {
+                const dt = dateRow[i];
+                const sh = shiftRow[i];
+                const ov = oeeRow ? oeeRow[i] : null;
+                if (dt && dt !== '' && dt !== '-') curDate = dt;
+                if (!curDate || !sh || !ov || ov === '-' || ov === '') continue;
+                const val = parseFloat(ov);
+                if (isNaN(val)) continue;
+                if (!byDate[curDate]) byDate[curDate] = {};
+                byDate[curDate][sh.toString().trim()] = +(val * 100).toFixed(2);
+            }
+
+            const sortedDates = Object.keys(byDate).sort();
+            const lastShiftDate = sortedDates[sortedDates.length - 1];
+            const shiftData = lastShiftDate ? byDate[lastShiftDate] : {};
+
+            // Parse daily
+            let lastDailyDate = null, lastDailyVal = null;
+            for (let i = 3; i < dateDRow.length; i++) {
+                const dt = dateDRow[i];
+                const ov = oeeDRow ? oeeDRow[i] : null;
+                if (!dt || dt === '' || dt === '-') continue;
+                if (!ov || ov === '-' || ov === '') continue;
+                const val = parseFloat(ov);
+                if (isNaN(val)) continue;
+                lastDailyDate = dt;
+                lastDailyVal = +(val * 100).toFixed(2);
+            }
+
+            parsedData = {
+                date      : lastShiftDate,
+                shift1    : shiftData['SHIFT 1'] ?? null,
+                shift2    : shiftData['SHIFT 2'] ?? null,
+                shift3    : shiftData['SHIFT 3'] ?? null,
+                daily_date: lastDailyDate,
+                daily_oee : lastDailyVal,
+            };
+
+            tampilkanData(parsedData);
+            setStatus('active', '✅ Data berhasil dibaca. Tanggal terakhir: ' + fmtDate(lastShiftDate));
+
+            const btnSave = document.getElementById('btn-save');
+            btnSave.style.display = 'inline-block';
+            btnSave.disabled = false;
+
+        } catch(err) {
+            setStatus('error', '❌ Gagal membaca Excel: ' + err.message);
+            console.error(err);
+        }
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+function tampilkanData(d) {
+    setVal('val-s1', 'date-s1', d.shift1, fmtDate(d.date));
+    setVal('val-s2', 'date-s2', d.shift2, fmtDate(d.date));
+    setVal('val-s3', 'date-s3', d.shift3, fmtDate(d.date));
+    setVal('val-daily', 'date-daily', d.daily_oee, fmtDate(d.daily_date));
+}
+
+function setVal(valId, dateId, val, date) {
+    const el = document.getElementById(valId);
+    const de = document.getElementById(dateId);
+    if (val === null || val === undefined) {
+        el.textContent = '—'; el.className = 'kpi-value kpi-empty'; de.textContent = ''; return;
+    }
+    el.textContent = val.toFixed(1) + '%';
+    el.className = 'kpi-value ' + (val >= 75 ? 'good' : val >= 55 ? 'medium' : 'low');
+    de.textContent = date;
+}
+
+function fmtDate(d) {
+    if (!d) return '';
+    try {
+        return new Date(d).toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric' });
+    } catch { return d; }
+}
+
+function setStatus(type, msg) {
+    const bar  = document.getElementById('status-bar');
+    const dot  = document.getElementById('status-dot');
+    const text = document.getElementById('status-text');
+    bar.className = 'status-bar ' + (type === 'loading' ? 'loading' : type === 'error' ? 'error' : '');
+    dot.className = 'status-dot ' + (type === 'active' ? 'active' : '');
+    text.textContent = msg;
+}
+
+async function simpanKeSupabase() {
+    if (!parsedData) return;
+    const btn = document.getElementById('btn-save');
+    btn.disabled = true; btn.textContent = '⏳ Menyimpan...';
+    setStatus('loading', 'Menyimpan ke Supabase...');
+
+    try {
+        if (parsedData.date) {
+            const rows = [
+                { tanggal: parsedData.date, shift: 'SHIFT 1', oee: parsedData.shift1 },
+                { tanggal: parsedData.date, shift: 'SHIFT 2', oee: parsedData.shift2 },
+                { tanggal: parsedData.date, shift: 'SHIFT 3', oee: parsedData.shift3 },
+            ].filter(r => r.oee !== null);
+
+            const { error: e1 } = await db.from('oee_shiftly')
+                .upsert(rows, { onConflict: 'tanggal,shift' });
+            if (e1) throw e1;
+        }
+
+        if (parsedData.daily_date && parsedData.daily_oee !== null) {
+            const { error: e2 } = await db.from('oee_daily')
+                .upsert([{ tanggal: parsedData.daily_date, oee: parsedData.daily_oee }],
+                        { onConflict: 'tanggal' });
+            if (e2) throw e2;
+        }
+
+        setStatus('active', '✅ Data berhasil disimpan ke Supabase!');
+        btn.textContent = '✅ Tersimpan';
+
+    } catch(err) {
+        setStatus('error', '❌ Gagal simpan: ' + err.message);
+        btn.disabled = false;
+        btn.textContent = '💾 Simpan ke Supabase';
+    }
+}
+</script>
+</body>
+</html>
