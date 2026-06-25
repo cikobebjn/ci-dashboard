@@ -297,7 +297,7 @@ function setVal(valId, dateId, val, date) {
         el.textContent = '—'; el.className = 'kpi-value kpi-empty'; de.textContent = ''; return;
     }
     el.textContent = val.toFixed(2) + '%';
-    el.className = 'kpi-value ' + (val >= 75 ? 'good' : val >= 55 ? 'medium' : 'low');
+    el.className = 'kpi-value ' + (val >= 55 ? 'good' : 'low');
     de.textContent = date;
 }
 
