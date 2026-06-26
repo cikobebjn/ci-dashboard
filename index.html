@@ -21,34 +21,37 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
 .sidebar a { display:block; color:white; padding:15px 20px; text-decoration:none; }
 .sidebar a:hover { background:#374151; }
 .sidebar a.active { background:#3b82f6; }
+.sidebar a[href="tonase.html"] { }
 .main { padding:80px 24px 24px 24px; }
 
 .kpi-grid {
     display:grid;
-    grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
+    grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));
     gap:16px;
 }
 .card {
     background:white; border-radius:12px; padding:20px 24px;
     box-shadow:0 1px 3px rgba(0,0,0,0.08);
     border-top:4px solid #e5e7eb;
+    cursor:default;
 }
-.card.oee-card      { border-top-color:#6366f1; }
-.card.waste-card    { border-top-color:#f59e0b; }
-.card.downtime-card { border-top-color:#ef4444; }
-.card.tonase-card   { border-top-color:#10b981; }
-
-.card h3 { margin:0 0 8px; font-size:13px; color:#6b7280; font-weight:600;
-           text-transform:uppercase; letter-spacing:0.05em; }
-.value { font-size:36px; font-weight:700; color:#1f2937; }
+.card.oee-card     { border-top-color:#6366f1; }
+.card.tonase-card  { border-top-color:#10b981; }
+.card h3 {
+    margin:0 0 8px; font-size:13px; color:#6b7280; font-weight:600;
+    text-transform:uppercase; letter-spacing:0.05em;
+}
+.value { font-size:36px; font-weight:700; color:#1f2937; line-height:1.1; }
 .value.loading { font-size:20px; color:#9ca3af; }
-.value.good { color:#16a34a; }   /* ≥ 55% → hijau */
-.value.low  { color:#dc2626; }   /* < 55% → merah */
+.value.good { color:#16a34a; }
+.value.low  { color:#dc2626; }
 .card-date { font-size:11px; color:#9ca3af; margin-top:6px; }
+.card-sub  { font-size:11px; color:#6b7280; margin-top:4px; }
 .target-badge {
     font-size:10px; color:#6b7280; background:#f3f4f6;
     border-radius:4px; padding:2px 6px; margin-top:6px; display:inline-block;
 }
+.kpi-unit { font-size:16px; font-weight:400; color:#6b7280; margin-left:2px; }
 </style>
 </head>
 <body>
@@ -56,6 +59,7 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
 <div class="sidebar" id="sidebar">
     <a href="index.html" class="active">Dashboard Utama</a>
     <a href="oee.html">OEE</a>
+    <a href="tonase.html">Tonase</a>
     <a href="#">Waste</a>
     <a href="#">Downtime</a>
     <a href="#">Variant</a>
@@ -70,27 +74,23 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
 
 <div class="main">
     <div class="kpi-grid">
+
+        <!-- OEE -->
         <div class="card oee-card">
             <h3>OEE</h3>
             <div class="value loading" id="val-oee">...</div>
             <div class="card-date" id="date-oee"></div>
             <span class="target-badge">Target: ≥ 55%</span>
         </div>
-        <div class="card waste-card">
-            <h3>Waste</h3>
-            <div class="value loading" id="val-waste">...</div>
-            <div class="card-date" id="date-waste"></div>
-        </div>
-        <div class="card downtime-card">
-            <h3>Downtime</h3>
-            <div class="value loading" id="val-downtime">...</div>
-            <div class="card-date" id="date-downtime"></div>
-        </div>
+
+        <!-- Tonase Bulan Ini -->
         <div class="card tonase-card">
-            <h3>Tonase</h3>
+            <h3>📦 Tonase Produksi</h3>
             <div class="value loading" id="val-tonase">...</div>
             <div class="card-date" id="date-tonase"></div>
+            <div class="card-sub" id="sub-tonase"></div>
         </div>
+
     </div>
 </div>
 
@@ -109,7 +109,8 @@ function toggleMenu() {
 }
 
 async function loadData() {
-    // ── OEE dari tabel oee_daily ──
+
+    // ── OEE ──
     const { data: oeeData } = await db
         .from('oee_daily')
         .select('*')
@@ -119,46 +120,48 @@ async function loadData() {
 
     const oeeEl   = document.getElementById('val-oee');
     const oeeDate = document.getElementById('date-oee');
-
     if (oeeData) {
         const val = oeeData.oee;
         oeeEl.textContent = val.toFixed(1) + '%';
         oeeEl.className   = 'value ' + (val >= OEE_TARGET ? 'good' : 'low');
-        oeeDate.textContent = new Date(oeeData.tanggal).toLocaleDateString('id-ID', {
-            day:'2-digit', month:'short', year:'numeric'
-        });
+        oeeDate.textContent = fmtDate(oeeData.tanggal);
     } else {
-        oeeEl.textContent = '-';
-        oeeEl.className   = 'value';
+        oeeEl.textContent = '-'; oeeEl.className = 'value';
     }
 
-    // ── Waste, Downtime, Tonase dari tabel monitoring ──
-    const { data: monData } = await db
-        .from('monitoring')
+    // ── Tonase Bulan Ini ──
+    const { data: tonRows } = await db
+        .from('tonase_harian')
         .select('*')
-        .order('tanggal', { ascending: false })
-        .limit(1)
-        .single();
+        .order('tanggal', { ascending: true });
 
-    const fmt = (v, suffix='') => v !== null && v !== undefined ? v + suffix : '-';
+    const tonEl   = document.getElementById('val-tonase');
+    const tonDate = document.getElementById('date-tonase');
+    const tonSub  = document.getElementById('sub-tonase');
 
-    if (monData) {
-        const tgl = new Date(monData.tanggal).toLocaleDateString('id-ID', {
-            day:'2-digit', month:'short', year:'numeric'
-        });
-        document.getElementById('val-waste').textContent    = fmt(monData.waste, '%');
-        document.getElementById('val-downtime').textContent = fmt(monData.downtime, ' mnt');
-        document.getElementById('val-tonase').textContent   = fmt(monData.tonase, ' ton');
-        ['waste','downtime','tonase'].forEach(k => {
-            document.getElementById('val-' + k).className = 'value';
-            document.getElementById('date-' + k).textContent = tgl;
-        });
+    if (tonRows && tonRows.length > 0) {
+        const total = tonRows.reduce((s, r) => s + (r.tonase || 0), 0);
+        const last  = tonRows[tonRows.length - 1];
+        const first = tonRows[0];
+        const bulan = new Date(first.tanggal + 'T00:00:00')
+            .toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+
+        tonEl.innerHTML = total.toFixed(2) + '<span class="kpi-unit"> ton</span>';
+        tonEl.className = 'value';
+        tonDate.textContent = `s.d. ${fmtDate(last.tanggal)}`;
+        tonSub.textContent  = bulan;
     } else {
-        ['waste','downtime','tonase'].forEach(k => {
-            document.getElementById('val-' + k).textContent = '-';
-            document.getElementById('val-' + k).className = 'value';
-        });
+        tonEl.textContent = '-'; tonEl.className = 'value';
     }
+}
+
+function fmtDate(d) {
+    if (!d) return '';
+    try {
+        return new Date(d + 'T00:00:00').toLocaleDateString('id-ID', {
+            day: '2-digit', month: 'short', year: 'numeric'
+        });
+    } catch { return d; }
 }
 
 loadData();
