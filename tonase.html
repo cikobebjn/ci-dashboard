@@ -401,7 +401,7 @@ async function simpanKeSupabase() {
 
     try {
         // Hapus semua data lama
-        const { error: e1 } = await db.from('tonase_harian').delete().neq('tanggal', '');
+        const { error: e1 } = await db.from('tonase_harian').delete().gte('tanggal', '2000-01-01');
         if (e1) throw e1;
 
         // Insert data baru per hari
