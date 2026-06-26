@@ -405,6 +405,46 @@ function setStatus(type, msg) {
     text.textContent = msg;
 }
 
+// ── Load data dari Supabase saat halaman dibuka ──
+async function loadFromSupabase() {
+    setStatus('loading', 'Memuat data dari Supabase...');
+    try {
+        // Shiftly
+        const { data: shiftRows } = await db
+            .from('oee_shiftly')
+            .select('*')
+            .order('tanggal', { ascending: false })
+            .limit(3);
+
+        if (shiftRows && shiftRows.length > 0) {
+            const tgl = shiftRows[0].tanggal;
+            const fmtTgl = fmtDate(tgl);
+            const byShift = {};
+            shiftRows.forEach(r => { byShift[r.shift] = r.oee; });
+            setVal('val-s1', 'date-s1', byShift['SHIFT 1'] ?? null, fmtTgl);
+            setVal('val-s2', 'date-s2', byShift['SHIFT 2'] ?? null, fmtTgl);
+            setVal('val-s3', 'date-s3', byShift['SHIFT 3'] ?? null, fmtTgl);
+        }
+
+        // Daily
+        const { data: dailyRow } = await db
+            .from('oee_daily')
+            .select('*')
+            .order('tanggal', { ascending: false })
+            .limit(1)
+            .single();
+
+        if (dailyRow) {
+            setVal('val-daily', 'date-daily', dailyRow.oee, fmtDate(dailyRow.tanggal));
+            setStatus('active', '✅ Data dimuat dari Supabase. Tanggal: ' + fmtDate(dailyRow.tanggal));
+        } else {
+            setStatus('default', 'Belum ada data. Import Excel untuk memulai.');
+        }
+    } catch (err) {
+        setStatus('default', 'Belum ada data. Import Excel untuk memulai.');
+    }
+}
+
 async function simpanKeSupabase() {
     if (!parsedData) return;
     const btn = document.getElementById('btn-save');
@@ -440,6 +480,7 @@ async function simpanKeSupabase() {
         setStatus('active', '✅ Data berhasil diperbarui! Data lama dihapus, data baru tersimpan.');
         btn.textContent = '✅ Diperbarui';
         document.getElementById('warning-badge').classList.remove('show');
+        loadFromSupabase();
 
     } catch (err) {
         setStatus('error', '❌ Gagal memperbarui: ' + err.message);
@@ -448,6 +489,9 @@ async function simpanKeSupabase() {
         console.error(err);
     }
 }
+
+// Jalankan saat halaman pertama kali dibuka
+loadFromSupabase();
 </script>
 </body>
 </html>
