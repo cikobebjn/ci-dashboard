@@ -3,7 +3,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Tonase - Bojonegoro</title>
+<title>Bojonegoro Monitoring</title>
 <style>
 body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
 .topbar {
@@ -21,108 +21,45 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
 .sidebar a { display:block; color:white; padding:15px 20px; text-decoration:none; }
 .sidebar a:hover { background:#374151; }
 .sidebar a.active { background:#3b82f6; }
+.sidebar a[href="tonase.html"] { }
 .main { padding:80px 24px 24px 24px; }
 
-/* Upload card */
-.upload-card {
-    background:white; border-radius:12px;
-    padding:24px; margin-bottom:20px;
-    box-shadow:0 1px 3px rgba(0,0,0,0.1);
-}
-.upload-card h3 { margin:0 0 16px; color:#1f2937; font-size:16px; }
-.drop-zone {
-    border:2px dashed #d1d5db; border-radius:8px;
-    padding:32px; text-align:center; cursor:pointer;
-    transition:0.2s; color:#6b7280; font-size:14px;
-}
-.drop-zone:hover, .drop-zone.dragover {
-    border-color:#10b981; background:#ecfdf5; color:#10b981;
-}
-.drop-zone input[type=file] { display:none; }
-.drop-icon { font-size:32px; margin-bottom:8px; }
-#file-name { font-size:13px; color:#374151; margin-top:8px; }
-.btn-upload {
-    background:#1f2937; color:white; border:none;
-    padding:10px 20px; border-radius:8px; cursor:pointer;
-    font-size:14px; display:none;
-}
-.btn-upload:hover { background:#374151; }
-.btn-upload.visible { display:inline-block; }
-.btn-save {
-    background:#10b981; color:white; border:none;
-    padding:10px 20px; border-radius:8px; cursor:pointer; font-size:14px;
-}
-.btn-save:hover { background:#059669; }
-.btn-save:disabled { background:#6ee7b7; cursor:not-allowed; }
-.warning-badge {
-    background:#fef3c7; border:1px solid #fbbf24; color:#92400e;
-    border-radius:6px; padding:8px 12px; font-size:12px;
-    margin-top:10px; display:none;
-}
-.warning-badge.show { display:block; }
-
-/* Status bar */
-.status-bar {
-    background:white; border-radius:8px;
-    padding:12px 16px; margin-bottom:20px;
-    font-size:13px; color:#6b7280;
-    display:flex; align-items:center; gap:8px;
-    box-shadow:0 1px 3px rgba(0,0,0,0.06);
-}
-.status-dot { width:8px; height:8px; border-radius:50%; background:#d1d5db; }
-.status-dot.active { background:#10b981; }
-.status-bar.loading { color:#3b82f6; }
-.status-bar.error   { color:#dc2626; }
-
-/* Section title */
-.section-title {
-    font-size:13px; font-weight:600; color:#6b7280;
-    text-transform:uppercase; letter-spacing:0.05em;
-    margin:0 0 12px;
-}
-
-/* KPI grid */
 .kpi-grid {
     display:grid;
     grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));
-    gap:16px; margin-bottom:28px;
+    gap:16px;
 }
-.kpi-card {
+.card {
     background:white; border-radius:12px; padding:20px 24px;
     box-shadow:0 1px 3px rgba(0,0,0,0.08);
-    border-top:4px solid #10b981;
+    border-top:4px solid #e5e7eb;
+    cursor:default;
 }
-.kpi-card.secondary { border-top-color:#6366f1; }
-.kpi-label { font-size:12px; color:#6b7280; margin:0 0 6px; font-weight:600;
-             text-transform:uppercase; letter-spacing:0.04em; }
-.kpi-value { font-size:36px; font-weight:700; color:#1f2937; margin:0; line-height:1.1; }
-.kpi-value.empty { font-size:24px; color:#d1d5db; }
-.kpi-sub { font-size:12px; color:#9ca3af; margin-top:6px; }
+.card.oee-card     { border-top-color:#6366f1; }
+.card.tonase-card  { border-top-color:#10b981; }
+.card h3 {
+    margin:0 0 8px; font-size:13px; color:#6b7280; font-weight:600;
+    text-transform:uppercase; letter-spacing:0.05em;
+}
+.value { font-size:36px; font-weight:700; color:#1f2937; line-height:1.1; }
+.value.loading { font-size:20px; color:#9ca3af; }
+.value.good { color:#16a34a; }
+.value.low  { color:#dc2626; }
+.card-date { font-size:11px; color:#9ca3af; margin-top:6px; }
+.card-sub  { font-size:11px; color:#6b7280; margin-top:4px; }
+.target-badge {
+    font-size:10px; color:#6b7280; background:#f3f4f6;
+    border-radius:4px; padding:2px 6px; margin-top:6px; display:inline-block;
+}
 .kpi-unit { font-size:16px; font-weight:400; color:#6b7280; margin-left:2px; }
-
-/* Tabel harian */
-.table-card {
-    background:white; border-radius:12px; padding:20px 24px;
-    box-shadow:0 1px 3px rgba(0,0,0,0.08); margin-bottom:24px;
-}
-.table-card h4 { margin:0 0 16px; font-size:14px; color:#374151; }
-table { width:100%; border-collapse:collapse; font-size:13px; }
-th {
-    background:#f9fafb; color:#6b7280; font-weight:600;
-    padding:10px 12px; text-align:left; border-bottom:2px solid #e5e7eb;
-    font-size:12px; text-transform:uppercase; letter-spacing:0.04em;
-}
-td { padding:10px 12px; border-bottom:1px solid #f3f4f6; color:#374151; }
-tr:last-child td { border-bottom:none; }
-tr:hover td { background:#f9fafb; }
-td.ton-val { font-weight:600; color:#1f2937; }
 </style>
 </head>
 <body>
 
 <div class="sidebar" id="sidebar">
-    <a href="index.html">Dashboard Utama</a>
+    <a href="index.html" class="active">Dashboard Utama</a>
     <a href="oee.html">OEE</a>
+    <a href="tonase.html">Tonase</a>
     <a href="#">Waste</a>
     <a href="#">Downtime</a>
     <a href="#">Variant</a>
@@ -132,86 +69,31 @@ td.ton-val { font-weight:600; color:#1f2937; }
 
 <div class="topbar">
     <span class="menu-btn" onclick="toggleMenu()">☰</span>
-    <h2 style="margin:0;">Tonase Produksi - Bojonegoro</h2>
+    <h2 style="margin:0;">Bojonegoro Monitoring</h2>
 </div>
 
 <div class="main">
-
-    <!-- Upload Card -->
-    <div class="upload-card">
-        <h3>📦 Import Excel Tonase</h3>
-        <div class="drop-zone" id="drop-zone"
-             onclick="document.getElementById('file-input').click()"
-             ondragover="handleDrag(event,true)"
-             ondragleave="handleDrag(event,false)"
-             ondrop="handleDrop(event)">
-            <input type="file" id="file-input" accept=".xlsx" onchange="handleFile(this.files[0])">
-            <div class="drop-icon">📊</div>
-            <div>Klik atau drag file Excel ke sini</div>
-            <div style="font-size:12px; margin-top:4px; color:#9ca3af;">
-                Format: Report Production Order Header + Text
-            </div>
-        </div>
-        <div id="file-name"></div>
-        <div class="warning-badge" id="warning-badge">
-            ⚠️ <strong>Perhatian:</strong> Menyimpan file baru akan <strong>menghapus semua data lama</strong> dan menggantinya dengan data terbaru.
-        </div>
-        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-top:12px;">
-            <button class="btn-upload" id="btn-proses" onclick="prosesExcel()">🔍 Proses Excel</button>
-            <button class="btn-save" id="btn-save" onclick="simpanKeSupabase()" disabled style="display:none;">
-                🔄 Perbarui Data Supabase
-            </button>
-        </div>
-    </div>
-
-    <!-- Status Bar -->
-    <div class="status-bar" id="status-bar">
-        <div class="status-dot" id="status-dot"></div>
-        <span id="status-text">Memuat data...</span>
-    </div>
-
-    <!-- KPI Cards -->
-    <div class="section-title">Rekapitulasi Tonase</div>
     <div class="kpi-grid">
-        <div class="kpi-card">
-            <div class="kpi-label">📦 Total Tonase Bulan Ini</div>
-            <div class="kpi-value empty" id="val-total">—</div>
-            <div class="kpi-sub" id="sub-total"></div>
-        </div>
-        <div class="kpi-card secondary">
-            <div class="kpi-label">📅 Tonase Hari Terakhir</div>
-            <div class="kpi-value empty" id="val-harian">—</div>
-            <div class="kpi-sub" id="sub-harian"></div>
-        </div>
-        <div class="kpi-card secondary">
-            <div class="kpi-label">📈 Rata-rata per Hari</div>
-            <div class="kpi-value empty" id="val-avg">—</div>
-            <div class="kpi-sub" id="sub-avg"></div>
-        </div>
-    </div>
 
-    <!-- Tabel harian -->
-    <div class="table-card">
-        <h4>📋 Rincian Tonase per Hari</h4>
-        <table id="tbl-harian">
-            <thead>
-                <tr>
-                    <th>Tanggal</th>
-                    <th>Hari</th>
-                    <th style="text-align:right;">Tonase (ton)</th>
-                </tr>
-            </thead>
-            <tbody id="tbl-body">
-                <tr><td colspan="3" style="text-align:center; color:#9ca3af; padding:24px;">
-                    Belum ada data
-                </td></tr>
-            </tbody>
-        </table>
-    </div>
+        <!-- OEE -->
+        <div class="card oee-card">
+            <h3>OEE</h3>
+            <div class="value loading" id="val-oee">...</div>
+            <div class="card-date" id="date-oee"></div>
+            <span class="target-badge">Target: ≥ 55%</span>
+        </div>
 
+        <!-- Tonase Bulan Ini -->
+        <div class="card tonase-card">
+            <h3>📦 Tonase Produksi</h3>
+            <div class="value loading" id="val-tonase">...</div>
+            <div class="card-date" id="date-tonase"></div>
+            <div class="card-sub" id="sub-tonase"></div>
+        </div>
+
+    </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const SUPABASE_URL = 'https://bmnhtxalfsfaefacgtpm.supabase.co';
@@ -219,159 +101,58 @@ const SUPABASE_KEY = 'sb_publishable_VItBKenz-q2sYz7MsibODA_nYtLXv9Q';
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-let parsedData = null; // { bulan, tahun, rows: [{tanggal, tonase}], total }
-
-const HARI = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+const OEE_TARGET = 55;
 
 function toggleMenu() {
     const s = document.getElementById('sidebar');
     s.style.left = s.style.left === '0px' ? '-250px' : '0px';
 }
-function handleDrag(e, over) {
-    e.preventDefault();
-    document.getElementById('drop-zone').classList.toggle('dragover', over);
-}
-function handleDrop(e) {
-    e.preventDefault();
-    handleDrag(e, false);
-    const f = e.dataTransfer.files[0];
-    if (f) handleFile(f);
-}
-function handleFile(file) {
-    if (!file) return;
-    document.getElementById('file-name').textContent = '📄 ' + file.name;
-    document.getElementById('btn-proses').classList.add('visible');
-    window._pendingFile = file;
-    setStatus('default', 'File siap diproses: ' + file.name);
-    document.getElementById('btn-save').style.display = 'none';
-    document.getElementById('btn-save').disabled = true;
-    document.getElementById('warning-badge').classList.remove('show');
-    parsedData = null;
-}
 
-function excelDateToStr(v) {
-    if (!v && v !== 0) return null;
-    if (v instanceof Date) return v.toISOString().slice(0, 10);
-    if (typeof v === 'number') {
-        return new Date(Math.round((v - 25569) * 86400 * 1000)).toISOString().slice(0, 10);
+async function loadData() {
+
+    // ── OEE ──
+    const { data: oeeData } = await db
+        .from('oee_daily')
+        .select('*')
+        .order('tanggal', { ascending: false })
+        .limit(1)
+        .single();
+
+    const oeeEl   = document.getElementById('val-oee');
+    const oeeDate = document.getElementById('date-oee');
+    if (oeeData) {
+        const val = oeeData.oee;
+        oeeEl.textContent = val.toFixed(1) + '%';
+        oeeEl.className   = 'value ' + (val >= OEE_TARGET ? 'good' : 'low');
+        oeeDate.textContent = fmtDate(oeeData.tanggal);
+    } else {
+        oeeEl.textContent = '-'; oeeEl.className = 'value';
     }
-    if (typeof v === 'string' && v.match(/^\d{4}-\d{2}-\d{2}/)) return v.slice(0, 10);
-    return null;
-}
 
-function prosesExcel() {
-    const file = window._pendingFile;
-    if (!file) return;
-    setStatus('loading', 'Membaca file Excel...');
+    // ── Tonase Bulan Ini ──
+    const { data: tonRows } = await db
+        .from('tonase_harian')
+        .select('*')
+        .order('tanggal', { ascending: true });
 
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        try {
-            const wb = XLSX.read(e.target.result, {
-                type: 'array', raw: true, cellDates: false, cellFormula: true
-            });
+    const tonEl   = document.getElementById('val-tonase');
+    const tonDate = document.getElementById('date-tonase');
+    const tonSub  = document.getElementById('sub-tonase');
 
-            // Sheet "Data" - header row 3, data mulai row 4
-            // Col D (3, 0-based) = Schedule Start Date
-            // Col AH (33, 0-based) = Tonase
-            const ws = wb.Sheets['Data'];
-            if (!ws) throw new Error('Sheet "Data" tidak ditemukan');
+    if (tonRows && tonRows.length > 0) {
+        const total = tonRows.reduce((s, r) => s + (r.tonase || 0), 0);
+        const last  = tonRows[tonRows.length - 1];
+        const first = tonRows[0];
+        const bulan = new Date(first.tanggal + 'T00:00:00')
+            .toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
 
-            const range = XLSX.utils.decode_range(ws['!ref']);
-            const getCell = (r, c) => ws[XLSX.utils.encode_cell({ r, c })];
-
-            // SUM tonase per tanggal
-            const dailyMap = {};
-            for (let r = 3; r <= range.e.r; r++) { // row 4 = index 3
-                const tglCell = getCell(r, 3);  // col D = index 3
-                const tonCell = getCell(r, 33); // col AH = index 33
-
-                if (!tglCell || tglCell.v === undefined) continue;
-                const tglStr = excelDateToStr(tglCell.v);
-                if (!tglStr) continue;
-
-                const ton = tonCell ? (parseFloat(tonCell.v) || 0) : 0;
-                dailyMap[tglStr] = (dailyMap[tglStr] || 0) + ton;
-            }
-
-            // Buat rows terurut, filter yang ada tonase > 0
-            const rows = Object.entries(dailyMap)
-                .filter(([, v]) => v > 0)
-                .sort(([a], [b]) => a.localeCompare(b))
-                .map(([tanggal, tonase]) => ({ tanggal, tonase: +tonase.toFixed(3) }));
-
-            if (rows.length === 0) throw new Error('Tidak ada data tonase ditemukan');
-
-            const total = +rows.reduce((s, r) => s + r.tonase, 0).toFixed(3);
-            const lastRow = rows[rows.length - 1];
-            const firstDate = new Date(rows[0].tanggal);
-            const bulan = firstDate.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
-
-            parsedData = { bulan, rows, total };
-
-            tampilkanData(parsedData);
-            setStatus('active', `✅ Berhasil dibaca. ${rows.length} hari data, total ${total.toFixed(2)} ton`);
-
-            const btnSave = document.getElementById('btn-save');
-            btnSave.style.display = 'inline-block';
-            btnSave.disabled = false;
-            btnSave.textContent = '🔄 Perbarui Data Supabase';
-            document.getElementById('warning-badge').classList.add('show');
-
-        } catch (err) {
-            setStatus('error', '❌ Gagal membaca Excel: ' + err.message);
-            console.error(err);
-        }
-    };
-    reader.readAsArrayBuffer(file);
-}
-
-function tampilkanData(d) {
-    // KPI total
-    const totalEl = document.getElementById('val-total');
-    totalEl.innerHTML = d.total.toFixed(2) + '<span class="kpi-unit">ton</span>';
-    totalEl.className = 'kpi-value';
-    document.getElementById('sub-total').textContent = d.bulan;
-
-    // KPI hari terakhir
-    const last = d.rows[d.rows.length - 1];
-    const harianEl = document.getElementById('val-harian');
-    harianEl.innerHTML = last.tonase.toFixed(2) + '<span class="kpi-unit">ton</span>';
-    harianEl.className = 'kpi-value';
-    document.getElementById('sub-harian').textContent = fmtDate(last.tanggal);
-
-    // KPI rata-rata
-    const hariAktif = d.rows.length;
-    const avg = +(d.total / hariAktif).toFixed(2);
-    const avgEl = document.getElementById('val-avg');
-    avgEl.innerHTML = avg + '<span class="kpi-unit">ton</span>';
-    avgEl.className = 'kpi-value';
-    document.getElementById('sub-avg').textContent = `dari ${hariAktif} hari produksi`;
-
-    // Tabel harian
-    const tbody = document.getElementById('tbl-body');
-    tbody.innerHTML = '';
-    // Tampilkan dari terbaru ke terlama
-    [...d.rows].reverse().forEach(row => {
-        const dt = new Date(row.tanggal + 'T00:00:00');
-        const hari = HARI[dt.getDay()];
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>${fmtDate(row.tanggal)}</td>
-            <td>${hari}</td>
-            <td class="ton-val" style="text-align:right;">${row.tonase.toFixed(3)}</td>
-        `;
-        tbody.appendChild(tr);
-    });
-
-    // Row total
-    const trTotal = document.createElement('tr');
-    trTotal.style.background = '#f0fdf4';
-    trTotal.innerHTML = `
-        <td colspan="2" style="font-weight:700; color:#059669;">TOTAL ${d.bulan.toUpperCase()}</td>
-        <td class="ton-val" style="text-align:right; color:#059669; font-size:15px;">${d.total.toFixed(3)}</td>
-    `;
-    tbody.appendChild(trTotal);
+        tonEl.innerHTML = total.toFixed(2) + '<span class="kpi-unit"> ton</span>';
+        tonEl.className = 'value';
+        tonDate.textContent = `s.d. ${fmtDate(last.tanggal)}`;
+        tonSub.textContent  = bulan;
+    } else {
+        tonEl.textContent = '-'; tonEl.className = 'value';
+    }
 }
 
 function fmtDate(d) {
@@ -383,80 +164,7 @@ function fmtDate(d) {
     } catch { return d; }
 }
 
-function setStatus(type, msg) {
-    const bar  = document.getElementById('status-bar');
-    const dot  = document.getElementById('status-dot');
-    const text = document.getElementById('status-text');
-    bar.className = 'status-bar ' + (type === 'loading' ? 'loading' : type === 'error' ? 'error' : '');
-    dot.className = 'status-dot ' + (type === 'active' ? 'active' : '');
-    text.textContent = msg;
-}
-
-async function simpanKeSupabase() {
-    if (!parsedData) return;
-    const btn = document.getElementById('btn-save');
-    btn.disabled = true;
-    btn.textContent = '⏳ Memperbarui...';
-    setStatus('loading', 'Menghapus data lama & menyimpan data baru...');
-
-    try {
-        // Hapus semua data lama
-        const { error: e1 } = await db.from('tonase_harian').delete().gte('tanggal', '2000-01-01');
-        if (e1) throw e1;
-
-        // Insert data baru per hari
-        const rows = parsedData.rows.map(r => ({ tanggal: r.tanggal, tonase: r.tonase }));
-        const { error: e2 } = await db.from('tonase_harian').insert(rows);
-        if (e2) throw e2;
-
-        setStatus('active', `✅ Tersimpan! ${rows.length} hari data, total ${parsedData.total.toFixed(2)} ton`);
-        btn.textContent = '✅ Diperbarui';
-        document.getElementById('warning-badge').classList.remove('show');
-        loadFromSupabase();
-
-    } catch (err) {
-        setStatus('error', '❌ Gagal memperbarui: ' + err.message);
-        btn.disabled = false;
-        btn.textContent = '🔄 Perbarui Data Supabase';
-        console.error(err);
-    }
-}
-
-async function loadFromSupabase() {
-    setStatus('loading', 'Memuat data dari Supabase...');
-    try {
-        const { data: rows, error } = await db
-            .from('tonase_harian')
-            .select('*')
-            .order('tanggal', { ascending: true });
-
-        if (error) throw error;
-        if (!rows || rows.length === 0) {
-            setStatus('default', 'Belum ada data. Import Excel untuk memulai.');
-            return;
-        }
-
-        const total = +rows.reduce((s, r) => s + (r.tonase || 0), 0).toFixed(3);
-        const firstDate = new Date(rows[0].tanggal + 'T00:00:00');
-        const bulan = firstDate.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
-
-        const d = {
-            bulan,
-            rows: rows.map(r => ({ tanggal: r.tanggal, tonase: +r.tonase })),
-            total
-        };
-
-        tampilkanData(d);
-        const last = rows[rows.length - 1];
-        setStatus('active', `✅ Data dimuat. Total s.d. ${fmtDate(last.tanggal)}: ${total.toFixed(2)} ton`);
-
-    } catch (err) {
-        setStatus('error', '❌ Gagal memuat: ' + err.message);
-        console.error(err);
-    }
-}
-
-loadFromSupabase();
+loadData();
 </script>
 </body>
 </html>
