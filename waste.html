@@ -1,0 +1,747 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Waste - Bojonegoro</title>
+<style>
+* { box-sizing: border-box; }
+body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
+.topbar {
+    background:#1f2937; color:white; padding:15px;
+    display:flex; align-items:center;
+    position:fixed; top:0; left:0; width:100%; z-index:1000;
+}
+.menu-btn { font-size:28px; cursor:pointer; margin-right:15px; }
+.sidebar {
+    height:100%; width:250px; position:fixed;
+    top:0; left:-250px; background:#111827;
+    transition:0.3s; padding-top:60px; z-index:999;
+}
+.sidebar a { display:block; color:white; padding:15px 20px; text-decoration:none; }
+.sidebar a:hover { background:#374151; }
+.sidebar a.active { background:#3b82f6; }
+.main { padding:80px 24px 40px 24px; }
+
+/* KPI Summary */
+.kpi-grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(180px, 220px));
+    gap:14px; margin-bottom:24px;
+}
+.kpi-card {
+    background:white; border-radius:12px; padding:16px 20px;
+    box-shadow:0 1px 3px rgba(0,0,0,0.08); border-top:4px solid #e5e7eb;
+}
+.kpi-card.kemasan { border-top-color:#f59e0b; }
+.kpi-card.sfg     { border-top-color:#8b5cf6; }
+.kpi-card.karton  { border-top-color:#ef4444; }
+.kpi-label { font-size:11px; color:#6b7280; font-weight:600;
+             text-transform:uppercase; letter-spacing:0.04em; margin-bottom:4px; }
+.kpi-val   { font-size:28px; font-weight:700; color:#1f2937; line-height:1.1; }
+.kpi-val.over  { color:#dc2626; }
+.kpi-val.ok    { color:#16a34a; }
+.kpi-unit  { font-size:13px; font-weight:400; color:#6b7280; }
+.kpi-date  { font-size:11px; color:#9ca3af; margin-top:4px; }
+.kpi-target{ font-size:10px; color:#6b7280; background:#f3f4f6;
+             border-radius:4px; padding:2px 6px; margin-top:4px; display:inline-block; }
+
+/* Section title */
+.sec-title {
+    font-size:13px; font-weight:700; color:#374151;
+    text-transform:uppercase; letter-spacing:0.05em;
+    margin:24px 0 12px; display:flex; align-items:center; gap:8px;
+}
+
+/* Input Card */
+.input-card {
+    background:white; border-radius:12px; padding:24px;
+    box-shadow:0 1px 3px rgba(0,0,0,0.08); margin-bottom:24px;
+}
+.input-row {
+    display:flex; gap:16px; flex-wrap:wrap; margin-bottom:16px; align-items:flex-end;
+}
+.inp-group { display:flex; flex-direction:column; gap:4px; }
+.inp-group label { font-size:12px; color:#6b7280; font-weight:600; }
+.inp-group input[type=date],
+.inp-group select {
+    padding:8px 12px; border:1px solid #d1d5db; border-radius:8px;
+    font-size:14px; color:#1f2937; background:white;
+    min-width:140px;
+}
+.inp-group input[type=date]:focus,
+.inp-group select:focus {
+    outline:none; border-color:#f59e0b; box-shadow:0 0 0 2px #fef3c7;
+}
+
+/* Tabel input waste */
+.waste-table { width:100%; border-collapse:collapse; font-size:13px; margin-top:8px; }
+.waste-table th {
+    background:#f9fafb; color:#6b7280; font-weight:600; font-size:11px;
+    padding:10px 12px; text-align:left; border-bottom:2px solid #e5e7eb;
+    text-transform:uppercase; letter-spacing:0.04em;
+}
+.waste-table th.center { text-align:center; }
+.waste-table td { padding:8px 10px; border-bottom:1px solid #f3f4f6; }
+.waste-table tr:last-child td { border-bottom:none; }
+.waste-table tr:hover td { background:#fffbeb; }
+.mesin-name { font-weight:600; color:#374151; font-size:13px; }
+.mesin-sub  { font-size:11px; color:#9ca3af; }
+
+.inp-waste {
+    width:90px; padding:6px 8px; border:1px solid #d1d5db;
+    border-radius:6px; font-size:13px; text-align:right;
+    color:#1f2937;
+}
+.inp-waste:focus { outline:none; border-color:#f59e0b; box-shadow:0 0 0 2px #fef3c7; }
+.inp-waste.over  { border-color:#fca5a5; background:#fff5f5; }
+
+.batas-badge {
+    font-size:11px; color:#9ca3af; display:block; margin-top:2px; text-align:right;
+}
+
+/* Tombol */
+.btn-row { display:flex; gap:12px; align-items:center; margin-top:20px; flex-wrap:wrap; }
+.btn-simpan {
+    background:#f59e0b; color:white; border:none;
+    padding:11px 24px; border-radius:8px; cursor:pointer;
+    font-size:14px; font-weight:600;
+}
+.btn-simpan:hover { background:#d97706; }
+.btn-simpan:disabled { background:#fcd34d; cursor:not-allowed; }
+.btn-reset {
+    background:white; color:#6b7280; border:1px solid #d1d5db;
+    padding:11px 20px; border-radius:8px; cursor:pointer; font-size:14px;
+}
+.btn-reset:hover { background:#f9fafb; }
+
+/* Status */
+.status-bar {
+    background:white; border-radius:8px; padding:11px 16px;
+    margin-bottom:20px; font-size:13px; color:#6b7280;
+    display:flex; align-items:center; gap:8px;
+    box-shadow:0 1px 3px rgba(0,0,0,0.06);
+}
+.status-dot { width:8px; height:8px; border-radius:50%; background:#d1d5db; }
+.status-dot.active { background:#f59e0b; }
+.status-bar.loading { color:#3b82f6; }
+.status-bar.error   { color:#dc2626; }
+.status-bar.success { color:#16a34a; }
+
+/* Riwayat tabel */
+.table-card {
+    background:white; border-radius:12px; padding:20px 24px;
+    box-shadow:0 1px 3px rgba(0,0,0,0.08);
+}
+.riwayat-table { width:100%; border-collapse:collapse; font-size:13px; }
+.riwayat-table th {
+    background:#f9fafb; color:#6b7280; font-weight:600; font-size:11px;
+    padding:10px 12px; border-bottom:2px solid #e5e7eb;
+    text-align:left; text-transform:uppercase; letter-spacing:0.04em;
+}
+.riwayat-table td { padding:9px 12px; border-bottom:1px solid #f3f4f6; color:#374151; }
+.riwayat-table tr:last-child td { border-bottom:none; }
+.riwayat-table tr:hover td { background:#fffbeb; }
+.badge-shift {
+    background:#e5e7eb; color:#374151; border-radius:4px;
+    padding:2px 8px; font-size:11px; font-weight:600;
+}
+.badge-shift.s1 { background:#dbeafe; color:#1d4ed8; }
+.badge-shift.s2 { background:#d1fae5; color:#065f46; }
+.badge-shift.s3 { background:#fef3c7; color:#92400e; }
+.val-over { color:#dc2626; font-weight:700; }
+.btn-hapus {
+    background:none; border:none; color:#9ca3af; cursor:pointer; font-size:14px;
+    padding:2px 6px; border-radius:4px;
+}
+.btn-hapus:hover { color:#dc2626; background:#fee2e2; }
+.empty-msg { text-align:center; color:#9ca3af; padding:32px; font-size:13px; }
+</style>
+</head>
+<body>
+
+<div class="sidebar" id="sidebar">
+    <a href="index.html">Dashboard Utama</a>
+    <a href="oee.html">OEE</a>
+    <a href="tonase.html">Tonase</a>
+    <a href="waste.html" class="active">Waste</a>
+    <a href="#">Downtime</a>
+    <a href="#">Variant</a>
+    <a href="#">Cost Saving</a>
+    <a href="#">CI Projects</a>
+</div>
+
+<div class="topbar">
+    <span class="menu-btn" onclick="toggleMenu()">☰</span>
+    <h2 style="margin:0;">Waste Produksi - Bojonegoro</h2>
+</div>
+
+<div class="main">
+
+    <!-- Status Bar -->
+    <div class="status-bar" id="status-bar">
+        <div class="status-dot" id="status-dot"></div>
+        <span id="status-text">Memuat data...</span>
+    </div>
+
+    <!-- KPI Summary -->
+    <div class="sec-title">📊 Ringkasan Hari Terakhir</div>
+    <div class="kpi-grid">
+        <div class="kpi-card kemasan">
+            <div class="kpi-label">Waste Kemasan</div>
+            <div class="kpi-val" id="kpi-kemasan">—</div>
+            <div class="kpi-date" id="kpi-date-kemasan"></div>
+            <span class="kpi-target">Batas: 114.19 Kg/hari</span>
+        </div>
+        <div class="kpi-card sfg">
+            <div class="kpi-label">Waste SFG</div>
+            <div class="kpi-val" id="kpi-sfg">—</div>
+            <div class="kpi-date" id="kpi-date-sfg"></div>
+            <span class="kpi-target">Batas: 44.91 Kg/hari</span>
+        </div>
+        <div class="kpi-card karton">
+            <div class="kpi-label">Waste Karton</div>
+            <div class="kpi-val" id="kpi-karton">—</div>
+            <div class="kpi-date" id="kpi-date-karton"></div>
+            <span class="kpi-target">Batas: 39 Pcs/hari</span>
+        </div>
+    </div>
+
+    <!-- Form Input -->
+    <div class="sec-title">✏️ Input Waste per Shift</div>
+    <div class="input-card">
+        <div class="input-row">
+            <div class="inp-group">
+                <label>Tanggal</label>
+                <input type="date" id="inp-tanggal">
+            </div>
+            <div class="inp-group">
+                <label>Shift</label>
+                <select id="inp-shift">
+                    <option value="1">Shift 1</option>
+                    <option value="2">Shift 2</option>
+                    <option value="3">Shift 3</option>
+                </select>
+            </div>
+        </div>
+
+        <table class="waste-table">
+            <thead>
+                <tr>
+                    <th style="width:240px;">Mesin / Line</th>
+                    <th class="center">Waste Kemasan<br><span style="font-weight:400;color:#9ca3af;">(Kg)</span></th>
+                    <th class="center">Waste SFG<br><span style="font-weight:400;color:#9ca3af;">(Kg)</span></th>
+                    <th class="center">Waste Karton<br><span style="font-weight:400;color:#9ca3af;">(Pcs)</span></th>
+                </tr>
+            </thead>
+            <tbody id="tbl-input-body">
+                <!-- diisi JS -->
+            </tbody>
+        </table>
+
+        <div class="btn-row">
+            <button class="btn-simpan" id="btn-simpan" onclick="simpanData()">💾 Simpan Data</button>
+            <button class="btn-reset" onclick="resetForm()">🔄 Reset</button>
+            <span id="save-msg" style="font-size:13px; color:#6b7280;"></span>
+        </div>
+    </div>
+
+    <!-- Export & Riwayat -->
+    <div class="sec-title">📋 Riwayat & Export Data</div>
+    <div class="table-card">
+
+        <!-- Filter + Export Bar -->
+        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:16px; padding-bottom:16px; border-bottom:1px solid #f3f4f6;">
+            <div style="display:flex; flex-direction:column; gap:4px;">
+                <label style="font-size:11px; color:#6b7280; font-weight:600; text-transform:uppercase; letter-spacing:0.04em;">Filter Bulan</label>
+                <input type="month" id="filter-bulan"
+                    style="padding:8px 12px; border:1px solid #d1d5db; border-radius:8px; font-size:13px; color:#1f2937;">
+            </div>
+            <div style="display:flex; flex-direction:column; gap:4px;">
+                <label style="font-size:11px; color:#6b7280; font-weight:600; text-transform:uppercase; letter-spacing:0.04em;">Filter Shift</label>
+                <select id="filter-shift"
+                    style="padding:8px 12px; border:1px solid #d1d5db; border-radius:8px; font-size:13px; color:#1f2937; min-width:120px;">
+                    <option value="">Semua Shift</option>
+                    <option value="1">Shift 1</option>
+                    <option value="2">Shift 2</option>
+                    <option value="3">Shift 3</option>
+                </select>
+            </div>
+            <button onclick="terapkanFilter()"
+                style="background:#1f2937; color:white; border:none; padding:9px 16px; border-radius:8px; cursor:pointer; font-size:13px; font-weight:600; margin-top:18px;">
+                🔍 Filter
+            </button>
+            <div style="margin-left:auto; display:flex; gap:10px; margin-top:18px; flex-wrap:wrap;">
+                <button onclick="exportExcel()"
+                    style="background:#16a34a; color:white; border:none; padding:9px 18px; border-radius:8px; cursor:pointer; font-size:13px; font-weight:600; display:flex; align-items:center; gap:6px;">
+                    📥 Export Excel
+                </button>
+                <button onclick="exportExcelRekapHarian()"
+                    style="background:#2563eb; color:white; border:none; padding:9px 18px; border-radius:8px; cursor:pointer; font-size:13px; font-weight:600; display:flex; align-items:center; gap:6px;">
+                    📊 Rekap Harian
+                </button>
+            </div>
+        </div>
+
+        <div id="filter-info" style="font-size:12px; color:#6b7280; margin-bottom:10px;"></div>
+
+        <table class="riwayat-table">
+            <thead>
+                <tr>
+                    <th>Tanggal</th>
+                    <th>Shift</th>
+                    <th>Mesin</th>
+                    <th style="text-align:right;">Kemasan (Kg)</th>
+                    <th style="text-align:right;">SFG (Kg)</th>
+                    <th style="text-align:right;">Karton (Pcs)</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="tbl-riwayat">
+                <tr><td colspan="7" class="empty-msg">Memuat data...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = 'https://bmnhtxalfsfaefacgtpm.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_VItBKenz-q2sYz7MsibODA_nYtLXv9Q';
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ── Data mesin & batas atas per shift ──
+const MESIN_LIST = [
+    { id:'BOATO',         nama:'BOATO',                                    batas_kemasan:5,      batas_sfg:0.3,  batas_karton:1 },
+    { id:'LINE_1A',       nama:'LINE 1A - FILLING CF (4 MSN)',              batas_kemasan:5.328,  batas_sfg:3,    batas_karton:2 },
+    { id:'LINE_1B',       nama:'LINE 1B - FILLING BOPACK (3 MSN)',          batas_kemasan:3.66,   batas_sfg:3,    batas_karton:2 },
+    { id:'LINE_2',        nama:'LINE 2 - FILLING CF (12 MSN)',              batas_kemasan:3.05,   batas_sfg:3,    batas_karton:2 },
+    { id:'LINE_4',        nama:'LINE 4 - FILLING SW (6 MSN)',               batas_kemasan:6.767,  batas_sfg:0.2,  batas_karton:2 },
+    { id:'LINE_5A',       nama:'LINE 5A - FILLING BOOSTAR (5 MSN)',         batas_kemasan:3.817,  batas_sfg:0.5,  batas_karton:1 },
+    { id:'LINE_5B',       nama:'LINE 5B - FILLING SW (1 MSN)',              batas_kemasan:0.367,  batas_sfg:0.02, batas_karton:0 },
+    { id:'LINE_6',        nama:'Line 6 - Filling Dried Noodle (2Mesin)',    batas_kemasan:2.557,  batas_sfg:4,    batas_karton:1 },
+    { id:'LINE_7',        nama:'LINE 7 - FILLING SW (8 MSN)',               batas_kemasan:7.52,   batas_sfg:1,    batas_karton:2 },
+];
+
+const HARI = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+
+function toggleMenu() {
+    const s = document.getElementById('sidebar');
+    s.style.left = s.style.left === '0px' ? '-250px' : '0px';
+}
+
+// ── Render tabel input ──
+function renderInputTable() {
+    const tbody = document.getElementById('tbl-input-body');
+    tbody.innerHTML = '';
+    MESIN_LIST.forEach(m => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>
+                <div class="mesin-name">${m.nama}</div>
+            </td>
+            <td style="text-align:center;">
+                <input class="inp-waste" type="number" id="k_${m.id}" 
+                    placeholder="0" min="0" step="0.01"
+                    oninput="cekBatas(this, ${m.batas_kemasan})">
+                <span class="batas-badge">batas: ${m.batas_kemasan}</span>
+            </td>
+            <td style="text-align:center;">
+                <input class="inp-waste" type="number" id="s_${m.id}" 
+                    placeholder="0" min="0" step="0.01"
+                    oninput="cekBatas(this, ${m.batas_sfg})">
+                <span class="batas-badge">batas: ${m.batas_sfg}</span>
+            </td>
+            <td style="text-align:center;">
+                <input class="inp-waste" type="number" id="c_${m.id}" 
+                    placeholder="0" min="0" step="1"
+                    oninput="cekBatas(this, ${m.batas_karton})">
+                <span class="batas-badge">batas: ${m.batas_karton}</span>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function cekBatas(el, batas) {
+    const val = parseFloat(el.value);
+    if (!isNaN(val) && val > batas && batas > 0) {
+        el.classList.add('over');
+    } else {
+        el.classList.remove('over');
+    }
+}
+
+function resetForm() {
+    document.querySelectorAll('.inp-waste').forEach(el => {
+        el.value = '';
+        el.classList.remove('over');
+    });
+    document.getElementById('save-msg').textContent = '';
+}
+
+// ── Simpan ke Supabase ──
+async function simpanData() {
+    const tanggal = document.getElementById('inp-tanggal').value;
+    const shift   = document.getElementById('inp-shift').value;
+
+    if (!tanggal) {
+        document.getElementById('save-msg').textContent = '⚠️ Tanggal wajib diisi';
+        document.getElementById('save-msg').style.color = '#dc2626';
+        return;
+    }
+
+    const btn = document.getElementById('btn-simpan');
+    btn.disabled = true;
+    btn.textContent = '⏳ Menyimpan...';
+    document.getElementById('save-msg').textContent = '';
+
+    try {
+        const rows = [];
+        MESIN_LIST.forEach(m => {
+            const kemasan = parseFloat(document.getElementById(`k_${m.id}`).value) || 0;
+            const sfg     = parseFloat(document.getElementById(`s_${m.id}`).value) || 0;
+            const karton  = parseFloat(document.getElementById(`c_${m.id}`).value) || 0;
+
+            // Hanya simpan baris yang ada nilai > 0
+            if (kemasan > 0 || sfg > 0 || karton > 0) {
+                rows.push({
+                    tanggal,
+                    shift: parseInt(shift),
+                    mesin_id: m.id,
+                    mesin_nama: m.nama,
+                    waste_kemasan: kemasan,
+                    waste_sfg: sfg,
+                    waste_karton: karton,
+                });
+            }
+        });
+
+        if (rows.length === 0) {
+            document.getElementById('save-msg').textContent = '⚠️ Belum ada data yang diisi';
+            document.getElementById('save-msg').style.color = '#f59e0b';
+            btn.disabled = false;
+            btn.textContent = '💾 Simpan Data';
+            return;
+        }
+
+        // Hapus data lama untuk tanggal+shift yang sama dulu (upsert manual)
+        await db.from('waste_shiftly')
+            .delete()
+            .eq('tanggal', tanggal)
+            .eq('shift', parseInt(shift));
+
+        const { error } = await db.from('waste_shiftly').insert(rows);
+        if (error) throw error;
+
+        document.getElementById('save-msg').textContent = `✅ ${rows.length} mesin tersimpan`;
+        document.getElementById('save-msg').style.color = '#16a34a';
+        resetForm();
+        loadRiwayat();
+        loadKPI();
+
+    } catch (err) {
+        document.getElementById('save-msg').textContent = '❌ Gagal: ' + err.message;
+        document.getElementById('save-msg').style.color = '#dc2626';
+        console.error(err);
+    } finally {
+        btn.disabled = false;
+        btn.textContent = '💾 Simpan Data';
+    }
+}
+
+// ── Load KPI summary (total per hari terakhir) ──
+async function loadKPI() {
+    const { data } = await db
+        .from('waste_shiftly')
+        .select('*')
+        .order('tanggal', { ascending: false })
+        .limit(50);
+
+    if (!data || data.length === 0) return;
+
+    // Ambil tanggal terbaru
+    const lastDate = data[0].tanggal;
+    const todayRows = data.filter(r => r.tanggal === lastDate);
+
+    const totalKemasan = todayRows.reduce((s, r) => s + (r.waste_kemasan || 0), 0);
+    const totalSFG     = todayRows.reduce((s, r) => s + (r.waste_sfg || 0), 0);
+    const totalKarton  = todayRows.reduce((s, r) => s + (r.waste_karton || 0), 0);
+
+    const fmtTgl = fmtDate(lastDate);
+
+    setKPI('kpi-kemasan', 'kpi-date-kemasan', totalKemasan, 'Kg', 114.19, fmtTgl);
+    setKPI('kpi-sfg',     'kpi-date-sfg',     totalSFG,     'Kg', 44.91,  fmtTgl);
+    setKPI('kpi-karton',  'kpi-date-karton',  totalKarton,  'Pcs', 39,    fmtTgl);
+}
+
+function setKPI(valId, dateId, val, unit, batas, tgl) {
+    const el = document.getElementById(valId);
+    el.innerHTML = val.toFixed(val % 1 === 0 ? 0 : 2) + `<span class="kpi-unit"> ${unit}</span>`;
+    el.className = 'kpi-val ' + (val > batas ? 'over' : 'ok');
+    document.getElementById(dateId).textContent = tgl;
+}
+
+// ── State filter ──
+let filterState = { bulan: '', shift: '' };
+let allRiwayatData = [];
+
+function terapkanFilter() {
+    filterState.bulan = document.getElementById('filter-bulan').value;
+    filterState.shift = document.getElementById('filter-shift').value;
+    loadRiwayat();
+}
+
+// ── Load riwayat tabel ──
+async function loadRiwayat() {
+    const tbody = document.getElementById('tbl-riwayat');
+    tbody.innerHTML = '<tr><td colspan="7" class="empty-msg">Memuat...</td></tr>';
+
+    let query = db.from('waste_shiftly').select('*')
+        .order('tanggal', { ascending: false })
+        .order('shift',   { ascending: true })
+        .order('mesin_id',{ ascending: true });
+
+    // Filter bulan
+    if (filterState.bulan) {
+        const [yr, mo] = filterState.bulan.split('-');
+        const dari  = `${yr}-${mo}-01`;
+        const akhir = `${yr}-${mo}-31`;
+        query = query.gte('tanggal', dari).lte('tanggal', akhir);
+    }
+    // Filter shift
+    if (filterState.shift) {
+        query = query.eq('shift', parseInt(filterState.shift));
+    }
+
+    const { data, error } = await query.limit(500);
+    allRiwayatData = data || [];
+
+    // Info filter
+    const info = document.getElementById('filter-info');
+    if (filterState.bulan || filterState.shift) {
+        const label = [
+            filterState.bulan ? `Bulan: ${filterState.bulan}` : '',
+            filterState.shift ? `Shift: ${filterState.shift}` : ''
+        ].filter(Boolean).join(', ');
+        info.textContent = `Filter aktif — ${label} — ${allRiwayatData.length} baris`;
+    } else {
+        info.textContent = `Menampilkan ${allRiwayatData.length} data terbaru`;
+    }
+
+    if (error || allRiwayatData.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="empty-msg">Belum ada data</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = '';
+    allRiwayatData.forEach(r => {
+        const dt = new Date(r.tanggal + 'T00:00:00');
+        const hari = HARI[dt.getDay()];
+        const shiftClass = ['','s1','s2','s3'][r.shift] || '';
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${fmtDate(r.tanggal)} <span style="color:#9ca3af;font-size:11px;">${hari}</span></td>
+            <td><span class="badge-shift ${shiftClass}">Shift ${r.shift}</span></td>
+            <td style="font-size:12px; color:#374151;">${r.mesin_nama}</td>
+            <td style="text-align:right;" class="${r.waste_kemasan > 0 ? '' : 'kpi-unit'}">${r.waste_kemasan ? r.waste_kemasan.toFixed(2) : '—'}</td>
+            <td style="text-align:right;" class="${r.waste_sfg > 0 ? '' : 'kpi-unit'}">${r.waste_sfg ? r.waste_sfg.toFixed(2) : '—'}</td>
+            <td style="text-align:right;" class="${r.waste_karton > 0 ? '' : 'kpi-unit'}">${r.waste_karton ? r.waste_karton : '—'}</td>
+            <td style="text-align:center;">
+                <button class="btn-hapus" onclick="hapusRow(${r.id})" title="Hapus">🗑</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+// ── Export Excel — Data mentah per shift per mesin ──
+function exportExcel() {
+    if (!allRiwayatData || allRiwayatData.length === 0) {
+        alert('Tidak ada data untuk diexport. Terapkan filter dulu jika perlu.');
+        return;
+    }
+
+    const namaFile = filterState.bulan
+        ? `Waste_Shiftly_${filterState.bulan}.xlsx`
+        : `Waste_Shiftly_Semua.xlsx`;
+
+    const rows = allRiwayatData.map(r => ({
+        'Tanggal'         : r.tanggal,
+        'Hari'            : HARI[new Date(r.tanggal + 'T00:00:00').getDay()],
+        'Shift'           : r.shift,
+        'Mesin ID'        : r.mesin_id,
+        'Mesin Nama'      : r.mesin_nama,
+        'Waste Kemasan (Kg)': r.waste_kemasan || 0,
+        'Waste SFG (Kg)'  : r.waste_sfg || 0,
+        'Waste Karton (Pcs)': r.waste_karton || 0,
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(rows);
+
+    // Lebar kolom
+    ws['!cols'] = [
+        {wch:12}, {wch:10}, {wch:7}, {wch:12}, {wch:38},
+        {wch:20}, {wch:16}, {wch:20}
+    ];
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Waste Shiftly');
+    XLSX.writeFile(wb, namaFile);
+}
+
+// ── Export Excel — Rekap harian (sum per tanggal per mesin) ──
+function exportExcelRekapHarian() {
+    if (!allRiwayatData || allRiwayatData.length === 0) {
+        alert('Tidak ada data untuk diexport.');
+        return;
+    }
+
+    // Group by tanggal + mesin
+    const map = {};
+    allRiwayatData.forEach(r => {
+        const key = `${r.tanggal}||${r.mesin_id}`;
+        if (!map[key]) {
+            map[key] = {
+                tanggal: r.tanggal,
+                hari: HARI[new Date(r.tanggal + 'T00:00:00').getDay()],
+                mesin_id: r.mesin_id,
+                mesin_nama: r.mesin_nama,
+                kemasan: 0, sfg: 0, karton: 0,
+            };
+        }
+        map[key].kemasan += r.waste_kemasan || 0;
+        map[key].sfg     += r.waste_sfg     || 0;
+        map[key].karton  += r.waste_karton  || 0;
+    });
+
+    // Sort by tanggal asc, mesin urutan
+    const sorted = Object.values(map).sort((a,b) =>
+        a.tanggal.localeCompare(b.tanggal) || a.mesin_id.localeCompare(b.mesin_id)
+    );
+
+    // Rows data + total per tanggal
+    const exRows = [];
+    let curDate = null, subtotK=0, subtotS=0, subtotC=0;
+
+    sorted.forEach((r, i) => {
+        if (curDate && r.tanggal !== curDate) {
+            // Subtotal baris tanggal sebelumnya
+            exRows.push({
+                'Tanggal': '', 'Hari': `TOTAL ${curDate}`,
+                'Mesin': '',
+                'Kemasan (Kg)': +subtotK.toFixed(3),
+                'SFG (Kg)':     +subtotS.toFixed(3),
+                'Karton (Pcs)': subtotC,
+                '_subtotal': true
+            });
+            subtotK=0; subtotS=0; subtotC=0;
+        }
+        exRows.push({
+            'Tanggal': r.tanggal,
+            'Hari': r.tanggal !== curDate ? r.hari : '',
+            'Mesin': r.mesin_nama,
+            'Kemasan (Kg)': +r.kemasan.toFixed(3),
+            'SFG (Kg)':     +r.sfg.toFixed(3),
+            'Karton (Pcs)': r.karton,
+            '_subtotal': false
+        });
+        subtotK += r.kemasan; subtotS += r.sfg; subtotC += r.karton;
+        curDate = r.tanggal;
+    });
+    // Subtotal terakhir
+    if (curDate) {
+        exRows.push({
+            'Tanggal': '', 'Hari': `TOTAL ${curDate}`,
+            'Mesin': '',
+            'Kemasan (Kg)': +subtotK.toFixed(3),
+            'SFG (Kg)':     +subtotS.toFixed(3),
+            'Karton (Pcs)': subtotC,
+            '_subtotal': true
+        });
+    }
+
+    // Grand total
+    const grandK = sorted.reduce((s,r)=>s+r.kemasan,0);
+    const grandS = sorted.reduce((s,r)=>s+r.sfg,0);
+    const grandC = sorted.reduce((s,r)=>s+r.karton,0);
+    exRows.push({
+        'Tanggal':'', 'Hari':'GRAND TOTAL', 'Mesin':'',
+        'Kemasan (Kg)': +grandK.toFixed(3),
+        'SFG (Kg)':     +grandS.toFixed(3),
+        'Karton (Pcs)': grandC,
+        '_subtotal': true
+    });
+
+    // Build sheet tanpa kolom _subtotal
+    const sheetRows = exRows.map(({_subtotal, ...rest}) => rest);
+    const ws = XLSX.utils.json_to_sheet(sheetRows);
+    ws['!cols'] = [{wch:12},{wch:12},{wch:38},{wch:14},{wch:12},{wch:14}];
+
+    // Warnai baris subtotal (bold via style - basic)
+    const range = XLSX.utils.decode_range(ws['!ref']);
+    exRows.forEach((r, i) => {
+        if (r._subtotal) {
+            for (let c = range.s.c; c <= range.e.c; c++) {
+                const addr = XLSX.utils.encode_cell({ r: i+1, c });
+                if (!ws[addr]) ws[addr] = { v: '', t: 's' };
+                ws[addr].s = { font: { bold: true }, fill: { fgColor: { rgb: 'F0FDF4' } } };
+            }
+        }
+    });
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Rekap Harian');
+
+    const namaFile = filterState.bulan
+        ? `Waste_Rekap_Harian_${filterState.bulan}.xlsx`
+        : `Waste_Rekap_Harian_Semua.xlsx`;
+    XLSX.writeFile(wb, namaFile);
+}
+
+async function hapusRow(id) {
+    if (!confirm('Hapus data ini?')) return;
+    const { error } = await db.from('waste_shiftly').delete().eq('id', id);
+    if (!error) { loadRiwayat(); loadKPI(); }
+}
+
+function setStatus(type, msg) {
+    const bar  = document.getElementById('status-bar');
+    const dot  = document.getElementById('status-dot');
+    const text = document.getElementById('status-text');
+    bar.className = 'status-bar ' + (type === 'loading' ? 'loading' : type === 'error' ? 'error' : type === 'success' ? 'success' : '');
+    dot.className = 'status-dot ' + (type === 'active' ? 'active' : '');
+    text.textContent = msg;
+}
+
+function fmtDate(d) {
+    if (!d) return '';
+    try {
+        return new Date(d + 'T00:00:00').toLocaleDateString('id-ID', {
+            day: '2-digit', month: 'short', year: 'numeric'
+        });
+    } catch { return d; }
+}
+
+// ── Init ──
+document.getElementById('inp-tanggal').valueAsDate = new Date();
+
+// Set filter bulan ke bulan ini secara default
+const now = new Date();
+const bulanIni = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+document.getElementById('filter-bulan').value = bulanIni;
+filterState.bulan = bulanIni;
+renderInputTable();
+
+async function init() {
+    setStatus('loading', 'Memuat data...');
+    await Promise.all([loadKPI(), loadRiwayat()]);
+    setStatus('active', 'Data berhasil dimuat');
+}
+init();
+</script>
+</body>
+</html>
