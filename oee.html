@@ -455,9 +455,9 @@ async function simpanKeSupabase() {
 
     try {
         // Hapus semua data lama
-        const { error: e1 } = await db.from('oee_shiftly').delete().neq('tanggal', '');
+        const { error: e1 } = await db.from('oee_shiftly').delete().gte('tanggal', '2000-01-01');
         if (e1) throw e1;
-        const { error: e2 } = await db.from('oee_daily').delete().neq('tanggal', '');
+        const { error: e2 } = await db.from('oee_daily').delete().gte('tanggal', '2000-01-01');
         if (e2) throw e2;
 
         // Insert shiftly baru
