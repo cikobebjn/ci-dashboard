@@ -245,6 +245,19 @@ const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const OEE_TARGET = 55;
 
+// Default batas waste (fallback jika tabel waste_batas belum diisi di Settings)
+const MESIN_BATAS_DEFAULT = {
+    BOATO:   { kemasan:5,     sfg:0.3,  karton:1 },
+    LINE_1A: { kemasan:5.328, sfg:3,    karton:2 },
+    LINE_1B: { kemasan:3.66,  sfg:3,    karton:2 },
+    LINE_2:  { kemasan:3.05,  sfg:3,    karton:2 },
+    LINE_4:  { kemasan:6.766, sfg:0.15, karton:2 },
+    LINE_5A: { kemasan:3.817, sfg:0.5,  karton:1 },
+    LINE_5B: { kemasan:0.367, sfg:0.02, karton:0 },
+    LINE_6:  { kemasan:2.557, sfg:4,    karton:1 },
+    LINE_7:  { kemasan:7.52,  sfg:1,    karton:2 },
+};
+
 function toggleMenu() {
     const s = document.getElementById('sidebar');
     s.style.left = s.style.left === '0px' ? '-250px' : '0px';
@@ -339,8 +352,11 @@ async function loadData() {
             tbody.innerHTML = '';
             lines.forEach(m => {
                 const tr = document.createElement('tr');
+                const vals = [m.shift1, m.shift2, m.shift3].filter(v => v !== null && v !== undefined);
+                const adaYangOver = vals.some(v => v < m.target);
+                const mesinClass = adaYangOver ? 'color:#dc2626;' : 'color:#374151;';
                 tr.innerHTML = `
-                    <td class="mesin-col">${m.mesin}</td>
+                    <td class="mesin-col" style="${mesinClass}">${m.mesin}</td>
                     ${lineValCell(m.shift1, m.target)}
                     ${lineValCell(m.shift2, m.target)}
                     ${lineValCell(m.shift3, m.target)}
@@ -367,9 +383,6 @@ async function loadData() {
         .from('waste_batas')
         .select('*');
 
-    console.log('waste_shiftly:', wasteRows, wasteErr);
-    console.log('waste_batas:', batasRows, batasErr);
-
     // ── Waste Daily Detail (3 kategori, per mesin) ──
     if (wasteRows && wasteRows.length > 0) {
         const lastDate = wasteRows[0].tanggal;
@@ -393,6 +406,15 @@ async function loadData() {
                 sfg:     (b.batas_sfg || 0) * 3,
                 karton:  (b.batas_karton || 0) * 3,
             };
+        });
+        // Fallback ke default kalau mesin belum punya batas di Supabase
+        Object.keys(perMesin).forEach(mid => {
+            if (!batasMap[mid] || (batasMap[mid].kemasan === 0 && batasMap[mid].sfg === 0 && batasMap[mid].karton === 0)) {
+                const def = MESIN_BATAS_DEFAULT[mid];
+                if (def) {
+                    batasMap[mid] = { kemasan: def.kemasan * 3, sfg: def.sfg * 3, karton: def.karton * 3 };
+                }
+            }
         });
 
         renderWasteDetail('kemasan', perMesin, batasMap, 'Kg');
@@ -430,7 +452,7 @@ function renderWasteDetail(kategori, perMesin, batasMap, unit) {
         const tr = document.createElement('tr');
         const namaShort = r.nama.replace('LINE ', 'L').replace(' - FILLING', '').replace(' BOOSTAR', '');
         tr.innerHTML = `
-            <td class="mesin-name">${namaShort}</td>
+            <td class="mesin-name" style="${isOver ? 'color:#dc2626; font-weight:600;' : ''}">${namaShort}</td>
             <td class="waste-val ${isOver ? 'over' : ''}">${r.val.toFixed(2)}</td>
         `;
         tbody.appendChild(tr);
