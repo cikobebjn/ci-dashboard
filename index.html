@@ -114,6 +114,20 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
 .line-table td.val-col.good { color:#16a34a; }
 .line-table td.val-col.low  { color:#dc2626; }
 .line-table td.val-col.empty { color:#d1d5db; font-weight:400; }
+
+/* Waste Daily — pakai .card base, hanya override warna & tabel breakdown */
+.card.waste-mini-card.kemasan { border-top-color:#f59e0b; }
+.card.waste-mini-card.sfg     { border-top-color:#8b5cf6; }
+.card.waste-mini-card.karton  { border-top-color:#ef4444; }
+
+.waste-detail-table { width:100%; border-collapse:collapse; font-size:11px; margin-top:10px; }
+.waste-detail-table td {
+    padding:5px 4px; border-bottom:1px solid #f3f4f6;
+}
+.waste-detail-table tr:last-child td { border-bottom:none; }
+.waste-detail-table td.mesin-name { color:#6b7280; }
+.waste-detail-table td.waste-val { text-align:right; font-weight:600; color:#374151; }
+.waste-detail-table td.waste-val.over { color:#dc2626; background:#fef2f2; border-radius:4px; }
 </style>
 </head>
 <body>
@@ -136,7 +150,9 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
 </div>
 
 <div class="main">
-    <div class="kpi-grid">
+
+    <div class="sec-title" style="margin-top:0;">Ringkasan Hari Terakhir <span id="title-date-waste" style="color:#9ca3af; font-weight:400; text-transform:none;"></span></div>
+    <div class="kpi-grid" style="grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); margin-bottom:20px;">
 
         <!-- Daily OEE -->
         <div class="card oee-card">
@@ -154,13 +170,28 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
             <div class="card-sub" id="sub-tonase"></div>
         </div>
 
-        <!-- Waste Alert -->
-        <div class="card waste-card" id="waste-card" onclick="window.location='waste.html'">
+        <!-- Waste Kemasan -->
+        <div class="card waste-mini-card kemasan">
             <h3>🗑️ Waste Kemasan</h3>
-            <div class="value loading" id="val-waste">...</div>
-            <div id="waste-badge"></div>
-            <div class="over-list" id="waste-over-list"></div>
-            <div class="card-date" id="date-waste"></div>
+            <div class="value loading" id="wd-total-kemasan">...</div>
+            <div class="card-date" id="wd-batas-kemasan"></div>
+            <table class="waste-detail-table" id="wd-table-kemasan"><tbody></tbody></table>
+        </div>
+
+        <!-- Waste SFG -->
+        <div class="card waste-mini-card sfg">
+            <h3>🗑️ Waste SFG</h3>
+            <div class="value loading" id="wd-total-sfg">...</div>
+            <div class="card-date" id="wd-batas-sfg"></div>
+            <table class="waste-detail-table" id="wd-table-sfg"><tbody></tbody></table>
+        </div>
+
+        <!-- Waste Karton -->
+        <div class="card waste-mini-card karton">
+            <h3>🗑️ Waste Karton</h3>
+            <div class="value loading" id="wd-total-karton">...</div>
+            <div class="card-date" id="wd-batas-karton"></div>
+            <table class="waste-detail-table" id="wd-table-karton"><tbody></tbody></table>
         </div>
 
     </div>
@@ -325,7 +356,7 @@ async function loadData() {
             '<tr><td colspan="5" style="text-align:center; color:#9ca3af; padding:20px;">Belum ada data per line</td></tr>';
     }
 
-    // ── Waste — cek mesin over target hari terakhir ──
+    // ── Waste — fetch data untuk Waste Daily Detail ──
     const { data: wasteRows } = await db
         .from('waste_shiftly')
         .select('*')
@@ -336,52 +367,64 @@ async function loadData() {
         .from('waste_batas')
         .select('*');
 
-    const wasteCard  = document.getElementById('waste-card');
-    const wasteVal   = document.getElementById('val-waste');
-    const wasteBadge = document.getElementById('waste-badge');
-    const wasteList  = document.getElementById('waste-over-list');
-    const wasteDate  = document.getElementById('date-waste');
-
+    // ── Waste Daily Detail (3 kategori, per mesin) ──
     if (wasteRows && wasteRows.length > 0 && batasRows) {
         const lastDate = wasteRows[0].tanggal;
+        document.getElementById('title-date-waste').textContent = '— ' + fmtDate(lastDate);
 
+        const todayRows = wasteRows.filter(r => r.tanggal === lastDate);
+
+        // Sum per mesin per kategori
         const perMesin = {};
-        wasteRows.filter(r => r.tanggal === lastDate).forEach(r => {
-            if (!perMesin[r.mesin_id]) perMesin[r.mesin_id] = { nama: r.mesin_nama, kemasan: 0 };
+        todayRows.forEach(r => {
+            if (!perMesin[r.mesin_id]) perMesin[r.mesin_id] = { nama: r.mesin_nama, kemasan: 0, sfg: 0, karton: 0 };
             perMesin[r.mesin_id].kemasan += r.waste_kemasan || 0;
+            perMesin[r.mesin_id].sfg     += r.waste_sfg || 0;
+            perMesin[r.mesin_id].karton  += r.waste_karton || 0;
         });
 
         const batasMap = {};
-        batasRows.forEach(b => { batasMap[b.mesin_id] = (b.batas_kemasan || 0) * 3; });
+        batasRows.forEach(b => {
+            batasMap[b.mesin_id] = {
+                kemasan: (b.batas_kemasan || 0) * 3,
+                sfg:     (b.batas_sfg || 0) * 3,
+                karton:  (b.batas_karton || 0) * 3,
+            };
+        });
 
-        const overMesin = Object.entries(perMesin)
-            .filter(([id, d]) => d.kemasan > (batasMap[id] || 0))
-            .map(([id, d]) => ({ nama: d.nama, val: d.kemasan, batas: batasMap[id] || 0 }));
-
-        const totalKemasan = Object.values(perMesin).reduce((s, d) => s + d.kemasan, 0);
-
-        wasteVal.textContent = totalKemasan.toFixed(2) + ' Kg';
-        wasteVal.className = 'value ' + (overMesin.length > 0 ? 'low' : 'good');
-        wasteDate.textContent = fmtDate(lastDate);
-
-        if (overMesin.length > 0) {
-            wasteCard.classList.add('over');
-            wasteCard.classList.remove('safe');
-            wasteBadge.innerHTML = `<span class="over-badge">⚠️ ${overMesin.length} Mesin Over Target</span>`;
-            wasteList.innerHTML = overMesin
-                .map(m => `▸ ${m.nama.replace('LINE ', 'L').replace(' - FILLING', '')} — ${m.val.toFixed(1)} Kg (batas ${m.batas} Kg)`)
-                .join('<br>');
-        } else {
-            wasteCard.classList.add('safe');
-            wasteCard.classList.remove('over');
-            wasteBadge.innerHTML = `<span class="safe-badge">✅ Semua Aman</span>`;
-            wasteList.innerHTML = '';
-        }
-    } else {
-        wasteVal.textContent = '—';
-        wasteVal.className = 'value';
-        wasteBadge.innerHTML = '<span style="font-size:11px;color:#9ca3af;">Belum ada data</span>';
+        renderWasteDetail('kemasan', perMesin, batasMap, 'Kg');
+        renderWasteDetail('sfg',     perMesin, batasMap, 'Kg');
+        renderWasteDetail('karton',  perMesin, batasMap, 'Pcs');
     }
+}
+
+function renderWasteDetail(kategori, perMesin, batasMap, unit) {
+    const tbody = document.querySelector(`#wd-table-${kategori} tbody`);
+    const totalEl = document.getElementById(`wd-total-${kategori}`);
+    const batasEl = document.getElementById(`wd-batas-${kategori}`);
+
+    const rows = Object.entries(perMesin)
+        .map(([id, d]) => ({ id, nama: d.nama, val: d[kategori] || 0, batas: (batasMap[id] && batasMap[id][kategori]) || 0 }))
+        .sort((a, b) => b.val - a.val);
+
+    const grandTotal = rows.reduce((s, r) => s + r.val, 0);
+    const grandBatas = rows.reduce((s, r) => s + r.batas, 0);
+
+    totalEl.innerHTML = grandTotal.toFixed(2) + `<span class="kpi-unit"> ${unit}</span>`;
+    totalEl.className = 'value ' + (grandTotal > grandBatas ? 'low' : 'good');
+    batasEl.textContent = `Batas: ${grandBatas.toFixed(2)} ${unit}/hari`;
+
+    tbody.innerHTML = '';
+    rows.forEach(r => {
+        const isOver = r.val > r.batas && r.batas > 0;
+        const tr = document.createElement('tr');
+        const namaShort = r.nama.replace('LINE ', 'L').replace(' - FILLING', '').replace(' BOOSTAR', '');
+        tr.innerHTML = `
+            <td class="mesin-name">${namaShort}</td>
+            <td class="waste-val ${isOver ? 'over' : ''}">${r.val.toFixed(2)}</td>
+        `;
+        tbody.appendChild(tr);
+    });
 }
 
 function setShiftMini(id, val) {
