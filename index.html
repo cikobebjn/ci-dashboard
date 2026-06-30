@@ -357,18 +357,21 @@ async function loadData() {
     }
 
     // ── Waste — fetch data untuk Waste Daily Detail ──
-    const { data: wasteRows } = await db
+    const { data: wasteRows, error: wasteErr } = await db
         .from('waste_shiftly')
         .select('*')
         .order('tanggal', { ascending: false })
         .limit(200);
 
-    const { data: batasRows } = await db
+    const { data: batasRows, error: batasErr } = await db
         .from('waste_batas')
         .select('*');
 
+    console.log('waste_shiftly:', wasteRows, wasteErr);
+    console.log('waste_batas:', batasRows, batasErr);
+
     // ── Waste Daily Detail (3 kategori, per mesin) ──
-    if (wasteRows && wasteRows.length > 0 && batasRows) {
+    if (wasteRows && wasteRows.length > 0) {
         const lastDate = wasteRows[0].tanggal;
         document.getElementById('title-date-waste').textContent = '— ' + fmtDate(lastDate);
 
@@ -384,7 +387,7 @@ async function loadData() {
         });
 
         const batasMap = {};
-        batasRows.forEach(b => {
+        (batasRows || []).forEach(b => {
             batasMap[b.mesin_id] = {
                 kemasan: (b.batas_kemasan || 0) * 3,
                 sfg:     (b.batas_sfg || 0) * 3,
@@ -395,6 +398,13 @@ async function loadData() {
         renderWasteDetail('kemasan', perMesin, batasMap, 'Kg');
         renderWasteDetail('sfg',     perMesin, batasMap, 'Kg');
         renderWasteDetail('karton',  perMesin, batasMap, 'Pcs');
+    } else {
+        ['kemasan','sfg','karton'].forEach(k => {
+            const el = document.getElementById(`wd-total-${k}`);
+            el.textContent = '—';
+            el.className = 'value';
+            document.getElementById(`wd-batas-${k}`).textContent = 'Belum ada data';
+        });
     }
 }
 
