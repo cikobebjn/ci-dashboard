@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -601,8 +602,11 @@ async function simpanKeSupabase() {
             // Insert per-line per-shift
             if (parsedData.per_line && parsedData.per_line.length > 0) {
                 try {
-                    await db.from('oee_shiftly_line').delete().gte('tanggal', '2000-01-01');
-                } catch(_) {}
+                    const { error: eDel } = await db.from('oee_shiftly_line').delete().gte('tanggal', '2000-01-01');
+                    if (eDel) console.warn('Delete oee_shiftly_line gagal:', eDel.message);
+                } catch (errDel) {
+                    console.warn('Delete oee_shiftly_line exception:', errDel.message);
+                }
                 const lineRows = [];
                 parsedData.per_line.forEach(m => {
                     [1,2,3].forEach(s => {
@@ -616,10 +620,11 @@ async function simpanKeSupabase() {
                         });
                     });
                 });
-                try {
-                    const { error: e6 } = await db.from('oee_shiftly_line').insert(lineRows);
-                    if (e6) console.warn('oee_shiftly_line insert:', e6.message);
-                } catch(_) {}
+                const { error: e6 } = await db.from('oee_shiftly_line').insert(lineRows);
+                if (e6) {
+                    setStatus('error', '⚠️ Gagal simpan per-line: ' + e6.message);
+                    console.error('Insert oee_shiftly_line gagal:', e6);
+                }
             }
         }
 
