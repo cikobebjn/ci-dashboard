@@ -504,9 +504,30 @@ async function loadKPI() {
 
     const fmtTgl = fmtDate(lastDate);
 
-    setKPI('kpi-kemasan', 'kpi-date-kemasan', totalKemasan, 'Kg', 114.19, fmtTgl);
-    setKPI('kpi-sfg',     'kpi-date-sfg',     totalSFG,     'Kg', 44.91,  fmtTgl);
-    setKPI('kpi-karton',  'kpi-date-karton',  totalKarton,  'Pcs', 39,    fmtTgl);
+    // Ambil batas atas dari Supabase (jumlah semua mesin × 3 shift), fallback ke MESIN_LIST kalau kosong
+    const { data: batasRows } = await db.from('waste_batas').select('*');
+    let batasKemasan, batasSfg, batasKarton;
+
+    if (batasRows && batasRows.length > 0) {
+        batasKemasan = batasRows.reduce((s, b) => s + (b.batas_kemasan || 0), 0) * 3;
+        batasSfg     = batasRows.reduce((s, b) => s + (b.batas_sfg || 0), 0) * 3;
+        batasKarton  = batasRows.reduce((s, b) => s + (b.batas_karton || 0), 0) * 3;
+    } else {
+        batasKemasan = MESIN_LIST.reduce((s, m) => s + m.batas_kemasan, 0) * 3;
+        batasSfg     = MESIN_LIST.reduce((s, m) => s + m.batas_sfg, 0) * 3;
+        batasKarton  = MESIN_LIST.reduce((s, m) => s + m.batas_karton, 0) * 3;
+    }
+
+    document.querySelector('#kpi-kemasan').closest('.kpi-card').querySelector('.kpi-target').textContent =
+        `Batas: ${batasKemasan.toFixed(2)} Kg/hari`;
+    document.querySelector('#kpi-sfg').closest('.kpi-card').querySelector('.kpi-target').textContent =
+        `Batas: ${batasSfg.toFixed(2)} Kg/hari`;
+    document.querySelector('#kpi-karton').closest('.kpi-card').querySelector('.kpi-target').textContent =
+        `Batas: ${batasKarton.toFixed(0)} Pcs/hari`;
+
+    setKPI('kpi-kemasan', 'kpi-date-kemasan', totalKemasan, 'Kg', batasKemasan, fmtTgl);
+    setKPI('kpi-sfg',     'kpi-date-sfg',     totalSFG,     'Kg', batasSfg,  fmtTgl);
+    setKPI('kpi-karton',  'kpi-date-karton',  totalKarton,  'Pcs', batasKarton, fmtTgl);
 }
 
 function setKPI(valId, dateId, val, unit, batas, tgl) {
@@ -761,6 +782,7 @@ function fmtDate(d) {
 // IMPORT EXCEL WASTE
 // ════════════════════════════════
 let parsedWasteData = null;
+let parsedWasteBatas = null;
 
 // Mapping nama mesin di Excel ke MESIN_LIST id
 function findMesinId(namaExcel) {
@@ -830,6 +852,33 @@ function prosesExcelWaste() {
                 { key: 'sfg',     startRow: 19, endRow: 27 },
                 { key: 'karton',  startRow: 34, endRow: 42 },
             ];
+
+            // ── Parse Batas Atas dari kolom D (index 3) ──
+            const batasMap = {}; // { mesin_id: { kemasan, sfg, karton } }
+            SECTIONS.forEach(sec => {
+                for (let r = sec.startRow; r <= sec.endRow; r++) {
+                    const namaCell = cell(r, 1); // col B
+                    if (!namaCell || !namaCell.v) continue;
+                    const namaExcel = String(namaCell.v).trim();
+                    if (namaExcel.toLowerCase() === 'total') continue;
+
+                    const mid = findMesinId(namaExcel);
+                    if (!mid) continue;
+
+                    const batasCell = cell(r, 3); // col D
+                    const batasVal = batasCell && batasCell.v !== undefined && !isNaN(parseFloat(batasCell.v))
+                        ? parseFloat(batasCell.v) : 0;
+
+                    if (!batasMap[mid]) batasMap[mid] = { kemasan: 0, sfg: 0, karton: 0 };
+                    batasMap[mid][sec.key] = batasVal;
+                }
+            });
+            parsedWasteBatas = Object.entries(batasMap).map(([mesin_id, b]) => ({
+                mesin_id,
+                batas_kemasan: b.kemasan,
+                batas_sfg: b.sfg,
+                batas_karton: b.karton,
+            }));
 
             // tanggal di row 2 (Excel row 3), hanya muncul di kolom shift 1 (step 3 dari col 4)
             const dataMap = {}; // { 'tanggal||shift' : { mesin_id: {kemasan,sfg,karton} } }
@@ -904,7 +953,8 @@ function prosesExcelWaste() {
             const tanggalUnik = [...new Set(rows.map(r => r.tanggal))].sort();
             document.getElementById('preview-info').innerHTML =
                 `✅ Ditemukan <strong>${rows.length}</strong> baris data dari <strong>${tanggalUnik.length}</strong> hari ` +
-                `(${fmtDate(tanggalUnik[0])} — ${fmtDate(tanggalUnik[tanggalUnik.length-1])})`;
+                `(${fmtDate(tanggalUnik[0])} — ${fmtDate(tanggalUnik[tanggalUnik.length-1])}) ` +
+                `· Batas atas <strong>${parsedWasteBatas.length}</strong> mesin akan diperbarui juga`;
             document.getElementById('import-msg').textContent = '';
 
             document.getElementById('btn-import-excel').style.display = 'inline-block';
@@ -943,7 +993,27 @@ async function importKeSupabase() {
             if (error) throw error;
         }
 
-        document.getElementById('import-msg').textContent = `✅ ${parsedWasteData.length} baris berhasil diimpor!`;
+        // ── Update batas atas (waste_batas) dari Excel ──
+        let batasMsg = '';
+        if (parsedWasteBatas && parsedWasteBatas.length > 0) {
+            try {
+                // Hapus batas lama untuk mesin yang ada di file, lalu insert baru (replace)
+                for (const b of parsedWasteBatas) {
+                    await db.from('waste_batas').delete().eq('mesin_id', b.mesin_id);
+                }
+                const { error: eBatas } = await db.from('waste_batas').insert(parsedWasteBatas);
+                if (eBatas) {
+                    console.warn('Gagal update batas atas:', eBatas.message);
+                    batasMsg = ' (batas atas gagal: ' + eBatas.message + ')';
+                } else {
+                    batasMsg = ` & batas atas ${parsedWasteBatas.length} mesin diperbarui`;
+                }
+            } catch (eb) {
+                console.warn('Batas atas exception:', eb.message);
+            }
+        }
+
+        document.getElementById('import-msg').textContent = `✅ ${parsedWasteData.length} baris berhasil diimpor${batasMsg}!`;
         document.getElementById('import-msg').style.color = '#16a34a';
         document.getElementById('import-warning').classList.remove('show');
         btn.textContent = '✅ Diimpor';
