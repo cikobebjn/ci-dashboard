@@ -179,6 +179,36 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
 
 <div class="main">
 
+    <!-- Upload Card -->
+    <div class="sec-title">📤 Import Excel Waste</div>
+    <div class="input-card" style="margin-bottom:24px;">
+        <div id="drop-zone"
+             onclick="document.getElementById('file-input').click()"
+             ondragover="handleDrag(event,true)"
+             ondragleave="handleDrag(event,false)"
+             ondrop="handleDrop(event)"
+             style="border:2px dashed #d1d5db; border-radius:8px; padding:28px; text-align:center; cursor:pointer; transition:0.2s; color:#6b7280; font-size:14px;">
+            <input type="file" id="file-input" accept=".xlsx" onchange="handleExcelFile(this.files[0])" style="display:none;">
+            <div style="font-size:30px; margin-bottom:6px;">📂</div>
+            <div>Klik atau drag file Excel Waste ke sini</div>
+            <div style="font-size:12px; margin-top:4px; color:#9ca3af;">Format: 01_Waste_Bojonegoro_New.xlsx (sheet SHIFTLY)</div>
+        </div>
+        <div id="file-name" style="font-size:13px; color:#374151; margin-top:8px;"></div>
+        <div id="import-warning" style="background:#fef3c7; border:1px solid #fbbf24; color:#92400e; border-radius:6px; padding:8px 12px; font-size:12px; margin-top:10px; display:none;">
+            ⚠️ <strong>Perhatian:</strong> Import akan menambahkan data baru. Tanggal+shift yang sudah ada akan ditimpa.
+        </div>
+        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-top:12px;">
+            <button id="btn-proses-excel" onclick="prosesExcelWaste()" style="background:#1f2937; color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer; font-size:14px; display:none;">
+                🔍 Proses Excel
+            </button>
+            <button id="btn-import-excel" onclick="importKeSupabase()" disabled style="background:#16a34a; color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer; font-size:14px; display:none;">
+                📥 Import ke Supabase
+            </button>
+            <span id="import-msg" style="font-size:13px; color:#6b7280;"></span>
+        </div>
+        <div id="preview-info" style="font-size:12px; color:#6b7280; margin-top:10px;"></div>
+    </div>
+
     <!-- Status Bar -->
     <div class="status-bar" id="status-bar">
         <div class="status-dot" id="status-dot"></div>
@@ -727,8 +757,210 @@ function fmtDate(d) {
     } catch { return d; }
 }
 
-// ── Init ──
-document.getElementById('inp-tanggal').valueAsDate = new Date();
+// ════════════════════════════════
+// IMPORT EXCEL WASTE
+// ════════════════════════════════
+let parsedWasteData = null;
+
+// Mapping nama mesin di Excel ke MESIN_LIST id
+function findMesinId(namaExcel) {
+    const clean = namaExcel.trim().toLowerCase();
+    const found = MESIN_LIST.find(m => {
+        const mNama = m.nama.toLowerCase();
+        return mNama === clean || mNama.includes(clean.split('(')[0].trim()) || clean.includes(mNama.split('(')[0].trim());
+    });
+    return found ? found.id : null;
+}
+function findMesinNama(id) {
+    const m = MESIN_LIST.find(x => x.id === id);
+    return m ? m.nama : id;
+}
+
+function handleDrag(e, over) {
+    e.preventDefault();
+    document.getElementById('drop-zone').style.borderColor = over ? '#f59e0b' : '#d1d5db';
+    document.getElementById('drop-zone').style.background = over ? '#fffbeb' : 'white';
+}
+function handleDrop(e) {
+    e.preventDefault();
+    handleDrag(e, false);
+    const f = e.dataTransfer.files[0];
+    if (f) handleExcelFile(f);
+}
+function handleExcelFile(file) {
+    if (!file) return;
+    document.getElementById('file-name').textContent = '📄 ' + file.name;
+    document.getElementById('btn-proses-excel').style.display = 'inline-block';
+    window._pendingWasteFile = file;
+    document.getElementById('import-msg').textContent = '';
+    document.getElementById('btn-import-excel').style.display = 'none';
+    document.getElementById('import-warning').classList.remove('show');
+    parsedWasteData = null;
+}
+
+function excelDateToStr(v) {
+    if (!v && v !== 0) return null;
+    if (v instanceof Date) return v.toISOString().slice(0, 10);
+    if (typeof v === 'number') {
+        return new Date(Math.round((v - 25569) * 86400 * 1000)).toISOString().slice(0, 10);
+    }
+    if (typeof v === 'string' && v.match(/^\d{4}-\d{2}-\d{2}/)) return v.slice(0, 10);
+    return null;
+}
+
+function prosesExcelWaste() {
+    const file = window._pendingWasteFile;
+    if (!file) return;
+    document.getElementById('import-msg').textContent = '⏳ Membaca file...';
+    document.getElementById('import-msg').style.color = '#3b82f6';
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const wb = XLSX.read(e.target.result, { type: 'array', raw: true, cellDates: false });
+            const ws = wb.Sheets['SHIFTLY'];
+            if (!ws) throw new Error('Sheet "SHIFTLY" tidak ditemukan');
+
+            const range = XLSX.utils.decode_range(ws['!ref']);
+            const cell  = (r, c) => ws[XLSX.utils.encode_cell({ r, c })];
+
+            // Section rows (0-based): Kemasan row 4-12 (Excel row5-13), SFG row19-27, Karton row34-42
+            const SECTIONS = [
+                { key: 'kemasan', startRow: 4,  endRow: 12 },
+                { key: 'sfg',     startRow: 19, endRow: 27 },
+                { key: 'karton',  startRow: 34, endRow: 42 },
+            ];
+
+            // tanggal di row 2 (Excel row 3), hanya muncul di kolom shift 1 (step 3 dari col 4)
+            const dataMap = {}; // { 'tanggal||shift' : { mesin_id: {kemasan,sfg,karton} } }
+
+            for (let c = 4; c <= range.e.c; c++) {
+                const tglCell = cell(2, c);
+                let tglStr = null;
+                // Cari tanggal terdekat ke kiri (karena merge, hanya col pertama shift yg ada value)
+                for (let cc = c; cc >= 4; cc--) {
+                    const tc = cell(2, cc);
+                    if (tc && tc.v !== undefined) {
+                        // pastikan ini benar2 row tanggal (bukan 'Batas Atas')
+                        if (typeof tc.v === 'number' || tc.v instanceof Date) {
+                            tglStr = excelDateToStr(tc.v);
+                        }
+                        break;
+                    }
+                }
+                if (!tglStr) continue;
+
+                const shiftCell = cell(3, c);
+                const shift = shiftCell ? parseInt(shiftCell.v) : null;
+                if (!shift || shift < 1 || shift > 3) continue;
+
+                const key = `${tglStr}||${shift}`;
+                if (!dataMap[key]) dataMap[key] = {};
+
+                SECTIONS.forEach(sec => {
+                    for (let r = sec.startRow; r <= sec.endRow; r++) {
+                        const namaCell = cell(r, 1); // col B
+                        if (!namaCell || !namaCell.v) continue;
+                        const namaExcel = String(namaCell.v).trim();
+                        if (namaExcel.toLowerCase() === 'total') continue;
+
+                        const mid = findMesinId(namaExcel);
+                        if (!mid) continue;
+
+                        const valCell = cell(r, c);
+                        const val = valCell && valCell.v !== undefined && valCell.v !== '-' && !isNaN(parseFloat(valCell.v))
+                            ? parseFloat(valCell.v) : 0;
+
+                        if (!dataMap[key][mid]) dataMap[key][mid] = { kemasan: 0, sfg: 0, karton: 0 };
+                        dataMap[key][mid][sec.key] = val;
+                    }
+                });
+            }
+
+            // Convert ke array rows, filter yang ada nilai > 0
+            const rows = [];
+            Object.entries(dataMap).forEach(([key, mesinData]) => {
+                const [tanggal, shiftStr] = key.split('||');
+                const shift = parseInt(shiftStr);
+                Object.entries(mesinData).forEach(([mid, vals]) => {
+                    if (vals.kemasan > 0 || vals.sfg > 0 || vals.karton > 0) {
+                        rows.push({
+                            tanggal, shift,
+                            mesin_id: mid,
+                            mesin_nama: findMesinNama(mid),
+                            waste_kemasan: +vals.kemasan.toFixed(3),
+                            waste_sfg: +vals.sfg.toFixed(3),
+                            waste_karton: vals.karton,
+                        });
+                    }
+                });
+            });
+
+            if (rows.length === 0) throw new Error('Tidak ada data ditemukan di sheet SHIFTLY');
+
+            rows.sort((a,b) => a.tanggal.localeCompare(b.tanggal) || a.shift - b.shift);
+            parsedWasteData = rows;
+
+            const tanggalUnik = [...new Set(rows.map(r => r.tanggal))].sort();
+            document.getElementById('preview-info').innerHTML =
+                `✅ Ditemukan <strong>${rows.length}</strong> baris data dari <strong>${tanggalUnik.length}</strong> hari ` +
+                `(${fmtDate(tanggalUnik[0])} — ${fmtDate(tanggalUnik[tanggalUnik.length-1])})`;
+            document.getElementById('import-msg').textContent = '';
+
+            document.getElementById('btn-import-excel').style.display = 'inline-block';
+            document.getElementById('btn-import-excel').disabled = false;
+            document.getElementById('import-warning').classList.add('show');
+
+        } catch (err) {
+            document.getElementById('import-msg').textContent = '❌ ' + err.message;
+            document.getElementById('import-msg').style.color = '#dc2626';
+            console.error(err);
+        }
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+async function importKeSupabase() {
+    if (!parsedWasteData || parsedWasteData.length === 0) return;
+    const btn = document.getElementById('btn-import-excel');
+    btn.disabled = true;
+    btn.textContent = '⏳ Mengimpor...';
+    document.getElementById('import-msg').textContent = '';
+
+    try {
+        // Hapus data lama untuk kombinasi tanggal+shift yang ada di file (replace, bukan tambah dobel)
+        const tglShiftSet = [...new Set(parsedWasteData.map(r => `${r.tanggal}||${r.shift}`))];
+        for (const ts of tglShiftSet) {
+            const [tgl, sh] = ts.split('||');
+            await db.from('waste_shiftly').delete().eq('tanggal', tgl).eq('shift', parseInt(sh));
+        }
+
+        // Insert batch (Supabase max ~1000 rows per insert, kita batch per 500)
+        const BATCH = 500;
+        for (let i = 0; i < parsedWasteData.length; i += BATCH) {
+            const chunk = parsedWasteData.slice(i, i + BATCH);
+            const { error } = await db.from('waste_shiftly').insert(chunk);
+            if (error) throw error;
+        }
+
+        document.getElementById('import-msg').textContent = `✅ ${parsedWasteData.length} baris berhasil diimpor!`;
+        document.getElementById('import-msg').style.color = '#16a34a';
+        document.getElementById('import-warning').classList.remove('show');
+        btn.textContent = '✅ Diimpor';
+
+        loadKPI();
+        loadRiwayat();
+
+    } catch (err) {
+        document.getElementById('import-msg').textContent = '❌ Gagal: ' + err.message;
+        document.getElementById('import-msg').style.color = '#dc2626';
+        btn.disabled = false;
+        btn.textContent = '📥 Import ke Supabase';
+        console.error(err);
+    }
+}
+
+
 
 // Set filter bulan ke bulan ini secara default
 const now = new Date();
