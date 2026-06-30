@@ -195,7 +195,7 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
         </div>
         <div id="file-name" style="font-size:13px; color:#374151; margin-top:8px;"></div>
         <div id="import-warning" style="background:#fef3c7; border:1px solid #fbbf24; color:#92400e; border-radius:6px; padding:8px 12px; font-size:12px; margin-top:10px; display:none;">
-            ⚠️ <strong>Perhatian:</strong> Import akan menambahkan data baru. Tanggal+shift yang sudah ada akan ditimpa.
+            ⚠️ <strong>Perhatian:</strong> Import akan <strong>menghapus semua data waste lama</strong> dan menggantinya dengan data dari file ini (full refresh, seperti OEE).
         </div>
         <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-top:12px;">
             <button id="btn-proses-excel" onclick="prosesExcelWaste()" style="background:#1f2937; color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer; font-size:14px; display:none;">
@@ -978,12 +978,12 @@ async function importKeSupabase() {
     document.getElementById('import-msg').textContent = '';
 
     try {
-        // Hapus data lama untuk kombinasi tanggal+shift yang ada di file (replace, bukan tambah dobel)
-        const tglShiftSet = [...new Set(parsedWasteData.map(r => `${r.tanggal}||${r.shift}`))];
-        for (const ts of tglShiftSet) {
-            const [tgl, sh] = ts.split('||');
-            await db.from('waste_shiftly').delete().eq('tanggal', tgl).eq('shift', parseInt(sh));
-        }
+        // Hapus SEMUA data lama (full refresh, seperti OEE) — biar tidak menumpuk
+        const { error: eDel } = await db.from('waste_shiftly').delete().gte('tanggal', '2000-01-01');
+        if (eDel) throw eDel;
+
+        // Hapus SEMUA batas atas lama juga, biar bersih
+        await db.from('waste_batas').delete().gte('id', 0);
 
         // Insert batch (Supabase max ~1000 rows per insert, kita batch per 500)
         const BATCH = 500;
@@ -997,10 +997,6 @@ async function importKeSupabase() {
         let batasMsg = '';
         if (parsedWasteBatas && parsedWasteBatas.length > 0) {
             try {
-                // Hapus batas lama untuk mesin yang ada di file, lalu insert baru (replace)
-                for (const b of parsedWasteBatas) {
-                    await db.from('waste_batas').delete().eq('mesin_id', b.mesin_id);
-                }
                 const { error: eBatas } = await db.from('waste_batas').insert(parsedWasteBatas);
                 if (eBatas) {
                     console.warn('Gagal update batas atas:', eBatas.message);
