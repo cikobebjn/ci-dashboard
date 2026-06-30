@@ -21,7 +21,6 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
 .sidebar a { display:block; color:white; padding:15px 20px; text-decoration:none; }
 .sidebar a:hover { background:#374151; }
 .sidebar a.active { background:#3b82f6; }
-.sidebar a[href="tonase.html"] { }
 .main { padding:80px 24px 24px 24px; }
 
 .kpi-grid {
@@ -69,6 +68,52 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
     border-radius:4px; padding:2px 6px; margin-top:6px; display:inline-block;
 }
 .kpi-unit { font-size:16px; font-weight:400; color:#6b7280; margin-left:2px; }
+
+/* Section title */
+.sec-title {
+    font-size:13px; font-weight:700; color:#374151;
+    text-transform:uppercase; letter-spacing:0.05em;
+    margin:28px 0 12px;
+}
+
+/* Shiftly mini cards */
+.shift-grid {
+    display:grid; grid-template-columns:repeat(3, 1fr);
+    gap:10px; margin-top:10px;
+}
+.shift-mini {
+    background:#f9fafb; border-radius:8px; padding:10px 12px;
+    text-align:center;
+}
+.shift-mini-label { font-size:10px; color:#9ca3af; font-weight:600; text-transform:uppercase; }
+.shift-mini-val   { font-size:18px; font-weight:700; margin-top:2px; }
+.shift-mini-val.good { color:#16a34a; }
+.shift-mini-val.low  { color:#dc2626; }
+.shift-mini-val.empty{ color:#d1d5db; font-size:14px; }
+
+/* Card lebar untuk shiftly & per-line */
+.card-wide {
+    background:white; border-radius:12px; padding:20px 24px;
+    box-shadow:0 1px 3px rgba(0,0,0,0.08);
+    border-top:4px solid #6366f1;
+    margin-bottom:16px;
+}
+
+/* Tabel OEE per line di dashboard */
+.line-table { width:100%; border-collapse:collapse; font-size:12px; margin-top:12px; }
+.line-table th {
+    background:#f9fafb; color:#6b7280; font-weight:600; font-size:10px;
+    padding:8px 10px; text-align:center; border-bottom:2px solid #e5e7eb;
+    text-transform:uppercase; letter-spacing:0.03em;
+}
+.line-table th:first-child { text-align:left; }
+.line-table td { padding:7px 10px; border-bottom:1px solid #f3f4f6; }
+.line-table tr:last-child td { border-bottom:none; }
+.line-table td.mesin-col { font-weight:600; color:#374151; font-size:11px; }
+.line-table td.val-col { text-align:center; font-weight:700; }
+.line-table td.val-col.good { color:#16a34a; }
+.line-table td.val-col.low  { color:#dc2626; }
+.line-table td.val-col.empty { color:#d1d5db; font-weight:400; }
 </style>
 </head>
 <body>
@@ -93,9 +138,9 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
 <div class="main">
     <div class="kpi-grid">
 
-        <!-- OEE -->
+        <!-- Daily OEE -->
         <div class="card oee-card">
-            <h3>OEE</h3>
+            <h3>Daily OEE</h3>
             <div class="value loading" id="val-oee">...</div>
             <div class="card-date" id="date-oee"></div>
             <span class="target-badge">Target: ≥ 55%</span>
@@ -119,6 +164,45 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
         </div>
 
     </div>
+
+    <!-- Shiftly OEE -->
+    <div class="sec-title">OEE Shiftly <span id="title-date-shiftly" style="color:#9ca3af; font-weight:400; text-transform:none;"></span></div>
+    <div class="card-wide">
+        <div class="shift-grid">
+            <div class="shift-mini">
+                <div class="shift-mini-label">Shift 1</div>
+                <div class="shift-mini-val loading" id="val-shift1">...</div>
+            </div>
+            <div class="shift-mini">
+                <div class="shift-mini-label">Shift 2</div>
+                <div class="shift-mini-val loading" id="val-shift2">...</div>
+            </div>
+            <div class="shift-mini">
+                <div class="shift-mini-label">Shift 3</div>
+                <div class="shift-mini-val loading" id="val-shift3">...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- OEE per Mesin/Line -->
+    <div class="sec-title">OEE per Mesin / Line <span id="title-date-line" style="color:#9ca3af; font-weight:400; text-transform:none;"></span></div>
+    <div class="card-wide">
+        <table class="line-table" id="tbl-line">
+            <thead>
+                <tr>
+                    <th>Mesin / Line</th>
+                    <th>Shift 1</th>
+                    <th>Shift 2</th>
+                    <th>Shift 3</th>
+                    <th>Target</th>
+                </tr>
+            </thead>
+            <tbody id="tbl-line-body">
+                <tr><td colspan="5" style="text-align:center; color:#9ca3af; padding:20px;">Memuat data...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -137,7 +221,7 @@ function toggleMenu() {
 
 async function loadData() {
 
-    // ── OEE ──
+    // ── Daily OEE ──
     const { data: oeeData } = await db
         .from('oee_daily')
         .select('*')
@@ -149,7 +233,7 @@ async function loadData() {
     const oeeDate = document.getElementById('date-oee');
     if (oeeData) {
         const val = oeeData.oee;
-        oeeEl.textContent = val.toFixed(1) + '%';
+        oeeEl.textContent = val.toFixed(2) + '%';
         oeeEl.className   = 'value ' + (val >= OEE_TARGET ? 'good' : 'low');
         oeeDate.textContent = fmtDate(oeeData.tanggal);
     } else {
@@ -180,6 +264,67 @@ async function loadData() {
     } else {
         tonEl.textContent = '-'; tonEl.className = 'value';
     }
+
+    // ── OEE Shiftly (total Bojonegoro per shift) ──
+    const { data: shiftRows } = await db
+        .from('oee_shiftly')
+        .select('*')
+        .order('tanggal', { ascending: false })
+        .limit(3);
+
+    if (shiftRows && shiftRows.length > 0) {
+        const tgl = shiftRows[0].tanggal;
+        const byShift = {};
+        shiftRows.forEach(r => { byShift[r.shift] = r.oee; });
+
+        setShiftMini('val-shift1', byShift['SHIFT 1']);
+        setShiftMini('val-shift2', byShift['SHIFT 2']);
+        setShiftMini('val-shift3', byShift['SHIFT 3']);
+        document.getElementById('title-date-shiftly').textContent = '— ' + fmtDate(tgl);
+    } else {
+        ['val-shift1','val-shift2','val-shift3'].forEach(id => setShiftMini(id, null));
+    }
+
+    // ── OEE per Mesin/Line (hari terakhir) ──
+    try {
+        const { data: lineRows } = await db
+            .from('oee_shiftly_line')
+            .select('*')
+            .order('tanggal', { ascending: false })
+            .limit(100);
+
+        const tbody = document.getElementById('tbl-line-body');
+
+        if (lineRows && lineRows.length > 0) {
+            const lastDate = lineRows[0].tanggal;
+            document.getElementById('title-date-line').textContent = '— ' + fmtDate(lastDate);
+            const mesinMap = {};
+            lineRows.filter(r => r.tanggal === lastDate).forEach(r => {
+                if (!mesinMap[r.mesin]) mesinMap[r.mesin] = { mesin: r.mesin, target: r.target, shift1: null, shift2: null, shift3: null };
+                mesinMap[r.mesin][`shift${r.shift}`] = r.oee;
+            });
+
+            const lines = Object.values(mesinMap);
+            tbody.innerHTML = '';
+            lines.forEach(m => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="mesin-col">${m.mesin}</td>
+                    ${lineValCell(m.shift1, m.target)}
+                    ${lineValCell(m.shift2, m.target)}
+                    ${lineValCell(m.shift3, m.target)}
+                    <td style="text-align:center; color:#6b7280; font-size:11px;">${m.target}%</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } else {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#9ca3af; padding:20px;">Belum ada data per line</td></tr>';
+        }
+    } catch (err) {
+        document.getElementById('tbl-line-body').innerHTML =
+            '<tr><td colspan="5" style="text-align:center; color:#9ca3af; padding:20px;">Belum ada data per line</td></tr>';
+    }
+
     // ── Waste — cek mesin over target hari terakhir ──
     const { data: wasteRows } = await db
         .from('waste_shiftly')
@@ -198,21 +343,17 @@ async function loadData() {
     const wasteDate  = document.getElementById('date-waste');
 
     if (wasteRows && wasteRows.length > 0 && batasRows) {
-        // Ambil tanggal terakhir
         const lastDate = wasteRows[0].tanggal;
 
-        // Sum kemasan per mesin untuk tanggal terakhir (semua shift)
         const perMesin = {};
         wasteRows.filter(r => r.tanggal === lastDate).forEach(r => {
             if (!perMesin[r.mesin_id]) perMesin[r.mesin_id] = { nama: r.mesin_nama, kemasan: 0 };
             perMesin[r.mesin_id].kemasan += r.waste_kemasan || 0;
         });
 
-        // Batas harian = batas_kemasan × 3 shift
         const batasMap = {};
         batasRows.forEach(b => { batasMap[b.mesin_id] = (b.batas_kemasan || 0) * 3; });
 
-        // Cek yang over
         const overMesin = Object.entries(perMesin)
             .filter(([id, d]) => d.kemasan > (batasMap[id] || 0))
             .map(([id, d]) => ({ nama: d.nama, val: d.kemasan, batas: batasMap[id] || 0 }));
@@ -241,6 +382,25 @@ async function loadData() {
         wasteVal.className = 'value';
         wasteBadge.innerHTML = '<span style="font-size:11px;color:#9ca3af;">Belum ada data</span>';
     }
+}
+
+function setShiftMini(id, val) {
+    const el = document.getElementById(id);
+    if (val === null || val === undefined) {
+        el.textContent = '—';
+        el.className = 'shift-mini-val empty';
+        return;
+    }
+    el.textContent = val.toFixed(2) + '%';
+    el.className = 'shift-mini-val ' + (val >= OEE_TARGET ? 'good' : 'low');
+}
+
+function lineValCell(val, target) {
+    if (val === null || val === undefined) {
+        return '<td class="val-col empty">—</td>';
+    }
+    const cls = val >= target ? 'good' : 'low';
+    return `<td class="val-col ${cls}">${val.toFixed(2)}%</td>`;
 }
 
 function fmtDate(d) {
