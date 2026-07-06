@@ -127,6 +127,7 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
 .card.waste-mini-card.sfg     { border-top-color:#8b5cf6; }
 .card.waste-mini-card.karton  { border-top-color:#ef4444; }
 .card.fryer-mini-card         { border-top-color:#0891b2; }
+.card.proses-mini-card        { border-top-color:#d97706; }
 .waste-detail-table { width:100%; border-collapse:collapse; font-size:11px; margin-top:10px; }
 .waste-detail-table td { padding:5px 4px; border-bottom:1px solid #f3f4f6; }
 .waste-detail-table tr:last-child td { border-bottom:none; }
@@ -245,6 +246,12 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
     <!-- Waste Fryer -->
     <div class="sec-title">🔥 Waste Fryer <span id="title-date-fryer" style="color:#9ca3af; font-weight:400; text-transform:none;"></span></div>
     <div class="kpi-grid" id="fryer-cards-container" style="grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); margin-bottom:20px;">
+        <div style="grid-column:1/-1; text-align:center; color:#9ca3af; padding:20px;">Memuat data...</div>
+    </div>
+
+    <!-- Waste Proses -->
+    <div class="sec-title">⚙️ Waste Proses <span id="title-date-proses" style="color:#9ca3af; font-weight:400; text-transform:none;"></span></div>
+    <div class="kpi-grid" id="proses-cards-container" style="grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); margin-bottom:20px;">
         <div style="grid-column:1/-1; text-align:center; color:#9ca3af; padding:20px;">Memuat data...</div>
     </div>
 
@@ -454,6 +461,9 @@ async function loadData(targetDate) {
 
     // ── Waste Fryer ──
     await loadWasteFryer(targetDate);
+
+    // ── Waste Proses ──
+    await loadWasteProses(targetDate);
 }
 
 function renderWasteDetail(kategori, perMesin, batasMap, unit) {
@@ -521,6 +531,52 @@ async function loadWasteFryer(targetDate) {
         card.className = 'card fryer-mini-card';
         card.innerHTML = `
             <h3>🔥 ${namaTampil}</h3>
+            <div class="value">${total.toFixed(2)}<span class="kpi-unit"> Kg</span></div>
+            <table class="waste-detail-table"><tbody>
+                ${items.map(([nama, val]) => `
+                    <tr><td class="mesin-name">${nama}</td><td class="waste-val">${val.toFixed(2)}</td></tr>
+                `).join('')}
+            </tbody></table>
+        `;
+        container.appendChild(card);
+    });
+}
+
+async function loadWasteProses(targetDate) {
+    let q = db.from('waste_proses_shiftly').select('*').order('tanggal', { ascending: false }).limit(300);
+    if (targetDate) q = db.from('waste_proses_shiftly').select('*').eq('tanggal', targetDate);
+
+    const { data: prosesRows } = await q;
+    const container = document.getElementById('proses-cards-container');
+    const titleDate = document.getElementById('title-date-proses');
+
+    if (!prosesRows || prosesRows.length === 0) {
+        container.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#9ca3af; padding:20px;">Belum ada data waste proses</div>';
+        titleDate.textContent = targetDate ? '— Tidak ada data' : '';
+        return;
+    }
+
+    const useDate = targetDate || prosesRows[0].tanggal;
+    titleDate.textContent = '— ' + fmtDate(useDate);
+
+    const rowsForDate = targetDate ? prosesRows : prosesRows.filter(r => r.tanggal === prosesRows[0].tanggal);
+
+    // Group per proses_id, jumlahkan tiap item lintas shift
+    const byProses = {};
+    rowsForDate.forEach(r => {
+        if (!byProses[r.proses_id]) byProses[r.proses_id] = { nama: r.proses_nama, items: {} };
+        byProses[r.proses_id].items[r.item_nama] = (byProses[r.proses_id].items[r.item_nama] || 0) + (r.nilai || 0);
+    });
+
+    container.innerHTML = '';
+    Object.values(byProses).forEach(p => {
+        const items = Object.entries(p.items).sort((a, b) => b[1] - a[1]);
+        const total = items.reduce((s, [, v]) => s + v, 0);
+
+        const card = document.createElement('div');
+        card.className = 'card proses-mini-card';
+        card.innerHTML = `
+            <h3>⚙️ ${p.nama}</h3>
             <div class="value">${total.toFixed(2)}<span class="kpi-unit"> Kg</span></div>
             <table class="waste-detail-table"><tbody>
                 ${items.map(([nama, val]) => `
