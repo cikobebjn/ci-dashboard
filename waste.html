@@ -195,7 +195,7 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
         </div>
         <div id="file-name" style="font-size:13px; color:#374151; margin-top:8px;"></div>
         <div id="import-warning" style="background:#fef3c7; border:1px solid #fbbf24; color:#92400e; border-radius:6px; padding:8px 12px; font-size:12px; margin-top:10px; display:none;">
-            ⚠️ <strong>Perhatian:</strong> Import akan <strong>menghapus semua data waste lama</strong> dan menggantinya dengan data dari file ini (full refresh, seperti OEE).
+            ⚠️ <strong>Perhatian:</strong> Data untuk tanggal yang ada di file ini akan <strong>diperbarui (ditimpa)</strong>, sedangkan data pada tanggal lain yang <strong>tidak ada</strong> di file ini akan <strong>tetap tersimpan</strong> (tidak terhapus).
         </div>
         <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-top:12px;">
             <button id="btn-proses-excel" onclick="prosesExcelWaste()" style="background:#1f2937; color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer; font-size:14px; display:none;">
@@ -235,45 +235,6 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
             <div class="kpi-val" id="kpi-karton">—</div>
             <div class="kpi-date" id="kpi-date-karton"></div>
             <span class="kpi-target">Batas: 39 Pcs/hari</span>
-        </div>
-    </div>
-
-    <!-- Form Input -->
-    <div class="sec-title">✏️ Input Waste per Shift</div>
-    <div class="input-card">
-        <div class="input-row">
-            <div class="inp-group">
-                <label>Tanggal</label>
-                <input type="date" id="inp-tanggal">
-            </div>
-            <div class="inp-group">
-                <label>Shift</label>
-                <select id="inp-shift">
-                    <option value="1">Shift 1</option>
-                    <option value="2">Shift 2</option>
-                    <option value="3">Shift 3</option>
-                </select>
-            </div>
-        </div>
-
-        <table class="waste-table">
-            <thead>
-                <tr>
-                    <th style="width:240px;">Mesin / Line</th>
-                    <th class="center">Waste Kemasan<br><span style="font-weight:400;color:#9ca3af;">(Kg)</span></th>
-                    <th class="center">Waste SFG<br><span style="font-weight:400;color:#9ca3af;">(Kg)</span></th>
-                    <th class="center">Waste Karton<br><span style="font-weight:400;color:#9ca3af;">(Pcs)</span></th>
-                </tr>
-            </thead>
-            <tbody id="tbl-input-body">
-                <!-- diisi JS -->
-            </tbody>
-        </table>
-
-        <div class="btn-row">
-            <button class="btn-simpan" id="btn-simpan" onclick="simpanData()">💾 Simpan Data</button>
-            <button class="btn-reset" onclick="resetForm()">🔄 Reset</button>
-            <span id="save-msg" style="font-size:13px; color:#6b7280;"></span>
         </div>
     </div>
 
@@ -362,126 +323,6 @@ const HARI = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
 function toggleMenu() {
     const s = document.getElementById('sidebar');
     s.style.left = s.style.left === '0px' ? '-250px' : '0px';
-}
-
-// ── Render tabel input ──
-function renderInputTable() {
-    const tbody = document.getElementById('tbl-input-body');
-    tbody.innerHTML = '';
-    MESIN_LIST.forEach(m => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>
-                <div class="mesin-name">${m.nama}</div>
-            </td>
-            <td style="text-align:center;">
-                <input class="inp-waste" type="number" id="k_${m.id}" 
-                    placeholder="0" min="0" step="0.01"
-                    oninput="cekBatas(this, ${m.batas_kemasan})">
-                <span class="batas-badge">batas: ${m.batas_kemasan}</span>
-            </td>
-            <td style="text-align:center;">
-                <input class="inp-waste" type="number" id="s_${m.id}" 
-                    placeholder="0" min="0" step="0.01"
-                    oninput="cekBatas(this, ${m.batas_sfg})">
-                <span class="batas-badge">batas: ${m.batas_sfg}</span>
-            </td>
-            <td style="text-align:center;">
-                <input class="inp-waste" type="number" id="c_${m.id}" 
-                    placeholder="0" min="0" step="1"
-                    oninput="cekBatas(this, ${m.batas_karton})">
-                <span class="batas-badge">batas: ${m.batas_karton}</span>
-            </td>
-        `;
-        tbody.appendChild(tr);
-    });
-}
-
-function cekBatas(el, batas) {
-    const val = parseFloat(el.value);
-    if (!isNaN(val) && val > batas && batas > 0) {
-        el.classList.add('over');
-    } else {
-        el.classList.remove('over');
-    }
-}
-
-function resetForm() {
-    document.querySelectorAll('.inp-waste').forEach(el => {
-        el.value = '';
-        el.classList.remove('over');
-    });
-    document.getElementById('save-msg').textContent = '';
-}
-
-// ── Simpan ke Supabase ──
-async function simpanData() {
-    const tanggal = document.getElementById('inp-tanggal').value;
-    const shift   = document.getElementById('inp-shift').value;
-
-    if (!tanggal) {
-        document.getElementById('save-msg').textContent = '⚠️ Tanggal wajib diisi';
-        document.getElementById('save-msg').style.color = '#dc2626';
-        return;
-    }
-
-    const btn = document.getElementById('btn-simpan');
-    btn.disabled = true;
-    btn.textContent = '⏳ Menyimpan...';
-    document.getElementById('save-msg').textContent = '';
-
-    try {
-        const rows = [];
-        MESIN_LIST.forEach(m => {
-            const kemasan = parseFloat(document.getElementById(`k_${m.id}`).value) || 0;
-            const sfg     = parseFloat(document.getElementById(`s_${m.id}`).value) || 0;
-            const karton  = parseFloat(document.getElementById(`c_${m.id}`).value) || 0;
-
-            // Hanya simpan baris yang ada nilai > 0
-            if (kemasan > 0 || sfg > 0 || karton > 0) {
-                rows.push({
-                    tanggal,
-                    shift: parseInt(shift),
-                    mesin_id: m.id,
-                    mesin_nama: m.nama,
-                    waste_kemasan: kemasan,
-                    waste_sfg: sfg,
-                    waste_karton: karton,
-                });
-            }
-        });
-
-        if (rows.length === 0) {
-            document.getElementById('save-msg').textContent = '⚠️ Belum ada data yang diisi';
-            document.getElementById('save-msg').style.color = '#f59e0b';
-            btn.disabled = false;
-            btn.textContent = '💾 Simpan Data';
-            return;
-        }
-
-        // Hapus data lama untuk tanggal+shift yang sama dulu (upsert manual)
-        await db.from('waste_shiftly')
-            .delete()
-            .eq('tanggal', tanggal)
-            .eq('shift', parseInt(shift));
-
-        const { error } = await db.from('waste_shiftly').insert(rows);
-        if (error) throw error;
-
-        document.getElementById('save-msg').textContent = `✅ ${rows.length} mesin tersimpan`;
-        document.getElementById('save-msg').style.color = '#16a34a';
-        resetForm();
-        loadRiwayat();
-        loadKPI();
-
-    } catch (err) {
-        document.getElementById('save-msg').textContent = '❌ Gagal: ' + err.message;
-        document.getElementById('save-msg').style.color = '#dc2626';
-        console.error(err);
-    } finally {
-        btn.disabled = false;
-        btn.textContent = '💾 Simpan Data';
-    }
 }
 
 // ── Load KPI summary (total per hari terakhir) ──
@@ -820,13 +661,29 @@ function handleExcelFile(file) {
     parsedWasteData = null;
 }
 
+const BULAN_ID = {
+    'JANUARI':1, 'FEBRUARI':2, 'MARET':3,  'APRIL':4,     'MEI':5,      'JUNI':6,
+    'JULI':7,    'AGUSTUS':8,  'SEPTEMBER':9,'OKTOBER':10, 'NOVEMBER':11,'DESEMBER':12
+};
+
 function excelDateToStr(v) {
-    if (!v && v !== 0) return null;
+    if (v === null || v === undefined || v === '') return null;
     if (v instanceof Date) return v.toISOString().slice(0, 10);
     if (typeof v === 'number') {
         return new Date(Math.round((v - 25569) * 86400 * 1000)).toISOString().slice(0, 10);
     }
-    if (typeof v === 'string' && v.match(/^\d{4}-\d{2}-\d{2}/)) return v.slice(0, 10);
+    if (typeof v === 'string') {
+        const s = v.trim();
+        if (s.match(/^\d{4}-\d{2}-\d{2}/)) return s.slice(0, 10);
+        // Format baru: "1 JANUARI 2026"
+        const m = s.match(/^(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})$/);
+        if (m) {
+            const bulan = BULAN_ID[m[2].toUpperCase()];
+            if (bulan) {
+                return `${m[3]}-${String(bulan).padStart(2, '0')}-${String(parseInt(m[1])).padStart(2, '0')}`;
+            }
+        }
+    }
     return null;
 }
 
@@ -846,11 +703,38 @@ function prosesExcelWaste() {
             const range = XLSX.utils.decode_range(ws['!ref']);
             const cell  = (r, c) => ws[XLSX.utils.encode_cell({ r, c })];
 
-            // Section rows (0-based): Kemasan row 4-12 (Excel row5-13), SFG row19-27, Karton row34-42
+            // ── Cari baris header tiap seksi secara dinamis (robust thd perubahan layout file) ──
+            function cariBarisHeader(label) {
+                for (let r = range.s.r; r <= range.e.r; r++) {
+                    const c = cell(r, 1); // kolom B
+                    if (c && c.v && String(c.v).toUpperCase().includes(label)) return r;
+                }
+                return -1;
+            }
+            // Cari baris terakhir data mesin (berhenti sebelum baris "Total" / baris kosong)
+            function cariAkhirData(startRow) {
+                let r = startRow;
+                while (r <= range.e.r) {
+                    const namaCell = cell(r, 1);
+                    if (!namaCell || namaCell.v === undefined || namaCell.v === '') return r - 1;
+                    if (String(namaCell.v).trim().toLowerCase() === 'total') return r - 1;
+                    r++;
+                }
+                return r - 1;
+            }
+
+            const hKemasan = cariBarisHeader('WASTE KEMASAN');
+            const hSfg     = cariBarisHeader('WASTE SFG');
+            const hKarton  = cariBarisHeader('WASTE KARTON');
+            if (hKemasan < 0 || hSfg < 0 || hKarton < 0) {
+                throw new Error('Struktur sheet SHIFTLY tidak dikenali (header seksi waste tidak ditemukan)');
+            }
+
+            // Section rows (0-based), header row = baris tanggal, shiftRow = baris shift (persis di bawah header)
             const SECTIONS = [
-                { key: 'kemasan', startRow: 4,  endRow: 12 },
-                { key: 'sfg',     startRow: 19, endRow: 27 },
-                { key: 'karton',  startRow: 34, endRow: 42 },
+                { key: 'kemasan', headerRow: hKemasan, shiftRow: hKemasan + 1, startRow: hKemasan + 2, endRow: cariAkhirData(hKemasan + 2) },
+                { key: 'sfg',     headerRow: hSfg,     shiftRow: hSfg + 1,     startRow: hSfg + 2,     endRow: cariAkhirData(hSfg + 2) },
+                { key: 'karton',  headerRow: hKarton,  shiftRow: hKarton + 1, startRow: hKarton + 2,  endRow: cariAkhirData(hKarton + 2) },
             ];
 
             // ── Parse Batas Atas dari kolom D (index 3) ──
@@ -880,26 +764,19 @@ function prosesExcelWaste() {
                 batas_karton: b.karton,
             }));
 
-            // tanggal di row 2 (Excel row 3), hanya muncul di kolom shift 1 (step 3 dari col 4)
+            // Tanggal & shift diambil dari header seksi Kemasan (kolom tanggal sama utk semua seksi)
+            // Tiap tanggal merge 3 kolom (shift 1,2,3) mulai dari kolom E (index 4)
+            const tglRow   = SECTIONS[0].headerRow;
+            const shiftRow = SECTIONS[0].shiftRow;
             const dataMap = {}; // { 'tanggal||shift' : { mesin_id: {kemasan,sfg,karton} } }
 
             for (let c = 4; c <= range.e.c; c++) {
-                const tglCell = cell(2, c);
-                let tglStr = null;
-                // Cari tanggal terdekat ke kiri (karena merge, hanya col pertama shift yg ada value)
-                for (let cc = c; cc >= 4; cc--) {
-                    const tc = cell(2, cc);
-                    if (tc && tc.v !== undefined) {
-                        // pastikan ini benar2 row tanggal (bukan 'Batas Atas')
-                        if (typeof tc.v === 'number' || tc.v instanceof Date) {
-                            tglStr = excelDateToStr(tc.v);
-                        }
-                        break;
-                    }
-                }
+                const groupStart = 4 + Math.floor((c - 4) / 3) * 3;
+                const tglCell = cell(tglRow, groupStart);
+                const tglStr = tglCell ? excelDateToStr(tglCell.v) : null;
                 if (!tglStr) continue;
 
-                const shiftCell = cell(3, c);
+                const shiftCell = cell(shiftRow, c);
                 const shift = shiftCell ? parseInt(shiftCell.v) : null;
                 if (!shift || shift < 1 || shift > 3) continue;
 
@@ -978,14 +855,15 @@ async function importKeSupabase() {
     document.getElementById('import-msg').textContent = '';
 
     try {
-        // Hapus SEMUA data lama (full refresh, seperti OEE) — biar tidak menumpuk
-        const { error: eDel } = await db.from('waste_shiftly').delete().gte('tanggal', '2000-01-01');
+        // Hapus data lama HANYA untuk tanggal yang ada di file ini (update, bukan menimpa semua data)
+        // Tanggal lain yang tidak ada di file ini tetap tersimpan seperti semula.
+        const tanggalUnik = [...new Set(parsedWasteData.map(r => r.tanggal))];
+        const { error: eDel } = await db.from('waste_shiftly')
+            .delete()
+            .in('tanggal', tanggalUnik);
         if (eDel) throw eDel;
 
-        // Hapus SEMUA batas atas lama juga, biar bersih
-        await db.from('waste_batas').delete().gte('id', 0);
-
-        // Insert batch (Supabase max ~1000 rows per insert, kita batch per 500)
+        // Insert data baru (batch per 500, Supabase max ~1000 rows per insert)
         const BATCH = 500;
         for (let i = 0; i < parsedWasteData.length; i += BATCH) {
             const chunk = parsedWasteData.slice(i, i + BATCH);
@@ -993,10 +871,12 @@ async function importKeSupabase() {
             if (error) throw error;
         }
 
-        // ── Update batas atas (waste_batas) dari Excel ──
+        // ── Update batas atas (waste_batas) hanya utk mesin yang ada di file ini ──
         let batasMsg = '';
         if (parsedWasteBatas && parsedWasteBatas.length > 0) {
             try {
+                const mesinIds = parsedWasteBatas.map(b => b.mesin_id);
+                await db.from('waste_batas').delete().in('mesin_id', mesinIds);
                 const { error: eBatas } = await db.from('waste_batas').insert(parsedWasteBatas);
                 if (eBatas) {
                     console.warn('Gagal update batas atas:', eBatas.message);
@@ -1009,7 +889,8 @@ async function importKeSupabase() {
             }
         }
 
-        document.getElementById('import-msg').textContent = `✅ ${parsedWasteData.length} baris berhasil diimpor${batasMsg}!`;
+        document.getElementById('import-msg').textContent =
+            `✅ ${parsedWasteData.length} baris berhasil diperbarui untuk ${tanggalUnik.length} hari${batasMsg}! Data hari lain tetap tersimpan.`;
         document.getElementById('import-msg').style.color = '#16a34a';
         document.getElementById('import-warning').classList.remove('show');
         btn.textContent = '✅ Diimpor';
@@ -1033,7 +914,6 @@ const now = new Date();
 const bulanIni = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
 document.getElementById('filter-bulan').value = bulanIni;
 filterState.bulan = bulanIni;
-renderInputTable();
 
 async function init() {
     setStatus('loading', 'Memuat data...');
