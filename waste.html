@@ -625,6 +625,7 @@ function fmtDate(d) {
 let parsedWasteData = null;
 let parsedWasteBatas = null;
 let parsedFryerData = null;
+let parsedProsesData = null;
 
 // Mapping nama mesin di Excel ke MESIN_LIST id
 function findMesinId(namaExcel) {
@@ -661,6 +662,7 @@ function handleExcelFile(file) {
     document.getElementById('import-warning').classList.remove('show');
     parsedWasteData = null;
     parsedFryerData = null;
+    parsedProsesData = null;
 }
 
 const BULAN_ID = {
@@ -724,6 +726,30 @@ function prosesExcelWaste() {
             }
             function slugId(s) {
                 return s.trim().toUpperCase().replace(/[^A-Z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+            }
+            // Cari semua baris sub-tabel via kolom C == 'Unit' (penanda header sub-tabel di seluruh sheet)
+            function cariHeaderUnit(fromRow, toRow) {
+                const found = [];
+                for (let r = fromRow; r <= toRow; r++) {
+                    const u = cell(r, 2); // kolom C
+                    if (u && u.v === 'Unit') {
+                        const namaCell = cell(r, 1);
+                        found.push({ row: r, nama: namaCell && namaCell.v ? String(namaCell.v).trim() : `Section_${r}` });
+                    }
+                }
+                return found;
+            }
+            // Untuk seksi Waste Proses: berhenti di baris manapun yg diawali kata "total" (termasuk "TOTAL WASTE", "Total Waste Basah")
+            // supaya baris subtotal/persentase turunan tidak ikut kebaca sebagai item mentah
+            function cariAkhirDataProses(startRow) {
+                let r = startRow;
+                while (r <= range.e.r) {
+                    const namaCell = cell(r, 1);
+                    if (!namaCell || namaCell.v === undefined || namaCell.v === '') return r - 1;
+                    if (String(namaCell.v).trim().toLowerCase().startsWith('total')) return r - 1;
+                    r++;
+                }
+                return r - 1;
             }
             // Cari baris terakhir data mesin (berhenti sebelum baris "Total" / baris kosong)
             function cariAkhirData(startRow) {
@@ -892,12 +918,61 @@ function prosesExcelWaste() {
             fryerRows.sort((a,b) => a.tanggal.localeCompare(b.tanggal) || a.shift - b.shift);
             parsedFryerData = fryerRows;
 
+            // ── Parse WASTE PROSESING (7+ sub-line: Extruder Gedung 6, Washing, Proses KP/W900/W600, dst) ──
+            const hProses = cariBarisHeader('WASTE PROSESING');
+            const PROSES_SECTIONS = hProses < 0 ? [] : cariHeaderUnit(hProses + 1, range.e.r).map(sh => ({
+                id: 'PROSES_' + slugId(sh.nama),
+                nama: sh.nama,
+                headerRow: sh.row,
+                shiftRow: sh.row + 1,
+                startRow: sh.row + 2,
+                endRow: cariAkhirDataProses(sh.row + 2),
+            }));
+
+            const prosesRows = [];
+            PROSES_SECTIONS.forEach(ps => {
+                for (let c = 4; c <= range.e.c; c++) {
+                    const groupStart = 4 + Math.floor((c - 4) / 3) * 3;
+                    const tglCell = cell(ps.headerRow, groupStart);
+                    const tglStr = tglCell ? excelDateToStr(tglCell.v) : null;
+                    if (!tglStr) continue;
+
+                    const shiftCell = cell(ps.shiftRow, c);
+                    const shift = shiftCell ? parseInt(shiftCell.v) : null;
+                    if (!shift || shift < 1 || shift > 3) continue;
+
+                    for (let r = ps.startRow; r <= ps.endRow; r++) {
+                        const namaCell = cell(r, 1);
+                        if (!namaCell || !namaCell.v) continue;
+                        const itemNama = String(namaCell.v).trim();
+                        if (itemNama.toLowerCase().startsWith('total')) continue;
+
+                        const valCell = cell(r, c);
+                        const val = valCell && valCell.v !== undefined && valCell.v !== '-' && !isNaN(parseFloat(valCell.v))
+                            ? parseFloat(valCell.v) : 0;
+
+                        if (val > 0) {
+                            prosesRows.push({
+                                tanggal: tglStr, shift,
+                                proses_id: ps.id,
+                                proses_nama: ps.nama,
+                                item_nama: itemNama,
+                                nilai: +val.toFixed(3),
+                            });
+                        }
+                    }
+                }
+            });
+            prosesRows.sort((a,b) => a.tanggal.localeCompare(b.tanggal) || a.shift - b.shift);
+            parsedProsesData = prosesRows;
+
             const tanggalUnik = [...new Set(rows.map(r => r.tanggal))].sort();
             document.getElementById('preview-info').innerHTML =
                 `✅ Ditemukan <strong>${rows.length}</strong> baris data dari <strong>${tanggalUnik.length}</strong> hari ` +
                 `(${fmtDate(tanggalUnik[0])} — ${fmtDate(tanggalUnik[tanggalUnik.length-1])}) ` +
                 `· Batas atas <strong>${parsedWasteBatas.length}</strong> mesin akan diperbarui juga` +
-                `· Waste Fryer: <strong>${fryerRows.length}</strong> baris dari <strong>${FRYER_SECTIONS.length}</strong> line`;
+                `· Waste Fryer: <strong>${fryerRows.length}</strong> baris dari <strong>${FRYER_SECTIONS.length}</strong> line` +
+                `· Waste Proses: <strong>${prosesRows.length}</strong> baris dari <strong>${PROSES_SECTIONS.length}</strong> line`;
             document.getElementById('import-msg').textContent = '';
 
             document.getElementById('btn-import-excel').style.display = 'inline-block';
@@ -977,8 +1052,30 @@ async function importKeSupabase() {
             }
         }
 
+        // ── Update Waste Proses (waste_proses_shiftly) — update per tanggal, sama seperti waste_shiftly ──
+        let prosesMsg = '';
+        if (parsedProsesData && parsedProsesData.length > 0) {
+            try {
+                const tanggalProses = [...new Set(parsedProsesData.map(r => r.tanggal))];
+                const { error: eDelProses } = await db.from('waste_proses_shiftly')
+                    .delete()
+                    .in('tanggal', tanggalProses);
+                if (eDelProses) throw eDelProses;
+
+                for (let i = 0; i < parsedProsesData.length; i += BATCH) {
+                    const chunk = parsedProsesData.slice(i, i + BATCH);
+                    const { error: eProses } = await db.from('waste_proses_shiftly').insert(chunk);
+                    if (eProses) throw eProses;
+                }
+                prosesMsg = ` & ${parsedProsesData.length} baris waste proses diperbarui`;
+            } catch (ep) {
+                console.warn('Waste proses gagal:', ep.message);
+                prosesMsg = ' (waste proses gagal: ' + ep.message + ')';
+            }
+        }
+
         document.getElementById('import-msg').textContent =
-            `✅ ${parsedWasteData.length} baris berhasil diperbarui untuk ${tanggalUnik.length} hari${batasMsg}${fryerMsg}! Data hari lain tetap tersimpan.`;
+            `✅ ${parsedWasteData.length} baris berhasil diperbarui untuk ${tanggalUnik.length} hari${batasMsg}${fryerMsg}${prosesMsg}! Data hari lain tetap tersimpan.`;
         document.getElementById('import-msg').style.color = '#16a34a';
         document.getElementById('import-warning').classList.remove('show');
         btn.textContent = '✅ Diimpor';
@@ -1012,4 +1109,3 @@ init();
 </script>
 </body>
 </html>
- 
