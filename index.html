@@ -126,6 +126,7 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
 .card.waste-mini-card.kemasan { border-top-color:#f59e0b; }
 .card.waste-mini-card.sfg     { border-top-color:#8b5cf6; }
 .card.waste-mini-card.karton  { border-top-color:#ef4444; }
+.card.fryer-mini-card         { border-top-color:#0891b2; }
 .waste-detail-table { width:100%; border-collapse:collapse; font-size:11px; margin-top:10px; }
 .waste-detail-table td { padding:5px 4px; border-bottom:1px solid #f3f4f6; }
 .waste-detail-table tr:last-child td { border-bottom:none; }
@@ -239,6 +240,12 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
                 <tr><td colspan="5" style="text-align:center; color:#9ca3af; padding:20px;">Memuat data...</td></tr>
             </tbody>
         </table>
+    </div>
+
+    <!-- Waste Fryer -->
+    <div class="sec-title">🔥 Waste Fryer <span id="title-date-fryer" style="color:#9ca3af; font-weight:400; text-transform:none;"></span></div>
+    <div class="kpi-grid" id="fryer-cards-container" style="grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); margin-bottom:20px;">
+        <div style="grid-column:1/-1; text-align:center; color:#9ca3af; padding:20px;">Memuat data...</div>
     </div>
 
 </div>
@@ -444,6 +451,9 @@ async function loadData(targetDate) {
             document.querySelector(`#wd-table-${k} tbody`).innerHTML = '';
         });
     }
+
+    // ── Waste Fryer ──
+    await loadWasteFryer(targetDate);
 }
 
 function renderWasteDetail(kategori, perMesin, batasMap, unit) {
@@ -472,6 +482,53 @@ function renderWasteDetail(kategori, perMesin, batasMap, unit) {
             <td class="waste-val ${isOver ? 'over' : ''}">${r.val.toFixed(2)}</td>
         `;
         tbody.appendChild(tr);
+    });
+}
+
+async function loadWasteFryer(targetDate) {
+    let q = db.from('waste_fryer_shiftly').select('*').order('tanggal', { ascending: false }).limit(300);
+    if (targetDate) q = db.from('waste_fryer_shiftly').select('*').eq('tanggal', targetDate);
+
+    const { data: fryerRows } = await q;
+    const container  = document.getElementById('fryer-cards-container');
+    const titleDate  = document.getElementById('title-date-fryer');
+
+    if (!fryerRows || fryerRows.length === 0) {
+        container.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#9ca3af; padding:20px;">Belum ada data waste fryer</div>';
+        titleDate.textContent = targetDate ? '— Tidak ada data' : '';
+        return;
+    }
+
+    const useDate = targetDate || fryerRows[0].tanggal;
+    titleDate.textContent = '— ' + fmtDate(useDate);
+
+    const rowsForDate = targetDate ? fryerRows : fryerRows.filter(r => r.tanggal === fryerRows[0].tanggal);
+
+    // Group per fryer_id, jumlahkan tiap item lintas shift
+    const byFryer = {};
+    rowsForDate.forEach(r => {
+        if (!byFryer[r.fryer_id]) byFryer[r.fryer_id] = { nama: r.fryer_nama, items: {} };
+        byFryer[r.fryer_id].items[r.item_nama] = (byFryer[r.fryer_id].items[r.item_nama] || 0) + (r.nilai || 0);
+    });
+
+    container.innerHTML = '';
+    Object.values(byFryer).forEach(f => {
+        const items = Object.entries(f.items).sort((a, b) => b[1] - a[1]);
+        const total = items.reduce((s, [, v]) => s + v, 0);
+        const namaTampil = f.nama.replace(/WASTE FRYER ELVA\s*/i, '');
+
+        const card = document.createElement('div');
+        card.className = 'card fryer-mini-card';
+        card.innerHTML = `
+            <h3>🔥 ${namaTampil}</h3>
+            <div class="value">${total.toFixed(2)}<span class="kpi-unit"> Kg</span></div>
+            <table class="waste-detail-table"><tbody>
+                ${items.map(([nama, val]) => `
+                    <tr><td class="mesin-name">${nama}</td><td class="waste-val">${val.toFixed(2)}</td></tr>
+                `).join('')}
+            </tbody></table>
+        `;
+        container.appendChild(card);
     });
 }
 
