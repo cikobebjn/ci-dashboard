@@ -136,7 +136,7 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
         </div>
         <div id="file-name"></div>
         <div class="warning-badge" id="warning-badge">
-            ⚠️ <strong>Perhatian:</strong> Menyimpan file baru akan <strong>menghapus semua data lama</strong> di Supabase dan menggantinya dengan data terbaru.
+            ⚠️ <strong>Perhatian:</strong> Data untuk tanggal yang ada di file ini akan <strong>diperbarui (ditimpa)</strong>, sedangkan data pada tanggal lain yang <strong>tidak ada</strong> di file ini akan <strong>tetap tersimpan</strong> (tidak terhapus).
         </div>
         <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-top:12px;">
             <button class="btn-upload" id="btn-proses" onclick="prosesExcel()">🔍 Proses Excel</button>
@@ -318,6 +318,7 @@ function prosesExcel() {
 
             let lastShiftDate = null;
             let lastShift1 = null, lastShift2 = null, lastShift3 = null;
+            const allShiftlyRows = []; // { tanggal, shift, oee } — SEMUA tanggal, bukan cuma terakhir
 
             // Iterasi per 3 kolom, mulai kolom 3 (D), row 1 (0-based = row 2 Excel)
             for (let c = 3; c <= maxCol - 2; c += 3) {
@@ -331,11 +332,16 @@ function prosesExcel() {
                 const s2 = getOEEVal(cell(wsShiftly, 18, c + 1));
                 const s3 = getOEEVal(cell(wsShiftly, 18, c + 2));
 
+                if (s1 !== null) allShiftlyRows.push({ tanggal: tglStr, shift: 'SHIFT 1', oee: s1 });
+                if (s2 !== null) allShiftlyRows.push({ tanggal: tglStr, shift: 'SHIFT 2', oee: s2 });
+                if (s3 !== null) allShiftlyRows.push({ tanggal: tglStr, shift: 'SHIFT 3', oee: s3 });
+
                 if (s1 !== null || s2 !== null || s3 !== null) {
-                    lastShiftDate = tglStr;
-                    lastShift1 = s1;
-                    lastShift2 = s2;
-                    lastShift3 = s3;
+                    // simpan tanggal terakhir yg ada datanya utk preview kartu
+                    if (!lastShiftDate || tglStr > lastShiftDate) {
+                        lastShiftDate = tglStr;
+                        lastShift1 = s1; lastShift2 = s2; lastShift3 = s3;
+                    }
                 }
             }
 
@@ -351,6 +357,7 @@ function prosesExcel() {
             const maxColD = rangeD.e.c;
 
             let lastDailyDate = null, lastDailyVal = null;
+            const allDailyRows = []; // { tanggal, oee } — SEMUA tanggal
 
             for (let c = 3; c <= maxColD; c++) {
                 const tglCell = cell(wsDaily, 1, c); // row 2 = index 1
@@ -360,8 +367,11 @@ function prosesExcel() {
 
                 const oee = getOEEVal(cell(wsDaily, 13, c)); // row 14 = index 13
                 if (oee !== null) {
-                    lastDailyDate = tglStr;
-                    lastDailyVal  = oee;
+                    allDailyRows.push({ tanggal: tglStr, oee });
+                    if (!lastDailyDate || tglStr > lastDailyDate) {
+                        lastDailyDate = tglStr;
+                        lastDailyVal  = oee;
+                    }
                 }
             }
 
@@ -385,30 +395,46 @@ function prosesExcel() {
                 { row: 17, nama: 'LINE 7 - FILLING SW' },
             ];
 
-            // Parse per-line per-shift untuk tanggal terakhir
-            let perLineData = [];
-            // Cari kolom lastShiftDate
+            // Baca target sekali di luar loop tanggal (nilainya tetap, tidak per-tanggal)
+            const targetPerMesin = {};
+            MESIN_ROWS.forEach(m => {
+                const tgtCell = cell(wsShiftly, m.row, 2);
+                targetPerMesin[m.row] = tgtCell && typeof tgtCell.v === 'number'
+                    ? Math.round(tgtCell.v * 100) : 55;
+            });
+
+            // Parse per-line per-shift untuk SEMUA tanggal
+            const allLineRows = []; // { tanggal, shift, mesin, target, oee }
             for (let c = 3; c <= maxCol - 2; c += 3) {
                 const tglCell = cell(wsShiftly, 1, c);
                 if (!tglCell || tglCell.v === undefined) continue;
                 const tglStr = excelDateToStr(tglCell.v);
-                if (tglStr !== lastShiftDate) continue;
+                if (!tglStr) continue;
 
-                // Kolom ini = lastShiftDate
                 MESIN_ROWS.forEach(m => {
                     const s1 = getOEEVal(cell(wsShiftly, m.row, c));
                     const s2 = getOEEVal(cell(wsShiftly, m.row, c + 1));
                     const s3 = getOEEVal(cell(wsShiftly, m.row, c + 2));
-                    // Baca target dari col C (index 2), dalam desimal → ×100
-                    const tgtCell = cell(wsShiftly, m.row, 2);
-                    const target = tgtCell && typeof tgtCell.v === 'number'
-                        ? Math.round(tgtCell.v * 100) : 55;
-                    if (s1 !== null || s2 !== null || s3 !== null) {
-                        perLineData.push({ mesin: m.nama, target, shift1: s1, shift2: s2, shift3: s3 });
-                    }
+                    const target = targetPerMesin[m.row];
+                    if (s1 !== null) allLineRows.push({ tanggal: tglStr, shift: 1, mesin: m.nama, target, oee: s1 });
+                    if (s2 !== null) allLineRows.push({ tanggal: tglStr, shift: 2, mesin: m.nama, target, oee: s2 });
+                    if (s3 !== null) allLineRows.push({ tanggal: tglStr, shift: 3, mesin: m.nama, target, oee: s3 });
                 });
-                break;
             }
+
+            // Data per-line utk preview kartu (hanya tanggal terakhir)
+            const perLineData = [];
+            MESIN_ROWS.forEach(m => {
+                const rowsIni = allLineRows.filter(r => r.tanggal === lastShiftDate && r.mesin === m.nama);
+                if (rowsIni.length > 0) {
+                    const byShift = {};
+                    rowsIni.forEach(r => { byShift[`shift${r.shift}`] = r.oee; });
+                    perLineData.push({ mesin: m.nama, target: rowsIni[0].target, shift1: byShift.shift1 ?? null, shift2: byShift.shift2 ?? null, shift3: byShift.shift3 ?? null });
+                }
+            });
+
+            const tanggalUnikShiftly = [...new Set(allShiftlyRows.map(r => r.tanggal))].sort();
+            const tanggalUnikDaily   = [...new Set(allDailyRows.map(r => r.tanggal))].sort();
 
             parsedData = {
                 date      : lastShiftDate,
@@ -418,10 +444,15 @@ function prosesExcel() {
                 daily_date: lastDailyDate,
                 daily_oee : lastDailyVal,
                 per_line  : perLineData,
+                all_shiftly: allShiftlyRows,
+                all_daily  : allDailyRows,
+                all_line   : allLineRows,
             };
 
             tampilkanData(parsedData);
-            setStatus('active', '✅ Data berhasil dibaca. Tanggal shiftly terakhir: ' + fmtDate(lastShiftDate));
+            setStatus('active',
+                `✅ Data berhasil dibaca: ${tanggalUnikShiftly.length} hari shiftly, ${tanggalUnikDaily.length} hari daily. ` +
+                `Tanggal terakhir: ${fmtDate(lastShiftDate)}`);
 
             const btnSave = document.getElementById('btn-save');
             btnSave.style.display = 'inline-block';
@@ -580,63 +611,56 @@ async function simpanKeSupabase() {
     if (!parsedData) return;
     const btn = document.getElementById('btn-save');
     btn.disabled = true; btn.textContent = '⏳ Memperbarui...';
-    setStatus('loading', 'Menghapus data lama & menyimpan data baru...');
+    setStatus('loading', 'Memperbarui data (tanggal lain tetap tersimpan)...');
+
+    const BATCH = 500;
+    async function insertBatched(table, rows) {
+        for (let i = 0; i < rows.length; i += BATCH) {
+            const chunk = rows.slice(i, i + BATCH);
+            const { error } = await db.from(table).insert(chunk);
+            if (error) throw error;
+        }
+    }
 
     try {
-        // Hapus semua data lama
-        const { error: e1 } = await db.from('oee_shiftly').delete().gte('tanggal', '2000-01-01');
-        if (e1) throw e1;
-        const { error: e2 } = await db.from('oee_daily').delete().gte('tanggal', '2000-01-01');
-        if (e2) throw e2;
+        const allShiftly = parsedData.all_shiftly || [];
+        const allDaily   = parsedData.all_daily   || [];
+        const allLine    = parsedData.all_line    || [];
 
-        // Insert shiftly baru
-        if (parsedData.date) {
-            const rows = [
-                { tanggal: parsedData.date, shift: 'SHIFT 1', oee: parsedData.shift1 },
-                { tanggal: parsedData.date, shift: 'SHIFT 2', oee: parsedData.shift2 },
-                { tanggal: parsedData.date, shift: 'SHIFT 3', oee: parsedData.shift3 },
-            ].filter(r => r.oee !== null);
-            const { error: e3 } = await db.from('oee_shiftly').insert(rows);
-            if (e3) throw e3;
+        // ── oee_shiftly: hapus & ganti HANYA utk tanggal yang ada di file ini ──
+        if (allShiftly.length > 0) {
+            const tanggalShiftly = [...new Set(allShiftly.map(r => r.tanggal))];
+            const { error: eDel1 } = await db.from('oee_shiftly').delete().in('tanggal', tanggalShiftly);
+            if (eDel1) throw eDel1;
+            await insertBatched('oee_shiftly', allShiftly);
+        }
 
-            // Insert per-line per-shift
-            if (parsedData.per_line && parsedData.per_line.length > 0) {
-                try {
-                    const { error: eDel } = await db.from('oee_shiftly_line').delete().gte('tanggal', '2000-01-01');
-                    if (eDel) console.warn('Delete oee_shiftly_line gagal:', eDel.message);
-                } catch (errDel) {
-                    console.warn('Delete oee_shiftly_line exception:', errDel.message);
-                }
-                const lineRows = [];
-                parsedData.per_line.forEach(m => {
-                    [1,2,3].forEach(s => {
-                        const oee = m[`shift${s}`];
-                        if (oee !== null) lineRows.push({
-                            tanggal: parsedData.date,
-                            shift: s,
-                            mesin: m.mesin,
-                            target: m.target,
-                            oee
-                        });
-                    });
-                });
-                const { error: e6 } = await db.from('oee_shiftly_line').insert(lineRows);
-                if (e6) {
-                    setStatus('error', '⚠️ Gagal simpan per-line: ' + e6.message);
-                    console.error('Insert oee_shiftly_line gagal:', e6);
-                }
+        // ── oee_shiftly_line: hapus & ganti HANYA utk tanggal yang ada di file ini ──
+        if (allLine.length > 0) {
+            const tanggalLine = [...new Set(allLine.map(r => r.tanggal))];
+            try {
+                const { error: eDel2 } = await db.from('oee_shiftly_line').delete().in('tanggal', tanggalLine);
+                if (eDel2) console.warn('Delete oee_shiftly_line gagal:', eDel2.message);
+                await insertBatched('oee_shiftly_line', allLine);
+            } catch (errLine) {
+                setStatus('error', '⚠️ Gagal simpan per-line: ' + errLine.message);
+                console.error('oee_shiftly_line gagal:', errLine);
             }
         }
 
-        // Insert daily baru
-        if (parsedData.daily_date && parsedData.daily_oee !== null) {
-            const { error: e4 } = await db.from('oee_daily').insert([
-                { tanggal: parsedData.daily_date, oee: parsedData.daily_oee }
-            ]);
-            if (e4) throw e4;
+        // ── oee_daily: hapus & ganti HANYA utk tanggal yang ada di file ini ──
+        if (allDaily.length > 0) {
+            const tanggalDaily = [...new Set(allDaily.map(r => r.tanggal))];
+            const { error: eDel3 } = await db.from('oee_daily').delete().in('tanggal', tanggalDaily);
+            if (eDel3) throw eDel3;
+            await insertBatched('oee_daily', allDaily);
         }
 
-        setStatus('active', '✅ Data berhasil diperbarui! Data lama dihapus, data baru tersimpan.');
+        const jmlHariShiftly = new Set(allShiftly.map(r => r.tanggal)).size;
+        const jmlHariDaily   = new Set(allDaily.map(r => r.tanggal)).size;
+
+        setStatus('active',
+            `✅ Data berhasil diperbarui: ${jmlHariShiftly} hari shiftly & ${jmlHariDaily} hari daily. Data hari lain tetap tersimpan.`);
         btn.textContent = '✅ Diperbarui';
         document.getElementById('warning-badge').classList.remove('show');
         loadFromSupabase();
