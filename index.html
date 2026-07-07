@@ -134,6 +134,14 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
 .waste-detail-table td.mesin-name { color:#6b7280; }
 .waste-detail-table td.waste-val { text-align:right; font-weight:600; color:#374151; }
 .waste-detail-table td.waste-val.over { color:#dc2626; background:#fef2f2; border-radius:4px; }
+
+/* Pemakaian (bukan waste) info line di card proses */
+.proses-pemakaian-info {
+    font-size:11px; color:#374151; margin-top:8px; margin-bottom:2px;
+    background:#f9fafb; border-radius:6px; padding:6px 8px;
+}
+.proses-pemakaian-info .label { color:#9ca3af; }
+.proses-pemakaian-info .val   { font-weight:700; }
 </style>
 </head>
 <body>
@@ -267,6 +275,10 @@ const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 const OEE_TARGET = 55;
 let selectedDate = null; // tanggal yang dipilih (string YYYY-MM-DD)
 let lastAvailableDate = null; // tanggal terakhir yang ada datanya
+
+// Item yang bernama seperti ini adalah PEMAKAIAN BAHAN, bukan waste,
+// jadi tidak boleh ikut dijumlah ke total waste kartu proses.
+const PEMAKAIAN_REGEX = /pemakaian/i;
 
 const MESIN_BATAS_DEFAULT = {
     BOATO:   { kemasan:5,     sfg:0.3,  karton:1 },
@@ -575,16 +587,25 @@ async function loadWasteProses(targetDate) {
 
     container.innerHTML = '';
     Object.values(byProses).forEach(p => {
-        const items = Object.entries(p.items).sort((a, b) => b[1] - a[1]);
-        const total = items.reduce((s, [, v]) => s + v, 0);
+        const allItems = Object.entries(p.items).sort((a, b) => b[1] - a[1]);
+
+        // Pisahkan item "Pemakaian ..." (bahan baku, bukan waste) dari item waste asli,
+        // supaya angka total kartu cuma mencerminkan waste, bukan pemakaian bahan.
+        const pemakaianItems = allItems.filter(([nama]) => PEMAKAIAN_REGEX.test(nama));
+        const wasteItems     = allItems.filter(([nama]) => !PEMAKAIAN_REGEX.test(nama));
+        const totalWaste     = wasteItems.reduce((s, [, v]) => s + v, 0);
 
         const card = document.createElement('div');
         card.className = 'card proses-mini-card';
         card.innerHTML = `
             <h3>⚙️ ${p.nama}</h3>
-            <div class="value">${total.toFixed(2)}<span class="kpi-unit"> Kg</span></div>
+            <div class="value">${totalWaste.toFixed(2)}<span class="kpi-unit"> Kg</span></div>
+            ${pemakaianItems.length ? `
+            <div class="proses-pemakaian-info">
+                ${pemakaianItems.map(([nama, val]) => `<span class="label">${nama}:</span> <span class="val">${val.toFixed(2)} Kg</span>`).join('<br>')}
+            </div>` : ''}
             <table class="waste-detail-table"><tbody>
-                ${items.map(([nama, val]) => `
+                ${wasteItems.map(([nama, val]) => `
                     <tr><td class="mesin-name">${nama}</td><td class="waste-val">${val.toFixed(2)}</td></tr>
                 `).join('')}
             </tbody></table>
