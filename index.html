@@ -440,10 +440,12 @@ async function loadData(targetDate) {
                 karton:  (b.batas_karton || 0) * 3,
             };
         });
-        Object.keys(perMesin).forEach(mid => {
+        // Pastikan SEMUA mesin yang dikenal (bukan cuma yang melapor waste hari ini) punya target,
+        // supaya total batas harian tidak berkurang saat ada mesin yang waste-nya 0 / tidak reporting.
+        Object.keys(MESIN_BATAS_DEFAULT).forEach(mid => {
             if (!batasMap[mid] || (batasMap[mid].kemasan === 0 && batasMap[mid].sfg === 0 && batasMap[mid].karton === 0)) {
                 const def = MESIN_BATAS_DEFAULT[mid];
-                if (def) batasMap[mid] = { kemasan: def.kemasan * 3, sfg: def.sfg * 3, karton: def.karton * 3 };
+                batasMap[mid] = { kemasan: def.kemasan * 3, sfg: def.sfg * 3, karton: def.karton * 3 };
             }
         });
 
@@ -476,7 +478,10 @@ function renderWasteDetail(kategori, perMesin, batasMap, unit) {
         .sort((a, b) => b.val - a.val);
 
     const grandTotal = rows.reduce((s, r) => s + r.val, 0);
-    const grandBatas = rows.reduce((s, r) => s + r.batas, 0);
+    // Batas total harus dari SEMUA mesin yang punya target terdaftar (batasMap),
+    // bukan cuma mesin yang kebetulan melapor waste hari itu — mesin dgn waste 0
+    // tetap harus dihitung targetnya (0 waste = bagus, bukan berarti target-nya hilang).
+    const grandBatas = Object.values(batasMap).reduce((s, b) => s + (b[kategori] || 0), 0);
 
     totalEl.innerHTML = grandTotal.toFixed(2) + `<span class="kpi-unit"> ${unit}</span>`;
     totalEl.className = 'value ' + (grandTotal > grandBatas ? 'low' : 'good');
