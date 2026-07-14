@@ -1,0 +1,246 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Cost Material - Bojonegoro Monitoring</title>
+<style>
+body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
+.topbar {
+    background:#1f2937; color:white; padding:15px;
+    display:flex; align-items:center;
+    position:fixed; top:0; left:0; width:100%; z-index:1000;
+    box-sizing:border-box;
+}
+.menu-btn { font-size:28px; cursor:pointer; margin-right:15px; }
+.sidebar {
+    height:100%; width:250px; position:fixed;
+    top:0; left:-250px; background:#111827;
+    transition:0.3s; padding-top:60px; z-index:999;
+}
+.sidebar a { display:block; color:white; padding:15px 20px; text-decoration:none; }
+.sidebar a:hover { background:#374151; }
+.sidebar a.active { background:#3b82f6; }
+.main { padding:80px 24px 24px 24px; }
+
+.kpi-grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));
+    gap:16px; margin-bottom:20px;
+}
+.card {
+    background:white; border-radius:12px; padding:20px 24px;
+    box-shadow:0 1px 3px rgba(0,0,0,0.08);
+    border-top:4px solid #0d9488;
+}
+.card h3 {
+    margin:0 0 8px; font-size:13px; color:#6b7280; font-weight:600;
+    text-transform:uppercase; letter-spacing:0.05em;
+}
+.value { font-size:36px; font-weight:700; color:#1f2937; line-height:1.1; }
+.value.loading { font-size:20px; color:#9ca3af; }
+.value.good { color:#16a34a; }
+.value.low  { color:#dc2626; }
+.card-date { font-size:11px; color:#9ca3af; margin-top:6px; }
+.target-badge {
+    font-size:10px; color:#6b7280; background:#f3f4f6;
+    border-radius:4px; padding:2px 6px; margin-top:6px; display:inline-block;
+}
+.kpi-unit { font-size:16px; font-weight:400; color:#6b7280; margin-left:2px; }
+
+.sec-title {
+    font-size:13px; font-weight:700; color:#374151;
+    text-transform:uppercase; letter-spacing:0.05em;
+    margin:28px 0 12px;
+    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    justify-content:space-between;
+}
+.sec-title .btn-link {
+    font-size:12px; font-weight:700; color:#0d9488; text-decoration:none;
+    background:#f0fdfa; padding:6px 12px; border-radius:7px;
+}
+.sec-title .btn-link:hover { background:#ccfbf1; }
+
+.card-wide {
+    background:white; border-radius:12px; padding:20px 24px;
+    box-shadow:0 1px 3px rgba(0,0,0,0.08);
+    border-top:4px solid #6366f1;
+    margin-bottom:16px;
+}
+
+.cost-table { width:100%; border-collapse:collapse; font-size:12px; margin-top:4px; }
+.cost-table th {
+    background:#f9fafb; color:#6b7280; font-weight:600; font-size:10px;
+    padding:9px 10px; text-align:center; border-bottom:2px solid #e5e7eb;
+    text-transform:uppercase; letter-spacing:0.03em;
+}
+.cost-table th:first-child { text-align:left; }
+.cost-table td { padding:8px 10px; border-bottom:1px solid #f3f4f6; text-align:center; }
+.cost-table td:first-child { text-align:left; font-weight:600; }
+.cost-table tr:last-child td { border-bottom:none; }
+.cost-table td.total-col { font-weight:700; }
+.cost-table td.total-col.good { color:#16a34a; }
+.cost-table td.total-col.low  { color:#dc2626; }
+.cost-table td.share-col { color:#9ca3af; font-size:10px; }
+</style>
+</head>
+<body>
+
+<div class="sidebar" id="sidebar">
+    <a href="index.html">Dashboard Utama</a>
+    <a href="oee.html">OEE</a>
+    <a href="tonase.html">Tonase</a>
+    <a href="waste.html">Waste</a>
+    <a href="cost-material.html" class="active">Cost Material</a>
+    <a href="#">Downtime</a>
+    <a href="#">Variant</a>
+    <a href="#">Cost Saving</a>
+    <a href="#">CI Projects</a>
+    <a href="settings.html" style="margin-top:20px; border-top:1px solid #374151;">⚙️ Settings</a>
+</div>
+
+<div class="topbar">
+    <span class="menu-btn" onclick="toggleMenu()">☰</span>
+    <h2 style="margin:0;">💰 Cost Material</h2>
+</div>
+
+<div class="main">
+
+    <div class="kpi-grid">
+        <div class="card">
+            <h3>Total Cost / Ton (Minggu Terakhir)</h3>
+            <div class="value loading" id="val-cost-total">...</div>
+            <div class="card-date" id="date-cost"></div>
+            <span class="target-badge" id="cost-target-badge">Target: ≤ Rp 28.000/ton</span>
+        </div>
+        <div class="card">
+            <h3>📦 Tonase Minggu Terakhir</h3>
+            <div class="value loading" id="val-cost-tonase">...</div>
+            <div class="card-date" id="date-cost-tonase"></div>
+        </div>
+        <div class="card">
+            <h3>Total Cost (Rp) Minggu Terakhir</h3>
+            <div class="value loading" id="val-cost-rupiah">...</div>
+            <div class="card-date" id="date-cost-rupiah"></div>
+        </div>
+    </div>
+
+    <div class="sec-title">
+        Riwayat Cost Material per Week <span id="title-cost-week" style="color:#9ca3af; font-weight:400; text-transform:none;"></span>
+        <a href="input-cost-material.html" class="btn-link">+ Input / Upload Data</a>
+    </div>
+    <div class="card-wide">
+        <table class="cost-table">
+            <thead>
+                <tr>
+                    <th>Week</th>
+                    <th>Tonase (ton)</th>
+                    <th>Packaging (Rp/ton)</th>
+                    <th>Raw Material (Rp/ton)</th>
+                    <th>SFG (Rp/ton)</th>
+                    <th>Total Cost/Ton</th>
+                    <th>Target</th>
+                    <th>Selisih</th>
+                </tr>
+            </thead>
+            <tbody id="tbl-cost-body">
+                <tr><td colspan="8" style="text-align:center; color:#9ca3af; padding:20px;">Memuat data...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = 'https://bmnhtxalfsfaefacgtpm.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_VItBKenz-q2sYz7MsibODA_nYtLXv9Q';
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+function toggleMenu() {
+    const s = document.getElementById('sidebar');
+    s.style.left = s.style.left === '0px' ? '-250px' : '0px';
+}
+
+function fmtRupiah(v) {
+    if (v === null || v === undefined || isNaN(v)) return '—';
+    return 'Rp ' + Math.round(v).toLocaleString('id-ID');
+}
+
+async function loadCostMaterial() {
+    const { data: rows } = await db
+        .from('cost_material_weekly')
+        .select('*')
+        .order('tahun', { ascending: false })
+        .order('minggu_ke', { ascending: false })
+        .limit(26); // ~6 bulan terakhir
+
+    const tbody     = document.getElementById('tbl-cost-body');
+    const titleWeek = document.getElementById('title-cost-week');
+
+    if (!rows || rows.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:#9ca3af; padding:20px;">Belum ada data cost material. <a href="input-cost-material.html">Input data di sini</a>.</td></tr>';
+        titleWeek.textContent = '';
+        ['val-cost-total','val-cost-tonase','val-cost-rupiah'].forEach(id => {
+            document.getElementById(id).textContent = '—';
+            document.getElementById(id).className = 'value';
+        });
+        return;
+    }
+
+    // ── Kartu ringkasan (minggu terbaru) ──
+    const latest = rows[0];
+    const latestTotalValue = (latest.packaging_value || 0) + (latest.raw_material_value || 0) + (latest.sfg_value || 0);
+    const latestTotalRatio = latest.tonase ? latestTotalValue / latest.tonase : 0;
+    const target = latest.target_cost_per_ton || 28000;
+
+    const totalEl = document.getElementById('val-cost-total');
+    totalEl.innerHTML = Math.round(latestTotalRatio).toLocaleString('id-ID') + '<span class="kpi-unit"> /ton</span>';
+    totalEl.className = 'value ' + (latestTotalRatio <= target ? 'good' : 'low');
+    document.getElementById('date-cost').textContent = `Week ${latest.minggu_ke} - ${latest.tahun}`;
+    document.getElementById('cost-target-badge').textContent = `Target: ≤ Rp ${Math.round(target).toLocaleString('id-ID')}/ton`;
+
+    const tonEl = document.getElementById('val-cost-tonase');
+    tonEl.innerHTML = (latest.tonase || 0).toLocaleString('id-ID') + '<span class="kpi-unit"> ton</span>';
+    tonEl.className = 'value';
+    document.getElementById('date-cost-tonase').textContent = `Week ${latest.minggu_ke} - ${latest.tahun}`;
+
+    const rupEl = document.getElementById('val-cost-rupiah');
+    rupEl.textContent = fmtRupiah(latestTotalValue);
+    rupEl.className = 'value';
+    document.getElementById('date-cost-rupiah').textContent = `Week ${latest.minggu_ke} - ${latest.tahun}`;
+
+    titleWeek.textContent = `— Week ${rows[rows.length - 1].minggu_ke}/${rows[rows.length - 1].tahun} s.d. Week ${latest.minggu_ke}/${latest.tahun}`;
+
+    // ── Tabel riwayat, urut dari minggu terbaru ke terlama ──
+    tbody.innerHTML = '';
+    rows.forEach(r => {
+        const pkgRatio = r.tonase ? (r.packaging_value || 0) / r.tonase : 0;
+        const rawRatio = r.tonase ? (r.raw_material_value || 0) / r.tonase : 0;
+        const sfgRatio = r.tonase ? (r.sfg_value || 0) / r.tonase : 0;
+        const totalValue = (r.packaging_value || 0) + (r.raw_material_value || 0) + (r.sfg_value || 0);
+        const totalRatio = r.tonase ? totalValue / r.tonase : 0;
+        const rTarget = r.target_cost_per_ton || 28000;
+        const isOver = totalRatio > rTarget;
+        const selisih = totalRatio - rTarget;
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>Week ${r.minggu_ke} / ${r.tahun}</td>
+            <td>${(r.tonase || 0).toLocaleString('id-ID')}</td>
+            <td>${fmtRupiah(pkgRatio)}</td>
+            <td>${fmtRupiah(rawRatio)}</td>
+            <td>${fmtRupiah(sfgRatio)}</td>
+            <td class="total-col ${isOver ? 'low' : 'good'}">${fmtRupiah(totalRatio)}</td>
+            <td style="color:#6b7280; font-size:11px;">${fmtRupiah(rTarget)}</td>
+            <td class="share-col" style="color:${isOver ? '#dc2626' : '#16a34a'};">${isOver ? '+' : ''}${fmtRupiah(selisih)}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+loadCostMaterial();
+</script>
+</body>
+</html>
