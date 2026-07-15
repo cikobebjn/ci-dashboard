@@ -1,0 +1,438 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Input Data Extruder - Bojonegoro Monitoring</title>
+<style>
+body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
+.topbar {
+    background:#1f2937; color:white; padding:15px;
+    display:flex; align-items:center;
+    position:fixed; top:0; left:0; width:100%; z-index:1000;
+    box-sizing:border-box;
+}
+.menu-btn { font-size:28px; cursor:pointer; margin-right:15px; }
+.sidebar {
+    height:100%; width:250px; position:fixed;
+    top:0; left:-250px; background:#111827;
+    transition:0.3s; padding-top:60px; z-index:999;
+}
+.sidebar a { display:block; color:white; padding:15px 20px; text-decoration:none; }
+.sidebar a:hover { background:#374151; }
+.sidebar a.active { background:#3b82f6; }
+.main { padding:80px 24px 40px 24px; max-width:900px; margin:0 auto; }
+
+.card-wide {
+    background:white; border-radius:12px; padding:20px 24px;
+    box-shadow:0 1px 3px rgba(0,0,0,0.08);
+    border-top:4px solid #ea580c;
+    margin-bottom:20px;
+}
+.card-wide h2 { margin:0 0 4px; font-size:16px; color:#1f2937; }
+.card-wide .sub { font-size:12px; color:#9ca3af; margin-bottom:16px; }
+
+.form-row { display:flex; gap:16px; flex-wrap:wrap; margin-bottom:16px; }
+.form-group { flex:1; min-width:160px; }
+.form-group label {
+    display:block; font-size:12px; font-weight:600; color:#6b7280;
+    text-transform:uppercase; letter-spacing:0.04em; margin-bottom:6px;
+}
+.form-group input, .form-group select {
+    width:100%; box-sizing:border-box; padding:8px 10px;
+    border:1px solid #d1d5db; border-radius:7px; font-size:13px; color:#1f2937;
+}
+.form-group input:focus, .form-group select:focus {
+    outline:none; border-color:#6366f1; box-shadow:0 0 0 2px #e0e7ff;
+}
+
+.entry-table { width:100%; border-collapse:collapse; font-size:12px; margin-bottom:12px; }
+.entry-table th {
+    background:#f9fafb; color:#6b7280; font-weight:600; font-size:10px;
+    padding:8px 6px; text-align:center; border-bottom:2px solid #e5e7eb;
+    text-transform:uppercase; letter-spacing:0.03em;
+}
+.entry-table th:first-child { text-align:left; }
+.entry-table td { padding:6px; border-bottom:1px solid #f3f4f6; text-align:center; vertical-align:middle; }
+.entry-table td:first-child { text-align:left; font-weight:600; color:#374151; }
+.entry-table input, .entry-table select {
+    width:100%; box-sizing:border-box; padding:6px 8px;
+    border:1px solid #d1d5db; border-radius:6px; font-size:12px; text-align:center;
+}
+.entry-table input:focus, .entry-table select:focus {
+    outline:none; border-color:#6366f1; box-shadow:0 0 0 2px #e0e7ff;
+}
+
+.btn {
+    background:#4f46e5; color:white; border:none;
+    padding:10px 18px; border-radius:7px; cursor:pointer;
+    font-size:13px; font-weight:600;
+}
+.btn:hover { background:#4338ca; }
+.btn:disabled { background:#a5b4fc; cursor:not-allowed; }
+.btn-secondary {
+    background:#f3f4f6; color:#374151; border:1px solid #d1d5db;
+    padding:8px 14px; border-radius:7px; cursor:pointer; font-size:12px; font-weight:600;
+}
+.btn-secondary:hover { background:#e5e7eb; }
+.btn-danger-mini {
+    background:#fef2f2; color:#dc2626; border:1px solid #fecaca;
+    padding:5px 9px; border-radius:6px; cursor:pointer; font-size:11px;
+}
+.btn-danger-mini:hover { background:#fee2e2; }
+
+.status-msg {
+    margin-top:10px; font-size:12px; padding:8px 12px; border-radius:7px; display:none;
+}
+.status-msg.ok { display:block; background:#f0fdf4; color:#16a34a; border:1px solid #bbf7d0; }
+.status-msg.err { display:block; background:#fef2f2; color:#dc2626; border:1px solid #fecaca; }
+
+.durasi-badge { font-size:11px; color:#6b7280; }
+</style>
+</head>
+<body>
+
+<div class="sidebar" id="sidebar">
+    <a href="index.html">Dashboard Utama</a>
+    <a href="oee.html">OEE</a>
+    <a href="tonase.html">Tonase</a>
+    <a href="waste.html">Waste</a>
+    <a href="cost-material.html">Cost Material</a>
+    <a href="#">Downtime</a>
+    <a href="#">Variant</a>
+    <a href="#">Cost Saving</a>
+    <a href="#">CI Projects</a>
+    <a href="input-extruder.html" class="active" style="margin-top:20px; border-top:1px solid #374151;">✏️ Input Extruder (manual)</a>
+    <a href="import-extruder.html">📤 Import Extruder (Excel)</a>
+    <a href="settings.html">⚙️ Settings</a>
+</div>
+
+<div class="topbar">
+    <span class="menu-btn" onclick="toggleMenu()">☰</span>
+    <h2 style="margin:0;">Input Data Extruder</h2>
+</div>
+
+<div class="main">
+
+    <!-- Tanggal Global -->
+    <div class="card-wide" style="border-top-color:#6366f1;">
+        <h2>📅 Tanggal Laporan</h2>
+        <div class="sub">Berlaku untuk semua form di bawah (Achievement, Quality, Downtime)</div>
+        <div class="form-row" style="margin-bottom:0;">
+            <div class="form-group">
+                <label>Tanggal</label>
+                <input type="date" id="g-tanggal" onchange="updateWeek()">
+            </div>
+            <div class="form-group">
+                <label>Week</label>
+                <input type="number" id="g-week" min="1" max="53">
+            </div>
+        </div>
+    </div>
+
+    <!-- Achievement Adukan & SFG Oven -->
+    <div class="card-wide">
+        <h2>⚙️ Achievement Adukan & SFG Oven</h2>
+        <div class="sub">Isi target dan realisasi per shift. Baris yang kosong tidak akan disimpan.</div>
+        <table class="entry-table">
+            <thead>
+                <tr>
+                    <th>Shift</th>
+                    <th>Target Adukan</th>
+                    <th>Realisasi Adukan</th>
+                    <th>Target SFG Oven</th>
+                    <th>Realisasi SFG Oven</th>
+                </tr>
+            </thead>
+            <tbody id="tbl-achievement">
+                <tr data-shift="1">
+                    <td>Shift 1</td>
+                    <td><input type="number" step="0.01" class="in-target-adukan"></td>
+                    <td><input type="number" step="0.01" class="in-real-adukan"></td>
+                    <td><input type="number" step="0.01" class="in-target-sfg"></td>
+                    <td><input type="number" step="0.01" class="in-real-sfg"></td>
+                </tr>
+                <tr data-shift="2">
+                    <td>Shift 2</td>
+                    <td><input type="number" step="0.01" class="in-target-adukan"></td>
+                    <td><input type="number" step="0.01" class="in-real-adukan"></td>
+                    <td><input type="number" step="0.01" class="in-target-sfg"></td>
+                    <td><input type="number" step="0.01" class="in-real-sfg"></td>
+                </tr>
+                <tr data-shift="3">
+                    <td>Shift 3</td>
+                    <td><input type="number" step="0.01" class="in-target-adukan"></td>
+                    <td><input type="number" step="0.01" class="in-real-adukan"></td>
+                    <td><input type="number" step="0.01" class="in-target-sfg"></td>
+                    <td><input type="number" step="0.01" class="in-real-sfg"></td>
+                </tr>
+            </tbody>
+        </table>
+        <button class="btn" onclick="submitAchievement()" id="btn-achievement">Simpan Achievement</button>
+        <div class="status-msg" id="status-achievement"></div>
+    </div>
+
+    <!-- Quality -->
+    <div class="card-wide">
+        <h2>✅ Quality per Shift</h2>
+        <div class="sub">Total bag dihitung otomatis (Bag OK + Bag DU).</div>
+        <table class="entry-table">
+            <thead>
+                <tr>
+                    <th>Shift</th>
+                    <th>Bag OK</th>
+                    <th>Bag DU</th>
+                    <th>Total Bag</th>
+                </tr>
+            </thead>
+            <tbody id="tbl-quality">
+                <tr data-shift="1">
+                    <td>Shift 1</td>
+                    <td><input type="number" class="in-bag-ok" oninput="updateTotalBag(this)"></td>
+                    <td><input type="number" class="in-bag-du" oninput="updateTotalBag(this)"></td>
+                    <td><span class="in-total-bag">0</span></td>
+                </tr>
+                <tr data-shift="2">
+                    <td>Shift 2</td>
+                    <td><input type="number" class="in-bag-ok" oninput="updateTotalBag(this)"></td>
+                    <td><input type="number" class="in-bag-du" oninput="updateTotalBag(this)"></td>
+                    <td><span class="in-total-bag">0</span></td>
+                </tr>
+                <tr data-shift="3">
+                    <td>Shift 3</td>
+                    <td><input type="number" class="in-bag-ok" oninput="updateTotalBag(this)"></td>
+                    <td><input type="number" class="in-bag-du" oninput="updateTotalBag(this)"></td>
+                    <td><span class="in-total-bag">0</span></td>
+                </tr>
+            </tbody>
+        </table>
+        <button class="btn" onclick="submitQuality()" id="btn-quality">Simpan Quality</button>
+        <div class="status-msg" id="status-quality"></div>
+    </div>
+
+    <!-- Downtime -->
+    <div class="card-wide">
+        <h2>🛑 Downtime</h2>
+        <div class="sub">Durasi (menit) dihitung otomatis dari selisih jam mulai & selesai.</div>
+        <table class="entry-table">
+            <thead>
+                <tr>
+                    <th>Mesin</th>
+                    <th>Shift</th>
+                    <th>Mulai</th>
+                    <th>Selesai</th>
+                    <th>Durasi</th>
+                    <th>Deskripsi</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="tbl-downtime"></tbody>
+        </table>
+        <button class="btn-secondary" onclick="addDowntimeRow()">+ Tambah Baris</button>
+        <button class="btn" onclick="submitDowntime()" id="btn-downtime" style="margin-left:8px;">Simpan Downtime</button>
+        <div class="status-msg" id="status-downtime"></div>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = 'https://bmnhtxalfsfaefacgtpm.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_VItBKenz-q2sYz7MsibODA_nYtLXv9Q';
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+function toggleMenu() {
+    const s = document.getElementById('sidebar');
+    s.style.left = s.style.left === '0px' ? '-250px' : '0px';
+}
+
+function showStatus(id, ok, msg) {
+    const el = document.getElementById(id);
+    el.className = 'status-msg ' + (ok ? 'ok' : 'err');
+    el.textContent = msg;
+}
+
+function getTanggal() {
+    return document.getElementById('g-tanggal').value;
+}
+function getWeek() {
+    const v = document.getElementById('g-week').value;
+    return v ? parseInt(v) : null;
+}
+
+// Estimasi week ISO sederhana, tetap bisa diedit manual di field Week
+function updateWeek() {
+    const tgl = getTanggal();
+    if (!tgl) return;
+    const d = new Date(tgl + 'T00:00:00');
+    const target = new Date(d.valueOf());
+    const dayNr = (d.getDay() + 6) % 7;
+    target.setDate(target.getDate() - dayNr + 3);
+    const firstThursday = new Date(target.getFullYear(), 0, 4);
+    const week = 1 + Math.round(((target - firstThursday) / 86400000 - 3 + ((firstThursday.getDay() + 6) % 7)) / 7);
+    document.getElementById('g-week').value = week;
+}
+
+function updateTotalBag(input) {
+    const row = input.closest('tr');
+    const ok = parseFloat(row.querySelector('.in-bag-ok').value) || 0;
+    const du = parseFloat(row.querySelector('.in-bag-du').value) || 0;
+    row.querySelector('.in-total-bag').textContent = (ok + du);
+}
+
+// ── Achievement ──
+async function submitAchievement() {
+    const tanggal = getTanggal();
+    if (!tanggal) { showStatus('status-achievement', false, 'Isi tanggal terlebih dahulu.'); return; }
+    const week = getWeek();
+
+    const rows = [];
+    document.querySelectorAll('#tbl-achievement tr').forEach(tr => {
+        const shift = parseInt(tr.dataset.shift);
+        const targetAdukan = parseFloat(tr.querySelector('.in-target-adukan').value);
+        const realAdukan   = parseFloat(tr.querySelector('.in-real-adukan').value);
+        const targetSfg    = parseFloat(tr.querySelector('.in-target-sfg').value);
+        const realSfg      = parseFloat(tr.querySelector('.in-real-sfg').value);
+        const adaIsi = [targetAdukan, realAdukan, targetSfg, realSfg].some(v => !isNaN(v));
+        if (!adaIsi) return;
+        rows.push({
+            tanggal, week, shift,
+            target_adukan: isNaN(targetAdukan) ? null : targetAdukan,
+            realisasi_adukan: isNaN(realAdukan) ? null : realAdukan,
+            target_sfg_oven: isNaN(targetSfg) ? null : targetSfg,
+            realisasi_sfg_oven: isNaN(realSfg) ? null : realSfg,
+        });
+    });
+
+    if (rows.length === 0) { showStatus('status-achievement', false, 'Belum ada data yang diisi.'); return; }
+
+    const btn = document.getElementById('btn-achievement');
+    btn.disabled = true; btn.textContent = 'Menyimpan...';
+    try {
+        const { error } = await db.from('extruder_daily').upsert(rows, { onConflict: 'tanggal,shift' });
+        if (error) throw error;
+        showStatus('status-achievement', true, `Tersimpan: ${rows.length} baris shift.`);
+    } catch (e) {
+        showStatus('status-achievement', false, 'Gagal menyimpan: ' + e.message);
+    } finally {
+        btn.disabled = false; btn.textContent = 'Simpan Achievement';
+    }
+}
+
+// ── Quality ──
+async function submitQuality() {
+    const tanggal = getTanggal();
+    if (!tanggal) { showStatus('status-quality', false, 'Isi tanggal terlebih dahulu.'); return; }
+
+    const rows = [];
+    document.querySelectorAll('#tbl-quality tr').forEach(tr => {
+        const shift = parseInt(tr.dataset.shift);
+        const ok = parseFloat(tr.querySelector('.in-bag-ok').value);
+        const du = parseFloat(tr.querySelector('.in-bag-du').value);
+        if (isNaN(ok) && isNaN(du)) return;
+        const okVal = isNaN(ok) ? 0 : ok;
+        const duVal = isNaN(du) ? 0 : du;
+        rows.push({ tanggal, shift, bag_ok: okVal, bag_du: duVal, total_bag: okVal + duVal });
+    });
+
+    if (rows.length === 0) { showStatus('status-quality', false, 'Belum ada data yang diisi.'); return; }
+
+    const btn = document.getElementById('btn-quality');
+    btn.disabled = true; btn.textContent = 'Menyimpan...';
+    try {
+        const { error } = await db.from('extruder_quality').upsert(rows, { onConflict: 'tanggal,shift' });
+        if (error) throw error;
+        showStatus('status-quality', true, `Tersimpan: ${rows.length} baris shift.`);
+    } catch (e) {
+        showStatus('status-quality', false, 'Gagal menyimpan: ' + e.message);
+    } finally {
+        btn.disabled = false; btn.textContent = 'Simpan Quality';
+    }
+}
+
+// ── Downtime ──
+function addDowntimeRow() {
+    const tbody = document.getElementById('tbl-downtime');
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+        <td>
+            <select class="in-dt-mesin">
+                <option value="Extruder 1">Extruder 1</option>
+                <option value="Extruder 2">Extruder 2</option>
+                <option value="Extruder 3">Extruder 3</option>
+            </select>
+        </td>
+        <td>
+            <select class="in-dt-shift">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+            </select>
+        </td>
+        <td><input type="time" class="in-dt-mulai" onchange="updateDurasi(this)"></td>
+        <td><input type="time" class="in-dt-selesai" onchange="updateDurasi(this)"></td>
+        <td><span class="durasi-badge in-dt-durasi">—</span></td>
+        <td><input type="text" class="in-dt-deskripsi" placeholder="mis. Cleaning"></td>
+        <td><button class="btn-danger-mini" onclick="this.closest('tr').remove()">Hapus</button></td>
+    `;
+    tbody.appendChild(tr);
+}
+
+function updateDurasi(input) {
+    const row = input.closest('tr');
+    const mulai = row.querySelector('.in-dt-mulai').value;
+    const selesai = row.querySelector('.in-dt-selesai').value;
+    const badge = row.querySelector('.in-dt-durasi');
+    if (!mulai || !selesai) { badge.textContent = '—'; return; }
+    const [h1, m1] = mulai.split(':').map(Number);
+    const [h2, m2] = selesai.split(':').map(Number);
+    let menit = (h2 * 60 + m2) - (h1 * 60 + m1);
+    if (menit < 0) menit += 24 * 60; // lewat tengah malam
+    badge.textContent = menit + ' mnt';
+    badge.dataset.val = menit;
+}
+
+async function submitDowntime() {
+    const tanggal = getTanggal();
+    if (!tanggal) { showStatus('status-downtime', false, 'Isi tanggal terlebih dahulu.'); return; }
+    const week = getWeek();
+
+    const rows = [];
+    document.querySelectorAll('#tbl-downtime tr').forEach(tr => {
+        const mesin = tr.querySelector('.in-dt-mesin').value;
+        const shift = parseInt(tr.querySelector('.in-dt-shift').value);
+        const durasiBadge = tr.querySelector('.in-dt-durasi');
+        const durasi = durasiBadge.dataset.val ? parseInt(durasiBadge.dataset.val) : null;
+        const deskripsi = tr.querySelector('.in-dt-deskripsi').value.trim();
+        if (durasi === null || !deskripsi) return;
+        rows.push({ tanggal, week, mesin, shift, durasi, dt_description: deskripsi });
+    });
+
+    if (rows.length === 0) { showStatus('status-downtime', false, 'Belum ada baris downtime yang lengkap (jam mulai, selesai, deskripsi).'); return; }
+
+    const btn = document.getElementById('btn-downtime');
+    btn.disabled = true; btn.textContent = 'Menyimpan...';
+    try {
+        const { error } = await db.from('extruder_downtime').insert(rows);
+        if (error) throw error;
+        showStatus('status-downtime', true, `Tersimpan: ${rows.length} kejadian downtime.`);
+        document.getElementById('tbl-downtime').innerHTML = '';
+        addDowntimeRow();
+    } catch (e) {
+        showStatus('status-downtime', false, 'Gagal menyimpan: ' + e.message);
+    } finally {
+        btn.disabled = false; btn.textContent = 'Simpan Downtime';
+    }
+}
+
+// Init
+(function init() {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('g-tanggal').value = today;
+    updateWeek();
+    addDowntimeRow();
+})();
+</script>
+</body>
+</html>
