@@ -1,0 +1,384 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Import Data Extruder - Bojonegoro Monitoring</title>
+<style>
+body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
+.topbar {
+    background:#1f2937; color:white; padding:15px;
+    display:flex; align-items:center;
+    position:fixed; top:0; left:0; width:100%; z-index:1000;
+    box-sizing:border-box;
+}
+.menu-btn { font-size:28px; cursor:pointer; margin-right:15px; }
+.sidebar {
+    height:100%; width:250px; position:fixed;
+    top:0; left:-250px; background:#111827;
+    transition:0.3s; padding-top:60px; z-index:999;
+}
+.sidebar a { display:block; color:white; padding:15px 20px; text-decoration:none; }
+.sidebar a:hover { background:#374151; }
+.sidebar a.active { background:#3b82f6; }
+.main { padding:80px 24px 40px 24px; max-width:900px; margin:0 auto; }
+
+.card-wide {
+    background:white; border-radius:12px; padding:20px 24px;
+    box-shadow:0 1px 3px rgba(0,0,0,0.08);
+    border-top:4px solid #ea580c;
+    margin-bottom:20px;
+}
+.card-wide h2 { margin:0 0 4px; font-size:16px; color:#1f2937; }
+.card-wide .sub { font-size:12px; color:#9ca3af; margin-bottom:16px; }
+
+.dropzone {
+    border:2px dashed #d1d5db; border-radius:10px; padding:30px 20px;
+    text-align:center; cursor:pointer; transition:0.2s;
+}
+.dropzone:hover, .dropzone.dragover { border-color:#6366f1; background:#f5f6ff; }
+.dropzone .icon { font-size:32px; margin-bottom:8px; }
+.dropzone .title { font-size:14px; font-weight:600; color:#374151; }
+.dropzone .hint { font-size:12px; color:#9ca3af; margin-top:4px; }
+#file-input { display:none; }
+
+.file-chip {
+    display:inline-flex; align-items:center; gap:8px;
+    background:#f5f6ff; border:1px solid #c7d2fe; color:#4338ca;
+    padding:6px 12px; border-radius:20px; font-size:12px; font-weight:600;
+    margin-top:12px;
+}
+
+.summary-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; margin-top:16px; }
+.summary-card {
+    background:#f9fafb; border-radius:8px; padding:12px 14px;
+}
+.summary-card .label { font-size:10px; color:#9ca3af; text-transform:uppercase; letter-spacing:0.04em; font-weight:600; }
+.summary-card .value { font-size:20px; font-weight:700; color:#1f2937; margin-top:4px; }
+.summary-card .range { font-size:11px; color:#6b7280; margin-top:2px; }
+
+.btn {
+    background:#4f46e5; color:white; border:none;
+    padding:10px 18px; border-radius:7px; cursor:pointer;
+    font-size:13px; font-weight:600; margin-top:16px;
+}
+.btn:hover { background:#4338ca; }
+.btn:disabled { background:#a5b4fc; cursor:not-allowed; }
+
+.log-box {
+    margin-top:14px; background:#111827; color:#d1d5db; border-radius:8px;
+    padding:12px 14px; font-family:'Courier New', monospace; font-size:12px;
+    max-height:260px; overflow-y:auto; display:none; white-space:pre-wrap;
+}
+.log-box.show { display:block; }
+.log-ok   { color:#4ade80; }
+.log-err  { color:#f87171; }
+.log-info { color:#93c5fd; }
+
+.warn-note {
+    background:#fffbeb; border:1px solid #fde68a; color:#92400e;
+    font-size:12px; padding:10px 12px; border-radius:8px; margin-top:14px;
+}
+</style>
+</head>
+<body>
+
+<div class="sidebar" id="sidebar">
+    <a href="index.html">Dashboard Utama</a>
+    <a href="oee.html">OEE</a>
+    <a href="tonase.html">Tonase</a>
+    <a href="waste.html">Waste</a>
+    <a href="cost-material.html">Cost Material</a>
+    <a href="#">Downtime</a>
+    <a href="#">Variant</a>
+    <a href="#">Cost Saving</a>
+    <a href="#">CI Projects</a>
+    <a href="input-extruder.html">✏️ Input Extruder (manual)</a>
+    <a href="import-extruder.html" class="active">📤 Import Extruder (Excel)</a>
+    <a href="settings.html">⚙️ Settings</a>
+</div>
+
+<div class="topbar">
+    <span class="menu-btn" onclick="toggleMenu()">☰</span>
+    <h2 style="margin:0;">Import Data Extruder dari Excel</h2>
+</div>
+
+<div class="main">
+
+    <div class="card-wide" style="border-top-color:#6366f1;">
+        <h2>📤 Upload File Excel</h2>
+        <div class="sub">File harus punya sheet <b>DATA</b>, <b>Downtime</b>, dan <b>Quality</b> (format sama seperti Extruder_2026.xlsx).</div>
+
+        <div class="dropzone" id="dropzone" onclick="document.getElementById('file-input').click()">
+            <div class="icon">📄</div>
+            <div class="title">Klik atau seret file .xlsx ke sini</div>
+            <div class="hint">Sheet DATA, Downtime, dan Quality akan dibaca otomatis</div>
+        </div>
+        <input type="file" id="file-input" accept=".xlsx,.xls">
+        <div id="file-chip-wrap"></div>
+
+        <div class="summary-grid" id="summary-grid" style="display:none;"></div>
+
+        <button class="btn" id="btn-import" onclick="runImport()" style="display:none;">Import ke Supabase</button>
+
+        <div class="warn-note">
+            <b>Perilaku import:</b> baris Achievement &amp; Quality disimpan per (tanggal, shift) — kalau tanggal itu sudah ada, datanya akan ditimpa (update), bukan dobel.
+            Untuk Downtime, semua data lama pada rentang tanggal yang ada di file akan dihapus dulu lalu diganti dengan data baru dari Excel, supaya aman kalau kamu upload ulang file yang sama atau versi revisi.
+        </div>
+
+        <div class="log-box" id="log-box"></div>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = 'https://bmnhtxalfsfaefacgtpm.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_VItBKenz-q2sYz7MsibODA_nYtLXv9Q';
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let parsedDaily = [];
+let parsedQuality = [];
+let parsedDowntime = [];
+
+function toggleMenu() {
+    const s = document.getElementById('sidebar');
+    s.style.left = s.style.left === '0px' ? '-250px' : '0px';
+}
+
+function log(msg, cls) {
+    const box = document.getElementById('log-box');
+    box.classList.add('show');
+    const line = document.createElement('div');
+    if (cls) line.className = cls;
+    line.textContent = msg;
+    box.appendChild(line);
+    box.scrollTop = box.scrollHeight;
+}
+
+function fmtDateISO(d) {
+    if (!(d instanceof Date) || isNaN(d)) return null;
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+}
+
+function normHeader(h) {
+    return (h === null || h === undefined) ? '' : h.toString().trim().toLowerCase();
+}
+
+// Ambil array-of-objects dari sheet, otomatis cari baris header
+// (baris pertama yang mengandung kolom "Tanggal").
+function sheetToObjects(ws) {
+    const aoa = XLSX.utils.sheet_to_json(ws, { header: 1, raw: true, defval: null });
+    const headerIdx = aoa.findIndex(row => Array.isArray(row) && row.some(c => normHeader(c) === 'tanggal'));
+    if (headerIdx === -1) return [];
+    const headers = aoa[headerIdx].map(h => (h === null || h === undefined) ? '' : h.toString().trim());
+    const rows = aoa.slice(headerIdx + 1).filter(r => Array.isArray(r) && r[0] !== null && r[0] !== undefined && r[0] !== '');
+    return rows.map(r => {
+        const obj = {};
+        headers.forEach((h, i) => { if (h) obj[h] = r[i]; });
+        return obj;
+    });
+}
+
+function getField(obj, ...names) {
+    for (const n of names) {
+        const key = Object.keys(obj).find(k => normHeader(k) === normHeader(n));
+        if (key !== undefined && obj[key] !== undefined) return obj[key];
+    }
+    return null;
+}
+
+function toNum(v) {
+    if (v === null || v === undefined || v === '') return null;
+    const n = Number(v);
+    return isNaN(n) ? null : n;
+}
+
+function dateRange(rows, key) {
+    const dates = rows.map(r => r[key]).filter(Boolean).sort();
+    if (dates.length === 0) return null;
+    return { min: dates[0], max: dates[dates.length - 1] };
+}
+
+function chunkArray(arr, size) {
+    const out = [];
+    for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
+    return out;
+}
+
+// ── File handling ──
+const dropzone = document.getElementById('dropzone');
+const fileInput = document.getElementById('file-input');
+
+dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('dragover'); });
+dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+dropzone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropzone.classList.remove('dragover');
+    if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', e => { if (e.target.files.length) handleFile(e.target.files[0]); });
+
+function handleFile(file) {
+    document.getElementById('file-chip-wrap').innerHTML =
+        `<div class="file-chip">📄 ${file.name}</div>`;
+    document.getElementById('log-box').innerHTML = '';
+    document.getElementById('log-box').classList.remove('show');
+
+    const reader = new FileReader();
+    reader.onload = e => {
+        const data = new Uint8Array(e.target.result);
+        const wb = XLSX.read(data, { type: 'array', cellDates: true });
+        parseWorkbook(wb);
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+function parseWorkbook(wb) {
+    const sheetData    = wb.Sheets['DATA'];
+    const sheetDowntime = wb.Sheets['Downtime'];
+    const sheetQuality  = wb.Sheets['Quality'];
+
+    if (!sheetData || !sheetDowntime || !sheetQuality) {
+        log('File tidak punya ketiga sheet yang diharapkan (DATA, Downtime, Quality).', 'log-err');
+        return;
+    }
+
+    // DATA -> Achievement Adukan & SFG Oven
+    const rawDaily = sheetToObjects(sheetData);
+    parsedDaily = rawDaily.map(r => ({
+        tanggal: fmtDateISO(getField(r, 'Tanggal')),
+        week: toNum(getField(r, 'Week')),
+        shift: toNum(getField(r, 'Shift')),
+        target_adukan: toNum(getField(r, 'Target Adukan')),
+        realisasi_adukan: toNum(getField(r, 'Realisasi Adukan')),
+        target_sfg_oven: toNum(getField(r, 'Target SFG Oven')),
+        realisasi_sfg_oven: toNum(getField(r, 'Realisasi SFG Oven')),
+    })).filter(r => r.tanggal && r.shift);
+
+    // Quality
+    const rawQuality = sheetToObjects(sheetQuality);
+    parsedQuality = rawQuality.map(r => {
+        const ok = toNum(getField(r, 'Bag OK')) || 0;
+        const du = toNum(getField(r, 'Bag DU')) || 0;
+        return {
+            tanggal: fmtDateISO(getField(r, 'Tanggal')),
+            shift: toNum(getField(r, 'Shift')),
+            bag_ok: ok,
+            bag_du: du,
+            total_bag: toNum(getField(r, 'Total bag')) ?? (ok + du),
+        };
+    }).filter(r => r.tanggal && r.shift);
+
+    // Downtime
+    const rawDowntime = sheetToObjects(sheetDowntime);
+    parsedDowntime = rawDowntime.map(r => {
+        let mesin = getField(r, 'Mesin');
+        if (mesin) mesin = mesin.toString().trim().replace(/^Exturder/i, 'Extruder');
+        return {
+            tanggal: fmtDateISO(getField(r, 'Tanggal')),
+            week: toNum(getField(r, 'Week')),
+            mesin: mesin,
+            shift: toNum(getField(r, 'Shift')),
+            durasi: toNum(getField(r, 'Durasi')),
+            dt_description: getField(r, 'DT Description') ? getField(r, 'DT Description').toString().trim() : null,
+        };
+    }).filter(r => r.tanggal && r.mesin && r.durasi !== null);
+
+    renderSummary();
+}
+
+function renderSummary() {
+    const grid = document.getElementById('summary-grid');
+    const rDaily = dateRange(parsedDaily, 'tanggal');
+    const rQuality = dateRange(parsedQuality, 'tanggal');
+    const rDowntime = dateRange(parsedDowntime, 'tanggal');
+
+    grid.style.display = 'grid';
+    grid.innerHTML = `
+        <div class="summary-card">
+            <div class="label">Achievement</div>
+            <div class="value">${parsedDaily.length}</div>
+            <div class="range">${rDaily ? rDaily.min + ' s.d. ' + rDaily.max : 'tidak ada data'}</div>
+        </div>
+        <div class="summary-card">
+            <div class="label">Quality</div>
+            <div class="value">${parsedQuality.length}</div>
+            <div class="range">${rQuality ? rQuality.min + ' s.d. ' + rQuality.max : 'tidak ada data'}</div>
+        </div>
+        <div class="summary-card">
+            <div class="label">Downtime</div>
+            <div class="value">${parsedDowntime.length}</div>
+            <div class="range">${rDowntime ? rDowntime.min + ' s.d. ' + rDowntime.max : 'tidak ada data'}</div>
+        </div>
+    `;
+
+    document.getElementById('btn-import').style.display =
+        (parsedDaily.length || parsedQuality.length || parsedDowntime.length) ? 'inline-block' : 'none';
+}
+
+// ── Import ke Supabase ──
+async function runImport() {
+    const btn = document.getElementById('btn-import');
+    btn.disabled = true; btn.textContent = 'Mengimpor...';
+    document.getElementById('log-box').innerHTML = '';
+    document.getElementById('log-box').classList.add('show');
+
+    try {
+        await importDaily();
+        await importQuality();
+        await importDowntime();
+        log('Selesai. Buka index.html untuk lihat hasilnya di dashboard.', 'log-ok');
+    } catch (e) {
+        log('Import dihentikan karena error: ' + e.message, 'log-err');
+    } finally {
+        btn.disabled = false; btn.textContent = 'Import ke Supabase';
+    }
+}
+
+async function importDaily() {
+    if (parsedDaily.length === 0) { log('Achievement: tidak ada baris valid, dilewati.', 'log-info'); return; }
+    log(`Achievement: mengirim ${parsedDaily.length} baris (upsert per tanggal+shift)...`, 'log-info');
+    const chunks = chunkArray(parsedDaily, 500);
+    for (const chunk of chunks) {
+        const { error } = await db.from('extruder_daily').upsert(chunk, { onConflict: 'tanggal,shift' });
+        if (error) throw new Error('extruder_daily: ' + error.message);
+    }
+    log(`Achievement: ${parsedDaily.length} baris tersimpan.`, 'log-ok');
+}
+
+async function importQuality() {
+    if (parsedQuality.length === 0) { log('Quality: tidak ada baris valid, dilewati.', 'log-info'); return; }
+    log(`Quality: mengirim ${parsedQuality.length} baris (upsert per tanggal+shift)...`, 'log-info');
+    const chunks = chunkArray(parsedQuality, 500);
+    for (const chunk of chunks) {
+        const { error } = await db.from('extruder_quality').upsert(chunk, { onConflict: 'tanggal,shift' });
+        if (error) throw new Error('extruder_quality: ' + error.message);
+    }
+    log(`Quality: ${parsedQuality.length} baris tersimpan.`, 'log-ok');
+}
+
+async function importDowntime() {
+    if (parsedDowntime.length === 0) { log('Downtime: tidak ada baris valid, dilewati.', 'log-info'); return; }
+    const range = dateRange(parsedDowntime, 'tanggal');
+    log(`Downtime: menghapus data lama ${range.min} s.d. ${range.max}...`, 'log-info');
+    const { error: delErr } = await db.from('extruder_downtime')
+        .delete().gte('tanggal', range.min).lte('tanggal', range.max);
+    if (delErr) throw new Error('hapus extruder_downtime: ' + delErr.message);
+
+    log(`Downtime: mengirim ${parsedDowntime.length} baris baru...`, 'log-info');
+    const chunks = chunkArray(parsedDowntime, 500);
+    for (const chunk of chunks) {
+        const { error } = await db.from('extruder_downtime').insert(chunk);
+        if (error) throw new Error('extruder_downtime: ' + error.message);
+    }
+    log(`Downtime: ${parsedDowntime.length} baris tersimpan.`, 'log-ok');
+}
+</script>
+</body>
+</html>
