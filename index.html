@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -233,6 +232,7 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
             <div class="value loading" id="val-cost-total">...</div>
             <div class="card-date" id="date-cost"></div>
             <span class="target-badge" id="cost-target-badge">Target: ≤ Rp 28.000/ton</span>
+            <table class="waste-detail-table" id="cost-detail-table"><tbody></tbody></table>
         </div>
 
     </div>
@@ -677,30 +677,41 @@ async function loadCostMaterial() {
         .order('minggu_ke', { ascending: false })
         .limit(8);
 
-    const tbody     = document.getElementById('tbl-cost-body');
-    const titleWeek = document.getElementById('title-cost-week');
-    const totalEl   = document.getElementById('val-cost-total');
-    const dateEl    = document.getElementById('date-cost');
-    const badgeEl   = document.getElementById('cost-target-badge');
+    const tbody       = document.getElementById('tbl-cost-body');
+    const titleWeek    = document.getElementById('title-cost-week');
+    const totalEl      = document.getElementById('val-cost-total');
+    const dateEl       = document.getElementById('date-cost');
+    const badgeEl      = document.getElementById('cost-target-badge');
+    const detailTbody  = document.querySelector('#cost-detail-table tbody');
 
     if (!rows || rows.length === 0) {
         tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#9ca3af; padding:20px;">Belum ada data cost material</td></tr>';
         titleWeek.textContent = '';
         totalEl.textContent = '—'; totalEl.className = 'value';
         dateEl.textContent = 'Belum ada data';
+        detailTbody.innerHTML = '';
         return;
     }
 
     // Data terbaru (minggu terakhir) untuk kartu ringkasan
     const latest = rows[0];
-    const latestTotalValue = (latest.packaging_value || 0) + (latest.raw_material_value || 0) + (latest.sfg_value || 0);
-    const latestTotalRatio = latest.tonase ? latestTotalValue / latest.tonase : 0;
+    const pkgRatioLatest = latest.tonase ? (latest.packaging_value || 0) / latest.tonase : 0;
+    const rawRatioLatest = latest.tonase ? (latest.raw_material_value || 0) / latest.tonase : 0;
+    const sfgRatioLatest = latest.tonase ? (latest.sfg_value || 0) / latest.tonase : 0;
+    const latestTotalRatio = pkgRatioLatest + rawRatioLatest + sfgRatioLatest;
     const target = latest.target_cost_per_ton || 28000;
 
     totalEl.innerHTML = Math.round(latestTotalRatio).toLocaleString('id-ID') + '<span class="kpi-unit"> /ton</span>';
     totalEl.className = 'value ' + (latestTotalRatio <= target ? 'good' : 'low');
     dateEl.textContent = `Week ${latest.minggu_ke} - ${latest.tahun}`;
     badgeEl.textContent = `Target: ≤ Rp ${Math.round(target).toLocaleString('id-ID')}/ton`;
+
+    // Breakdown PM / RM / SFG di bawah total, seperti di Excel
+    detailTbody.innerHTML = `
+        <tr><td class="mesin-name">Packaging Material</td><td class="waste-val">${fmtRupiah(pkgRatioLatest)}</td></tr>
+        <tr><td class="mesin-name">Raw Material</td><td class="waste-val">${fmtRupiah(rawRatioLatest)}</td></tr>
+        <tr><td class="mesin-name">SFG</td><td class="waste-val">${fmtRupiah(sfgRatioLatest)}</td></tr>
+    `;
 
     titleWeek.textContent = `— Week ${rows[rows.length - 1].minggu_ke} s.d. Week ${latest.minggu_ke} / ${latest.tahun}`;
 
