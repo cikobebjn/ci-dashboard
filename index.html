@@ -167,6 +167,92 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
 .downtime-bar-label { display:flex; justify-content:space-between; font-size:12px; color:#374151; margin-bottom:4px; }
 .downtime-bar-track { background:#f3f4f6; border-radius:5px; height:8px; overflow:hidden; }
 .downtime-bar-fill { background:#ea580c; height:100%; border-radius:5px; }
+
+/* ============================================================
+   MOBILE OPTIMIZATION
+   Rebuilt for small screens: single-column cards, larger tap
+   targets, horizontally-scrollable tables with sticky first
+   column, tighter spacing, and a cleaner date-filter bar.
+   ============================================================ */
+@media (max-width: 640px) {
+
+    .main { padding:64px 12px 32px 12px; }
+
+    .topbar { padding:12px 14px; }
+    .topbar h2 { font-size:16px; }
+    .menu-btn { font-size:24px; margin-right:12px; }
+
+    /* Date filter bar becomes a tidy two-row block */
+    .date-filter-bar {
+        padding:10px 12px; gap:8px; margin-bottom:14px;
+        border-radius:12px;
+    }
+    .date-filter-bar label { flex-basis:100%; font-size:11px; }
+    .date-filter-bar input[type=date] {
+        flex:1 1 auto; min-width:0; font-size:14px; padding:8px 10px;
+    }
+    .btn-today { padding:8px 12px; font-size:12px; white-space:nowrap; }
+    .filter-info { flex-basis:100%; margin-left:0; }
+
+    .sec-title { font-size:12px; margin:22px 0 10px; }
+
+    /* Single column of full-width cards instead of a cramped grid */
+    .kpi-grid {
+        grid-template-columns:1fr !important;
+        gap:12px;
+    }
+
+    .card, .card-wide {
+        padding:16px 16px;
+        border-radius:14px;
+        border-top-width:5px;
+    }
+
+    .card h3 { font-size:12px; }
+    .value { font-size:30px; }
+    .value.loading { font-size:16px; }
+    .kpi-unit { font-size:14px; }
+
+    /* Shift mini cards: keep 3-up but shrink padding/text so they
+       don't overflow */
+    .shift-grid { gap:8px; }
+    .shift-mini { padding:10px 6px; }
+    .shift-mini-val { font-size:16px; }
+    .shift-mini-label { font-size:9px; }
+
+    /* Tables: scroll horizontally within their card, keep first
+       column pinned so labels stay visible while scrolling values */
+    .card-wide {
+        padding:16px 4px 16px 16px;
+    }
+    .card-wide > .sec-title,
+    .card-wide > *:not(table):not(.split-grid) {
+        padding-right:12px;
+    }
+    .line-table, .cost-table {
+        display:block; overflow-x:auto; -webkit-overflow-scrolling:touch;
+        white-space:nowrap; font-size:11px;
+    }
+    .line-table thead, .cost-table thead { display:table; width:100%; table-layout:fixed; }
+    .line-table tbody, .cost-table tbody { display:block; }
+    .line-table tbody tr, .cost-table tbody tr { display:table; width:100%; table-layout:fixed; }
+    .line-table td.mesin-col,
+    .line-table th:first-child,
+    .cost-table td:first-child,
+    .cost-table th:first-child {
+        position:sticky; left:0; background:white; z-index:1;
+    }
+    .line-table th:first-child { background:#f9fafb; }
+    .cost-table th:first-child { background:#f9fafb; }
+
+    /* Waste detail tables inside cards read fine at full width, just tighten */
+    .waste-detail-table { font-size:12px; }
+    .waste-detail-table td { padding:6px 4px; }
+
+    .split-grid { grid-template-columns:1fr; gap:12px; }
+
+    .proses-pemakaian-info { font-size:12px; }
+}
 </style>
 </head>
 <body>
