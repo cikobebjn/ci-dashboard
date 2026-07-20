@@ -46,6 +46,8 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
 .value.low  { color:#dc2626; }
 .card-date { font-size:11px; color:#9ca3af; margin-top:6px; }
 .card-sub  { font-size:11px; color:#6b7280; margin-top:4px; }
+.card-sub.mtd { font-size:15px; color:#374151; }
+.card-sub.mtd b { font-size:17px; color:#10b981; }
 .target-badge {
     font-size:10px; color:#6b7280; background:#f3f4f6;
     border-radius:4px; padding:2px 6px; margin-top:6px; display:inline-block;
@@ -187,17 +189,35 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
     .topbar h2 { font-size:16px; }
     .menu-btn { font-size:24px; margin-right:12px; }
 
-    /* Date filter bar becomes a tidy block */
+    /* Date filter bar: clean 2-column grid — labels on top,
+       Dari/Sampai inputs side by side, button full-width below,
+       info line centered at the bottom. */
     .date-filter-bar {
-        padding:10px 12px; gap:8px; margin-bottom:14px;
-        border-radius:12px;
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        grid-template-areas:
+            "labeldari labelsampai"
+            "inputdari inputsampai"
+            "action action"
+            "info info";
+        row-gap:6px; column-gap:10px;
+        padding:14px 14px; margin-bottom:14px;
+        border-radius:14px;
+        align-items:center;
     }
-    .date-filter-bar label { font-size:11px; }
+    .date-filter-bar .sep { display:none; }
+    .fb-label-dari   { grid-area:labeldari; font-size:11px; margin:0; }
+    .fb-label-sampai { grid-area:labelsampai; font-size:11px; margin:0; }
+    .fb-input-dari   { grid-area:inputdari; }
+    .fb-input-sampai { grid-area:inputsampai; }
     .date-filter-bar input[type=date] {
-        flex:1 1 auto; min-width:0; font-size:14px; padding:8px 10px;
+        width:100%; box-sizing:border-box; font-size:14px; padding:9px 10px;
     }
-    .btn-today { padding:8px 12px; font-size:12px; white-space:nowrap; }
-    .filter-info { flex-basis:100%; margin-left:0; }
+    .btn-today {
+        grid-area:action; width:100%; box-sizing:border-box;
+        padding:10px; font-size:13px; margin-top:2px;
+    }
+    .filter-info { grid-area:info; text-align:center; margin:2px 0 0; }
 
     .sec-title { font-size:12px; margin:22px 0 10px; }
 
@@ -296,11 +316,11 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
 
     <!-- Date Filter Bar (range: Dari - Sampai) -->
     <div class="date-filter-bar">
-        <label>📅 Dari</label>
-        <input type="date" id="filter-date-start" onchange="gantiRentang()">
+        <label class="fb-label-dari">📅 Dari</label>
+        <input type="date" id="filter-date-start" class="fb-input-dari" onchange="gantiRentang()">
         <span class="sep">—</span>
-        <label>Sampai</label>
-        <input type="date" id="filter-date-end" onchange="gantiRentang()">
+        <label class="fb-label-sampai">Sampai</label>
+        <input type="date" id="filter-date-end" class="fb-input-sampai" onchange="gantiRentang()">
         <button class="btn-today" onclick="keTanggalTerakhir()">⟳ Terbaru</button>
         <span class="filter-info" id="filter-info"></span>
     </div>
@@ -320,7 +340,7 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
             <div class="value loading" id="val-tonase">...</div>
             <div class="card-date" id="date-tonase"></div>
             <div class="card-sub" id="sub-tonase"></div>
-            <div class="card-sub" id="sub-tonase-mtd" style="margin-top:6px; padding-top:6px; border-top:1px dashed #e5e7eb;"></div>
+            <div id="sub-tonase-mtd" class="card-sub mtd" style="margin-top:8px; padding-top:8px; border-top:1px dashed #e5e7eb;"></div>
         </div>
 
         <div class="card waste-mini-card kemasan">
@@ -639,18 +659,27 @@ async function loadData(sDate, eDate) {
     }
 
     // ── Tonase bulan berjalan: tgl 1 bulan ini s.d. tanggal data terakhir ──
-    // Ini SELALU dihitung dari lastAvailableDate, tidak terpengaruh filter Dari/Sampai di atas.
+    // Ini SELALU dihitung berdasarkan tanggal terakhir yang ADA di tabel tonase_harian
+    // sendiri (bukan dari waste_shiftly), supaya tidak kepotong kalau input waste telat.
     const tonMtdEl = document.getElementById('sub-tonase-mtd');
-    if (lastAvailableDate) {
-        const [y, m] = lastAvailableDate.split('-');
+    const { data: lastTonRow } = await db
+        .from('tonase_harian')
+        .select('tanggal')
+        .order('tanggal', { ascending: false })
+        .limit(1)
+        .single();
+
+    if (lastTonRow && lastTonRow.tanggal) {
+        const lastTonDate = lastTonRow.tanggal;
+        const [y, m] = lastTonDate.split('-');
         const monthStart = `${y}-${m}-01`;
         const { data: mtdRows } = await db
             .from('tonase_harian')
             .select('tonase')
             .gte('tanggal', monthStart)
-            .lte('tanggal', lastAvailableDate);
+            .lte('tanggal', lastTonDate);
         const mtdTotal = (mtdRows || []).reduce((s, r) => s + (r.tonase || 0), 0);
-        tonMtdEl.innerHTML = `📅 Total 1 ${fmtDate(monthStart).split(' ').slice(1).join(' ')} s.d. ${fmtDate(lastAvailableDate)}: <b>${mtdTotal.toFixed(2)} ton</b>`;
+        tonMtdEl.innerHTML = `📅 Total 1 ${fmtDate(monthStart).split(' ').slice(1).join(' ')} s.d. ${fmtDate(lastTonDate)}<br><span style="font-size:22px; font-weight:700; color:#1f2937;">${mtdTotal.toFixed(2)}<span style="font-size:14px; font-weight:400; color:#6b7280;"> ton</span></span>`;
     } else {
         tonMtdEl.textContent = '';
     }
