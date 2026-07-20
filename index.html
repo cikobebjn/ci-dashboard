@@ -320,6 +320,7 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
             <div class="value loading" id="val-tonase">...</div>
             <div class="card-date" id="date-tonase"></div>
             <div class="card-sub" id="sub-tonase"></div>
+            <div class="card-sub" id="sub-tonase-mtd" style="margin-top:6px; padding-top:6px; border-top:1px dashed #e5e7eb;"></div>
         </div>
 
         <div class="card waste-mini-card kemasan">
@@ -635,6 +636,23 @@ async function loadData(sDate, eDate) {
     } else {
         tonEl.textContent = '-'; tonEl.className = 'value';
         tonDate.textContent = 'Tidak ada data'; tonSub.textContent = '';
+    }
+
+    // ── Tonase bulan berjalan: tgl 1 bulan ini s.d. tanggal data terakhir ──
+    // Ini SELALU dihitung dari lastAvailableDate, tidak terpengaruh filter Dari/Sampai di atas.
+    const tonMtdEl = document.getElementById('sub-tonase-mtd');
+    if (lastAvailableDate) {
+        const [y, m] = lastAvailableDate.split('-');
+        const monthStart = `${y}-${m}-01`;
+        const { data: mtdRows } = await db
+            .from('tonase_harian')
+            .select('tonase')
+            .gte('tanggal', monthStart)
+            .lte('tanggal', lastAvailableDate);
+        const mtdTotal = (mtdRows || []).reduce((s, r) => s + (r.tonase || 0), 0);
+        tonMtdEl.innerHTML = `📅 Total 1 ${fmtDate(monthStart).split(' ').slice(1).join(' ')} s.d. ${fmtDate(lastAvailableDate)}: <b>${mtdTotal.toFixed(2)} ton</b>`;
+    } else {
+        tonMtdEl.textContent = '';
     }
 
     // ── OEE Shiftly — rata-rata per shift dalam rentang ──
