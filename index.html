@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -222,7 +221,9 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
     .shift-mini-label { font-size:9px; }
 
     /* Tables: scroll horizontally within their card, keep first
-       column pinned so labels stay visible while scrolling values */
+       column pinned so labels stay visible while scrolling values.
+       Each column gets an explicit min-width so cells can't
+       collapse/overlap when the table shrinks to fit the card. */
     .card-wide {
         padding:16px 4px 16px 16px;
     }
@@ -234,9 +235,17 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
         display:block; overflow-x:auto; -webkit-overflow-scrolling:touch;
         white-space:nowrap; font-size:11px;
     }
-    .line-table thead, .cost-table thead { display:table; width:100%; table-layout:fixed; }
-    .line-table tbody, .cost-table tbody { display:block; }
-    .line-table tbody tr, .cost-table tbody tr { display:table; width:100%; table-layout:fixed; }
+    .line-table table, .cost-table table { border-collapse:collapse; }
+    .line-table thead, .cost-table thead { display:table; width:max-content; min-width:100%; table-layout:fixed; }
+    .line-table tbody, .cost-table tbody { display:block; width:max-content; min-width:100%; }
+    .line-table tbody tr, .cost-table tbody tr { display:table; width:max-content; min-width:100%; table-layout:fixed; }
+
+    .line-table th, .line-table td { min-width:78px; box-sizing:border-box; }
+    .line-table th:first-child, .line-table td:first-child { min-width:120px; }
+
+    .cost-table th, .cost-table td { min-width:100px; box-sizing:border-box; }
+    .cost-table th:first-child, .cost-table td:first-child { min-width:90px; }
+
     .line-table td.mesin-col,
     .line-table th:first-child,
     .cost-table td:first-child,
