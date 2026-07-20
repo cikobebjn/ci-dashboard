@@ -162,6 +162,9 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
 /* Extruder */
 .card.extruder-card { border-top-color:#ea580c; }
 .split-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:16px; margin-bottom:20px; }
+.split-grid.fryer-proses-grid { grid-template-columns:1fr 1fr; align-items:start; }
+.split-grid.fryer-proses-grid > div { min-width:0; }
+.split-grid.fryer-proses-grid .kpi-grid { grid-template-columns:1fr; }
 .downtime-bar-row { margin-bottom:12px; }
 .downtime-bar-row:last-child { margin-bottom:0; }
 .downtime-bar-label { display:flex; justify-content:space-between; font-size:12px; color:#374151; margin-bottom:4px; }
@@ -260,6 +263,7 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
     .waste-detail-table td { padding:6px 4px; }
 
     .split-grid { grid-template-columns:1fr; gap:12px; }
+    .split-grid.fryer-proses-grid { grid-template-columns:1fr; }
 
     .proses-pemakaian-info { font-size:12px; }
 }
@@ -384,17 +388,17 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
         </div>
     </div>
 
-    <!-- Waste Fryer & Waste Proses (side by side on desktop) -->
-    <div class="split-grid" style="align-items:start;">
+    <!-- Waste Fryer & Waste Proses (side by side, equal width on desktop) -->
+    <div class="split-grid fryer-proses-grid">
         <div>
             <div class="sec-title" style="margin-top:0;">🔥 Waste Fryer <span id="title-date-fryer" style="color:#9ca3af; font-weight:400; text-transform:none;"></span></div>
-            <div class="kpi-grid" id="fryer-cards-container" style="grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));">
+            <div class="kpi-grid" id="fryer-cards-container">
                 <div style="grid-column:1/-1; text-align:center; color:#9ca3af; padding:20px;">Memuat data...</div>
             </div>
         </div>
         <div>
             <div class="sec-title" style="margin-top:0;">⚙️ Waste Proses <span id="title-date-proses" style="color:#9ca3af; font-weight:400; text-transform:none;"></span></div>
-            <div class="kpi-grid" id="proses-cards-container" style="grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));">
+            <div class="kpi-grid" id="proses-cards-container">
                 <div style="grid-column:1/-1; text-align:center; color:#9ca3af; padding:20px;">Memuat data...</div>
             </div>
         </div>
