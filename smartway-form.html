@@ -116,11 +116,12 @@ body {
                     <optgroup label="Gedung 7">
                         <option>SW 32</option><option>SW 33</option><option>SW 34</option>
                         <option>SW 35</option><option>SW 36</option><option>SW 37</option>
+                        <option>SW 38</option>
                     </optgroup>
                     <optgroup label="Gedung 4">
-                        <option>SW 38</option><option>SW 39</option><option>SW 40</option>
+                        <option>SW 39</option><option>SW 40</option>
                         <option>SW 41</option><option>SW 42</option><option>SW 43</option>
-                        <option>SW 44</option><option>SW 45</option>
+                        <option>SW 44</option><option>SW 45</option><option>SW 46</option>
                     </optgroup>
                 </select>
                 <div class="gedung-display" id="gedung-display"></div>
@@ -249,10 +250,10 @@ const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const GEDUNG_MAP = {
     'SW 32':'Gedung 7', 'SW 33':'Gedung 7', 'SW 34':'Gedung 7',
-    'SW 35':'Gedung 7', 'SW 36':'Gedung 7', 'SW 37':'Gedung 7',
-    'SW 38':'Gedung 4', 'SW 39':'Gedung 4', 'SW 40':'Gedung 4',
+    'SW 35':'Gedung 7', 'SW 36':'Gedung 7', 'SW 37':'Gedung 7', 'SW 38':'Gedung 7',
+    'SW 39':'Gedung 4', 'SW 40':'Gedung 4',
     'SW 41':'Gedung 4', 'SW 42':'Gedung 4', 'SW 43':'Gedung 4',
-    'SW 44':'Gedung 4', 'SW 45':'Gedung 4',
+    'SW 44':'Gedung 4', 'SW 45':'Gedung 4', 'SW 46':'Gedung 4',
 };
 
 // Set tanggal default = hari ini
