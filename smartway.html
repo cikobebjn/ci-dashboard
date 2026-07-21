@@ -228,6 +228,7 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
             <thead>
                 <tr>
                     <th class="sticky-col">Tanggal</th>
+                    <th title="Waktu operator submit data">Waktu</th>
                     <th>Shift</th>
                     <th>Mesin</th>
                     <th>Gedung</th>
@@ -266,7 +267,7 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
                 </tr>
             </thead>
             <tbody id="tbl-data-body">
-                <tr><td colspan="34" style="text-align:center; color:#9ca3af; padding:20px;">Memuat data...</td></tr>
+                <tr><td colspan="35" style="text-align:center; color:#9ca3af; padding:20px;">Memuat data...</td></tr>
             </tbody>
         </table>
         </div>
@@ -304,6 +305,13 @@ function fmtRange(a, b) {
     if (!a && !b) return '';
     if (!b || a === b) return fmtDate(a);
     return `${fmtDate(a)} — ${fmtDate(b)}`;
+}
+// Format waktu submit (timestamp ISO) jadi jam:menit WIB (Asia/Jakarta)
+function fmtTime(ts) {
+    if (!ts) return '—';
+    try {
+        return new Date(ts).toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit', timeZone:'Asia/Jakarta' });
+    } catch { return '—'; }
 }
 function num(v, d) { return (v === null || v === undefined) ? '—' : Number(v).toFixed(d === undefined ? 1 : d); }
 
@@ -373,7 +381,7 @@ async function loadData() {
     if (error) {
         console.error(error);
         document.getElementById('tbl-data-body').innerHTML =
-            '<tr><td colspan="34" style="text-align:center; color:#dc2626; padding:20px;">Gagal memuat data. Pastikan tabel smartway_shiftly sudah dibuat di Supabase.</td></tr>';
+            '<tr><td colspan="35" style="text-align:center; color:#dc2626; padding:20px;">Gagal memuat data. Pastikan tabel smartway_shiftly sudah dibuat di Supabase.</td></tr>';
         renderMesinCards([], gedung);
         setKpi('val-total-input', 0); setKpi('val-mesin-reporting', 0); setKpi('val-catatan-count', 0);
         return;
@@ -418,7 +426,7 @@ function renderMesinCards(rows, gedungFilter) {
         card.innerHTML = `
             <div class="mesin-card-head">
                 <h4>${m}</h4>
-                <span>Shift ${r.shift} · ${fmtDate(r.tanggal)}</span>
+                <span>Shift ${r.shift} · ${fmtDate(r.tanggal)} ${fmtTime(r.waktu_submit)}</span>
             </div>
             <div class="mesin-meta">👤 ${r.operator || '—'}${r.sku ? ' · SKU: ' + r.sku : ''}</div>
             <div class="mesin-params">
@@ -438,7 +446,7 @@ function renderMesinCards(rows, gedungFilter) {
 function renderTable(rows) {
     const tbody = document.getElementById('tbl-data-body');
     if (!rows.length) {
-        tbody.innerHTML = '<tr><td colspan="34" style="text-align:center; color:#9ca3af; padding:20px;">Belum ada data pada rentang/filter ini</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="35" style="text-align:center; color:#9ca3af; padding:20px;">Belum ada data pada rentang/filter ini</td></tr>';
         return;
     }
     // Terbaru di atas
@@ -446,6 +454,7 @@ function renderTable(rows) {
     tbody.innerHTML = rowsDesc.map(r => `
         <tr>
             <td class="sticky-col">${fmtDate(r.tanggal)}</td>
+            <td>${fmtTime(r.waktu_submit)}</td>
             <td>${r.shift}</td>
             <td class="txt-col">${r.mesin}</td>
             <td class="txt-col">${r.gedung || '—'}</td>
@@ -487,7 +496,7 @@ function renderTable(rows) {
 
 // ── Export Excel: 1 file, sheet terpisah per Gedung ──
 const EXPORT_HEADERS = [
-    'Tanggal','Shift','Mesin','Gedung','Operator','SKU',
+    'Tanggal','Waktu','Shift','Mesin','Gedung','Operator','SKU',
     'Temp Horizontal Seal 1 (°C)','Temp Horizontal Seal 2 (°C)','Temp Vertical Seal (°C)',
     'Bag Length Specification (mm)','Color Code Offside (mm)','First Packet is Delayed (Sec)',
     'Hori. Seal Start Point (mm)','Preset Prod Speed (ppm)','Hori Seal Time (Sec)',
@@ -502,7 +511,7 @@ const EXPORT_HEADERS = [
 
 function rowToExportArray(r) {
     return [
-        r.tanggal, r.shift, r.mesin, r.gedung || '', r.operator || '', r.sku || '',
+        r.tanggal, fmtTime(r.waktu_submit), r.shift, r.mesin, r.gedung || '', r.operator || '', r.sku || '',
         r.temp_hs1, r.temp_hs2, r.temp_vs,
         r.bag_length_spec, r.color_code_offside, r.first_packet_delay,
         r.hori_seal_start_point, r.preset_prod_speed, r.hori_seal_time,
