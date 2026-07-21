@@ -189,6 +189,14 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
             <option value="">Semua Mesin</option>
         </select>
 
+        <label>Shift</label>
+        <select id="filter-shift" onchange="gantiFilter()">
+            <option value="">Semua Shift</option>
+            <option value="1">Shift 1</option>
+            <option value="2">Shift 2</option>
+            <option value="3">Shift 3</option>
+        </select>
+
         <span class="filter-info" id="filter-info"></span>
 
         <span style="margin-left:auto; display:flex; gap:8px;">
@@ -365,12 +373,14 @@ function keTanggalTerakhir() {
 async function loadData() {
     const gedung = document.getElementById('filter-gedung').value;
     const mesin  = document.getElementById('filter-mesin').value;
+    const shift  = document.getElementById('filter-shift').value;
 
     let query = db.from('smartway_shiftly').select('*')
         .gte('tanggal', startDate).lte('tanggal', endDate)
         .order('tanggal', { ascending: true }).order('shift', { ascending: true });
     if (gedung) query = query.eq('gedung', gedung);
     if (mesin)  query = query.eq('mesin', mesin);
+    if (shift)  query = query.eq('shift', parseInt(shift));
 
     const { data: rows, error } = await query.limit(5000);
 
