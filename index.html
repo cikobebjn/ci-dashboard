@@ -1,9 +1,9 @@
+
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bojonegoro Monitoring</title>
+<title>OEE - Bojonegoro</title>
 <style>
 body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
 .topbar {
@@ -22,280 +22,90 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
 .sidebar a:hover { background:#374151; }
 .sidebar a.active { background:#3b82f6; }
 .main { padding:80px 24px 24px 24px; }
-
+.upload-card {
+    background:white; border-radius:12px;
+    padding:24px; margin-bottom:20px;
+    box-shadow:0 1px 3px rgba(0,0,0,0.1);
+}
+.upload-card h3 { margin:0 0 16px; color:#1f2937; font-size:16px; }
+.drop-zone {
+    border:2px dashed #d1d5db; border-radius:8px;
+    padding:32px; text-align:center; cursor:pointer;
+    transition:0.2s; color:#6b7280; font-size:14px;
+}
+.drop-zone:hover, .drop-zone.dragover {
+    border-color:#3b82f6; background:#eff6ff; color:#3b82f6;
+}
+.drop-zone input[type=file] { display:none; }
+.drop-icon { font-size:32px; margin-bottom:8px; }
+.btn-upload {
+    background:#1f2937; color:white; border:none;
+    padding:10px 20px; border-radius:8px; cursor:pointer;
+    font-size:14px; margin-top:12px; display:none;
+}
+.btn-upload:hover { background:#374151; }
+.btn-upload.visible { display:inline-block; }
+#file-name { font-size:13px; color:#374151; margin-top:8px; }
+.section-title {
+    font-size:13px; font-weight:600; color:#6b7280;
+    text-transform:uppercase; letter-spacing:0.05em;
+    margin:20px 0 10px;
+}
 .kpi-grid {
     display:grid;
-    grid-template-columns:repeat(auto-fill, minmax(200px, 240px));
-    gap:16px;
+    grid-template-columns:repeat(auto-fit, minmax(160px, 1fr));
+    gap:12px; margin-bottom:20px;
 }
-.card {
-    background:white; border-radius:12px; padding:20px 24px;
+.kpi-card {
+    background:white; border-radius:12px; padding:18px 20px;
     box-shadow:0 1px 3px rgba(0,0,0,0.08);
     border-top:4px solid #e5e7eb;
-    cursor:default;
 }
-.card.oee-card    { border-top-color:#6366f1; }
-.card.tonase-card { border-top-color:#10b981; }
-.card h3 {
-    margin:0 0 8px; font-size:13px; color:#6b7280; font-weight:600;
-    text-transform:uppercase; letter-spacing:0.05em;
-}
-.value { font-size:36px; font-weight:700; color:#1f2937; line-height:1.1; }
-.value.loading { font-size:20px; color:#9ca3af; }
-.value.good { color:#16a34a; }
-.value.low  { color:#dc2626; }
-.card-date { font-size:11px; color:#9ca3af; margin-top:6px; }
-.card-sub  { font-size:11px; color:#6b7280; margin-top:4px; }
-.card-sub.mtd { font-size:15px; color:#374151; }
-.card-sub.mtd b { font-size:17px; color:#10b981; }
+.kpi-card.shift1 { border-top-color:#3b82f6; }
+.kpi-card.shift2 { border-top-color:#10b981; }
+.kpi-card.shift3 { border-top-color:#f59e0b; }
+.kpi-card.daily  { border-top-color:#6366f1; }
+.kpi-label { font-size:12px; color:#6b7280; margin:0 0 6px; }
+.kpi-value { font-size:32px; font-weight:700; margin:0; color:#1f2937; }
+.kpi-value.low  { color:#dc2626; }   /* < 55% merah */
+.kpi-value.good { color:#16a34a; }   /* >= 55% hijau */
+.kpi-date { font-size:11px; color:#9ca3af; margin-top:4px; }
+.kpi-empty { font-size:20px; color:#d1d5db; }
 .target-badge {
     font-size:10px; color:#6b7280; background:#f3f4f6;
-    border-radius:4px; padding:2px 6px; margin-top:6px; display:inline-block;
+    border-radius:4px; padding:2px 6px; margin-top:4px; display:inline-block;
 }
-.kpi-unit { font-size:16px; font-weight:400; color:#6b7280; margin-left:2px; }
-
-/* Section title */
-.sec-title {
-    font-size:13px; font-weight:700; color:#374151;
-    text-transform:uppercase; letter-spacing:0.05em;
-    margin:28px 0 12px;
-    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+.status-bar {
+    background:white; border-radius:8px;
+    padding:12px 16px; margin-bottom:16px;
+    font-size:13px; color:#6b7280;
+    display:flex; align-items:center; gap:8px;
+    box-shadow:0 1px 3px rgba(0,0,0,0.06);
 }
-
-/* Date filter bar */
-.date-filter-bar {
-    display:flex; align-items:center; gap:8px; flex-wrap:wrap;
-    background:white; border-radius:10px; padding:10px 16px;
-    box-shadow:0 1px 3px rgba(0,0,0,0.07); margin-bottom:16px;
+.status-dot { width:8px; height:8px; border-radius:50%; background:#d1d5db; }
+.status-dot.active { background:#16a34a; }
+.status-bar.loading { color:#3b82f6; }
+.status-bar.error   { color:#dc2626; }
+.btn-save {
+    background:#3b82f6; color:white; border:none;
+    padding:10px 20px; border-radius:8px; cursor:pointer;
+    font-size:14px;
 }
-.date-filter-bar label {
-    font-size:12px; color:#6b7280; font-weight:600;
-    text-transform:uppercase; letter-spacing:0.04em;
+.btn-save:hover { background:#2563eb; }
+.btn-save:disabled { background:#93c5fd; cursor:not-allowed; }
+.warning-badge {
+    background:#fef3c7; border:1px solid #fbbf24; color:#92400e;
+    border-radius:6px; padding:8px 12px; font-size:12px;
+    margin-top:10px; display:none;
 }
-.date-filter-bar input[type=date] {
-    padding:6px 10px; border:1px solid #d1d5db; border-radius:7px;
-    font-size:13px; color:#1f2937; cursor:pointer;
-}
-.date-filter-bar input[type=date]:focus {
-    outline:none; border-color:#6366f1; box-shadow:0 0 0 2px #e0e7ff;
-}
-.date-filter-bar .sep { color:#9ca3af; font-size:12px; }
-.btn-today {
-    background:#f3f4f6; color:#374151; border:1px solid #d1d5db;
-    padding:6px 12px; border-radius:7px; cursor:pointer; font-size:12px; font-weight:600;
-}
-.btn-today:hover { background:#e5e7eb; }
-.filter-info {
-    font-size:11px; color:#9ca3af; margin-left:4px;
-}
-
-/* Shiftly mini cards */
-.shift-grid {
-    display:grid; grid-template-columns:repeat(3, 1fr);
-    gap:10px; margin-top:10px;
-}
-.shift-mini {
-    background:#f9fafb; border-radius:8px; padding:10px 12px;
-    text-align:center;
-}
-.shift-mini-label { font-size:10px; color:#9ca3af; font-weight:600; text-transform:uppercase; }
-.shift-mini-val   { font-size:18px; font-weight:700; margin-top:2px; }
-.shift-mini-val.good { color:#16a34a; }
-.shift-mini-val.low  { color:#dc2626; }
-.shift-mini-val.empty{ color:#d1d5db; font-size:14px; }
-
-.card-wide {
-    background:white; border-radius:12px; padding:20px 24px;
-    box-shadow:0 1px 3px rgba(0,0,0,0.08);
-    border-top:4px solid #6366f1;
-    margin-bottom:16px;
-}
-
-.line-table { width:100%; border-collapse:collapse; font-size:12px; margin-top:12px; }
-.line-table th {
-    background:#f9fafb; color:#6b7280; font-weight:600; font-size:10px;
-    padding:8px 10px; text-align:center; border-bottom:2px solid #e5e7eb;
-    text-transform:uppercase; letter-spacing:0.03em;
-}
-.line-table th:first-child { text-align:left; }
-.line-table td { padding:7px 10px; border-bottom:1px solid #f3f4f6; }
-.line-table tr:last-child td { border-bottom:none; }
-.line-table td.mesin-col { font-weight:600; font-size:11px; }
-.line-table td.val-col { text-align:center; font-weight:700; }
-.line-table td.val-col.good { color:#16a34a; }
-.line-table td.val-col.low  { color:#dc2626; }
-.line-table td.val-col.empty { color:#d1d5db; font-weight:400; }
-
-.card.waste-mini-card.kemasan { border-top-color:#f59e0b; }
-.card.waste-mini-card.sfg     { border-top-color:#8b5cf6; }
-.card.waste-mini-card.karton  { border-top-color:#ef4444; }
-.card.fryer-mini-card         { border-top-color:#0891b2; }
-.card.proses-mini-card        { border-top-color:#d97706; }
-.card.cost-material-card      { border-top-color:#0d9488; }
-.waste-detail-table { width:100%; border-collapse:collapse; font-size:11px; margin-top:10px; }
-.waste-detail-table td { padding:5px 4px; border-bottom:1px solid #f3f4f6; }
-.waste-detail-table tr:last-child td { border-bottom:none; }
-.waste-detail-table td.mesin-name { color:#6b7280; }
-.waste-detail-table td.waste-val { text-align:right; font-weight:600; color:#374151; }
-.waste-detail-table td.waste-val.over { color:#dc2626; background:#fef2f2; border-radius:4px; }
-
-/* Pemakaian (bukan waste) info line di card proses */
-.proses-pemakaian-info {
-    font-size:11px; color:#374151; margin-top:8px; margin-bottom:2px;
-    background:#f9fafb; border-radius:6px; padding:6px 8px;
-}
-.proses-pemakaian-info .label { color:#9ca3af; }
-.proses-pemakaian-info .val   { font-weight:700; }
-
-/* Cost material weekly table */
-.cost-table { width:100%; border-collapse:collapse; font-size:12px; margin-top:12px; }
-.cost-table th {
-    background:#f9fafb; color:#6b7280; font-weight:600; font-size:10px;
-    padding:8px 10px; text-align:center; border-bottom:2px solid #e5e7eb;
-    text-transform:uppercase; letter-spacing:0.03em;
-}
-.cost-table th:first-child { text-align:left; }
-.cost-table td { padding:7px 10px; border-bottom:1px solid #f3f4f6; text-align:center; }
-.cost-table td:first-child { text-align:left; font-weight:600; }
-.cost-table tr:last-child td { border-bottom:none; }
-.cost-table td.total-col { font-weight:700; }
-.cost-table td.total-col.good { color:#16a34a; }
-.cost-table td.total-col.low  { color:#dc2626; }
-
-/* Extruder */
-.card.extruder-card { border-top-color:#ea580c; }
-.split-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:16px; margin-bottom:20px; }
-.split-grid.fryer-proses-grid { grid-template-columns:1fr 1fr; align-items:stretch; }
-.split-grid.fryer-proses-grid > div { min-width:0; display:flex; flex-direction:column; }
-.split-grid.fryer-proses-grid .kpi-grid { grid-template-columns:1fr; flex:1; align-content:stretch; }
-.split-grid.fryer-proses-grid .kpi-grid > .card { height:100%; box-sizing:border-box; display:flex; flex-direction:column; }
-.downtime-bar-row { margin-bottom:12px; }
-.downtime-bar-row:last-child { margin-bottom:0; }
-.downtime-bar-label { display:flex; justify-content:space-between; font-size:12px; color:#374151; margin-bottom:4px; }
-.downtime-bar-track { background:#f3f4f6; border-radius:5px; height:8px; overflow:hidden; }
-.downtime-bar-fill { background:#ea580c; height:100%; border-radius:5px; }
-
-/* ============================================================
-   MOBILE OPTIMIZATION
-   Rebuilt for small screens: single-column cards, larger tap
-   targets, horizontally-scrollable tables with sticky first
-   column, tighter spacing, and a cleaner date-filter bar.
-   ============================================================ */
-@media (max-width: 640px) {
-
-    .main { padding:64px 12px 32px 12px; }
-
-    .topbar { padding:12px 14px; }
-    .topbar h2 { font-size:16px; }
-    .menu-btn { font-size:24px; margin-right:12px; }
-
-    /* Date filter bar: clean 2-column grid — labels on top,
-       Dari/Sampai inputs side by side, button full-width below,
-       info line centered at the bottom. */
-    .date-filter-bar {
-        display:grid;
-        grid-template-columns:1fr 1fr;
-        grid-template-areas:
-            "labeldari labelsampai"
-            "inputdari inputsampai"
-            "action action"
-            "info info";
-        row-gap:6px; column-gap:10px;
-        padding:14px 14px; margin-bottom:14px;
-        border-radius:14px;
-        align-items:center;
-    }
-    .date-filter-bar .sep { display:none; }
-    .fb-label-dari   { grid-area:labeldari; font-size:11px; margin:0; }
-    .fb-label-sampai { grid-area:labelsampai; font-size:11px; margin:0; }
-    .fb-input-dari   { grid-area:inputdari; }
-    .fb-input-sampai { grid-area:inputsampai; }
-    .date-filter-bar input[type=date] {
-        width:100%; box-sizing:border-box; font-size:14px; padding:9px 10px;
-    }
-    .btn-today {
-        grid-area:action; width:100%; box-sizing:border-box;
-        padding:10px; font-size:13px; margin-top:2px;
-    }
-    .filter-info { grid-area:info; text-align:center; margin:2px 0 0; }
-
-    .sec-title { font-size:12px; margin:22px 0 10px; }
-
-    /* Single column of full-width cards instead of a cramped grid */
-    .kpi-grid {
-        grid-template-columns:1fr !important;
-        gap:12px;
-    }
-
-    .card, .card-wide {
-        padding:16px 16px;
-        border-radius:14px;
-        border-top-width:5px;
-    }
-
-    .card h3 { font-size:12px; }
-    .value { font-size:30px; }
-    .value.loading { font-size:16px; }
-    .kpi-unit { font-size:14px; }
-
-    /* Shift mini cards: keep 3-up but shrink padding/text so they
-       don't overflow */
-    .shift-grid { gap:8px; }
-    .shift-mini { padding:10px 6px; }
-    .shift-mini-val { font-size:16px; }
-    .shift-mini-label { font-size:9px; }
-
-    /* Tables: scroll horizontally within their card, keep first
-       column pinned so labels stay visible while scrolling values.
-       Each column gets an explicit min-width so cells can't
-       collapse/overlap when the table shrinks to fit the card. */
-    .card-wide {
-        padding:16px 4px 16px 16px;
-    }
-    .card-wide > .sec-title,
-    .card-wide > *:not(table):not(.split-grid) {
-        padding-right:12px;
-    }
-    .tbl-scroll {
-        overflow-x:auto; -webkit-overflow-scrolling:touch;
-        margin-top:12px;
-    }
-    .tbl-scroll .line-table, .tbl-scroll .cost-table {
-        margin-top:0; width:auto; min-width:100%;
-        white-space:nowrap; font-size:11px;
-    }
-    .tbl-scroll .line-table th, .tbl-scroll .line-table td,
-    .tbl-scroll .cost-table th, .tbl-scroll .cost-table td {
-        padding:8px 12px;
-    }
-    .tbl-scroll .line-table th:first-child, .tbl-scroll .line-table td:first-child { text-align:left; }
-    .tbl-scroll .cost-table th:first-child, .tbl-scroll .cost-table td:first-child { text-align:left; }
-
-    .line-table td.mesin-col,
-    .line-table th:first-child,
-    .cost-table td:first-child,
-    .cost-table th:first-child {
-        position:sticky; left:0; background:white; z-index:1;
-    }
-    .line-table th:first-child { background:#f9fafb; }
-    .cost-table th:first-child { background:#f9fafb; }
-
-    /* Waste detail tables inside cards read fine at full width, just tighten */
-    .waste-detail-table { font-size:12px; }
-    .waste-detail-table td { padding:6px 4px; }
-
-    .split-grid { grid-template-columns:1fr; gap:12px; }
-    .split-grid.fryer-proses-grid { grid-template-columns:1fr; }
-
-    .proses-pemakaian-info { font-size:12px; }
-}
+.warning-badge.show { display:block; }
 </style>
 </head>
 <body>
 
 <div class="sidebar" id="sidebar">
-    <a href="index.html" class="active">Dashboard Utama</a>
-    <a href="oee.html">OEE</a>
+    <a href="index.html">Dashboard Utama</a>
+    <a href="oee.html" class="active">OEE</a>
     <a href="tonase.html">Tonase</a>
     <a href="waste.html">Waste</a>
     <a href="cost-material.html">Cost Material</a>
@@ -310,216 +120,95 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
 
 <div class="topbar">
     <span class="menu-btn" onclick="toggleMenu()">☰</span>
-    <h2 style="margin:0;">Bojonegoro Monitoring</h2>
+    <h2 style="margin:0;">OEE - Bojonegoro</h2>
 </div>
 
 <div class="main">
 
-    <!-- Date Filter Bar (range: Dari - Sampai) -->
-    <div class="date-filter-bar">
-        <label class="fb-label-dari">📅 Dari</label>
-        <input type="date" id="filter-date-start" class="fb-input-dari" onchange="gantiRentang()">
-        <span class="sep">—</span>
-        <label class="fb-label-sampai">Sampai</label>
-        <input type="date" id="filter-date-end" class="fb-input-sampai" onchange="gantiRentang()">
-        <button class="btn-today" onclick="keTanggalTerakhir()">⟳ Terbaru</button>
-        <span class="filter-info" id="filter-info"></span>
+    <div class="upload-card">
+        <h3>📤 Import Excel OEE</h3>
+        <div class="drop-zone" id="drop-zone"
+             onclick="document.getElementById('file-input').click()"
+             ondragover="handleDrag(event,true)"
+             ondragleave="handleDrag(event,false)"
+             ondrop="handleDrop(event)">
+            <input type="file" id="file-input" accept=".xlsx" onchange="handleFile(this.files[0])">
+            <div class="drop-icon">📂</div>
+            <div>Klik atau drag file Excel ke sini</div>
+            <div style="font-size:12px; margin-top:4px;">Format: OEE_-_BOJONEGORO_2026.xlsx</div>
+        </div>
+        <div id="file-name"></div>
+        <div class="warning-badge" id="warning-badge">
+            ⚠️ <strong>Perhatian:</strong> Data untuk tanggal yang ada di file ini akan <strong>diperbarui (ditimpa)</strong>, sedangkan data pada tanggal lain yang <strong>tidak ada</strong> di file ini akan <strong>tetap tersimpan</strong> (tidak terhapus).
+        </div>
+        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-top:12px;">
+            <button class="btn-upload" id="btn-proses" onclick="prosesExcel()">🔍 Proses Excel</button>
+            <button class="btn-save" id="btn-save" onclick="simpanKeSupabase()" disabled style="display:none;">
+                🔄 Perbarui Data Supabase
+            </button>
+        </div>
     </div>
 
-    <div class="sec-title" style="margin-top:0;">Ringkasan <span id="title-date-waste" style="color:#9ca3af; font-weight:400; text-transform:none;"></span></div>
-    <div class="kpi-grid" style="grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); margin-bottom:20px;">
+    <div class="status-bar" id="status-bar">
+        <div class="status-dot" id="status-dot"></div>
+        <span id="status-text">Belum ada data. Import Excel untuk memulai.</span>
+    </div>
 
-        <div class="card oee-card">
-            <h3>Daily OEE (rata-rata)</h3>
-            <div class="value loading" id="val-oee">...</div>
-            <div class="card-date" id="date-oee"></div>
+    <div class="section-title">OEE Shiftly — Hari Terakhir</div>
+    <div class="kpi-grid">
+        <div class="kpi-card shift1">
+            <div class="kpi-label">Shift 1</div>
+            <div class="kpi-value kpi-empty" id="val-s1">—</div>
+            <div class="kpi-date" id="date-s1"></div>
             <span class="target-badge">Target: ≥ 55%</span>
         </div>
-
-        <div class="card tonase-card">
-            <h3>📦 Tonase Produksi</h3>
-            <div class="value loading" id="val-tonase">...</div>
-            <div class="card-date" id="date-tonase"></div>
-            <div class="card-sub" id="sub-tonase"></div>
-            <div id="sub-tonase-mtd" class="card-sub mtd" style="margin-top:8px; padding-top:8px; border-top:1px dashed #e5e7eb;"></div>
+        <div class="kpi-card shift2">
+            <div class="kpi-label">Shift 2</div>
+            <div class="kpi-value kpi-empty" id="val-s2">—</div>
+            <div class="kpi-date" id="date-s2"></div>
+            <span class="target-badge">Target: ≥ 55%</span>
         </div>
-
-        <div class="card waste-mini-card kemasan">
-            <h3>🗑️ Waste Kemasan</h3>
-            <div class="value loading" id="wd-total-kemasan">...</div>
-            <div class="card-date" id="wd-batas-kemasan"></div>
-            <table class="waste-detail-table" id="wd-table-kemasan"><tbody></tbody></table>
-        </div>
-
-        <div class="card waste-mini-card sfg">
-            <h3>🗑️ Waste SFG</h3>
-            <div class="value loading" id="wd-total-sfg">...</div>
-            <div class="card-date" id="wd-batas-sfg"></div>
-            <table class="waste-detail-table" id="wd-table-sfg"><tbody></tbody></table>
-        </div>
-
-        <div class="card waste-mini-card karton">
-            <h3>🗑️ Waste Karton</h3>
-            <div class="value loading" id="wd-total-karton">...</div>
-            <div class="card-date" id="wd-batas-karton"></div>
-            <table class="waste-detail-table" id="wd-table-karton"><tbody></tbody></table>
-        </div>
-
-        <div class="card cost-material-card">
-            <h3>💰 Cost Material / Ton</h3>
-            <div class="value loading" id="val-cost-total">...</div>
-            <div class="card-date" id="date-cost"></div>
-            <span class="target-badge" id="cost-target-badge">Target: ≤ Rp 28.000/ton</span>
-            <table class="waste-detail-table" id="cost-detail-table"><tbody></tbody></table>
-        </div>
-
-    </div>
-
-    <!-- Shiftly OEE -->
-    <div class="sec-title">OEE Shiftly (rata-rata) <span id="title-date-shiftly" style="color:#9ca3af; font-weight:400; text-transform:none;"></span></div>
-    <div class="card-wide">
-        <div class="shift-grid">
-            <div class="shift-mini">
-                <div class="shift-mini-label">Shift 1</div>
-                <div class="shift-mini-val loading" id="val-shift1">...</div>
-            </div>
-            <div class="shift-mini">
-                <div class="shift-mini-label">Shift 2</div>
-                <div class="shift-mini-val loading" id="val-shift2">...</div>
-            </div>
-            <div class="shift-mini">
-                <div class="shift-mini-label">Shift 3</div>
-                <div class="shift-mini-val loading" id="val-shift3">...</div>
-            </div>
+        <div class="kpi-card shift3">
+            <div class="kpi-label">Shift 3</div>
+            <div class="kpi-value kpi-empty" id="val-s3">—</div>
+            <div class="kpi-date" id="date-s3"></div>
+            <span class="target-badge">Target: ≥ 55%</span>
         </div>
     </div>
 
-    <!-- OEE per Mesin/Line -->
-    <div class="sec-title">OEE per Mesin / Line (rata-rata) <span id="title-date-line" style="color:#9ca3af; font-weight:400; text-transform:none;"></span></div>
-    <div class="card-wide">
-        <div class="tbl-scroll">
-        <table class="line-table">
+    <div class="section-title">OEE Daily — Hari Terakhir</div>
+    <div class="kpi-grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));">
+        <div class="kpi-card daily">
+            <div class="kpi-label">OEE Bojonegoro</div>
+            <div class="kpi-value kpi-empty" id="val-daily">—</div>
+            <div class="kpi-date" id="date-daily"></div>
+            <span class="target-badge">Target: ≥ 55%</span>
+        </div>
+    </div>
+
+    <div class="section-title">OEE per Line — Hari Terakhir</div>
+    <div style="background:white; border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,0.08); overflow:hidden; margin-bottom:20px;">
+        <table id="tbl-per-line" style="width:100%; border-collapse:collapse; font-size:13px;">
             <thead>
-                <tr>
-                    <th>Mesin / Line</th>
-                    <th>Shift 1</th>
-                    <th>Shift 2</th>
-                    <th>Shift 3</th>
-                    <th>Target</th>
+                <tr style="background:#f9fafb;">
+                    <th style="padding:11px 16px; text-align:left; color:#6b7280; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.04em; border-bottom:2px solid #e5e7eb;">Mesin / Line</th>
+                    <th style="padding:11px 12px; text-align:center; color:#3b82f6; font-size:11px; font-weight:700; text-transform:uppercase; border-bottom:2px solid #e5e7eb; width:90px;">Shift 1</th>
+                    <th style="padding:11px 12px; text-align:center; color:#10b981; font-size:11px; font-weight:700; text-transform:uppercase; border-bottom:2px solid #e5e7eb; width:90px;">Shift 2</th>
+                    <th style="padding:11px 12px; text-align:center; color:#f59e0b; font-size:11px; font-weight:700; text-transform:uppercase; border-bottom:2px solid #e5e7eb; width:90px;">Shift 3</th>
+                    <th style="padding:11px 12px; text-align:center; color:#6b7280; font-size:11px; font-weight:600; text-transform:uppercase; border-bottom:2px solid #e5e7eb; width:90px;">Target</th>
                 </tr>
             </thead>
             <tbody id="tbl-line-body">
-                <tr><td colspan="5" style="text-align:center; color:#9ca3af; padding:20px;">Memuat data...</td></tr>
+                <tr><td colspan="5" style="text-align:center; color:#9ca3af; padding:24px;">Belum ada data</td></tr>
             </tbody>
         </table>
-        </div>
-    </div>
-
-    <!-- Waste Fryer & Waste Proses (side by side, equal width on desktop) -->
-    <div class="split-grid fryer-proses-grid">
-        <div>
-            <div class="sec-title" style="margin-top:0;">🔥 Waste Fryer <span id="title-date-fryer" style="color:#9ca3af; font-weight:400; text-transform:none;"></span></div>
-            <div class="kpi-grid" id="fryer-cards-container">
-                <div style="grid-column:1/-1; text-align:center; color:#9ca3af; padding:20px;">Memuat data...</div>
-            </div>
-        </div>
-        <div>
-            <div class="sec-title" style="margin-top:0;">⚙️ Waste Proses <span id="title-date-proses" style="color:#9ca3af; font-weight:400; text-transform:none;"></span></div>
-            <div class="kpi-grid" id="proses-cards-container">
-                <div style="grid-column:1/-1; text-align:center; color:#9ca3af; padding:20px;">Memuat data...</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Cost Material per Week -->
-    <div class="sec-title">💰 Cost Material per Week <span id="title-cost-week" style="color:#9ca3af; font-weight:400; text-transform:none;"></span></div>
-    <div class="card-wide">
-        <div class="tbl-scroll">
-        <table class="cost-table">
-            <thead>
-                <tr>
-                    <th>Week</th>
-                    <th>Tonase (ton)</th>
-                    <th>Packaging (Rp/ton)</th>
-                    <th>Raw Material (Rp/ton)</th>
-                    <th>SFG (Rp/ton)</th>
-                    <th>Total Cost/Ton</th>
-                    <th>Target</th>
-                </tr>
-            </thead>
-            <tbody id="tbl-cost-body">
-                <tr><td colspan="7" style="text-align:center; color:#9ca3af; padding:20px;">Memuat data...</td></tr>
-            </tbody>
-        </table>
-        </div>
-    </div>
-
-    <!-- Extruder Achievement -->
-    <div class="sec-title">🔧 Extruder <span id="title-date-extruder" style="color:#9ca3af; font-weight:400; text-transform:none;"></span></div>
-    <div class="kpi-grid" style="grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); margin-bottom:16px;">
-
-        <div class="card extruder-card">
-            <h3>Adukan</h3>
-            <div class="value loading" id="val-extruder-adukan">...</div>
-            <span class="target-badge">Target: 100%</span>
-        </div>
-
-        <div class="card extruder-card">
-            <h3>SFG Oven</h3>
-            <div class="value loading" id="val-extruder-sfg">...</div>
-            <span class="target-badge">Target: 100%</span>
-        </div>
-
-        <div class="card extruder-card">
-            <h3>Quality Rate</h3>
-            <div class="value loading" id="val-extruder-quality">...</div>
-            <div class="card-sub">Bag OK / Total Bag</div>
-        </div>
-
-        <div class="card extruder-card">
-            <h3>Downtime</h3>
-            <div class="value loading" id="val-extruder-downtime">...</div>
-            <div class="card-sub">Extruder 1, 2, 3</div>
-        </div>
-
-    </div>
-
-    <div class="card-wide">
-        <div class="tbl-scroll">
-        <table class="line-table">
-            <thead>
-                <tr>
-                    <th>Shift</th>
-                    <th>Adukan</th>
-                    <th>SFG Oven</th>
-                    <th>Quality</th>
-                </tr>
-            </thead>
-            <tbody id="tbl-extruder-shift-body">
-                <tr><td colspan="4" style="text-align:center; color:#9ca3af; padding:20px;">Memuat data...</td></tr>
-            </tbody>
-        </table>
-        </div>
-    </div>
-
-    <div class="split-grid">
-        <div class="card-wide" style="margin-bottom:0;">
-            <div class="sec-title" style="margin:0 0 4px;">Downtime per Mesin</div>
-            <div id="extruder-downtime-mesin" style="margin-top:10px; color:#9ca3af; text-align:center; padding:10px;">Memuat data...</div>
-        </div>
-        <div class="card-wide" style="margin-bottom:0;">
-            <div class="sec-title" style="margin:0 0 4px;">Top Alasan Downtime</div>
-            <table class="waste-detail-table">
-                <tbody id="tbl-extruder-alasan-body">
-                    <tr><td colspan="2" style="text-align:center; color:#9ca3af; padding:20px;">Memuat data...</td></tr>
-                </tbody>
-            </table>
-        </div>
     </div>
 
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
 const SUPABASE_URL = 'https://bmnhtxalfsfaefacgtpm.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_VItBKenz-q2sYz7MsibODA_nYtLXv9Q';
@@ -527,695 +216,468 @@ const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const OEE_TARGET = 55;
-let startDate = null;       // awal rentang tanggal (YYYY-MM-DD)
-let endDate = null;         // akhir rentang tanggal (YYYY-MM-DD)
-let lastAvailableDate = null; // tanggal terakhir yang ada datanya
-
-// Item yang bernama seperti ini adalah PEMAKAIAN BAHAN, bukan waste,
-// jadi tidak boleh ikut dijumlah ke total waste kartu proses.
-const PEMAKAIAN_REGEX = /pemakaian/i;
-
-const MESIN_BATAS_DEFAULT = {
-    BOATO:   { kemasan:5,     sfg:0.3,  karton:1 },
-    LINE_1A: { kemasan:5.328, sfg:3,    karton:2 },
-    LINE_1B: { kemasan:3.66,  sfg:3,    karton:2 },
-    LINE_2:  { kemasan:3.05,  sfg:3,    karton:2 },
-    LINE_4:  { kemasan:6.766, sfg:0.15, karton:2 },
-    LINE_5A: { kemasan:3.816,  sfg:0.5,  karton:1 },
-    LINE_5B: { kemasan:0.3675, sfg:0.02, karton:0 },
-    LINE_6:  { kemasan:2.556,  sfg:4,    karton:1 },
-    LINE_7:  { kemasan:7.52,  sfg:1,    karton:2 },
-};
+let parsedData = null;
 
 function toggleMenu() {
     const s = document.getElementById('sidebar');
     s.style.left = s.style.left === '0px' ? '-250px' : '0px';
 }
+function handleDrag(e, over) {
+    e.preventDefault();
+    document.getElementById('drop-zone').classList.toggle('dragover', over);
+}
+function handleDrop(e) {
+    e.preventDefault();
+    handleDrag(e, false);
+    const file = e.dataTransfer.files[0];
+    if (file) handleFile(file);
+}
+function handleFile(file) {
+    if (!file) return;
+    document.getElementById('file-name').textContent = '📄 ' + file.name;
+    document.getElementById('btn-proses').classList.add('visible');
+    window._pendingFile = file;
+    setStatus('default', 'File siap diproses: ' + file.name);
+    document.getElementById('btn-save').style.display = 'none';
+    document.getElementById('btn-save').disabled = true;
+    document.getElementById('warning-badge').classList.remove('show');
+    parsedData = null;
+}
+
+// ── Konversi serial date Excel ke string YYYY-MM-DD ──
+function excelDateToStr(serial) {
+    if (!serial && serial !== 0) return null;
+    if (serial instanceof Date) {
+        return serial.toISOString().slice(0, 10);
+    }
+    if (typeof serial === 'number') {
+        // Excel epoch: 1 Jan 1900 = serial 1
+        const d = new Date(Math.round((serial - 25569) * 86400 * 1000));
+        return d.toISOString().slice(0, 10);
+    }
+    if (typeof serial === 'string' && serial.match(/^\d{4}-\d{2}-\d{2}/)) {
+        return serial.slice(0, 10);
+    }
+    return null;
+}
+
+// ── Baca nilai OEE dari cell (cached value, bukan formula) ──
+function getOEEVal(cell) {
+    if (!cell) return null;
+    // XLSX.js: cell.v = cached value, cell.w = formatted string
+    // Kalau formula, cell.v adalah hasil kalkulasi terakhir
+    let v = cell.v;
+    if (v === undefined || v === null || v === '-' || v === '') return null;
+    if (typeof v === 'string') {
+        // Bisa jadi "49.00%" atau "0.49"
+        v = v.replace('%', '').trim();
+        v = parseFloat(v);
+        if (isNaN(v)) return null;
+        // Kalau hasilnya <1 berarti dalam bentuk desimal (0.49 = 49%)
+        if (v < 1) v = v * 100;
+        return +v.toFixed(2);
+    }
+    if (typeof v === 'number') {
+        // Excel menyimpan OEE sebagai desimal (0.49 = 49%)
+        if (v <= 1) v = v * 100;
+        return +v.toFixed(2);
+    }
+    return null;
+}
+
+function prosesExcel() {
+    const file = window._pendingFile;
+    if (!file) return;
+    setStatus('loading', 'Membaca file Excel...');
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            // raw:true agar XLSX.js tidak convert, cellDates:false agar tanggal tetap serial number
+            // cellFormula:true agar cached value (cell.v) tetap tersedia
+            const wb = XLSX.read(e.target.result, {
+                type: 'array',
+                raw: true,
+                cellDates: false,
+                cellFormula: true,
+                cellNF: false
+            });
+
+            // ══════════════════════════════
+            // OEE SHIFTLY
+            // Struktur: row 2 = tanggal (hanya di kolom SHIFT 1, setiap 3 kolom)
+            //           row 3 = SHIFT 1 / SHIFT 2 / SHIFT 3
+            //           row 19 = total BOJONEGORO
+            // Kolom data mulai index 3 (kolom D = index 3 dalam 0-based)
+            // ══════════════════════════════
+            const wsShiftly = wb.Sheets['OEE SHIFTLY'];
+            if (!wsShiftly) throw new Error('Sheet "OEE SHIFTLY" tidak ditemukan');
+
+            const range = XLSX.utils.decode_range(wsShiftly['!ref']);
+            const maxCol = range.e.c; // kolom terakhir (0-based)
+
+            // Fungsi ambil cell dari sheet
+            const cell = (ws, r, c) => ws[XLSX.utils.encode_cell({ r, c })];
+
+            let lastShiftDate = null;
+            let lastShift1 = null, lastShift2 = null, lastShift3 = null;
+            const allShiftlyRows = []; // { tanggal, shift, oee } — SEMUA tanggal, bukan cuma terakhir
+
+            // Iterasi per 3 kolom, mulai kolom 3 (D), row 1 (0-based = row 2 Excel)
+            for (let c = 3; c <= maxCol - 2; c += 3) {
+                const tglCell = cell(wsShiftly, 1, c); // row 2 = index 1
+                if (!tglCell || tglCell.v === undefined) continue;
+
+                const tglStr = excelDateToStr(tglCell.v);
+                if (!tglStr) continue;
+
+                const s1 = getOEEVal(cell(wsShiftly, 18, c));     // row 19 = index 18
+                const s2 = getOEEVal(cell(wsShiftly, 18, c + 1));
+                const s3 = getOEEVal(cell(wsShiftly, 18, c + 2));
+
+                if (s1 !== null) allShiftlyRows.push({ tanggal: tglStr, shift: 'SHIFT 1', oee: s1 });
+                if (s2 !== null) allShiftlyRows.push({ tanggal: tglStr, shift: 'SHIFT 2', oee: s2 });
+                if (s3 !== null) allShiftlyRows.push({ tanggal: tglStr, shift: 'SHIFT 3', oee: s3 });
+
+                if (s1 !== null || s2 !== null || s3 !== null) {
+                    // simpan tanggal terakhir yg ada datanya utk preview kartu
+                    if (!lastShiftDate || tglStr > lastShiftDate) {
+                        lastShiftDate = tglStr;
+                        lastShift1 = s1; lastShift2 = s2; lastShift3 = s3;
+                    }
+                }
+            }
+
+            // ══════════════════════════════
+            // OEE DAILY
+            // Struktur: row 2 = tanggal (tiap kolom 1 tanggal)
+            //           row 14 = total BOJONEGORO
+            // ══════════════════════════════
+            const wsDaily = wb.Sheets['OEE DAILY'];
+            if (!wsDaily) throw new Error('Sheet "OEE DAILY" tidak ditemukan');
+
+            const rangeD = XLSX.utils.decode_range(wsDaily['!ref']);
+            const maxColD = rangeD.e.c;
+
+            let lastDailyDate = null, lastDailyVal = null;
+            const allDailyRows = []; // { tanggal, oee } — SEMUA tanggal
+
+            for (let c = 3; c <= maxColD; c++) {
+                const tglCell = cell(wsDaily, 1, c); // row 2 = index 1
+                if (!tglCell || tglCell.v === undefined) continue;
+                const tglStr = excelDateToStr(tglCell.v);
+                if (!tglStr) continue;
+
+                const oee = getOEEVal(cell(wsDaily, 13, c)); // row 14 = index 13
+                if (oee !== null) {
+                    allDailyRows.push({ tanggal: tglStr, oee });
+                    if (!lastDailyDate || tglStr > lastDailyDate) {
+                        lastDailyDate = tglStr;
+                        lastDailyVal  = oee;
+                    }
+                }
+            }
+
+            // Nama mesin per row (row index 3-17 = Excel row 4-18)
+            // Target dibaca dari col C (index 2) dalam bentuk desimal → ×100
+            const MESIN_ROWS = [
+                { row: 3,  nama: 'BOATO' },
+                { row: 4,  nama: 'LINE 1A - FILLING CF (4 MSN)' },
+                { row: 5,  nama: 'LINE 1B - FILLING BOPACK (3 MSN)' },
+                { row: 6,  nama: 'LINE 4A - FILLING SW (4 MSN)' },
+                { row: 7,  nama: 'LINE 4B - FILLING SW (2 MSN)' },
+                { row: 8,  nama: 'LINE 2 - FILLING CF (12 MSN)' },
+                { row: 9,  nama: 'LINE 4 - FILLING SW' },
+                { row: 10, nama: 'LINE 5A - FILLING BOOSTAR (5 MSN)' },
+                { row: 11, nama: 'LINE 5B - FILLING SW (1 MSN)' },
+                { row: 12, nama: 'Line 6 - Filling Dried Noodle' },
+                { row: 13, nama: 'LINE 5E - FILLING BOOSTAR (4MSN)' },
+                { row: 14, nama: 'LINE 5F - FILLING BOOSTAR (1MSN)' },
+                { row: 15, nama: 'LINE 5C - FILLING BOOSTAR (2 MSN)' },
+                { row: 16, nama: 'LINE 5D - FILLING BOOSTAR (3 MSN)' },
+                { row: 17, nama: 'LINE 7 - FILLING SW' },
+            ];
+
+            // Baca target sekali di luar loop tanggal (nilainya tetap, tidak per-tanggal)
+            const targetPerMesin = {};
+            MESIN_ROWS.forEach(m => {
+                const tgtCell = cell(wsShiftly, m.row, 2);
+                targetPerMesin[m.row] = tgtCell && typeof tgtCell.v === 'number'
+                    ? Math.round(tgtCell.v * 100) : 55;
+            });
+
+            // Parse per-line per-shift untuk SEMUA tanggal
+            const allLineRows = []; // { tanggal, shift, mesin, target, oee }
+            for (let c = 3; c <= maxCol - 2; c += 3) {
+                const tglCell = cell(wsShiftly, 1, c);
+                if (!tglCell || tglCell.v === undefined) continue;
+                const tglStr = excelDateToStr(tglCell.v);
+                if (!tglStr) continue;
+
+                MESIN_ROWS.forEach(m => {
+                    const s1 = getOEEVal(cell(wsShiftly, m.row, c));
+                    const s2 = getOEEVal(cell(wsShiftly, m.row, c + 1));
+                    const s3 = getOEEVal(cell(wsShiftly, m.row, c + 2));
+                    const target = targetPerMesin[m.row];
+                    if (s1 !== null) allLineRows.push({ tanggal: tglStr, shift: 1, mesin: m.nama, target, oee: s1 });
+                    if (s2 !== null) allLineRows.push({ tanggal: tglStr, shift: 2, mesin: m.nama, target, oee: s2 });
+                    if (s3 !== null) allLineRows.push({ tanggal: tglStr, shift: 3, mesin: m.nama, target, oee: s3 });
+                });
+            }
+
+            // Data per-line utk preview kartu (hanya tanggal terakhir)
+            const perLineData = [];
+            MESIN_ROWS.forEach(m => {
+                const rowsIni = allLineRows.filter(r => r.tanggal === lastShiftDate && r.mesin === m.nama);
+                if (rowsIni.length > 0) {
+                    const byShift = {};
+                    rowsIni.forEach(r => { byShift[`shift${r.shift}`] = r.oee; });
+                    perLineData.push({ mesin: m.nama, target: rowsIni[0].target, shift1: byShift.shift1 ?? null, shift2: byShift.shift2 ?? null, shift3: byShift.shift3 ?? null });
+                }
+            });
+
+            const tanggalUnikShiftly = [...new Set(allShiftlyRows.map(r => r.tanggal))].sort();
+            const tanggalUnikDaily   = [...new Set(allDailyRows.map(r => r.tanggal))].sort();
+
+            parsedData = {
+                date      : lastShiftDate,
+                shift1    : lastShift1,
+                shift2    : lastShift2,
+                shift3    : lastShift3,
+                daily_date: lastDailyDate,
+                daily_oee : lastDailyVal,
+                per_line  : perLineData,
+                all_shiftly: allShiftlyRows,
+                all_daily  : allDailyRows,
+                all_line   : allLineRows,
+            };
+
+            tampilkanData(parsedData);
+            setStatus('active',
+                `✅ Data berhasil dibaca: ${tanggalUnikShiftly.length} hari shiftly, ${tanggalUnikDaily.length} hari daily. ` +
+                `Tanggal terakhir: ${fmtDate(lastShiftDate)}`);
+
+            const btnSave = document.getElementById('btn-save');
+            btnSave.style.display = 'inline-block';
+            btnSave.disabled = false;
+            btnSave.textContent = '🔄 Perbarui Data Supabase';
+            document.getElementById('warning-badge').classList.add('show');
+
+        } catch (err) {
+            setStatus('error', '❌ Gagal membaca Excel: ' + err.message);
+            console.error(err);
+        }
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+function tampilkanData(d) {
+    setVal('val-s1', 'date-s1', d.shift1, fmtDate(d.date));
+    setVal('val-s2', 'date-s2', d.shift2, fmtDate(d.date));
+    setVal('val-s3', 'date-s3', d.shift3, fmtDate(d.date));
+    setVal('val-daily', 'date-daily', d.daily_oee, fmtDate(d.daily_date));
+    if (d.per_line) tampilkanPerLine(d.per_line, d.date);
+}
+
+function tampilkanPerLine(lines, tanggal) {
+    const tbody = document.getElementById('tbl-line-body');
+    if (!lines || lines.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#9ca3af;padding:24px;">Belum ada data per line</td></tr>';
+        return;
+    }
+
+    function oeeCell(val, target) {
+        if (val === null || val === undefined) return '<td style="text-align:center;color:#d1d5db;padding:10px 12px;">—</td>';
+        const color = val >= target ? '#16a34a' : '#dc2626';
+        const bg    = val >= target ? '#f0fdf4' : '#fff5f5';
+        return `<td style="text-align:center; padding:10px 12px; background:${bg};">
+            <span style="font-weight:700; color:${color}; font-size:13px;">${val.toFixed(1)}%</span>
+        </td>`;
+    }
+
+    tbody.innerHTML = '';
+    lines.forEach((m, i) => {
+        const tr = document.createElement('tr');
+        tr.style.borderBottom = '1px solid #f3f4f6';
+        tr.innerHTML = `
+            <td style="padding:10px 16px; font-size:12px; color:#374151; font-weight:600;
+                background:${i % 2 === 0 ? 'white' : '#fafafa'};">${m.mesin}</td>
+            ${oeeCell(m.shift1, m.target)}
+            ${oeeCell(m.shift2, m.target)}
+            ${oeeCell(m.shift3, m.target)}
+            <td style="text-align:center; padding:10px 12px; color:#6b7280; font-size:12px;">${m.target}%</td>
+        `;
+        tbody.appendChild(tr);
+    });
+
+    // Footer tanggal
+    const trFoot = document.createElement('tr');
+    trFoot.innerHTML = `
+        <td colspan="5" style="padding:8px 16px; font-size:11px; color:#9ca3af;
+            background:#f9fafb; border-top:2px solid #e5e7eb;">
+            Data tanggal: ${fmtDate(tanggal)} &nbsp;·&nbsp;
+            <span style="color:#16a34a;">■</span> ≥ target &nbsp;
+            <span style="color:#dc2626;">■</span> &lt; target
+        </td>
+    `;
+    tbody.appendChild(trFoot);
+}
+
+function setVal(valId, dateId, val, date) {
+    const el = document.getElementById(valId);
+    const de = document.getElementById(dateId);
+    if (val === null || val === undefined) {
+        el.textContent = '—'; el.className = 'kpi-value kpi-empty'; de.textContent = ''; return;
+    }
+    el.textContent = val.toFixed(2) + '%';
+    el.className = 'kpi-value ' + (val >= OEE_TARGET ? 'good' : 'low');
+    de.textContent = date;
+}
 
 function fmtDate(d) {
     if (!d) return '';
     try {
-        return new Date(d + 'T00:00:00').toLocaleDateString('id-ID', {
-            day: '2-digit', month: 'short', year: 'numeric'
-        });
+        return new Date(d).toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric' });
     } catch { return d; }
 }
 
-// Label rentang: "12 Jul 2026" kalau satu hari, "12 Jul - 18 Jul 2026" kalau rentang.
-function fmtRange(a, b) {
-    if (!a && !b) return '';
-    if (!b || a === b) return fmtDate(a);
-    return `${fmtDate(a)} — ${fmtDate(b)}`;
+function setStatus(type, msg) {
+    const bar  = document.getElementById('status-bar');
+    const dot  = document.getElementById('status-dot');
+    const text = document.getElementById('status-text');
+    bar.className = 'status-bar ' + (type === 'loading' ? 'loading' : type === 'error' ? 'error' : '');
+    dot.className  = 'status-dot ' + (type === 'active' ? 'active' : '');
+    text.textContent = msg;
 }
 
-function daysBetween(a, b) {
-    if (!a || !b) return 1;
-    const d1 = new Date(a + 'T00:00:00');
-    const d2 = new Date(b + 'T00:00:00');
-    return Math.max(1, Math.round((d2 - d1) / 86400000) + 1);
-}
-
-function fmtRupiah(v) {
-    if (v === null || v === undefined) return '—';
-    return 'Rp ' + Math.round(v).toLocaleString('id-ID');
-}
-
-// Dipanggil saat salah satu input tanggal (Dari / Sampai) berubah.
-function gantiRentang() {
-    let s = document.getElementById('filter-date-start').value;
-    let e = document.getElementById('filter-date-end').value;
-
-    if (!s && !e) return; // belum ada apa-apa dipilih
-    if (s && !e) e = s;
-    if (e && !s) s = e;
-    if (s > e) { const tmp = s; s = e; e = tmp; }
-
-    startDate = s; endDate = e;
-    document.getElementById('filter-date-start').value = s;
-    document.getElementById('filter-date-end').value = e;
-
-    const info = document.getElementById('filter-info');
-    if (s === e && s === lastAvailableDate) {
-        info.textContent = '(data terbaru)';
-    } else if (s === e) {
-        info.textContent = '';
-    } else {
-        info.textContent = `(rentang ${daysBetween(s, e)} hari)`;
-    }
-
-    loadData(startDate, endDate);
-}
-
-function keTanggalTerakhir() {
-    if (lastAvailableDate) {
-        document.getElementById('filter-date-start').value = lastAvailableDate;
-        document.getElementById('filter-date-end').value = lastAvailableDate;
-        gantiRentang();
-    }
-}
-
-async function loadData(sDate, eDate) {
-
-    // ── Daily OEE — rata-rata dalam rentang tanggal ──
-    const { data: oeeRows } = await db
-        .from('oee_daily')
-        .select('*')
-        .gte('tanggal', sDate)
-        .lte('tanggal', eDate)
-        .order('tanggal', { ascending: true });
-
-    const oeeEl   = document.getElementById('val-oee');
-    const oeeDate = document.getElementById('date-oee');
-    if (oeeRows && oeeRows.length > 0) {
-        const avg = oeeRows.reduce((s, r) => s + (r.oee || 0), 0) / oeeRows.length;
-        oeeEl.textContent = avg.toFixed(2) + '%';
-        oeeEl.className   = 'value ' + (avg >= OEE_TARGET ? 'good' : 'low');
-        oeeDate.textContent = fmtRange(sDate, eDate);
-    } else {
-        oeeEl.textContent = '—'; oeeEl.className = 'value';
-        oeeDate.textContent = 'Tidak ada data';
-    }
-
-    // ── Tonase — total dalam rentang tanggal ──
-    const { data: tonRows } = await db
-        .from('tonase_harian')
-        .select('*')
-        .gte('tanggal', sDate)
-        .lte('tanggal', eDate)
-        .order('tanggal', { ascending: true });
-
-    const tonEl   = document.getElementById('val-tonase');
-    const tonDate = document.getElementById('date-tonase');
-    const tonSub  = document.getElementById('sub-tonase');
-
-    if (tonRows && tonRows.length > 0) {
-        const total = tonRows.reduce((s, r) => s + (r.tonase || 0), 0);
-        tonEl.innerHTML = total.toFixed(2) + '<span class="kpi-unit"> ton</span>';
-        tonEl.className = 'value';
-        tonDate.textContent = fmtRange(sDate, eDate);
-        tonSub.textContent  = sDate === eDate ? '' : `${tonRows.length} hari data`;
-    } else {
-        tonEl.textContent = '-'; tonEl.className = 'value';
-        tonDate.textContent = 'Tidak ada data'; tonSub.textContent = '';
-    }
-
-    // ── Tonase bulan berjalan: tgl 1 bulan ini s.d. tanggal data terakhir ──
-    // Ini SELALU dihitung berdasarkan tanggal terakhir yang ADA di tabel tonase_harian
-    // sendiri (bukan dari waste_shiftly), supaya tidak kepotong kalau input waste telat.
-    const tonMtdEl = document.getElementById('sub-tonase-mtd');
-    const { data: lastTonRow } = await db
-        .from('tonase_harian')
-        .select('tanggal')
-        .order('tanggal', { ascending: false })
-        .limit(1)
-        .single();
-
-    if (lastTonRow && lastTonRow.tanggal) {
-        const lastTonDate = lastTonRow.tanggal;
-        const [y, m] = lastTonDate.split('-');
-        const monthStart = `${y}-${m}-01`;
-        const { data: mtdRows } = await db
-            .from('tonase_harian')
-            .select('tonase')
-            .gte('tanggal', monthStart)
-            .lte('tanggal', lastTonDate);
-        const mtdTotal = (mtdRows || []).reduce((s, r) => s + (r.tonase || 0), 0);
-        tonMtdEl.innerHTML = `📅 Total 1 ${fmtDate(monthStart).split(' ').slice(1).join(' ')} s.d. ${fmtDate(lastTonDate)}<br><span style="font-size:22px; font-weight:700; color:#1f2937;">${mtdTotal.toFixed(2)}<span style="font-size:14px; font-weight:400; color:#6b7280;"> ton</span></span>`;
-    } else {
-        tonMtdEl.textContent = '';
-    }
-
-    // ── OEE Shiftly — rata-rata per shift dalam rentang ──
-    const { data: shiftRows } = await db
-        .from('oee_shiftly')
-        .select('*')
-        .gte('tanggal', sDate)
-        .lte('tanggal', eDate);
-
-    if (shiftRows && shiftRows.length > 0) {
-        const bucket = { 'SHIFT 1': [], 'SHIFT 2': [], 'SHIFT 3': [] };
-        shiftRows.forEach(r => { if (bucket[r.shift]) bucket[r.shift].push(r.oee || 0); });
-        const avgOf = arr => arr.length ? arr.reduce((s, v) => s + v, 0) / arr.length : null;
-        setShiftMini('val-shift1', avgOf(bucket['SHIFT 1']));
-        setShiftMini('val-shift2', avgOf(bucket['SHIFT 2']));
-        setShiftMini('val-shift3', avgOf(bucket['SHIFT 3']));
-        document.getElementById('title-date-shiftly').textContent = '— ' + fmtRange(sDate, eDate);
-    } else {
-        ['val-shift1','val-shift2','val-shift3'].forEach(id => setShiftMini(id, null));
-        document.getElementById('title-date-shiftly').textContent = '— Tidak ada data';
-    }
-
-    // ── OEE per Line — rata-rata per mesin/shift dalam rentang ──
+// ── Load data dari Supabase saat halaman dibuka ──
+async function loadFromSupabase() {
+    setStatus('loading', 'Memuat data dari Supabase...');
     try {
-        const { data: lineRows } = await db
-            .from('oee_shiftly_line')
+        // Shiftly total
+        const { data: shiftRows } = await db
+            .from('oee_shiftly')
             .select('*')
-            .gte('tanggal', sDate)
-            .lte('tanggal', eDate)
-            .limit(5000);
+            .order('tanggal', { ascending: false })
+            .limit(3);
 
-        const tbody = document.getElementById('tbl-line-body');
-
-        if (lineRows && lineRows.length > 0) {
-            document.getElementById('title-date-line').textContent = '— ' + fmtRange(sDate, eDate);
-            const mesinMap = {};
-            lineRows.forEach(r => {
-                if (!mesinMap[r.mesin]) mesinMap[r.mesin] = { mesin: r.mesin, target: r.target, shift1: [], shift2: [], shift3: [] };
-                mesinMap[r.mesin][`shift${r.shift}`].push(r.oee);
-                mesinMap[r.mesin].target = r.target;
-            });
-            const avgOf = arr => arr.length ? arr.reduce((s, v) => s + (v || 0), 0) / arr.length : null;
-            tbody.innerHTML = '';
-            Object.values(mesinMap).forEach(m => {
-                const s1 = avgOf(m.shift1), s2 = avgOf(m.shift2), s3 = avgOf(m.shift3);
-                const vals = [s1, s2, s3].filter(v => v !== null && v !== undefined);
-                const adaYangOver = vals.some(v => v < m.target);
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="mesin-col" style="${adaYangOver ? 'color:#dc2626;' : 'color:#374151;'}">${m.mesin}</td>
-                    ${lineValCell(s1, m.target)}
-                    ${lineValCell(s2, m.target)}
-                    ${lineValCell(s3, m.target)}
-                    <td style="text-align:center; color:#6b7280; font-size:11px;">${m.target}%</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        } else {
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#9ca3af; padding:20px;">Belum ada data per line</td></tr>';
+        if (shiftRows && shiftRows.length > 0) {
+            const tgl = shiftRows[0].tanggal;
+            const fmtTgl = fmtDate(tgl);
+            const byShift = {};
+            shiftRows.forEach(r => { byShift[r.shift] = r.oee; });
+            setVal('val-s1', 'date-s1', byShift['SHIFT 1'] ?? null, fmtTgl);
+            setVal('val-s2', 'date-s2', byShift['SHIFT 2'] ?? null, fmtTgl);
+            setVal('val-s3', 'date-s3', byShift['SHIFT 3'] ?? null, fmtTgl);
         }
-    } catch(e) {
-        document.getElementById('tbl-line-body').innerHTML =
-            '<tr><td colspan="5" style="text-align:center; color:#9ca3af; padding:20px;">Belum ada data per line</td></tr>';
-    }
 
-    // ── Waste — jumlah dalam rentang tanggal ──
-    const { data: wasteRows } = await db
-        .from('waste_shiftly')
-        .select('*')
-        .gte('tanggal', sDate)
-        .lte('tanggal', eDate)
-        .limit(5000);
-    const { data: batasRows } = await db.from('waste_batas').select('*');
+        // Daily total
+        const { data: dailyRow } = await db
+            .from('oee_daily')
+            .select('*')
+            .order('tanggal', { ascending: false })
+            .limit(1)
+            .single();
 
-    if (wasteRows && wasteRows.length > 0) {
-        document.getElementById('title-date-waste').textContent = '— ' + fmtRange(sDate, eDate);
+        if (dailyRow) {
+            setVal('val-daily', 'date-daily', dailyRow.oee, fmtDate(dailyRow.tanggal));
+            setStatus('active', '✅ Data dimuat dari Supabase. Tanggal: ' + fmtDate(dailyRow.tanggal));
+        } else {
+            setStatus('default', 'Belum ada data. Import Excel untuk memulai.');
+        }
 
-        const perMesin = {};
-        wasteRows.forEach(r => {
-            if (!perMesin[r.mesin_id]) perMesin[r.mesin_id] = { nama: r.mesin_nama, kemasan: 0, sfg: 0, karton: 0 };
-            perMesin[r.mesin_id].kemasan += r.waste_kemasan || 0;
-            perMesin[r.mesin_id].sfg     += r.waste_sfg || 0;
-            perMesin[r.mesin_id].karton  += r.waste_karton || 0;
-        });
+        // Per-line per-shift
+        try {
+            const { data: lineRows } = await db
+                .from('oee_shiftly_line')
+                .select('*')
+                .order('tanggal', { ascending: false })
+                .limit(100);
 
-        const nHari = daysBetween(sDate, eDate);
-        const batasMap = {};
-        (batasRows || []).forEach(b => {
-            batasMap[b.mesin_id] = {
-                kemasan: (b.batas_kemasan || 0) * 3 * nHari,
-                sfg:     (b.batas_sfg || 0) * 3 * nHari,
-                karton:  (b.batas_karton || 0) * 3 * nHari,
-            };
-        });
-        // Pastikan SEMUA mesin yang dikenal (bukan cuma yang melapor waste di rentang ini) punya target,
-        // supaya total batas tidak berkurang saat ada mesin yang waste-nya 0 / tidak reporting.
-        Object.keys(MESIN_BATAS_DEFAULT).forEach(mid => {
-            if (!batasMap[mid] || (batasMap[mid].kemasan === 0 && batasMap[mid].sfg === 0 && batasMap[mid].karton === 0)) {
-                const def = MESIN_BATAS_DEFAULT[mid];
-                batasMap[mid] = { kemasan: def.kemasan * 3 * nHari, sfg: def.sfg * 3 * nHari, karton: def.karton * 3 * nHari };
+            if (lineRows && lineRows.length > 0) {
+                const lastDate = lineRows[0].tanggal;
+                const mesinMap = {};
+                lineRows.filter(r => r.tanggal === lastDate).forEach(r => {
+                    if (!mesinMap[r.mesin]) mesinMap[r.mesin] = { mesin: r.mesin, target: r.target, shift1: null, shift2: null, shift3: null };
+                    mesinMap[r.mesin][`shift${r.shift}`] = r.oee;
+                });
+                tampilkanPerLine(Object.values(mesinMap), lastDate);
             }
-        });
+        } catch(_) {}
 
-        renderWasteDetail('kemasan', perMesin, batasMap, 'Kg');
-        renderWasteDetail('sfg',     perMesin, batasMap, 'Kg');
-        renderWasteDetail('karton',  perMesin, batasMap, 'Pcs');
-    } else {
-        document.getElementById('title-date-waste').textContent = '— Tidak ada data';
-        ['kemasan','sfg','karton'].forEach(k => {
-            const el = document.getElementById(`wd-total-${k}`);
-            el.textContent = '—'; el.className = 'value';
-            document.getElementById(`wd-batas-${k}`).textContent = 'Belum ada data';
-            document.querySelector(`#wd-table-${k} tbody`).innerHTML = '';
-        });
-    }
-
-    // ── Waste Fryer ──
-    await loadWasteFryer(sDate, eDate);
-
-    // ── Waste Proses ──
-    await loadWasteProses(sDate, eDate);
-
-    // ── Cost Material per Week ──
-    await loadCostMaterial();
-
-    // ── Extruder ──
-    await loadExtruder(sDate, eDate);
-}
-
-function renderWasteDetail(kategori, perMesin, batasMap, unit) {
-    const tbody   = document.querySelector(`#wd-table-${kategori} tbody`);
-    const totalEl = document.getElementById(`wd-total-${kategori}`);
-    const batasEl = document.getElementById(`wd-batas-${kategori}`);
-
-    const rows = Object.entries(perMesin)
-        .map(([id, d]) => ({ id, nama: d.nama, val: d[kategori] || 0, batas: (batasMap[id] && batasMap[id][kategori]) || 0 }))
-        .sort((a, b) => b.val - a.val);
-
-    const grandTotal = rows.reduce((s, r) => s + r.val, 0);
-    const grandBatas = Object.values(batasMap).reduce((s, b) => s + (b[kategori] || 0), 0);
-
-    totalEl.innerHTML = grandTotal.toFixed(2) + `<span class="kpi-unit"> ${unit}</span>`;
-    totalEl.className = 'value ' + (grandTotal > grandBatas ? 'low' : 'good');
-    batasEl.textContent = `Batas: ${grandBatas.toFixed(2)} ${unit}`;
-
-    tbody.innerHTML = '';
-    rows.forEach(r => {
-        const isOver = r.val > r.batas && r.batas > 0;
-        const tr = document.createElement('tr');
-        const namaShort = r.nama.replace('LINE ', 'L').replace(' - FILLING', '').replace(' BOOSTAR', '');
-        tr.innerHTML = `
-            <td class="mesin-name" style="${isOver ? 'color:#dc2626;font-weight:600;' : ''}">${namaShort}</td>
-            <td class="waste-val ${isOver ? 'over' : ''}">${r.val.toFixed(2)}</td>
-        `;
-        tbody.appendChild(tr);
-    });
-}
-
-async function loadWasteFryer(sDate, eDate) {
-    const { data: fryerRows } = await db
-        .from('waste_fryer_shiftly')
-        .select('*')
-        .gte('tanggal', sDate)
-        .lte('tanggal', eDate)
-        .limit(5000);
-
-    const container  = document.getElementById('fryer-cards-container');
-    const titleDate  = document.getElementById('title-date-fryer');
-
-    if (!fryerRows || fryerRows.length === 0) {
-        container.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#9ca3af; padding:20px;">Belum ada data waste fryer</div>';
-        titleDate.textContent = '— Tidak ada data';
-        return;
-    }
-
-    titleDate.textContent = '— ' + fmtRange(sDate, eDate);
-
-    // Group per fryer_id, jumlahkan tiap item lintas shift & tanggal dalam rentang
-    const byFryer = {};
-    fryerRows.forEach(r => {
-        if (!byFryer[r.fryer_id]) byFryer[r.fryer_id] = { nama: r.fryer_nama, items: {} };
-        byFryer[r.fryer_id].items[r.item_nama] = (byFryer[r.fryer_id].items[r.item_nama] || 0) + (r.nilai || 0);
-    });
-
-    container.innerHTML = '';
-    Object.values(byFryer).forEach(f => {
-        const items = Object.entries(f.items).sort((a, b) => b[1] - a[1]);
-        const total = items.reduce((s, [, v]) => s + v, 0);
-        const namaTampil = f.nama.replace(/WASTE FRYER ELVA\s*/i, '');
-
-        const card = document.createElement('div');
-        card.className = 'card fryer-mini-card';
-        card.innerHTML = `
-            <h3>🔥 ${namaTampil}</h3>
-            <div class="value">${total.toFixed(2)}<span class="kpi-unit"> Kg</span></div>
-            <table class="waste-detail-table"><tbody>
-                ${items.map(([nama, val]) => `
-                    <tr><td class="mesin-name">${nama}</td><td class="waste-val">${val.toFixed(2)}</td></tr>
-                `).join('')}
-            </tbody></table>
-        `;
-        container.appendChild(card);
-    });
-}
-
-async function loadWasteProses(sDate, eDate) {
-    const { data: prosesRows } = await db
-        .from('waste_proses_shiftly')
-        .select('*')
-        .gte('tanggal', sDate)
-        .lte('tanggal', eDate)
-        .limit(5000);
-
-    const container = document.getElementById('proses-cards-container');
-    const titleDate = document.getElementById('title-date-proses');
-
-    if (!prosesRows || prosesRows.length === 0) {
-        container.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#9ca3af; padding:20px;">Belum ada data waste proses</div>';
-        titleDate.textContent = '— Tidak ada data';
-        return;
-    }
-
-    titleDate.textContent = '— ' + fmtRange(sDate, eDate);
-
-    // Group per proses_id, jumlahkan tiap item lintas shift & tanggal dalam rentang
-    const byProses = {};
-    prosesRows.forEach(r => {
-        if (!byProses[r.proses_id]) byProses[r.proses_id] = { nama: r.proses_nama, items: {} };
-        byProses[r.proses_id].items[r.item_nama] = (byProses[r.proses_id].items[r.item_nama] || 0) + (r.nilai || 0);
-    });
-
-    container.innerHTML = '';
-    Object.values(byProses).forEach(p => {
-        const allItems = Object.entries(p.items).sort((a, b) => b[1] - a[1]);
-
-        // Pisahkan item "Pemakaian ..." (bahan baku, bukan waste) dari item waste asli,
-        // supaya angka total kartu cuma mencerminkan waste, bukan pemakaian bahan.
-        const pemakaianItems = allItems.filter(([nama]) => PEMAKAIAN_REGEX.test(nama));
-        const wasteItems     = allItems.filter(([nama]) => !PEMAKAIAN_REGEX.test(nama));
-        const totalWaste     = wasteItems.reduce((s, [, v]) => s + v, 0);
-
-        const card = document.createElement('div');
-        card.className = 'card proses-mini-card';
-        card.innerHTML = `
-            <h3>⚙️ ${p.nama}</h3>
-            <div class="value">${totalWaste.toFixed(2)}<span class="kpi-unit"> Kg</span></div>
-            ${pemakaianItems.length ? `
-            <div class="proses-pemakaian-info">
-                ${pemakaianItems.map(([nama, val]) => `<span class="label">${nama}:</span> <span class="val">${val.toFixed(2)} Kg</span>`).join('<br>')}
-            </div>` : ''}
-            <table class="waste-detail-table"><tbody>
-                ${wasteItems.map(([nama, val]) => `
-                    <tr><td class="mesin-name">${nama}</td><td class="waste-val">${val.toFixed(2)}</td></tr>
-                `).join('')}
-            </tbody></table>
-        `;
-        container.appendChild(card);
-    });
-}
-
-// ── Cost Material per Week (Simulasi Ratio COGM) ──
-// Ratio (Rp/ton) dihitung di sisi klien: value / tonase, sesuai rumus di file Excel-nya.
-// Tabel ini per-minggu dan tidak terikat pada filter tanggal harian.
-async function loadCostMaterial() {
-    const { data: rows } = await db
-        .from('cost_material_weekly')
-        .select('*')
-        .order('tahun', { ascending: false })
-        .order('minggu_ke', { ascending: false })
-        .limit(8);
-
-    const tbody       = document.getElementById('tbl-cost-body');
-    const titleWeek    = document.getElementById('title-cost-week');
-    const totalEl      = document.getElementById('val-cost-total');
-    const dateEl       = document.getElementById('date-cost');
-    const badgeEl      = document.getElementById('cost-target-badge');
-    const detailTbody  = document.querySelector('#cost-detail-table tbody');
-
-    if (!rows || rows.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#9ca3af; padding:20px;">Belum ada data cost material</td></tr>';
-        titleWeek.textContent = '';
-        totalEl.textContent = '—'; totalEl.className = 'value';
-        dateEl.textContent = 'Belum ada data';
-        detailTbody.innerHTML = '';
-        return;
-    }
-
-    // Data terbaru (minggu terakhir) untuk kartu ringkasan
-    const latest = rows[0];
-    const pkgRatioLatest = latest.tonase ? (latest.packaging_value || 0) / latest.tonase : 0;
-    const rawRatioLatest = latest.tonase ? (latest.raw_material_value || 0) / latest.tonase : 0;
-    const sfgRatioLatest = latest.tonase ? (latest.sfg_value || 0) / latest.tonase : 0;
-    const latestTotalRatio = pkgRatioLatest + rawRatioLatest + sfgRatioLatest;
-    const target = latest.target_cost_per_ton || 28000;
-
-    totalEl.innerHTML = Math.round(latestTotalRatio).toLocaleString('id-ID') + '<span class="kpi-unit"> /ton</span>';
-    totalEl.className = 'value ' + (latestTotalRatio <= target ? 'good' : 'low');
-    dateEl.textContent = `Week ${latest.minggu_ke} - ${latest.tahun}`;
-    badgeEl.textContent = `Target: ≤ Rp ${Math.round(target).toLocaleString('id-ID')}/ton`;
-
-    // Breakdown PM / RM / SFG di bawah total, seperti di Excel
-    detailTbody.innerHTML = `
-        <tr><td class="mesin-name">Packaging Material</td><td class="waste-val">${fmtRupiah(pkgRatioLatest)}</td></tr>
-        <tr><td class="mesin-name">Raw Material</td><td class="waste-val">${fmtRupiah(rawRatioLatest)}</td></tr>
-        <tr><td class="mesin-name">SFG</td><td class="waste-val">${fmtRupiah(sfgRatioLatest)}</td></tr>
-    `;
-
-    titleWeek.textContent = `— Week ${rows[rows.length - 1].minggu_ke} s.d. Week ${latest.minggu_ke} / ${latest.tahun}`;
-
-    // Tabel tren mingguan, urut dari minggu terlama ke terbaru (kiri ke kanan waktu berjalan)
-    const rowsAsc = [...rows].reverse();
-    tbody.innerHTML = '';
-    rowsAsc.forEach(r => {
-        const pkgRatio = r.tonase ? (r.packaging_value || 0) / r.tonase : 0;
-        const rawRatio = r.tonase ? (r.raw_material_value || 0) / r.tonase : 0;
-        const sfgRatio = r.tonase ? (r.sfg_value || 0) / r.tonase : 0;
-        const totalValue = (r.packaging_value || 0) + (r.raw_material_value || 0) + (r.sfg_value || 0);
-        const totalRatio = r.tonase ? totalValue / r.tonase : 0;
-        const rTarget = r.target_cost_per_ton || 28000;
-        const isOver = totalRatio > rTarget;
-
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>Week ${r.minggu_ke} / ${r.tahun}</td>
-            <td>${(r.tonase || 0).toLocaleString('id-ID')}</td>
-            <td>${fmtRupiah(pkgRatio)}</td>
-            <td>${fmtRupiah(rawRatio)}</td>
-            <td>${fmtRupiah(sfgRatio)}</td>
-            <td class="total-col ${isOver ? 'low' : 'good'}">${fmtRupiah(totalRatio)}</td>
-            <td style="color:#6b7280; font-size:11px;">${fmtRupiah(rTarget)}</td>
-        `;
-        tbody.appendChild(tr);
-    });
-}
-
-// ── Extruder ──
-// Tabel Supabase yang dipakai: extruder_daily (tanggal, week, shift,
-// target_adukan, realisasi_adukan, target_sfg_oven, realisasi_sfg_oven),
-// extruder_quality (tanggal, shift, bag_ok, bag_du, total_bag),
-// extruder_downtime (tanggal, mesin, shift, durasi, dt_description).
-function normalizeMesin(m) {
-    if (!m) return m;
-    // Perbaiki typo "Exturder" -> "Extruder" supaya tidak kehitung mesin terpisah.
-    return m.trim().replace(/^Exturder/i, 'Extruder');
-}
-
-function setExtruderKpi(id, pct) {
-    const el = document.getElementById(id);
-    el.textContent = pct.toFixed(1) + '%';
-    el.className = 'value ' + (pct >= 100 ? 'good' : 'low');
-}
-
-function extruderPctCell(pct) {
-    if (pct === null || pct === undefined) return '<td class="val-col empty">—</td>';
-    return `<td class="val-col ${pct >= 100 ? 'good' : 'low'}">${pct.toFixed(1)}%</td>`;
-}
-
-async function loadExtruder(sDate, eDate) {
-    const { data: dailyRows } = await db
-        .from('extruder_daily')
-        .select('*')
-        .gte('tanggal', sDate)
-        .lte('tanggal', eDate)
-        .limit(5000);
-
-    const titleDate  = document.getElementById('title-date-extruder');
-    const shiftBody  = document.getElementById('tbl-extruder-shift-body');
-    const mesinBox   = document.getElementById('extruder-downtime-mesin');
-    const alasanBody = document.getElementById('tbl-extruder-alasan-body');
-
-    if (!dailyRows || dailyRows.length === 0) {
-        titleDate.textContent = '— Tidak ada data';
-        ['adukan', 'sfg', 'quality', 'downtime'].forEach(k => {
-            const el = document.getElementById(`val-extruder-${k}`);
-            el.textContent = '—'; el.className = 'value';
-        });
-        shiftBody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#9ca3af; padding:20px;">Belum ada data</td></tr>';
-        mesinBox.innerHTML = '<div style="text-align:center; color:#9ca3af; padding:10px;">Belum ada data</div>';
-        alasanBody.innerHTML = '<tr><td colspan="2" style="text-align:center; color:#9ca3af; padding:20px;">Belum ada data</td></tr>';
-        return;
-    }
-
-    titleDate.textContent = '— ' + fmtRange(sDate, eDate);
-    const rowsForDate = dailyRows;
-
-    // Total Adukan & SFG Oven dalam rentang (jumlah semua shift & tanggal)
-    const totalTargetAdukan = rowsForDate.reduce((s, r) => s + (r.target_adukan || 0), 0);
-    const totalRealAdukan   = rowsForDate.reduce((s, r) => s + (r.realisasi_adukan || 0), 0);
-    const totalTargetSfg    = rowsForDate.reduce((s, r) => s + (r.target_sfg_oven || 0), 0);
-    const totalRealSfg      = rowsForDate.reduce((s, r) => s + (r.realisasi_sfg_oven || 0), 0);
-
-    setExtruderKpi('val-extruder-adukan', totalTargetAdukan ? (totalRealAdukan / totalTargetAdukan * 100) : 0);
-    setExtruderKpi('val-extruder-sfg',    totalTargetSfg ? (totalRealSfg / totalTargetSfg * 100) : 0);
-
-    // Quality
-    const { data: qRowsForDate } = await db
-        .from('extruder_quality')
-        .select('*')
-        .gte('tanggal', sDate)
-        .lte('tanggal', eDate)
-        .limit(5000);
-
-    const totalOk  = (qRowsForDate || []).reduce((s, r) => s + (r.bag_ok || 0), 0);
-    const totalBag = (qRowsForDate || []).reduce((s, r) => s + (r.total_bag || 0), 0);
-    const qualEl = document.getElementById('val-extruder-quality');
-    if (qRowsForDate && qRowsForDate.length > 0 && totalBag > 0) {
-        qualEl.textContent = (totalOk / totalBag * 100).toFixed(1) + '%';
-        qualEl.className = 'value';
-    } else {
-        qualEl.textContent = '—'; qualEl.className = 'value';
-    }
-
-    // Downtime
-    const { data: dtRowsForDate } = await db
-        .from('extruder_downtime')
-        .select('*')
-        .gte('tanggal', sDate)
-        .lte('tanggal', eDate)
-        .limit(5000);
-
-    const totalDowntime = (dtRowsForDate || []).reduce((s, r) => s + (r.durasi || 0), 0);
-    const dtEl = document.getElementById('val-extruder-downtime');
-    if (dtRowsForDate && dtRowsForDate.length > 0) {
-        dtEl.innerHTML = Math.round(totalDowntime) + '<span class="kpi-unit"> mnt</span>';
-        dtEl.className = 'value';
-    } else {
-        dtEl.textContent = '—'; dtEl.className = 'value';
-    }
-
-    // Tabel achievement per shift (Adukan / SFG Oven / Quality) — agregat dalam rentang
-    const shiftMap = {};
-    rowsForDate.forEach(r => {
-        shiftMap[r.shift] = shiftMap[r.shift] || { adukanT: 0, adukanR: 0, sfgT: 0, sfgR: 0 };
-        shiftMap[r.shift].adukanT += r.target_adukan || 0;
-        shiftMap[r.shift].adukanR += r.realisasi_adukan || 0;
-        shiftMap[r.shift].sfgT    += r.target_sfg_oven || 0;
-        shiftMap[r.shift].sfgR    += r.realisasi_sfg_oven || 0;
-    });
-    (qRowsForDate || []).forEach(r => {
-        shiftMap[r.shift] = shiftMap[r.shift] || {};
-        shiftMap[r.shift].qOk    = (shiftMap[r.shift].qOk || 0) + (r.bag_ok || 0);
-        shiftMap[r.shift].qTotal = (shiftMap[r.shift].qTotal || 0) + (r.total_bag || 0);
-    });
-
-    shiftBody.innerHTML = '';
-    [1, 2, 3].forEach(sh => {
-        const d = shiftMap[sh];
-        const adukanPct = d && d.adukanT ? (d.adukanR / d.adukanT * 100) : null;
-        const sfgPct    = d && d.sfgT    ? (d.sfgR / d.sfgT * 100) : null;
-        const qPct      = d && d.qTotal  ? (d.qOk / d.qTotal * 100) : null;
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td class="mesin-col">Shift ${sh}</td>
-            ${extruderPctCell(adukanPct)}
-            ${extruderPctCell(sfgPct)}
-            ${extruderPctCell(qPct)}
-        `;
-        shiftBody.appendChild(tr);
-    });
-
-    // Downtime per mesin (bar) — total dalam rentang
-    const perMesin = {};
-    (dtRowsForDate || []).forEach(r => {
-        const nama = normalizeMesin(r.mesin) || '(tidak diketahui)';
-        perMesin[nama] = (perMesin[nama] || 0) + (r.durasi || 0);
-    });
-    const mesinRows = Object.entries(perMesin).sort((a, b) => b[1] - a[1]);
-    const maxDur = mesinRows.length ? mesinRows[0][1] : 0;
-
-    if (mesinRows.length > 0) {
-        mesinBox.innerHTML = mesinRows.map(([nama, val]) => `
-            <div class="downtime-bar-row">
-                <div class="downtime-bar-label"><span>${nama}</span><span>${Math.round(val)} mnt</span></div>
-                <div class="downtime-bar-track"><div class="downtime-bar-fill" style="width:${maxDur ? (val / maxDur * 100) : 0}%"></div></div>
-            </div>
-        `).join('');
-    } else {
-        mesinBox.innerHTML = '<div style="text-align:center; color:#9ca3af; padding:10px;">Belum ada data downtime</div>';
-    }
-
-    // Top alasan downtime (5-6 alasan dengan durasi terbesar) — total dalam rentang
-    const perAlasan = {};
-    (dtRowsForDate || []).forEach(r => {
-        const nama = r.dt_description || '(tanpa keterangan)';
-        perAlasan[nama] = (perAlasan[nama] || 0) + (r.durasi || 0);
-    });
-    const alasanRows = Object.entries(perAlasan).sort((a, b) => b[1] - a[1]).slice(0, 6);
-
-    if (alasanRows.length > 0) {
-        alasanBody.innerHTML = alasanRows.map(([nama, val]) => `
-            <tr><td class="mesin-name">${nama}</td><td class="waste-val">${Math.round(val)} mnt</td></tr>
-        `).join('');
-    } else {
-        alasanBody.innerHTML = '<tr><td colspan="2" style="text-align:center; color:#9ca3af; padding:20px;">Belum ada data</td></tr>';
+    } catch (err) {
+        setStatus('default', 'Belum ada data. Import Excel untuk memulai.');
     }
 }
 
-function setShiftMini(id, val) {
-    const el = document.getElementById(id);
-    if (val === null || val === undefined) {
-        el.textContent = '—'; el.className = 'shift-mini-val empty'; return;
-    }
-    el.textContent = val.toFixed(2) + '%';
-    el.className = 'shift-mini-val ' + (val >= OEE_TARGET ? 'good' : 'low');
-}
+async function simpanKeSupabase() {
+    if (!parsedData) return;
+    const btn = document.getElementById('btn-save');
+    btn.disabled = true; btn.textContent = '⏳ Memperbarui...';
+    setStatus('loading', 'Memperbarui data (tanggal lain tetap tersimpan)...');
 
-function lineValCell(val, target) {
-    if (val === null || val === undefined) return '<td class="val-col empty">—</td>';
-    return `<td class="val-col ${val >= target ? 'good' : 'low'}">${val.toFixed(2)}%</td>`;
-}
-
-// ── Init: cari tanggal terakhir dari waste_shiftly, set date picker (satu hari), lalu load ──
-async function init() {
-    const { data: lastWaste } = await db
-        .from('waste_shiftly')
-        .select('tanggal')
-        .order('tanggal', { ascending: false })
-        .limit(1)
-        .single();
-
-    if (lastWaste) {
-        lastAvailableDate = lastWaste.tanggal;
-        startDate = lastAvailableDate;
-        endDate = lastAvailableDate;
-        document.getElementById('filter-date-start').value = lastAvailableDate;
-        document.getElementById('filter-date-end').value = lastAvailableDate;
-        document.getElementById('filter-info').textContent = '(data terbaru)';
+    const BATCH = 500;
+    async function insertBatched(table, rows) {
+        for (let i = 0; i < rows.length; i += BATCH) {
+            const chunk = rows.slice(i, i + BATCH);
+            const { error } = await db.from(table).insert(chunk);
+            if (error) throw error;
+        }
     }
 
-    loadData(startDate, endDate);
+    try {
+        const allShiftly = parsedData.all_shiftly || [];
+        const allDaily   = parsedData.all_daily   || [];
+        const allLine    = parsedData.all_line    || [];
+
+        // ── oee_shiftly: hapus & ganti HANYA utk tanggal yang ada di file ini ──
+        if (allShiftly.length > 0) {
+            const tanggalShiftly = [...new Set(allShiftly.map(r => r.tanggal))];
+            const { error: eDel1 } = await db.from('oee_shiftly').delete().in('tanggal', tanggalShiftly);
+            if (eDel1) throw eDel1;
+            await insertBatched('oee_shiftly', allShiftly);
+        }
+
+        // ── oee_shiftly_line: hapus & ganti HANYA utk tanggal yang ada di file ini ──
+        if (allLine.length > 0) {
+            const tanggalLine = [...new Set(allLine.map(r => r.tanggal))];
+            try {
+                const { error: eDel2 } = await db.from('oee_shiftly_line').delete().in('tanggal', tanggalLine);
+                if (eDel2) console.warn('Delete oee_shiftly_line gagal:', eDel2.message);
+                await insertBatched('oee_shiftly_line', allLine);
+            } catch (errLine) {
+                setStatus('error', '⚠️ Gagal simpan per-line: ' + errLine.message);
+                console.error('oee_shiftly_line gagal:', errLine);
+            }
+        }
+
+        // ── oee_daily: hapus & ganti HANYA utk tanggal yang ada di file ini ──
+        if (allDaily.length > 0) {
+            const tanggalDaily = [...new Set(allDaily.map(r => r.tanggal))];
+            const { error: eDel3 } = await db.from('oee_daily').delete().in('tanggal', tanggalDaily);
+            if (eDel3) throw eDel3;
+            await insertBatched('oee_daily', allDaily);
+        }
+
+        const jmlHariShiftly = new Set(allShiftly.map(r => r.tanggal)).size;
+        const jmlHariDaily   = new Set(allDaily.map(r => r.tanggal)).size;
+
+        setStatus('active',
+            `✅ Data berhasil diperbarui: ${jmlHariShiftly} hari shiftly & ${jmlHariDaily} hari daily. Data hari lain tetap tersimpan.`);
+        btn.textContent = '✅ Diperbarui';
+        document.getElementById('warning-badge').classList.remove('show');
+        loadFromSupabase();
+
+    } catch (err) {
+        setStatus('error', '❌ Gagal memperbarui: ' + err.message);
+        btn.disabled = false;
+        btn.textContent = '🔄 Perbarui Data Supabase';
+        console.error(err);
+    }
 }
 
-init();
+// Jalankan saat halaman pertama kali dibuka
+loadFromSupabase();
 </script>
 </body>
 </html>
