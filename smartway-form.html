@@ -296,6 +296,9 @@ async function simpanData() {
         tanggal, shift: parseInt(shift), mesin, gedung: GEDUNG_MAP[mesin] || null,
         operator, sku: document.getElementById('f-sku').value.trim() || null,
 
+        // Waktu submit dicatat otomatis saat tombol simpan ditekan (timestamp lengkap, UTC ISO)
+        waktu_submit: new Date().toISOString(),
+
         temp_hs1: numOrNull('f-temp_hs1'),
         temp_hs2: numOrNull('f-temp_hs2'),
         temp_vs: numOrNull('f-temp_vs'),
