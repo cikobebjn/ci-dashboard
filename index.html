@@ -46,6 +46,8 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
 .value.low  { color:#dc2626; }
 .card-date { font-size:11px; color:#9ca3af; margin-top:6px; }
 .card-sub  { font-size:11px; color:#6b7280; margin-top:4px; }
+.card-sub.mtd { font-size:15px; color:#374151; }
+.card-sub.mtd b { font-size:17px; color:#10b981; }
 .target-badge {
     font-size:10px; color:#6b7280; background:#f3f4f6;
     border-radius:4px; padding:2px 6px; margin-top:6px; display:inline-block;
@@ -77,6 +79,7 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
 .date-filter-bar input[type=date]:focus {
     outline:none; border-color:#6366f1; box-shadow:0 0 0 2px #e0e7ff;
 }
+.date-filter-bar .sep { color:#9ca3af; font-size:12px; }
 .btn-today {
     background:#f3f4f6; color:#374151; border:1px solid #d1d5db;
     padding:6px 12px; border-radius:7px; cursor:pointer; font-size:12px; font-weight:600;
@@ -186,17 +189,35 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
     .topbar h2 { font-size:16px; }
     .menu-btn { font-size:24px; margin-right:12px; }
 
-    /* Date filter bar becomes a tidy two-row block */
+    /* Date filter bar: clean 2-column grid — labels on top,
+       Dari/Sampai inputs side by side, button full-width below,
+       info line centered at the bottom. */
     .date-filter-bar {
-        padding:10px 12px; gap:8px; margin-bottom:14px;
-        border-radius:12px;
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        grid-template-areas:
+            "labeldari labelsampai"
+            "inputdari inputsampai"
+            "action action"
+            "info info";
+        row-gap:6px; column-gap:10px;
+        padding:14px 14px; margin-bottom:14px;
+        border-radius:14px;
+        align-items:center;
     }
-    .date-filter-bar label { flex-basis:100%; font-size:11px; }
+    .date-filter-bar .sep { display:none; }
+    .fb-label-dari   { grid-area:labeldari; font-size:11px; margin:0; }
+    .fb-label-sampai { grid-area:labelsampai; font-size:11px; margin:0; }
+    .fb-input-dari   { grid-area:inputdari; }
+    .fb-input-sampai { grid-area:inputsampai; }
     .date-filter-bar input[type=date] {
-        flex:1 1 auto; min-width:0; font-size:14px; padding:8px 10px;
+        width:100%; box-sizing:border-box; font-size:14px; padding:9px 10px;
     }
-    .btn-today { padding:8px 12px; font-size:12px; white-space:nowrap; }
-    .filter-info { flex-basis:100%; margin-left:0; }
+    .btn-today {
+        grid-area:action; width:100%; box-sizing:border-box;
+        padding:10px; font-size:13px; margin-top:2px;
+    }
+    .filter-info { grid-area:info; text-align:center; margin:2px 0 0; }
 
     .sec-title { font-size:12px; margin:22px 0 10px; }
 
@@ -293,10 +314,13 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
 
 <div class="main">
 
-    <!-- Date Filter Bar -->
+    <!-- Date Filter Bar (range: Dari - Sampai) -->
     <div class="date-filter-bar">
-        <label>📅 Pilih Tanggal</label>
-        <input type="date" id="filter-date" onchange="gantiTanggal(this.value)">
+        <label class="fb-label-dari">📅 Dari</label>
+        <input type="date" id="filter-date-start" class="fb-input-dari" onchange="gantiRentang()">
+        <span class="sep">—</span>
+        <label class="fb-label-sampai">Sampai</label>
+        <input type="date" id="filter-date-end" class="fb-input-sampai" onchange="gantiRentang()">
         <button class="btn-today" onclick="keTanggalTerakhir()">⟳ Terbaru</button>
         <span class="filter-info" id="filter-info"></span>
     </div>
@@ -305,7 +329,7 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
     <div class="kpi-grid" style="grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); margin-bottom:20px;">
 
         <div class="card oee-card">
-            <h3>Daily OEE</h3>
+            <h3>Daily OEE (rata-rata)</h3>
             <div class="value loading" id="val-oee">...</div>
             <div class="card-date" id="date-oee"></div>
             <span class="target-badge">Target: ≥ 55%</span>
@@ -316,6 +340,7 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
             <div class="value loading" id="val-tonase">...</div>
             <div class="card-date" id="date-tonase"></div>
             <div class="card-sub" id="sub-tonase"></div>
+            <div id="sub-tonase-mtd" class="card-sub mtd" style="margin-top:8px; padding-top:8px; border-top:1px dashed #e5e7eb;"></div>
         </div>
 
         <div class="card waste-mini-card kemasan">
@@ -350,7 +375,7 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
     </div>
 
     <!-- Shiftly OEE -->
-    <div class="sec-title">OEE Shiftly <span id="title-date-shiftly" style="color:#9ca3af; font-weight:400; text-transform:none;"></span></div>
+    <div class="sec-title">OEE Shiftly (rata-rata) <span id="title-date-shiftly" style="color:#9ca3af; font-weight:400; text-transform:none;"></span></div>
     <div class="card-wide">
         <div class="shift-grid">
             <div class="shift-mini">
@@ -369,7 +394,7 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
     </div>
 
     <!-- OEE per Mesin/Line -->
-    <div class="sec-title">OEE per Mesin / Line <span id="title-date-line" style="color:#9ca3af; font-weight:400; text-transform:none;"></span></div>
+    <div class="sec-title">OEE per Mesin / Line (rata-rata) <span id="title-date-line" style="color:#9ca3af; font-weight:400; text-transform:none;"></span></div>
     <div class="card-wide">
         <div class="tbl-scroll">
         <table class="line-table">
@@ -501,7 +526,8 @@ const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const OEE_TARGET = 55;
-let selectedDate = null; // tanggal yang dipilih (string YYYY-MM-DD)
+let startDate = null;       // awal rentang tanggal (YYYY-MM-DD)
+let endDate = null;         // akhir rentang tanggal (YYYY-MM-DD)
 let lastAvailableDate = null; // tanggal terakhir yang ada datanya
 
 // Item yang bernama seperti ini adalah PEMAKAIAN BAHAN, bukan waste,
@@ -534,50 +560,87 @@ function fmtDate(d) {
     } catch { return d; }
 }
 
+// Label rentang: "12 Jul 2026" kalau satu hari, "12 Jul - 18 Jul 2026" kalau rentang.
+function fmtRange(a, b) {
+    if (!a && !b) return '';
+    if (!b || a === b) return fmtDate(a);
+    return `${fmtDate(a)} — ${fmtDate(b)}`;
+}
+
+function daysBetween(a, b) {
+    if (!a || !b) return 1;
+    const d1 = new Date(a + 'T00:00:00');
+    const d2 = new Date(b + 'T00:00:00');
+    return Math.max(1, Math.round((d2 - d1) / 86400000) + 1);
+}
+
 function fmtRupiah(v) {
     if (v === null || v === undefined) return '—';
     return 'Rp ' + Math.round(v).toLocaleString('id-ID');
 }
 
-function gantiTanggal(tgl) {
-    selectedDate = tgl;
-    const isLast = tgl === lastAvailableDate;
-    document.getElementById('filter-info').textContent = isLast ? '(data terbaru)' : '';
-    loadData(tgl);
+// Dipanggil saat salah satu input tanggal (Dari / Sampai) berubah.
+function gantiRentang() {
+    let s = document.getElementById('filter-date-start').value;
+    let e = document.getElementById('filter-date-end').value;
+
+    if (!s && !e) return; // belum ada apa-apa dipilih
+    if (s && !e) e = s;
+    if (e && !s) s = e;
+    if (s > e) { const tmp = s; s = e; e = tmp; }
+
+    startDate = s; endDate = e;
+    document.getElementById('filter-date-start').value = s;
+    document.getElementById('filter-date-end').value = e;
+
+    const info = document.getElementById('filter-info');
+    if (s === e && s === lastAvailableDate) {
+        info.textContent = '(data terbaru)';
+    } else if (s === e) {
+        info.textContent = '';
+    } else {
+        info.textContent = `(rentang ${daysBetween(s, e)} hari)`;
+    }
+
+    loadData(startDate, endDate);
 }
 
-async function keTanggalTerakhir() {
+function keTanggalTerakhir() {
     if (lastAvailableDate) {
-        document.getElementById('filter-date').value = lastAvailableDate;
-        gantiTanggal(lastAvailableDate);
+        document.getElementById('filter-date-start').value = lastAvailableDate;
+        document.getElementById('filter-date-end').value = lastAvailableDate;
+        gantiRentang();
     }
 }
 
-async function loadData(targetDate) {
+async function loadData(sDate, eDate) {
 
-    // ── Daily OEE — cari tanggal sesuai pilihan atau terakhir ──
-    let oeeQuery = db.from('oee_daily').select('*').order('tanggal', { ascending: false }).limit(1);
-    if (targetDate) oeeQuery = db.from('oee_daily').select('*').eq('tanggal', targetDate).limit(1);
-
-    const { data: oeeRows } = await oeeQuery;
-    const oeeData = oeeRows && oeeRows.length > 0 ? oeeRows[0] : null;
+    // ── Daily OEE — rata-rata dalam rentang tanggal ──
+    const { data: oeeRows } = await db
+        .from('oee_daily')
+        .select('*')
+        .gte('tanggal', sDate)
+        .lte('tanggal', eDate)
+        .order('tanggal', { ascending: true });
 
     const oeeEl   = document.getElementById('val-oee');
     const oeeDate = document.getElementById('date-oee');
-    if (oeeData) {
-        const val = oeeData.oee;
-        oeeEl.textContent = val.toFixed(2) + '%';
-        oeeEl.className   = 'value ' + (val >= OEE_TARGET ? 'good' : 'low');
-        oeeDate.textContent = fmtDate(oeeData.tanggal);
+    if (oeeRows && oeeRows.length > 0) {
+        const avg = oeeRows.reduce((s, r) => s + (r.oee || 0), 0) / oeeRows.length;
+        oeeEl.textContent = avg.toFixed(2) + '%';
+        oeeEl.className   = 'value ' + (avg >= OEE_TARGET ? 'good' : 'low');
+        oeeDate.textContent = fmtRange(sDate, eDate);
     } else {
         oeeEl.textContent = '—'; oeeEl.className = 'value';
-        oeeDate.textContent = targetDate ? 'Tidak ada data' : '';
+        oeeDate.textContent = 'Tidak ada data';
     }
 
-    // ── Tonase — selalu total bulan dari data yang ada ──
+    // ── Tonase — total dalam rentang tanggal ──
     const { data: tonRows } = await db
         .from('tonase_harian')
         .select('*')
+        .gte('tanggal', sDate)
+        .lte('tanggal', eDate)
         .order('tanggal', { ascending: true });
 
     const tonEl   = document.getElementById('val-tonase');
@@ -585,64 +648,93 @@ async function loadData(targetDate) {
     const tonSub  = document.getElementById('sub-tonase');
 
     if (tonRows && tonRows.length > 0) {
-        // Filter s.d. tanggal yang dipilih
-        const filtered = targetDate ? tonRows.filter(r => r.tanggal <= targetDate) : tonRows;
-        const total = filtered.reduce((s, r) => s + (r.tonase || 0), 0);
-        const last  = filtered[filtered.length - 1];
-        const bulan = new Date(tonRows[0].tanggal + 'T00:00:00')
-            .toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+        const total = tonRows.reduce((s, r) => s + (r.tonase || 0), 0);
         tonEl.innerHTML = total.toFixed(2) + '<span class="kpi-unit"> ton</span>';
         tonEl.className = 'value';
-        tonDate.textContent = `s.d. ${fmtDate(last ? last.tanggal : tonRows[tonRows.length-1].tanggal)}`;
-        tonSub.textContent  = bulan;
+        tonDate.textContent = fmtRange(sDate, eDate);
+        tonSub.textContent  = sDate === eDate ? '' : `${tonRows.length} hari data`;
     } else {
         tonEl.textContent = '-'; tonEl.className = 'value';
+        tonDate.textContent = 'Tidak ada data'; tonSub.textContent = '';
     }
 
-    // ── OEE Shiftly ──
-    let shiftQuery = db.from('oee_shiftly').select('*').order('tanggal', { ascending: false }).limit(3);
-    if (targetDate) shiftQuery = db.from('oee_shiftly').select('*').eq('tanggal', targetDate);
+    // ── Tonase bulan berjalan: tgl 1 bulan ini s.d. tanggal data terakhir ──
+    // Ini SELALU dihitung berdasarkan tanggal terakhir yang ADA di tabel tonase_harian
+    // sendiri (bukan dari waste_shiftly), supaya tidak kepotong kalau input waste telat.
+    const tonMtdEl = document.getElementById('sub-tonase-mtd');
+    const { data: lastTonRow } = await db
+        .from('tonase_harian')
+        .select('tanggal')
+        .order('tanggal', { ascending: false })
+        .limit(1)
+        .single();
 
-    const { data: shiftRows } = await shiftQuery;
+    if (lastTonRow && lastTonRow.tanggal) {
+        const lastTonDate = lastTonRow.tanggal;
+        const [y, m] = lastTonDate.split('-');
+        const monthStart = `${y}-${m}-01`;
+        const { data: mtdRows } = await db
+            .from('tonase_harian')
+            .select('tonase')
+            .gte('tanggal', monthStart)
+            .lte('tanggal', lastTonDate);
+        const mtdTotal = (mtdRows || []).reduce((s, r) => s + (r.tonase || 0), 0);
+        tonMtdEl.innerHTML = `📅 Total 1 ${fmtDate(monthStart).split(' ').slice(1).join(' ')} s.d. ${fmtDate(lastTonDate)}<br><span style="font-size:22px; font-weight:700; color:#1f2937;">${mtdTotal.toFixed(2)}<span style="font-size:14px; font-weight:400; color:#6b7280;"> ton</span></span>`;
+    } else {
+        tonMtdEl.textContent = '';
+    }
+
+    // ── OEE Shiftly — rata-rata per shift dalam rentang ──
+    const { data: shiftRows } = await db
+        .from('oee_shiftly')
+        .select('*')
+        .gte('tanggal', sDate)
+        .lte('tanggal', eDate);
+
     if (shiftRows && shiftRows.length > 0) {
-        const tgl = shiftRows[0].tanggal;
-        const byShift = {};
-        shiftRows.forEach(r => { byShift[r.shift] = r.oee; });
-        setShiftMini('val-shift1', byShift['SHIFT 1']);
-        setShiftMini('val-shift2', byShift['SHIFT 2']);
-        setShiftMini('val-shift3', byShift['SHIFT 3']);
-        document.getElementById('title-date-shiftly').textContent = '— ' + fmtDate(tgl);
+        const bucket = { 'SHIFT 1': [], 'SHIFT 2': [], 'SHIFT 3': [] };
+        shiftRows.forEach(r => { if (bucket[r.shift]) bucket[r.shift].push(r.oee || 0); });
+        const avgOf = arr => arr.length ? arr.reduce((s, v) => s + v, 0) / arr.length : null;
+        setShiftMini('val-shift1', avgOf(bucket['SHIFT 1']));
+        setShiftMini('val-shift2', avgOf(bucket['SHIFT 2']));
+        setShiftMini('val-shift3', avgOf(bucket['SHIFT 3']));
+        document.getElementById('title-date-shiftly').textContent = '— ' + fmtRange(sDate, eDate);
     } else {
         ['val-shift1','val-shift2','val-shift3'].forEach(id => setShiftMini(id, null));
-        document.getElementById('title-date-shiftly').textContent = targetDate ? '— Tidak ada data' : '';
+        document.getElementById('title-date-shiftly').textContent = '— Tidak ada data';
     }
 
-    // ── OEE per Line ──
+    // ── OEE per Line — rata-rata per mesin/shift dalam rentang ──
     try {
-        let lineQuery = db.from('oee_shiftly_line').select('*').order('tanggal', { ascending: false }).limit(100);
-        if (targetDate) lineQuery = db.from('oee_shiftly_line').select('*').eq('tanggal', targetDate);
+        const { data: lineRows } = await db
+            .from('oee_shiftly_line')
+            .select('*')
+            .gte('tanggal', sDate)
+            .lte('tanggal', eDate)
+            .limit(5000);
 
-        const { data: lineRows } = await lineQuery;
         const tbody = document.getElementById('tbl-line-body');
 
         if (lineRows && lineRows.length > 0) {
-            const useDate = lineRows[0].tanggal;
-            document.getElementById('title-date-line').textContent = '— ' + fmtDate(useDate);
+            document.getElementById('title-date-line').textContent = '— ' + fmtRange(sDate, eDate);
             const mesinMap = {};
-            lineRows.filter(r => r.tanggal === useDate).forEach(r => {
-                if (!mesinMap[r.mesin]) mesinMap[r.mesin] = { mesin: r.mesin, target: r.target, shift1: null, shift2: null, shift3: null };
-                mesinMap[r.mesin][`shift${r.shift}`] = r.oee;
+            lineRows.forEach(r => {
+                if (!mesinMap[r.mesin]) mesinMap[r.mesin] = { mesin: r.mesin, target: r.target, shift1: [], shift2: [], shift3: [] };
+                mesinMap[r.mesin][`shift${r.shift}`].push(r.oee);
+                mesinMap[r.mesin].target = r.target;
             });
+            const avgOf = arr => arr.length ? arr.reduce((s, v) => s + (v || 0), 0) / arr.length : null;
             tbody.innerHTML = '';
             Object.values(mesinMap).forEach(m => {
-                const vals = [m.shift1, m.shift2, m.shift3].filter(v => v !== null && v !== undefined);
+                const s1 = avgOf(m.shift1), s2 = avgOf(m.shift2), s3 = avgOf(m.shift3);
+                const vals = [s1, s2, s3].filter(v => v !== null && v !== undefined);
                 const adaYangOver = vals.some(v => v < m.target);
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td class="mesin-col" style="${adaYangOver ? 'color:#dc2626;' : 'color:#374151;'}">${m.mesin}</td>
-                    ${lineValCell(m.shift1, m.target)}
-                    ${lineValCell(m.shift2, m.target)}
-                    ${lineValCell(m.shift3, m.target)}
+                    ${lineValCell(s1, m.target)}
+                    ${lineValCell(s2, m.target)}
+                    ${lineValCell(s3, m.target)}
                     <td style="text-align:center; color:#6b7280; font-size:11px;">${m.target}%</td>
                 `;
                 tbody.appendChild(tr);
@@ -655,42 +747,41 @@ async function loadData(targetDate) {
             '<tr><td colspan="5" style="text-align:center; color:#9ca3af; padding:20px;">Belum ada data per line</td></tr>';
     }
 
-    // ── Waste ──
-    let wasteQuery = db.from('waste_shiftly').select('*').order('tanggal', { ascending: false }).limit(200);
-    if (targetDate) wasteQuery = db.from('waste_shiftly').select('*').eq('tanggal', targetDate);
-
-    const { data: wasteRows } = await wasteQuery;
+    // ── Waste — jumlah dalam rentang tanggal ──
+    const { data: wasteRows } = await db
+        .from('waste_shiftly')
+        .select('*')
+        .gte('tanggal', sDate)
+        .lte('tanggal', eDate)
+        .limit(5000);
     const { data: batasRows } = await db.from('waste_batas').select('*');
 
     if (wasteRows && wasteRows.length > 0) {
-        const useDate = targetDate || wasteRows[0].tanggal;
-        document.getElementById('title-date-waste').textContent = '— ' + fmtDate(useDate);
-        document.getElementById('title-date-waste').closest('.sec-title').querySelector('span') &&
-            (document.getElementById('title-date-waste').textContent = '— ' + fmtDate(wasteRows[0].tanggal));
+        document.getElementById('title-date-waste').textContent = '— ' + fmtRange(sDate, eDate);
 
-        const todayRows = targetDate ? wasteRows : wasteRows.filter(r => r.tanggal === wasteRows[0].tanggal);
         const perMesin = {};
-        todayRows.forEach(r => {
+        wasteRows.forEach(r => {
             if (!perMesin[r.mesin_id]) perMesin[r.mesin_id] = { nama: r.mesin_nama, kemasan: 0, sfg: 0, karton: 0 };
             perMesin[r.mesin_id].kemasan += r.waste_kemasan || 0;
             perMesin[r.mesin_id].sfg     += r.waste_sfg || 0;
             perMesin[r.mesin_id].karton  += r.waste_karton || 0;
         });
 
+        const nHari = daysBetween(sDate, eDate);
         const batasMap = {};
         (batasRows || []).forEach(b => {
             batasMap[b.mesin_id] = {
-                kemasan: (b.batas_kemasan || 0) * 3,
-                sfg:     (b.batas_sfg || 0) * 3,
-                karton:  (b.batas_karton || 0) * 3,
+                kemasan: (b.batas_kemasan || 0) * 3 * nHari,
+                sfg:     (b.batas_sfg || 0) * 3 * nHari,
+                karton:  (b.batas_karton || 0) * 3 * nHari,
             };
         });
-        // Pastikan SEMUA mesin yang dikenal (bukan cuma yang melapor waste hari ini) punya target,
-        // supaya total batas harian tidak berkurang saat ada mesin yang waste-nya 0 / tidak reporting.
+        // Pastikan SEMUA mesin yang dikenal (bukan cuma yang melapor waste di rentang ini) punya target,
+        // supaya total batas tidak berkurang saat ada mesin yang waste-nya 0 / tidak reporting.
         Object.keys(MESIN_BATAS_DEFAULT).forEach(mid => {
             if (!batasMap[mid] || (batasMap[mid].kemasan === 0 && batasMap[mid].sfg === 0 && batasMap[mid].karton === 0)) {
                 const def = MESIN_BATAS_DEFAULT[mid];
-                batasMap[mid] = { kemasan: def.kemasan * 3, sfg: def.sfg * 3, karton: def.karton * 3 };
+                batasMap[mid] = { kemasan: def.kemasan * 3 * nHari, sfg: def.sfg * 3 * nHari, karton: def.karton * 3 * nHari };
             }
         });
 
@@ -698,6 +789,7 @@ async function loadData(targetDate) {
         renderWasteDetail('sfg',     perMesin, batasMap, 'Kg');
         renderWasteDetail('karton',  perMesin, batasMap, 'Pcs');
     } else {
+        document.getElementById('title-date-waste').textContent = '— Tidak ada data';
         ['kemasan','sfg','karton'].forEach(k => {
             const el = document.getElementById(`wd-total-${k}`);
             el.textContent = '—'; el.className = 'value';
@@ -707,16 +799,16 @@ async function loadData(targetDate) {
     }
 
     // ── Waste Fryer ──
-    await loadWasteFryer(targetDate);
+    await loadWasteFryer(sDate, eDate);
 
     // ── Waste Proses ──
-    await loadWasteProses(targetDate);
+    await loadWasteProses(sDate, eDate);
 
     // ── Cost Material per Week ──
     await loadCostMaterial();
 
     // ── Extruder ──
-    await loadExtruder(targetDate);
+    await loadExtruder(sDate, eDate);
 }
 
 function renderWasteDetail(kategori, perMesin, batasMap, unit) {
@@ -729,14 +821,11 @@ function renderWasteDetail(kategori, perMesin, batasMap, unit) {
         .sort((a, b) => b.val - a.val);
 
     const grandTotal = rows.reduce((s, r) => s + r.val, 0);
-    // Batas total harus dari SEMUA mesin yang punya target terdaftar (batasMap),
-    // bukan cuma mesin yang kebetulan melapor waste hari itu — mesin dgn waste 0
-    // tetap harus dihitung targetnya (0 waste = bagus, bukan berarti target-nya hilang).
     const grandBatas = Object.values(batasMap).reduce((s, b) => s + (b[kategori] || 0), 0);
 
     totalEl.innerHTML = grandTotal.toFixed(2) + `<span class="kpi-unit"> ${unit}</span>`;
     totalEl.className = 'value ' + (grandTotal > grandBatas ? 'low' : 'good');
-    batasEl.textContent = `Batas: ${grandBatas.toFixed(2)} ${unit}/hari`;
+    batasEl.textContent = `Batas: ${grandBatas.toFixed(2)} ${unit}`;
 
     tbody.innerHTML = '';
     rows.forEach(r => {
@@ -751,28 +840,28 @@ function renderWasteDetail(kategori, perMesin, batasMap, unit) {
     });
 }
 
-async function loadWasteFryer(targetDate) {
-    let q = db.from('waste_fryer_shiftly').select('*').order('tanggal', { ascending: false }).limit(300);
-    if (targetDate) q = db.from('waste_fryer_shiftly').select('*').eq('tanggal', targetDate);
+async function loadWasteFryer(sDate, eDate) {
+    const { data: fryerRows } = await db
+        .from('waste_fryer_shiftly')
+        .select('*')
+        .gte('tanggal', sDate)
+        .lte('tanggal', eDate)
+        .limit(5000);
 
-    const { data: fryerRows } = await q;
     const container  = document.getElementById('fryer-cards-container');
     const titleDate  = document.getElementById('title-date-fryer');
 
     if (!fryerRows || fryerRows.length === 0) {
         container.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#9ca3af; padding:20px;">Belum ada data waste fryer</div>';
-        titleDate.textContent = targetDate ? '— Tidak ada data' : '';
+        titleDate.textContent = '— Tidak ada data';
         return;
     }
 
-    const useDate = targetDate || fryerRows[0].tanggal;
-    titleDate.textContent = '— ' + fmtDate(useDate);
+    titleDate.textContent = '— ' + fmtRange(sDate, eDate);
 
-    const rowsForDate = targetDate ? fryerRows : fryerRows.filter(r => r.tanggal === fryerRows[0].tanggal);
-
-    // Group per fryer_id, jumlahkan tiap item lintas shift
+    // Group per fryer_id, jumlahkan tiap item lintas shift & tanggal dalam rentang
     const byFryer = {};
-    rowsForDate.forEach(r => {
+    fryerRows.forEach(r => {
         if (!byFryer[r.fryer_id]) byFryer[r.fryer_id] = { nama: r.fryer_nama, items: {} };
         byFryer[r.fryer_id].items[r.item_nama] = (byFryer[r.fryer_id].items[r.item_nama] || 0) + (r.nilai || 0);
     });
@@ -798,28 +887,28 @@ async function loadWasteFryer(targetDate) {
     });
 }
 
-async function loadWasteProses(targetDate) {
-    let q = db.from('waste_proses_shiftly').select('*').order('tanggal', { ascending: false }).limit(300);
-    if (targetDate) q = db.from('waste_proses_shiftly').select('*').eq('tanggal', targetDate);
+async function loadWasteProses(sDate, eDate) {
+    const { data: prosesRows } = await db
+        .from('waste_proses_shiftly')
+        .select('*')
+        .gte('tanggal', sDate)
+        .lte('tanggal', eDate)
+        .limit(5000);
 
-    const { data: prosesRows } = await q;
     const container = document.getElementById('proses-cards-container');
     const titleDate = document.getElementById('title-date-proses');
 
     if (!prosesRows || prosesRows.length === 0) {
         container.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#9ca3af; padding:20px;">Belum ada data waste proses</div>';
-        titleDate.textContent = targetDate ? '— Tidak ada data' : '';
+        titleDate.textContent = '— Tidak ada data';
         return;
     }
 
-    const useDate = targetDate || prosesRows[0].tanggal;
-    titleDate.textContent = '— ' + fmtDate(useDate);
+    titleDate.textContent = '— ' + fmtRange(sDate, eDate);
 
-    const rowsForDate = targetDate ? prosesRows : prosesRows.filter(r => r.tanggal === prosesRows[0].tanggal);
-
-    // Group per proses_id, jumlahkan tiap item lintas shift
+    // Group per proses_id, jumlahkan tiap item lintas shift & tanggal dalam rentang
     const byProses = {};
-    rowsForDate.forEach(r => {
+    prosesRows.forEach(r => {
         if (!byProses[r.proses_id]) byProses[r.proses_id] = { nama: r.proses_nama, items: {} };
         byProses[r.proses_id].items[r.item_nama] = (byProses[r.proses_id].items[r.item_nama] || 0) + (r.nilai || 0);
     });
@@ -855,6 +944,7 @@ async function loadWasteProses(targetDate) {
 
 // ── Cost Material per Week (Simulasi Ratio COGM) ──
 // Ratio (Rp/ton) dihitung di sisi klien: value / tonase, sesuai rumus di file Excel-nya.
+// Tabel ini per-minggu dan tidak terikat pada filter tanggal harian.
 async function loadCostMaterial() {
     const { data: rows } = await db
         .from('cost_material_weekly')
@@ -949,10 +1039,13 @@ function extruderPctCell(pct) {
     return `<td class="val-col ${pct >= 100 ? 'good' : 'low'}">${pct.toFixed(1)}%</td>`;
 }
 
-async function loadExtruder(targetDate) {
-    let dailyQuery = db.from('extruder_daily').select('*').order('tanggal', { ascending: false }).limit(20);
-    if (targetDate) dailyQuery = db.from('extruder_daily').select('*').eq('tanggal', targetDate);
-    const { data: dailyRows } = await dailyQuery;
+async function loadExtruder(sDate, eDate) {
+    const { data: dailyRows } = await db
+        .from('extruder_daily')
+        .select('*')
+        .gte('tanggal', sDate)
+        .lte('tanggal', eDate)
+        .limit(5000);
 
     const titleDate  = document.getElementById('title-date-extruder');
     const shiftBody  = document.getElementById('tbl-extruder-shift-body');
@@ -960,7 +1053,7 @@ async function loadExtruder(targetDate) {
     const alasanBody = document.getElementById('tbl-extruder-alasan-body');
 
     if (!dailyRows || dailyRows.length === 0) {
-        titleDate.textContent = targetDate ? '— Tidak ada data' : '';
+        titleDate.textContent = '— Tidak ada data';
         ['adukan', 'sfg', 'quality', 'downtime'].forEach(k => {
             const el = document.getElementById(`val-extruder-${k}`);
             el.textContent = '—'; el.className = 'value';
@@ -971,11 +1064,10 @@ async function loadExtruder(targetDate) {
         return;
     }
 
-    const useDate = targetDate || dailyRows[0].tanggal;
-    titleDate.textContent = '— ' + fmtDate(useDate);
-    const rowsForDate = targetDate ? dailyRows : dailyRows.filter(r => r.tanggal === useDate);
+    titleDate.textContent = '— ' + fmtRange(sDate, eDate);
+    const rowsForDate = dailyRows;
 
-    // Total Adukan & SFG Oven hari itu (jumlah semua shift)
+    // Total Adukan & SFG Oven dalam rentang (jumlah semua shift & tanggal)
     const totalTargetAdukan = rowsForDate.reduce((s, r) => s + (r.target_adukan || 0), 0);
     const totalRealAdukan   = rowsForDate.reduce((s, r) => s + (r.realisasi_adukan || 0), 0);
     const totalTargetSfg    = rowsForDate.reduce((s, r) => s + (r.target_sfg_oven || 0), 0);
@@ -985,15 +1077,17 @@ async function loadExtruder(targetDate) {
     setExtruderKpi('val-extruder-sfg',    totalTargetSfg ? (totalRealSfg / totalTargetSfg * 100) : 0);
 
     // Quality
-    let qQuery = db.from('extruder_quality').select('*').order('tanggal', { ascending: false }).limit(20);
-    if (targetDate) qQuery = db.from('extruder_quality').select('*').eq('tanggal', targetDate);
-    const { data: qRowsRaw } = await qQuery;
-    const qRowsForDate = qRowsRaw ? (targetDate ? qRowsRaw : qRowsRaw.filter(r => r.tanggal === useDate)) : [];
+    const { data: qRowsForDate } = await db
+        .from('extruder_quality')
+        .select('*')
+        .gte('tanggal', sDate)
+        .lte('tanggal', eDate)
+        .limit(5000);
 
-    const totalOk  = qRowsForDate.reduce((s, r) => s + (r.bag_ok || 0), 0);
-    const totalBag = qRowsForDate.reduce((s, r) => s + (r.total_bag || 0), 0);
+    const totalOk  = (qRowsForDate || []).reduce((s, r) => s + (r.bag_ok || 0), 0);
+    const totalBag = (qRowsForDate || []).reduce((s, r) => s + (r.total_bag || 0), 0);
     const qualEl = document.getElementById('val-extruder-quality');
-    if (qRowsForDate.length > 0 && totalBag > 0) {
+    if (qRowsForDate && qRowsForDate.length > 0 && totalBag > 0) {
         qualEl.textContent = (totalOk / totalBag * 100).toFixed(1) + '%';
         qualEl.className = 'value';
     } else {
@@ -1001,21 +1095,23 @@ async function loadExtruder(targetDate) {
     }
 
     // Downtime
-    let dtQuery = db.from('extruder_downtime').select('*').order('tanggal', { ascending: false }).limit(300);
-    if (targetDate) dtQuery = db.from('extruder_downtime').select('*').eq('tanggal', targetDate);
-    const { data: dtRowsRaw } = await dtQuery;
-    const dtRowsForDate = dtRowsRaw ? (targetDate ? dtRowsRaw : dtRowsRaw.filter(r => r.tanggal === useDate)) : [];
+    const { data: dtRowsForDate } = await db
+        .from('extruder_downtime')
+        .select('*')
+        .gte('tanggal', sDate)
+        .lte('tanggal', eDate)
+        .limit(5000);
 
-    const totalDowntime = dtRowsForDate.reduce((s, r) => s + (r.durasi || 0), 0);
+    const totalDowntime = (dtRowsForDate || []).reduce((s, r) => s + (r.durasi || 0), 0);
     const dtEl = document.getElementById('val-extruder-downtime');
-    if (dtRowsRaw && dtRowsRaw.length > 0) {
+    if (dtRowsForDate && dtRowsForDate.length > 0) {
         dtEl.innerHTML = Math.round(totalDowntime) + '<span class="kpi-unit"> mnt</span>';
         dtEl.className = 'value';
     } else {
         dtEl.textContent = '—'; dtEl.className = 'value';
     }
 
-    // Tabel achievement per shift (Adukan / SFG Oven / Quality)
+    // Tabel achievement per shift (Adukan / SFG Oven / Quality) — agregat dalam rentang
     const shiftMap = {};
     rowsForDate.forEach(r => {
         shiftMap[r.shift] = shiftMap[r.shift] || { adukanT: 0, adukanR: 0, sfgT: 0, sfgR: 0 };
@@ -1024,7 +1120,7 @@ async function loadExtruder(targetDate) {
         shiftMap[r.shift].sfgT    += r.target_sfg_oven || 0;
         shiftMap[r.shift].sfgR    += r.realisasi_sfg_oven || 0;
     });
-    qRowsForDate.forEach(r => {
+    (qRowsForDate || []).forEach(r => {
         shiftMap[r.shift] = shiftMap[r.shift] || {};
         shiftMap[r.shift].qOk    = (shiftMap[r.shift].qOk || 0) + (r.bag_ok || 0);
         shiftMap[r.shift].qTotal = (shiftMap[r.shift].qTotal || 0) + (r.total_bag || 0);
@@ -1046,9 +1142,9 @@ async function loadExtruder(targetDate) {
         shiftBody.appendChild(tr);
     });
 
-    // Downtime per mesin (bar)
+    // Downtime per mesin (bar) — total dalam rentang
     const perMesin = {};
-    dtRowsForDate.forEach(r => {
+    (dtRowsForDate || []).forEach(r => {
         const nama = normalizeMesin(r.mesin) || '(tidak diketahui)';
         perMesin[nama] = (perMesin[nama] || 0) + (r.durasi || 0);
     });
@@ -1066,9 +1162,9 @@ async function loadExtruder(targetDate) {
         mesinBox.innerHTML = '<div style="text-align:center; color:#9ca3af; padding:10px;">Belum ada data downtime</div>';
     }
 
-    // Top alasan downtime (5-6 alasan dengan durasi terbesar)
+    // Top alasan downtime (5-6 alasan dengan durasi terbesar) — total dalam rentang
     const perAlasan = {};
-    dtRowsForDate.forEach(r => {
+    (dtRowsForDate || []).forEach(r => {
         const nama = r.dt_description || '(tanpa keterangan)';
         perAlasan[nama] = (perAlasan[nama] || 0) + (r.durasi || 0);
     });
@@ -1097,9 +1193,8 @@ function lineValCell(val, target) {
     return `<td class="val-col ${val >= target ? 'good' : 'low'}">${val.toFixed(2)}%</td>`;
 }
 
-// ── Init: cari tanggal terakhir dari waste_shiftly, set date picker, lalu load ──
+// ── Init: cari tanggal terakhir dari waste_shiftly, set date picker (satu hari), lalu load ──
 async function init() {
-    // Ambil tanggal terakhir yang ada data waste (sebagai acuan)
     const { data: lastWaste } = await db
         .from('waste_shiftly')
         .select('tanggal')
@@ -1109,12 +1204,14 @@ async function init() {
 
     if (lastWaste) {
         lastAvailableDate = lastWaste.tanggal;
-        selectedDate = lastAvailableDate;
-        document.getElementById('filter-date').value = lastAvailableDate;
+        startDate = lastAvailableDate;
+        endDate = lastAvailableDate;
+        document.getElementById('filter-date-start').value = lastAvailableDate;
+        document.getElementById('filter-date-end').value = lastAvailableDate;
         document.getElementById('filter-info').textContent = '(data terbaru)';
     }
 
-    loadData(selectedDate);
+    loadData(startDate, endDate);
 }
 
 init();
