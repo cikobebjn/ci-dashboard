@@ -85,6 +85,13 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
     padding:6px 12px; border-radius:7px; cursor:pointer; font-size:12px; font-weight:600;
 }
 .btn-today:hover { background:#e5e7eb; }
+.btn-export {
+    background:#0d9488; color:white; border:1px solid #0d9488;
+    padding:6px 14px; border-radius:7px; cursor:pointer; font-size:12px; font-weight:600;
+    display:inline-flex; align-items:center; gap:6px;
+}
+.btn-export:hover { background:#0f766e; }
+.btn-export:disabled { background:#9ca3af; border-color:#9ca3af; cursor:not-allowed; }
 .filter-info {
     font-size:11px; color:#9ca3af; margin-left:4px;
 }
@@ -190,7 +197,7 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
     .menu-btn { font-size:24px; margin-right:12px; }
 
     /* Date filter bar: clean 2-column grid — labels on top,
-       Dari/Sampai inputs side by side, button full-width below,
+       Dari/Sampai inputs side by side, buttons full-width below,
        info line centered at the bottom. */
     .date-filter-bar {
         display:grid;
@@ -199,6 +206,7 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
             "labeldari labelsampai"
             "inputdari inputsampai"
             "action action"
+            "export export"
             "info info";
         row-gap:6px; column-gap:10px;
         padding:14px 14px; margin-bottom:14px;
@@ -216,6 +224,10 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
     .btn-today {
         grid-area:action; width:100%; box-sizing:border-box;
         padding:10px; font-size:13px; margin-top:2px;
+    }
+    .btn-export {
+        grid-area:export; width:100%; box-sizing:border-box;
+        padding:10px; font-size:13px; justify-content:center;
     }
     .filter-info { grid-area:info; text-align:center; margin:2px 0 0; }
 
@@ -314,7 +326,7 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
 
 <div class="main">
 
-    <!-- Date Filter Bar (range: Dari - Sampai) -->
+    <!-- Date Filter Bar (range: Dari - Sampai) + Export -->
     <div class="date-filter-bar">
         <label class="fb-label-dari">📅 Dari</label>
         <input type="date" id="filter-date-start" class="fb-input-dari" onchange="gantiRentang()">
@@ -322,6 +334,7 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
         <label class="fb-label-sampai">Sampai</label>
         <input type="date" id="filter-date-end" class="fb-input-sampai" onchange="gantiRentang()">
         <button class="btn-today" onclick="keTanggalTerakhir()">⟳ Terbaru</button>
+        <button class="btn-export" id="btn-export" onclick="exportExcel()">⬇️ Export Excel</button>
         <span class="filter-info" id="filter-info"></span>
     </div>
 
@@ -519,6 +532,7 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 const SUPABASE_URL = 'https://bmnhtxalfsfaefacgtpm.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_VItBKenz-q2sYz7MsibODA_nYtLXv9Q';
@@ -529,6 +543,22 @@ const OEE_TARGET = 55;
 let startDate = null;       // awal rentang tanggal (YYYY-MM-DD)
 let endDate = null;         // akhir rentang tanggal (YYYY-MM-DD)
 let lastAvailableDate = null; // tanggal terakhir yang ada datanya
+
+// Menyimpan data mentah hasil query terakhir, dipakai oleh tombol Export Excel.
+// Satu key = satu kategori = nantinya jadi satu sheet.
+let lastLoadedData = {
+    oeeDaily: [],
+    tonase: [],
+    oeeShiftly: [],
+    oeeLine: [],
+    wasteShiftly: [],
+    wasteFryer: [],
+    wasteProses: [],
+    costMaterial: [],
+    extruderDaily: [],
+    extruderQuality: [],
+    extruderDowntime: [],
+};
 
 // Item yang bernama seperti ini adalah PEMAKAIAN BAHAN, bukan waste,
 // jadi tidak boleh ikut dijumlah ke total waste kartu proses.
@@ -623,6 +653,8 @@ async function loadData(sDate, eDate) {
         .lte('tanggal', eDate)
         .order('tanggal', { ascending: true });
 
+    lastLoadedData.oeeDaily = oeeRows || [];
+
     const oeeEl   = document.getElementById('val-oee');
     const oeeDate = document.getElementById('date-oee');
     if (oeeRows && oeeRows.length > 0) {
@@ -643,6 +675,8 @@ async function loadData(sDate, eDate) {
         .lte('tanggal', eDate)
         .order('tanggal', { ascending: true });
 
+    lastLoadedData.tonase = tonRows || [];
+
     const tonEl   = document.getElementById('val-tonase');
     const tonDate = document.getElementById('date-tonase');
     const tonSub  = document.getElementById('sub-tonase');
@@ -659,8 +693,6 @@ async function loadData(sDate, eDate) {
     }
 
     // ── Tonase bulan berjalan: tgl 1 bulan ini s.d. tanggal data terakhir ──
-    // Ini SELALU dihitung berdasarkan tanggal terakhir yang ADA di tabel tonase_harian
-    // sendiri (bukan dari waste_shiftly), supaya tidak kepotong kalau input waste telat.
     const tonMtdEl = document.getElementById('sub-tonase-mtd');
     const { data: lastTonRow } = await db
         .from('tonase_harian')
@@ -691,6 +723,8 @@ async function loadData(sDate, eDate) {
         .gte('tanggal', sDate)
         .lte('tanggal', eDate);
 
+    lastLoadedData.oeeShiftly = shiftRows || [];
+
     if (shiftRows && shiftRows.length > 0) {
         const bucket = { 'SHIFT 1': [], 'SHIFT 2': [], 'SHIFT 3': [] };
         shiftRows.forEach(r => { if (bucket[r.shift]) bucket[r.shift].push(r.oee || 0); });
@@ -712,6 +746,8 @@ async function loadData(sDate, eDate) {
             .gte('tanggal', sDate)
             .lte('tanggal', eDate)
             .limit(5000);
+
+        lastLoadedData.oeeLine = lineRows || [];
 
         const tbody = document.getElementById('tbl-line-body');
 
@@ -755,6 +791,8 @@ async function loadData(sDate, eDate) {
         .lte('tanggal', eDate)
         .limit(5000);
     const { data: batasRows } = await db.from('waste_batas').select('*');
+
+    lastLoadedData.wasteShiftly = wasteRows || [];
 
     if (wasteRows && wasteRows.length > 0) {
         document.getElementById('title-date-waste').textContent = '— ' + fmtRange(sDate, eDate);
@@ -848,6 +886,8 @@ async function loadWasteFryer(sDate, eDate) {
         .lte('tanggal', eDate)
         .limit(5000);
 
+    lastLoadedData.wasteFryer = fryerRows || [];
+
     const container  = document.getElementById('fryer-cards-container');
     const titleDate  = document.getElementById('title-date-fryer');
 
@@ -894,6 +934,8 @@ async function loadWasteProses(sDate, eDate) {
         .gte('tanggal', sDate)
         .lte('tanggal', eDate)
         .limit(5000);
+
+    lastLoadedData.wasteProses = prosesRows || [];
 
     const container = document.getElementById('proses-cards-container');
     const titleDate = document.getElementById('title-date-proses');
@@ -952,6 +994,8 @@ async function loadCostMaterial() {
         .order('tahun', { ascending: false })
         .order('minggu_ke', { ascending: false })
         .limit(8);
+
+    lastLoadedData.costMaterial = rows || [];
 
     const tbody       = document.getElementById('tbl-cost-body');
     const titleWeek    = document.getElementById('title-cost-week');
@@ -1047,6 +1091,8 @@ async function loadExtruder(sDate, eDate) {
         .lte('tanggal', eDate)
         .limit(5000);
 
+    lastLoadedData.extruderDaily = dailyRows || [];
+
     const titleDate  = document.getElementById('title-date-extruder');
     const shiftBody  = document.getElementById('tbl-extruder-shift-body');
     const mesinBox   = document.getElementById('extruder-downtime-mesin');
@@ -1084,6 +1130,8 @@ async function loadExtruder(sDate, eDate) {
         .lte('tanggal', eDate)
         .limit(5000);
 
+    lastLoadedData.extruderQuality = qRowsForDate || [];
+
     const totalOk  = (qRowsForDate || []).reduce((s, r) => s + (r.bag_ok || 0), 0);
     const totalBag = (qRowsForDate || []).reduce((s, r) => s + (r.total_bag || 0), 0);
     const qualEl = document.getElementById('val-extruder-quality');
@@ -1101,6 +1149,8 @@ async function loadExtruder(sDate, eDate) {
         .gte('tanggal', sDate)
         .lte('tanggal', eDate)
         .limit(5000);
+
+    lastLoadedData.extruderDowntime = dtRowsForDate || [];
 
     const totalDowntime = (dtRowsForDate || []).reduce((s, r) => s + (r.durasi || 0), 0);
     const dtEl = document.getElementById('val-extruder-downtime');
@@ -1191,6 +1241,55 @@ function setShiftMini(id, val) {
 function lineValCell(val, target) {
     if (val === null || val === undefined) return '<td class="val-col empty">—</td>';
     return `<td class="val-col ${val >= target ? 'good' : 'low'}">${val.toFixed(2)}%</td>`;
+}
+
+// ── Export Excel: setiap kategori jadi satu sheet, sesuai rentang tanggal aktif ──
+function exportExcel() {
+    const btn = document.getElementById('btn-export');
+    const originalLabel = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '⏳ Menyiapkan...';
+
+    try {
+        const wb = XLSX.utils.book_new();
+        let sheetCount = 0;
+
+        function tambahSheet(namaSheet, rows) {
+            if (!rows || rows.length === 0) return;
+            const ws = XLSX.utils.json_to_sheet(rows);
+            // Batasi nama sheet maksimal 31 karakter (limit Excel)
+            const safeName = namaSheet.substring(0, 31);
+            XLSX.utils.book_append_sheet(wb, ws, safeName);
+            sheetCount++;
+        }
+
+        tambahSheet('OEE Harian', lastLoadedData.oeeDaily);
+        tambahSheet('OEE Shiftly', lastLoadedData.oeeShiftly);
+        tambahSheet('OEE per Line', lastLoadedData.oeeLine);
+        tambahSheet('Tonase', lastLoadedData.tonase);
+        tambahSheet('Waste Shiftly', lastLoadedData.wasteShiftly);
+        tambahSheet('Waste Fryer', lastLoadedData.wasteFryer);
+        tambahSheet('Waste Proses', lastLoadedData.wasteProses);
+        tambahSheet('Cost Material Mingguan', lastLoadedData.costMaterial);
+        tambahSheet('Extruder Harian', lastLoadedData.extruderDaily);
+        tambahSheet('Extruder Quality', lastLoadedData.extruderQuality);
+        tambahSheet('Extruder Downtime', lastLoadedData.extruderDowntime);
+
+        if (sheetCount === 0) {
+            alert('Belum ada data untuk diexport pada rentang tanggal ini.');
+            return;
+        }
+
+        const labelTanggal = (startDate === endDate) ? startDate : `${startDate}_sd_${endDate}`;
+        const namaFile = `Bojonegoro_Monitoring_${labelTanggal || 'export'}.xlsx`;
+        XLSX.writeFile(wb, namaFile);
+    } catch (err) {
+        console.error('Export Excel gagal:', err);
+        alert('Export gagal. Coba lagi atau hubungi admin.');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalLabel;
+    }
 }
 
 // ── Init: cari tanggal terakhir dari waste_shiftly, set date picker (satu hari), lalu load ──
