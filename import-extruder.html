@@ -290,7 +290,14 @@ function parseWorkbook(wb) {
     }).filter(r => r.tanggal && r.shift);
 
     // Downtime -> tambahkan row_key untuk upsert (tidak ada delete lagi)
+    // Beberapa baris downtime sering tidak punya jam mulai/selesai (kosong), jadi kunci dasarnya
+    // (tanggal+mesin+shift+jam+deskripsi) bisa sama persis untuk lebih dari satu baris di file yang
+    // sama. Kalau dibiarkan, satu batch upsert akan berisi row_key kembar -> Postgres menolak dengan
+    // error "ON CONFLICT DO UPDATE command cannot affect row a second time". Makanya tiap baris yang
+    // kunci dasarnya sama diberi nomor urut (#1, #2, ...) supaya tetap unik tapi tidak dianggap satu
+    // kejadian downtime yang sama.
     const rawDowntime = sheetToObjects(sheetDowntime);
+    const dtKeyCount = {};
     parsedDowntime = rawDowntime.map(r => {
         let mesin = getField(r, 'Mesin');
         if (mesin) mesin = mesin.toString().trim().replace(/^Exturder/i, 'Extruder');
@@ -299,6 +306,8 @@ function parseWorkbook(wb) {
         const startRaw = getField(r, 'Start DT');
         const finishRaw = getField(r, 'Finish DT');
         const desc = getField(r, 'DT Description') ? getField(r, 'DT Description').toString().trim() : null;
+        const baseKey = [tanggal, mesin, shift, keyPart(startRaw), keyPart(finishRaw), desc || ''].join('|');
+        dtKeyCount[baseKey] = (dtKeyCount[baseKey] || 0) + 1;
         return {
             tanggal,
             week: toNum(getField(r, 'Week')),
@@ -306,7 +315,7 @@ function parseWorkbook(wb) {
             shift,
             durasi: toNum(getField(r, 'Durasi')),
             dt_description: desc,
-            row_key: [tanggal, mesin, shift, keyPart(startRaw), keyPart(finishRaw), desc || ''].join('|'),
+            row_key: `${baseKey}#${dtKeyCount[baseKey]}`,
         };
     }).filter(r => r.tanggal && r.mesin && r.durasi !== null);
 
