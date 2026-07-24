@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -118,8 +117,14 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
         <button class="btn" id="btn-import" onclick="runImport()" style="display:none;">Import ke Supabase</button>
 
         <div class="warn-note">
-            <b>Perilaku import:</b> baris Achievement &amp; Quality disimpan per (tanggal, shift) — kalau tanggal itu sudah ada, datanya akan ditimpa (update), bukan dobel.
-            Untuk Downtime, semua data lama pada rentang tanggal yang ada di file akan dihapus dulu lalu diganti dengan data baru dari Excel, supaya aman kalau kamu upload ulang file yang sama atau versi revisi.
+            <b>Perilaku import (tidak ada data yang dihapus):</b> Achievement, Quality, dan Downtime semuanya disimpan dengan
+            <i>upsert</i> berdasarkan kunci uniknya masing-masing — Achievement &amp; Quality per (tanggal, shift), Downtime per
+            (tanggal, mesin, shift, jam mulai, jam selesai, deskripsi). Kalau kombinasi itu sudah ada, datanya di-<b>update</b>;
+            kalau belum ada, jadi baris baru. Upload ulang file yang sama atau file revisi jadi aman — tidak akan pernah dobel,
+            dan baris lama di luar file tidak akan terhapus.
+            <br><br>
+            <b>Catatan setup (sekali saja):</b> tabel <code>extruder_downtime</code> perlu kolom <code>row_key</code> dengan
+            unique constraint sebelum import ini bisa dipakai. Lihat komentar di bagian bawah script untuk perintah SQL-nya.
         </div>
 
         <div class="log-box" id="log-box"></div>
@@ -193,6 +198,19 @@ function toNum(v) {
     if (v === null || v === undefined || v === '') return null;
     const n = Number(v);
     return isNaN(n) ? null : n;
+}
+
+// Dipakai untuk menyusun row_key Downtime: ubah Date/Time jadi string
+// stabil supaya kunci unik konsisten walau di-parse ulang dari file berbeda.
+function keyPart(v) {
+    if (v === null || v === undefined) return '';
+    if (v instanceof Date) {
+        const hh = String(v.getHours()).padStart(2, '0');
+        const mi = String(v.getMinutes()).padStart(2, '0');
+        const ss = String(v.getSeconds()).padStart(2, '0');
+        return `${hh}${mi}${ss}`;
+    }
+    return String(v).trim();
 }
 
 function dateRange(rows, key) {
@@ -271,18 +289,24 @@ function parseWorkbook(wb) {
         };
     }).filter(r => r.tanggal && r.shift);
 
-    // Downtime
+    // Downtime -> tambahkan row_key untuk upsert (tidak ada delete lagi)
     const rawDowntime = sheetToObjects(sheetDowntime);
     parsedDowntime = rawDowntime.map(r => {
         let mesin = getField(r, 'Mesin');
         if (mesin) mesin = mesin.toString().trim().replace(/^Exturder/i, 'Extruder');
+        const tanggal = fmtDateISO(getField(r, 'Tanggal'));
+        const shift = toNum(getField(r, 'Shift'));
+        const startRaw = getField(r, 'Start DT');
+        const finishRaw = getField(r, 'Finish DT');
+        const desc = getField(r, 'DT Description') ? getField(r, 'DT Description').toString().trim() : null;
         return {
-            tanggal: fmtDateISO(getField(r, 'Tanggal')),
+            tanggal,
             week: toNum(getField(r, 'Week')),
-            mesin: mesin,
-            shift: toNum(getField(r, 'Shift')),
+            mesin,
+            shift,
             durasi: toNum(getField(r, 'Durasi')),
-            dt_description: getField(r, 'DT Description') ? getField(r, 'DT Description').toString().trim() : null,
+            dt_description: desc,
+            row_key: [tanggal, mesin, shift, keyPart(startRaw), keyPart(finishRaw), desc || ''].join('|'),
         };
     }).filter(r => r.tanggal && r.mesin && r.durasi !== null);
 
@@ -359,21 +383,23 @@ async function importQuality() {
     log(`Quality: ${parsedQuality.length} baris tersimpan.`, 'log-ok');
 }
 
+// Tidak ada delete lagi. Setiap baris punya row_key unik (tanggal+mesin+shift+jam mulai+jam selesai+deskripsi),
+// jadi upload ulang file yang sama / file revisi aman: baris yang cocok akan di-update, bukan dobel,
+// dan baris lama di luar file tidak akan pernah terhapus otomatis.
+// PENTING: kolom row_key wajib punya UNIQUE constraint di Supabase, jalankan sekali sebelum pakai:
+//
+//   alter table extruder_downtime add column if not exists row_key text;
+//   alter table extruder_downtime add constraint extruder_downtime_row_key_uniq unique (row_key);
+//
 async function importDowntime() {
     if (parsedDowntime.length === 0) { log('Downtime: tidak ada baris valid, dilewati.', 'log-info'); return; }
-    const range = dateRange(parsedDowntime, 'tanggal');
-    log(`Downtime: menghapus data lama ${range.min} s.d. ${range.max}...`, 'log-info');
-    const { error: delErr } = await db.from('extruder_downtime')
-        .delete().gte('tanggal', range.min).lte('tanggal', range.max);
-    if (delErr) throw new Error('hapus extruder_downtime: ' + delErr.message);
-
-    log(`Downtime: mengirim ${parsedDowntime.length} baris baru...`, 'log-info');
+    log(`Downtime: mengirim ${parsedDowntime.length} baris (upsert per row_key, data lama TIDAK dihapus)...`, 'log-info');
     const chunks = chunkArray(parsedDowntime, 500);
     for (const chunk of chunks) {
-        const { error } = await db.from('extruder_downtime').insert(chunk);
+        const { error } = await db.from('extruder_downtime').upsert(chunk, { onConflict: 'row_key' });
         if (error) throw new Error('extruder_downtime: ' + error.message);
     }
-    log(`Downtime: ${parsedDowntime.length} baris tersimpan.`, 'log-ok');
+    log(`Downtime: ${parsedDowntime.length} baris tersimpan (aman untuk upload ulang, tidak dobel).`, 'log-ok');
 }
 </script>
 </body>
