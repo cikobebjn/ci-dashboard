@@ -157,7 +157,7 @@ function log(msg, cls) {
     line.textContent = msg;
     box.appendChild(line);
     box.scrollTop = box.scrollHeight;
-}
+} 
 
 // FIX (bug tanggal mundur 1 hari): SheetJS (cellDates:true) membuat objek Date
 // berbasis UTC dari serial Excel. Kalau di sini kita baca pakai getter LOKAL
