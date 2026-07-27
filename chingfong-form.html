@@ -84,7 +84,7 @@ body {
 
 <div class="topbar">
     <h2>📝 Input Parameter ChingFong — Gedung 6</h2>
-    <p>Isi sesuai kondisi mesin saat ini, lalu simpan.</p>
+    <p>Semua parameter wajib diisi. SKU dan Catatan bersifat opsional.</p>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -145,88 +145,88 @@ body {
         <div class="card" style="border-top-color:#0891b2;">
             <h3>🌡️ Temperature</h3>
             <div class="grid3">
-                <div class="field"><label>Horizontal Seal Temp Front <span class="unit">(°C)</span></label>
-                    <input type="number" step="any" inputmode="decimal" id="f-horizontal_seal_temp_front"></div>
-                <div class="field"><label>Horizontal Seal Temp Back <span class="unit">(°C)</span></label>
-                    <input type="number" step="any" inputmode="decimal" id="f-horizontal_seal_temp_back"></div>
-                <div class="field"><label>Vertical Seal Temp <span class="unit">(°C)</span></label>
-                    <input type="number" step="any" inputmode="decimal" id="f-vertical_seal_temp"></div>
+                <div class="field"><label>Horizontal Seal Temp Front <span class="required-mark">*</span> <span class="unit">(°C)</span></label>
+                    <input type="number" step="any" inputmode="decimal" id="f-horizontal_seal_temp_front" required></div>
+                <div class="field"><label>Horizontal Seal Temp Back <span class="required-mark">*</span> <span class="unit">(°C)</span></label>
+                    <input type="number" step="any" inputmode="decimal" id="f-horizontal_seal_temp_back" required></div>
+                <div class="field"><label>Vertical Seal Temp <span class="required-mark">*</span> <span class="unit">(°C)</span></label>
+                    <input type="number" step="any" inputmode="decimal" id="f-vertical_seal_temp" required></div>
             </div>
         </div>
 
         <div class="card" style="border-top-color:#10b981;">
             <h3>📦 Parameter 1</h3>
             <div class="grid2">
-                <div class="field"><label>Bag Length <span class="unit">(mm)</span></label>
-                    <input type="number" step="any" inputmode="decimal" id="f-bag_length"></div>
-                <div class="field"><label>Film Transport Delay <span class="unit">(Sec)</span></label>
-                    <input type="number" step="any" inputmode="decimal" id="f-film_transport_delay"></div>
-                <div class="field"><label>Endseal Delay <span class="unit">(Sec)</span></label>
-                    <input type="number" step="any" inputmode="decimal" id="f-endseal_delay"></div>
-                <div class="field"><label>Center Seal Delay <span class="unit">(Sec)</span></label>
-                    <input type="number" step="any" inputmode="decimal" id="f-center_seal_delay"></div>
-                <div class="field"><label>Cutter Delay <span class="unit">(Sec)</span></label>
-                    <input type="number" step="any" inputmode="decimal" id="f-cutter_delay"></div>
-                <div class="field"><label>Speed <span class="unit">(Bag/Min)</span></label>
-                    <input type="number" step="any" inputmode="decimal" id="f-speed"></div>
-                <div class="field"><label>Servo Frequency</label>
-                    <input type="number" step="any" inputmode="decimal" id="f-servo_frequency"></div>
-                <div class="field"><label>Endseal Time <span class="unit">(Sec)</span></label>
-                    <input type="number" step="any" inputmode="decimal" id="f-endseal_time"></div>
-                <div class="field"><label>Cutting Time <span class="unit">(Sec)</span></label>
-                    <input type="number" step="any" inputmode="decimal" id="f-cutting_time"></div>
+                <div class="field"><label>Bag Length <span class="required-mark">*</span> <span class="unit">(mm)</span></label>
+                    <input type="number" step="any" inputmode="decimal" id="f-bag_length" required></div>
+                <div class="field"><label>Film Transport Delay <span class="required-mark">*</span> <span class="unit">(Sec)</span></label>
+                    <input type="number" step="any" inputmode="decimal" id="f-film_transport_delay" required></div>
+                <div class="field"><label>Endseal Delay <span class="required-mark">*</span> <span class="unit">(Sec)</span></label>
+                    <input type="number" step="any" inputmode="decimal" id="f-endseal_delay" required></div>
+                <div class="field"><label>Center Seal Delay <span class="required-mark">*</span> <span class="unit">(Sec)</span></label>
+                    <input type="number" step="any" inputmode="decimal" id="f-center_seal_delay" required></div>
+                <div class="field"><label>Cutter Delay <span class="required-mark">*</span> <span class="unit">(Sec)</span></label>
+                    <input type="number" step="any" inputmode="decimal" id="f-cutter_delay" required></div>
+                <div class="field"><label>Speed <span class="required-mark">*</span> <span class="unit">(Bag/Min)</span></label>
+                    <input type="number" step="any" inputmode="decimal" id="f-speed" required></div>
+                <div class="field"><label>Servo Frequency <span class="required-mark">*</span></label>
+                    <input type="number" step="any" inputmode="decimal" id="f-servo_frequency" required></div>
+                <div class="field"><label>Endseal Time <span class="required-mark">*</span> <span class="unit">(Sec)</span></label>
+                    <input type="number" step="any" inputmode="decimal" id="f-endseal_time" required></div>
+                <div class="field"><label>Cutting Time <span class="required-mark">*</span> <span class="unit">(Sec)</span></label>
+                    <input type="number" step="any" inputmode="decimal" id="f-cutting_time" required></div>
             </div>
         </div>
 
         <div class="card" style="border-top-color:#f59e0b;">
             <h3>📦 Parameter 2</h3>
             <div class="grid2">
-                <div class="field"><label>Strip Bag</label>
-                    <input type="number" step="any" inputmode="decimal" id="f-strip_bag"></div>
-                <div class="field"><label>Gas Flush Delay <span class="unit">(Sec)</span></label>
-                    <input type="number" step="any" inputmode="decimal" id="f-gas_flush_delay"></div>
-                <div class="field"><label>Holding Up and Down Delay <span class="unit">(Sec)</span></label>
-                    <input type="number" step="any" inputmode="decimal" id="f-holding_updown_delay"></div>
-                <div class="field"><label>Pouring Delay <span class="unit">(Sec)</span></label>
-                    <input type="number" step="any" inputmode="decimal" id="f-pouring_delay"></div>
-                <div class="field"><label>Print Delay <span class="unit">(Sec)</span></label>
-                    <input type="number" step="any" inputmode="decimal" id="f-print_delay"></div>
-                <div class="field"><label>Eye Mark Offset</label>
-                    <input type="number" step="any" inputmode="decimal" id="f-eye_mark_offset"></div>
-                <div class="field"><label>Gas Flush Time <span class="unit">(Sec)</span></label>
-                    <input type="number" step="any" inputmode="decimal" id="f-gas_flush_time"></div>
-                <div class="field"><label>Holding Up and Down Time <span class="unit">(Sec)</span></label>
-                    <input type="number" step="any" inputmode="decimal" id="f-holding_updown_time"></div>
-                <div class="field"><label>Pouring Time <span class="unit">(Sec)</span></label>
-                    <input type="number" step="any" inputmode="decimal" id="f-pouring_time"></div>
-                <div class="field"><label>Print Time <span class="unit">(Sec)</span></label>
-                    <input type="number" step="any" inputmode="decimal" id="f-print_time"></div>
+                <div class="field"><label>Strip Bag <span class="required-mark">*</span></label>
+                    <input type="number" step="any" inputmode="decimal" id="f-strip_bag" required></div>
+                <div class="field"><label>Gas Flush Delay <span class="required-mark">*</span> <span class="unit">(Sec)</span></label>
+                    <input type="number" step="any" inputmode="decimal" id="f-gas_flush_delay" required></div>
+                <div class="field"><label>Holding Up and Down Delay <span class="required-mark">*</span> <span class="unit">(Sec)</span></label>
+                    <input type="number" step="any" inputmode="decimal" id="f-holding_updown_delay" required></div>
+                <div class="field"><label>Pouring Delay <span class="required-mark">*</span> <span class="unit">(Sec)</span></label>
+                    <input type="number" step="any" inputmode="decimal" id="f-pouring_delay" required></div>
+                <div class="field"><label>Print Delay <span class="required-mark">*</span> <span class="unit">(Sec)</span></label>
+                    <input type="number" step="any" inputmode="decimal" id="f-print_delay" required></div>
+                <div class="field"><label>Eye Mark Offset <span class="required-mark">*</span></label>
+                    <input type="number" step="any" inputmode="decimal" id="f-eye_mark_offset" required></div>
+                <div class="field"><label>Gas Flush Time <span class="required-mark">*</span> <span class="unit">(Sec)</span></label>
+                    <input type="number" step="any" inputmode="decimal" id="f-gas_flush_time" required></div>
+                <div class="field"><label>Holding Up and Down Time <span class="required-mark">*</span> <span class="unit">(Sec)</span></label>
+                    <input type="number" step="any" inputmode="decimal" id="f-holding_updown_time" required></div>
+                <div class="field"><label>Pouring Time <span class="required-mark">*</span> <span class="unit">(Sec)</span></label>
+                    <input type="number" step="any" inputmode="decimal" id="f-pouring_time" required></div>
+                <div class="field"><label>Print Time <span class="required-mark">*</span> <span class="unit">(Sec)</span></label>
+                    <input type="number" step="any" inputmode="decimal" id="f-print_time" required></div>
             </div>
         </div>
 
         <div class="card" style="border-top-color:#8b5cf6;">
             <h3>📦 Parameter 3</h3>
             <div class="grid2">
-                <div class="field"><label>Film Pull Pulse <span class="unit">(Hz)</span></label>
-                    <input type="number" step="any" inputmode="decimal" id="f-film_pull_pulse"></div>
-                <div class="field"><label>Center Seal Length <span class="unit">(mm)</span></label>
-                    <input type="number" step="any" inputmode="decimal" id="f-center_seal_length"></div>
-                <div class="field"><label>Horiseal Start <span class="unit">(mm)</span></label>
-                    <input type="number" step="any" inputmode="decimal" id="f-horiseal_start"></div>
-                <div class="field"><label>Horiseal End <span class="unit">(mm)</span></label>
-                    <input type="number" step="any" inputmode="decimal" id="f-horiseal_end"></div>
-                <div class="field"><label>Hori Svar Frequency <span class="unit">(Hz)</span></label>
-                    <input type="number" step="any" inputmode="decimal" id="f-hori_svar_frequency"></div>
-                <div class="field"><label>Filling <span class="unit">(T)</span></label>
-                    <input type="number" step="any" inputmode="decimal" id="f-filling"></div>
-                <div class="field"><label>Filling Signal Delay <span class="unit">(Sec)</span></label>
-                    <input type="number" step="any" inputmode="decimal" id="f-filling_signal_delay"></div>
-                <div class="field"><label>Angle Delay <span class="unit">(Sec)</span></label>
-                    <input type="number" step="any" inputmode="decimal" id="f-angle_delay"></div>
-                <div class="field"><label>Angle Time <span class="unit">(Sec)</span></label>
-                    <input type="number" step="any" inputmode="decimal" id="f-angle_time"></div>
-                <div class="field"><label>Encoder Proportion</label>
-                    <input type="number" step="any" inputmode="decimal" id="f-encoder_proportion"></div>
+                <div class="field"><label>Film Pull Pulse <span class="required-mark">*</span> <span class="unit">(Hz)</span></label>
+                    <input type="number" step="any" inputmode="decimal" id="f-film_pull_pulse" required></div>
+                <div class="field"><label>Center Seal Length <span class="required-mark">*</span> <span class="unit">(mm)</span></label>
+                    <input type="number" step="any" inputmode="decimal" id="f-center_seal_length" required></div>
+                <div class="field"><label>Horiseal Start <span class="required-mark">*</span> <span class="unit">(mm)</span></label>
+                    <input type="number" step="any" inputmode="decimal" id="f-horiseal_start" required></div>
+                <div class="field"><label>Horiseal End <span class="required-mark">*</span> <span class="unit">(mm)</span></label>
+                    <input type="number" step="any" inputmode="decimal" id="f-horiseal_end" required></div>
+                <div class="field"><label>Hori Svar Frequency <span class="required-mark">*</span> <span class="unit">(Hz)</span></label>
+                    <input type="number" step="any" inputmode="decimal" id="f-hori_svar_frequency" required></div>
+                <div class="field"><label>Filling <span class="required-mark">*</span> <span class="unit">(T)</span></label>
+                    <input type="number" step="any" inputmode="decimal" id="f-filling" required></div>
+                <div class="field"><label>Filling Signal Delay <span class="required-mark">*</span> <span class="unit">(Sec)</span></label>
+                    <input type="number" step="any" inputmode="decimal" id="f-filling_signal_delay" required></div>
+                <div class="field"><label>Angle Delay <span class="required-mark">*</span> <span class="unit">(Sec)</span></label>
+                    <input type="number" step="any" inputmode="decimal" id="f-angle_delay" required></div>
+                <div class="field"><label>Angle Time <span class="required-mark">*</span> <span class="unit">(Sec)</span></label>
+                    <input type="number" step="any" inputmode="decimal" id="f-angle_time" required></div>
+                <div class="field"><label>Encoder Proportion <span class="required-mark">*</span></label>
+                    <input type="number" step="any" inputmode="decimal" id="f-encoder_proportion" required></div>
             </div>
         </div>
 
@@ -283,6 +283,19 @@ async function simpanData() {
 
     if (!tanggal || !shift || !mesin || !operator) {
         showToast('⚠️ Tanggal, Shift, Mesin, dan Operator wajib diisi', 'err');
+        return;
+    }
+
+    // Semua parameter angka wajib diisi. SKU dan Catatan tetap opsional.
+    const form = document.getElementById('chingfong-form');
+    if (!form.checkValidity()) {
+        const firstInvalid = form.querySelector(':invalid');
+        if (firstInvalid) {
+            firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            firstInvalid.focus({ preventScroll: true });
+        }
+        form.reportValidity();
+        showToast('⚠️ Semua parameter wajib diisi. SKU dan Catatan boleh dikosongkan.', 'err');
         return;
     }
 
