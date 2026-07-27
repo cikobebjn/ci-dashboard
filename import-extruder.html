@@ -159,11 +159,17 @@ function log(msg, cls) {
     box.scrollTop = box.scrollHeight;
 }
 
+// FIX (bug tanggal mundur 1 hari): SheetJS (cellDates:true) membuat objek Date
+// berbasis UTC dari serial Excel. Kalau di sini kita baca pakai getter LOKAL
+// (getFullYear/getMonth/getDate), hasilnya bisa mundur 1 hari tergantung
+// timezone browser/komputer yang dipakai. Getter UTC selalu cocok dengan
+// tanggal asli di Excel, apa pun timezone-nya — makanya dipakai di sini,
+// dan juga di keyPart() di bawah untuk komponen jam Downtime.
 function fmtDateISO(d) {
     if (!(d instanceof Date) || isNaN(d)) return null;
-    const yyyy = d.getFullYear();
-    const mm = String(d.getMonth() + 1).padStart(2, '0');
-    const dd = String(d.getDate()).padStart(2, '0');
+    const yyyy = d.getUTCFullYear();
+    const mm = String(d.getUTCMonth() + 1).padStart(2, '0');
+    const dd = String(d.getUTCDate()).padStart(2, '0');
     return `${yyyy}-${mm}-${dd}`;
 }
 
@@ -202,12 +208,14 @@ function toNum(v) {
 
 // Dipakai untuk menyusun row_key Downtime: ubah Date/Time jadi string
 // stabil supaya kunci unik konsisten walau di-parse ulang dari file berbeda.
+// FIX: pakai getter UTC (bukan lokal) supaya konsisten dengan fmtDateISO
+// di atas dan tidak ikut kena pergeseran timezone.
 function keyPart(v) {
     if (v === null || v === undefined) return '';
     if (v instanceof Date) {
-        const hh = String(v.getHours()).padStart(2, '0');
-        const mi = String(v.getMinutes()).padStart(2, '0');
-        const ss = String(v.getSeconds()).padStart(2, '0');
+        const hh = String(v.getUTCHours()).padStart(2, '0');
+        const mi = String(v.getUTCMinutes()).padStart(2, '0');
+        const ss = String(v.getUTCSeconds()).padStart(2, '0');
         return `${hh}${mi}${ss}`;
     }
     return String(v).trim();
