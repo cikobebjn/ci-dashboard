@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -728,9 +729,7 @@ function prosesExcelWaste() {
             function slugId(s) {
                 return s.trim().toUpperCase().replace(/[^A-Z0-9]+/g, '_').replace(/^_+|_+$/g, '');
             }
-            // Cari baris header sub-tabel via kolom C == 'Unit' (penanda header sub-tabel), mulai dari `fromRow`.
-            // Dipakai untuk mencari baris MESIN/Unit/tanggal yang sebenarnya, karena baris label
-            // (mis. "WASTE KEMASAN (KG)") bisa terpisah beberapa baris dari baris header data.
+            // Cari semua baris sub-tabel via kolom C == 'Unit' (penanda header sub-tabel di seluruh sheet)
             function cariHeaderUnit(fromRow, toRow) {
                 const found = [];
                 for (let r = fromRow; r <= toRow; r++) {
@@ -741,15 +740,6 @@ function prosesExcelWaste() {
                     }
                 }
                 return found;
-            }
-            // Cari baris "Unit" pertama pada/˃= labelRow, dalam batas beberapa baris ke bawah saja
-            // (supaya tidak nyasar ke seksi lain kalau labelnya tidak ketemu "Unit"-nya)
-            function cariHeaderUnitTerdekat(labelRow) {
-                for (let r = labelRow; r <= Math.min(labelRow + 10, range.e.r); r++) {
-                    const u = cell(r, 2); // kolom C
-                    if (u && u.v === 'Unit') return r;
-                }
-                return -1;
             }
             // Untuk seksi Waste Proses: berhenti di baris manapun yg diawali kata "total" (termasuk "TOTAL WASTE", "Total Waste Basah")
             // supaya baris subtotal/persentase turunan tidak ikut kebaca sebagai item mentah
@@ -775,24 +765,14 @@ function prosesExcelWaste() {
                 return r - 1;
             }
 
-            const hKemasanLabel = cariBarisHeader('WASTE KEMASAN');
-            const hSfgLabel     = cariBarisHeader('WASTE SFG');
-            const hKartonLabel  = cariBarisHeader('WASTE KARTON');
-            if (hKemasanLabel < 0 || hSfgLabel < 0 || hKartonLabel < 0) {
+            const hKemasan = cariBarisHeader('WASTE KEMASAN');
+            const hSfg     = cariBarisHeader('WASTE SFG');
+            const hKarton  = cariBarisHeader('WASTE KARTON');
+            if (hKemasan < 0 || hSfg < 0 || hKarton < 0) {
                 throw new Error('Struktur sheet SHIFTLY tidak dikenali (header seksi waste tidak ditemukan)');
             }
 
-            // Baris "Unit" (header sesungguhnya berisi tanggal) dicari dinamis mulai dari baris label,
-            // sehingga tetap benar baik jika label & header di baris yang sama (format lama) ATAU
-            // terpisah beberapa baris seperti "label / kosong / MESIN|Unit|Batas Atas|tanggal" (format baru).
-            const hKemasan = cariHeaderUnitTerdekat(hKemasanLabel);
-            const hSfg     = cariHeaderUnitTerdekat(hSfgLabel);
-            const hKarton  = cariHeaderUnitTerdekat(hKartonLabel);
-            if (hKemasan < 0 || hSfg < 0 || hKarton < 0) {
-                throw new Error('Baris header (MESIN/Unit) seksi waste tidak ditemukan di bawah label seksi');
-            }
-
-            // Section rows (0-based), headerRow = baris tanggal (baris "Unit"), shiftRow = baris shift (tepat di bawahnya)
+            // Section rows (0-based), header row = baris tanggal, shiftRow = baris shift (persis di bawah header)
             const SECTIONS = [
                 { key: 'kemasan', headerRow: hKemasan, shiftRow: hKemasan + 1, startRow: hKemasan + 2, endRow: cariAkhirData(hKemasan + 2) },
                 { key: 'sfg',     headerRow: hSfg,     shiftRow: hSfg + 1,     startRow: hSfg + 2,     endRow: cariAkhirData(hSfg + 2) },
@@ -890,10 +870,9 @@ function prosesExcelWaste() {
             parsedWasteData = rows;
 
             // ── Parse WASTE FRYER (beberapa sub-tabel: GD 6, GD 7, GD 4, dst — item beda-beda tiap line) ──
-            const fryerHeaderLabelRows = cariSemuaBaris('WASTE FRYER ELVA');
-            const FRYER_SECTIONS = fryerHeaderLabelRows.map(hrLabel => {
-                const namaFryer = String(cell(hrLabel, 1).v).trim();
-                const hr = cariHeaderUnitTerdekat(hrLabel);
+            const fryerHeaderRows = cariSemuaBaris('WASTE FRYER ELVA');
+            const FRYER_SECTIONS = fryerHeaderRows.map(hr => {
+                const namaFryer = String(cell(hr, 1).v).trim();
                 return {
                     id: 'FRYER_' + slugId(namaFryer.replace(/WASTE FRYER ELVA/i, '')),
                     nama: namaFryer,
@@ -902,7 +881,7 @@ function prosesExcelWaste() {
                     startRow: hr + 2,
                     endRow: cariAkhirData(hr + 2),
                 };
-            }).filter(fs => fs.headerRow >= 0);
+            });
 
             const fryerRows = [];
             FRYER_SECTIONS.forEach(fs => {
@@ -942,8 +921,8 @@ function prosesExcelWaste() {
             parsedFryerData = fryerRows;
 
             // ── Parse WASTE PROSESING (7+ sub-line: Extruder Gedung 6, Washing, Proses KP/W900/W600, dst) ──
-            const hProsesLabel = cariBarisHeader('WASTE PROSESING');
-            const PROSES_SECTIONS = hProsesLabel < 0 ? [] : cariHeaderUnit(hProsesLabel + 1, range.e.r).map(sh => ({
+            const hProses = cariBarisHeader('WASTE PROSESING');
+            const PROSES_SECTIONS = hProses < 0 ? [] : cariHeaderUnit(hProses + 1, range.e.r).map(sh => ({
                 id: 'PROSES_' + slugId(sh.nama),
                 nama: sh.nama,
                 headerRow: sh.row,
@@ -1114,6 +1093,7 @@ async function importKeSupabase() {
         console.error(err);
     }
 }
+
 
 
 // Set filter bulan ke bulan ini secara default
