@@ -170,6 +170,9 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
 .cost-table td.total-col.good { color:#16a34a; }
 .cost-table td.total-col.low  { color:#dc2626; }
 
+/* Extruder */
+.card.extruder-card { border-top-color:#ea580c; }
+
 /* ============================================================
    MOBILE OPTIMIZATION
    Rebuilt for small screens: single-column cards, larger tap
@@ -303,6 +306,7 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
     <a href="smartway.html" style="margin-top:20px; border-top:1px solid #374151;">🛠️ Smart Way</a>
     <a href="baopack.html">📦 Baopack</a>
     <a href="chingfong.html">⚙️ ChingFong</a>
+    <a href="import-extruder.html">📤 Import Extruder</a>
     <a href="settings.html">⚙️ Settings</a>
 </div>
  
@@ -453,6 +457,47 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
         </div>
     </div>
 
+    <!-- Extruder Achievement -->
+    <div class="sec-title">🔧 Extruder <span id="title-date-extruder" style="color:#9ca3af; font-weight:400; text-transform:none;"></span></div>
+    <div class="kpi-grid" style="grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); margin-bottom:16px;">
+
+        <div class="card extruder-card">
+            <h3>Adukan</h3>
+            <div class="value loading" id="val-extruder-adukan">...</div>
+            <div class="card-sub" id="sub-extruder-adukan"></div>
+            <span class="target-badge">Target: 100%</span>
+        </div>
+
+        <div class="card extruder-card">
+            <h3>SFG Oven</h3>
+            <div class="value loading" id="val-extruder-sfg">...</div>
+            <div class="card-sub" id="sub-extruder-sfg"></div>
+            <span class="target-badge">Target: 100%</span>
+        </div>
+
+    </div>
+
+    <div class="card-wide">
+        <div class="tbl-scroll">
+        <table class="line-table">
+            <thead>
+                <tr>
+                    <th>Shift</th>
+                    <th>Target Adukan</th>
+                    <th>Realisasi Adukan</th>
+                    <th>Adukan %</th>
+                    <th>Target SFG Oven</th>
+                    <th>Realisasi SFG Oven</th>
+                    <th>SFG Oven %</th>
+                </tr>
+            </thead>
+            <tbody id="tbl-extruder-shift-body">
+                <tr><td colspan="7" style="text-align:center; color:#9ca3af; padding:20px;">Memuat data...</td></tr>
+            </tbody>
+        </table>
+        </div>
+    </div>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -479,6 +524,7 @@ let lastLoadedData = {
     wasteFryer: [],
     wasteProses: [],
     costMaterial: [],
+    extruderDaily: [],
 };
 
 // Item yang bernama seperti ini adalah PEMAKAIAN BAHAN, bukan waste,
@@ -765,6 +811,9 @@ async function loadData(sDate, eDate) {
 
     // ── Cost Material per Week ──
     await loadCostMaterial();
+
+    // ── Extruder ──
+    await loadExtruder(sDate, eDate);
 }
 
 function renderWasteDetail(kategori, perMesin, batasMap, unit) {
@@ -979,6 +1028,88 @@ async function loadCostMaterial() {
     });
 }
 
+// ── Extruder ──
+// Tabel Supabase: extruder_daily (tanggal, shift, target_adukan, realisasi_adukan,
+// target_sfg_oven, realisasi_sfg_oven). Diisi/diganti lewat halaman Import Extruder.
+function extruderPctCell(pct) {
+    if (pct === null || pct === undefined) return '<td class="val-col empty">—</td>';
+    return `<td class="val-col ${pct >= 100 ? 'good' : 'low'}">${pct.toFixed(1)}%</td>`;
+}
+
+function setExtruderKpi(id, subId, realisasi, target) {
+    const el = document.getElementById(id);
+    const subEl = document.getElementById(subId);
+    if (!target) {
+        el.textContent = '—'; el.className = 'value';
+        subEl.textContent = '';
+        return;
+    }
+    const pct = realisasi / target * 100;
+    el.textContent = pct.toFixed(1) + '%';
+    el.className = 'value ' + (pct >= 100 ? 'good' : 'low');
+    subEl.textContent = `${Math.round(realisasi).toLocaleString('id-ID')} / ${Math.round(target).toLocaleString('id-ID')}`;
+}
+
+async function loadExtruder(sDate, eDate) {
+    const { data: rows } = await db
+        .from('extruder_daily')
+        .select('*')
+        .gte('tanggal', sDate)
+        .lte('tanggal', eDate)
+        .limit(5000);
+
+    lastLoadedData.extruderDaily = rows || [];
+
+    const titleDate = document.getElementById('title-date-extruder');
+    const shiftBody = document.getElementById('tbl-extruder-shift-body');
+
+    if (!rows || rows.length === 0) {
+        titleDate.textContent = '— Tidak ada data';
+        setExtruderKpi('val-extruder-adukan', 'sub-extruder-adukan', 0, 0);
+        setExtruderKpi('val-extruder-sfg', 'sub-extruder-sfg', 0, 0);
+        shiftBody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#9ca3af; padding:20px;">Belum ada data. Import lewat menu Import Extruder.</td></tr>';
+        return;
+    }
+
+    titleDate.textContent = '— ' + fmtRange(sDate, eDate);
+
+    const totalTargetAdukan = rows.reduce((s, r) => s + (r.target_adukan || 0), 0);
+    const totalRealAdukan   = rows.reduce((s, r) => s + (r.realisasi_adukan || 0), 0);
+    const totalTargetSfg    = rows.reduce((s, r) => s + (r.target_sfg_oven || 0), 0);
+    const totalRealSfg      = rows.reduce((s, r) => s + (r.realisasi_sfg_oven || 0), 0);
+
+    setExtruderKpi('val-extruder-adukan', 'sub-extruder-adukan', totalRealAdukan, totalTargetAdukan);
+    setExtruderKpi('val-extruder-sfg', 'sub-extruder-sfg', totalRealSfg, totalTargetSfg);
+
+    // Tabel achievement per shift — agregat dalam rentang
+    const shiftMap = {};
+    rows.forEach(r => {
+        shiftMap[r.shift] = shiftMap[r.shift] || { adukanT: 0, adukanR: 0, sfgT: 0, sfgR: 0 };
+        shiftMap[r.shift].adukanT += r.target_adukan || 0;
+        shiftMap[r.shift].adukanR += r.realisasi_adukan || 0;
+        shiftMap[r.shift].sfgT    += r.target_sfg_oven || 0;
+        shiftMap[r.shift].sfgR    += r.realisasi_sfg_oven || 0;
+    });
+
+    shiftBody.innerHTML = '';
+    [1, 2, 3].forEach(sh => {
+        const d = shiftMap[sh];
+        const adukanPct = d && d.adukanT ? (d.adukanR / d.adukanT * 100) : null;
+        const sfgPct    = d && d.sfgT    ? (d.sfgR / d.sfgT * 100) : null;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td class="mesin-col">Shift ${sh}</td>
+            <td style="text-align:center;">${d ? Math.round(d.adukanT) : '—'}</td>
+            <td style="text-align:center;">${d ? Math.round(d.adukanR) : '—'}</td>
+            ${extruderPctCell(adukanPct)}
+            <td style="text-align:center;">${d ? Math.round(d.sfgT) : '—'}</td>
+            <td style="text-align:center;">${d ? Math.round(d.sfgR) : '—'}</td>
+            ${extruderPctCell(sfgPct)}
+        `;
+        shiftBody.appendChild(tr);
+    });
+}
+
 function setShiftMini(id, val) {
     const el = document.getElementById(id);
     if (val === null || val === undefined) {
@@ -1021,6 +1152,7 @@ function exportExcel() {
         tambahSheet('Waste Fryer', lastLoadedData.wasteFryer);
         tambahSheet('Waste Proses', lastLoadedData.wasteProses);
         tambahSheet('Cost Material Mingguan', lastLoadedData.costMaterial);
+        tambahSheet('Extruder Harian', lastLoadedData.extruderDaily);
 
         if (sheetCount === 0) {
             alert('Belum ada data untuk diexport pada rentang tanggal ini.');
