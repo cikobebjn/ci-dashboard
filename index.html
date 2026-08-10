@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -168,19 +169,6 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
 .cost-table td.total-col { font-weight:700; }
 .cost-table td.total-col.good { color:#16a34a; }
 .cost-table td.total-col.low  { color:#dc2626; }
-
-/* Extruder */
-.card.extruder-card { border-top-color:#ea580c; }
-.split-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:16px; margin-bottom:20px; }
-.split-grid.fryer-proses-grid { grid-template-columns:1fr 1fr; align-items:stretch; }
-.split-grid.fryer-proses-grid > div { min-width:0; display:flex; flex-direction:column; }
-.split-grid.fryer-proses-grid .kpi-grid { grid-template-columns:1fr; flex:1; align-content:stretch; }
-.split-grid.fryer-proses-grid .kpi-grid > .card { height:100%; box-sizing:border-box; display:flex; flex-direction:column; }
-.downtime-bar-row { margin-bottom:12px; }
-.downtime-bar-row:last-child { margin-bottom:0; }
-.downtime-bar-label { display:flex; justify-content:space-between; font-size:12px; color:#374151; margin-bottom:4px; }
-.downtime-bar-track { background:#f3f4f6; border-radius:5px; height:8px; overflow:hidden; }
-.downtime-bar-fill { background:#ea580c; height:100%; border-radius:5px; }
 
 /* ============================================================
    MOBILE OPTIMIZATION
@@ -466,69 +454,6 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
         </div>
     </div>
 
-    <!-- Extruder Achievement -->
-    <div class="sec-title">🔧 Extruder <span id="title-date-extruder" style="color:#9ca3af; font-weight:400; text-transform:none;"></span></div>
-    <div class="kpi-grid" style="grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); margin-bottom:16px;">
-
-        <div class="card extruder-card">
-            <h3>Adukan</h3>
-            <div class="value loading" id="val-extruder-adukan">...</div>
-            <span class="target-badge">Target: 100%</span>
-        </div>
-
-        <div class="card extruder-card">
-            <h3>SFG Oven</h3>
-            <div class="value loading" id="val-extruder-sfg">...</div>
-            <span class="target-badge">Target: 100%</span>
-        </div>
-
-        <div class="card extruder-card">
-            <h3>Quality Rate</h3>
-            <div class="value loading" id="val-extruder-quality">...</div>
-            <div class="card-sub">Bag OK / Total Bag</div>
-        </div>
-
-        <div class="card extruder-card">
-            <h3>Downtime</h3>
-            <div class="value loading" id="val-extruder-downtime">...</div>
-            <div class="card-sub">Extruder 1, 2, 3</div>
-        </div>
-
-    </div>
-
-    <div class="card-wide">
-        <div class="tbl-scroll">
-        <table class="line-table">
-            <thead>
-                <tr>
-                    <th>Shift</th>
-                    <th>Adukan</th>
-                    <th>SFG Oven</th>
-                    <th>Quality</th>
-                </tr>
-            </thead>
-            <tbody id="tbl-extruder-shift-body">
-                <tr><td colspan="4" style="text-align:center; color:#9ca3af; padding:20px;">Memuat data...</td></tr>
-            </tbody>
-        </table>
-        </div>
-    </div>
-
-    <div class="split-grid">
-        <div class="card-wide" style="margin-bottom:0;">
-            <div class="sec-title" style="margin:0 0 4px;">Downtime per Mesin</div>
-            <div id="extruder-downtime-mesin" style="margin-top:10px; color:#9ca3af; text-align:center; padding:10px;">Memuat data...</div>
-        </div>
-        <div class="card-wide" style="margin-bottom:0;">
-            <div class="sec-title" style="margin:0 0 4px;">Top Alasan Downtime</div>
-            <table class="waste-detail-table">
-                <tbody id="tbl-extruder-alasan-body">
-                    <tr><td colspan="2" style="text-align:center; color:#9ca3af; padding:20px;">Memuat data...</td></tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -555,9 +480,6 @@ let lastLoadedData = {
     wasteFryer: [],
     wasteProses: [],
     costMaterial: [],
-    extruderDaily: [],
-    extruderQuality: [],
-    extruderDowntime: [],
 };
 
 // Item yang bernama seperti ini adalah PEMAKAIAN BAHAN, bukan waste,
@@ -844,9 +766,6 @@ async function loadData(sDate, eDate) {
 
     // ── Cost Material per Week ──
     await loadCostMaterial();
-
-    // ── Extruder ──
-    await loadExtruder(sDate, eDate);
 }
 
 function renderWasteDetail(kategori, perMesin, batasMap, unit) {
@@ -1061,174 +980,6 @@ async function loadCostMaterial() {
     });
 }
 
-// ── Extruder ──
-// Tabel Supabase yang dipakai: extruder_daily (tanggal, week, shift,
-// target_adukan, realisasi_adukan, target_sfg_oven, realisasi_sfg_oven),
-// extruder_quality (tanggal, shift, bag_ok, bag_du, total_bag),
-// extruder_downtime (tanggal, mesin, shift, durasi, dt_description).
-function normalizeMesin(m) {
-    if (!m) return m;
-    // Perbaiki typo "Exturder" -> "Extruder" supaya tidak kehitung mesin terpisah.
-    return m.trim().replace(/^Exturder/i, 'Extruder');
-}
-
-function setExtruderKpi(id, pct) {
-    const el = document.getElementById(id);
-    el.textContent = pct.toFixed(1) + '%';
-    el.className = 'value ' + (pct >= 100 ? 'good' : 'low');
-}
-
-function extruderPctCell(pct) {
-    if (pct === null || pct === undefined) return '<td class="val-col empty">—</td>';
-    return `<td class="val-col ${pct >= 100 ? 'good' : 'low'}">${pct.toFixed(1)}%</td>`;
-}
-
-async function loadExtruder(sDate, eDate) {
-    const { data: dailyRows } = await db
-        .from('extruder_daily')
-        .select('*')
-        .gte('tanggal', sDate)
-        .lte('tanggal', eDate)
-        .limit(5000);
-
-    lastLoadedData.extruderDaily = dailyRows || [];
-
-    const titleDate  = document.getElementById('title-date-extruder');
-    const shiftBody  = document.getElementById('tbl-extruder-shift-body');
-    const mesinBox   = document.getElementById('extruder-downtime-mesin');
-    const alasanBody = document.getElementById('tbl-extruder-alasan-body');
-
-    if (!dailyRows || dailyRows.length === 0) {
-        titleDate.textContent = '— Tidak ada data';
-        ['adukan', 'sfg', 'quality', 'downtime'].forEach(k => {
-            const el = document.getElementById(`val-extruder-${k}`);
-            el.textContent = '—'; el.className = 'value';
-        });
-        shiftBody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#9ca3af; padding:20px;">Belum ada data</td></tr>';
-        mesinBox.innerHTML = '<div style="text-align:center; color:#9ca3af; padding:10px;">Belum ada data</div>';
-        alasanBody.innerHTML = '<tr><td colspan="2" style="text-align:center; color:#9ca3af; padding:20px;">Belum ada data</td></tr>';
-        return;
-    }
-
-    titleDate.textContent = '— ' + fmtRange(sDate, eDate);
-    const rowsForDate = dailyRows;
-
-    // Total Adukan & SFG Oven dalam rentang (jumlah semua shift & tanggal)
-    const totalTargetAdukan = rowsForDate.reduce((s, r) => s + (r.target_adukan || 0), 0);
-    const totalRealAdukan   = rowsForDate.reduce((s, r) => s + (r.realisasi_adukan || 0), 0);
-    const totalTargetSfg    = rowsForDate.reduce((s, r) => s + (r.target_sfg_oven || 0), 0);
-    const totalRealSfg      = rowsForDate.reduce((s, r) => s + (r.realisasi_sfg_oven || 0), 0);
-
-    setExtruderKpi('val-extruder-adukan', totalTargetAdukan ? (totalRealAdukan / totalTargetAdukan * 100) : 0);
-    setExtruderKpi('val-extruder-sfg',    totalTargetSfg ? (totalRealSfg / totalTargetSfg * 100) : 0);
-
-    // Quality
-    const { data: qRowsForDate } = await db
-        .from('extruder_quality')
-        .select('*')
-        .gte('tanggal', sDate)
-        .lte('tanggal', eDate)
-        .limit(5000);
-
-    lastLoadedData.extruderQuality = qRowsForDate || [];
-
-    const totalOk  = (qRowsForDate || []).reduce((s, r) => s + (r.bag_ok || 0), 0);
-    const totalBag = (qRowsForDate || []).reduce((s, r) => s + (r.total_bag || 0), 0);
-    const qualEl = document.getElementById('val-extruder-quality');
-    if (qRowsForDate && qRowsForDate.length > 0 && totalBag > 0) {
-        qualEl.textContent = (totalOk / totalBag * 100).toFixed(1) + '%';
-        qualEl.className = 'value';
-    } else {
-        qualEl.textContent = '—'; qualEl.className = 'value';
-    }
-
-    // Downtime
-    const { data: dtRowsForDate } = await db
-        .from('extruder_downtime')
-        .select('*')
-        .gte('tanggal', sDate)
-        .lte('tanggal', eDate)
-        .limit(5000);
-
-    lastLoadedData.extruderDowntime = dtRowsForDate || [];
-
-    const totalDowntime = (dtRowsForDate || []).reduce((s, r) => s + (r.durasi || 0), 0);
-    const dtEl = document.getElementById('val-extruder-downtime');
-    if (dtRowsForDate && dtRowsForDate.length > 0) {
-        dtEl.innerHTML = Math.round(totalDowntime) + '<span class="kpi-unit"> mnt</span>';
-        dtEl.className = 'value';
-    } else {
-        dtEl.textContent = '—'; dtEl.className = 'value';
-    }
-
-    // Tabel achievement per shift (Adukan / SFG Oven / Quality) — agregat dalam rentang
-    const shiftMap = {};
-    rowsForDate.forEach(r => {
-        shiftMap[r.shift] = shiftMap[r.shift] || { adukanT: 0, adukanR: 0, sfgT: 0, sfgR: 0 };
-        shiftMap[r.shift].adukanT += r.target_adukan || 0;
-        shiftMap[r.shift].adukanR += r.realisasi_adukan || 0;
-        shiftMap[r.shift].sfgT    += r.target_sfg_oven || 0;
-        shiftMap[r.shift].sfgR    += r.realisasi_sfg_oven || 0;
-    });
-    (qRowsForDate || []).forEach(r => {
-        shiftMap[r.shift] = shiftMap[r.shift] || {};
-        shiftMap[r.shift].qOk    = (shiftMap[r.shift].qOk || 0) + (r.bag_ok || 0);
-        shiftMap[r.shift].qTotal = (shiftMap[r.shift].qTotal || 0) + (r.total_bag || 0);
-    });
-
-    shiftBody.innerHTML = '';
-    [1, 2, 3].forEach(sh => {
-        const d = shiftMap[sh];
-        const adukanPct = d && d.adukanT ? (d.adukanR / d.adukanT * 100) : null;
-        const sfgPct    = d && d.sfgT    ? (d.sfgR / d.sfgT * 100) : null;
-        const qPct      = d && d.qTotal  ? (d.qOk / d.qTotal * 100) : null;
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td class="mesin-col">Shift ${sh}</td>
-            ${extruderPctCell(adukanPct)}
-            ${extruderPctCell(sfgPct)}
-            ${extruderPctCell(qPct)}
-        `;
-        shiftBody.appendChild(tr);
-    });
-
-    // Downtime per mesin (bar) — total dalam rentang
-    const perMesin = {};
-    (dtRowsForDate || []).forEach(r => {
-        const nama = normalizeMesin(r.mesin) || '(tidak diketahui)';
-        perMesin[nama] = (perMesin[nama] || 0) + (r.durasi || 0);
-    });
-    const mesinRows = Object.entries(perMesin).sort((a, b) => b[1] - a[1]);
-    const maxDur = mesinRows.length ? mesinRows[0][1] : 0;
-
-    if (mesinRows.length > 0) {
-        mesinBox.innerHTML = mesinRows.map(([nama, val]) => `
-            <div class="downtime-bar-row">
-                <div class="downtime-bar-label"><span>${nama}</span><span>${Math.round(val)} mnt</span></div>
-                <div class="downtime-bar-track"><div class="downtime-bar-fill" style="width:${maxDur ? (val / maxDur * 100) : 0}%"></div></div>
-            </div>
-        `).join('');
-    } else {
-        mesinBox.innerHTML = '<div style="text-align:center; color:#9ca3af; padding:10px;">Belum ada data downtime</div>';
-    }
-
-    // Top alasan downtime (5-6 alasan dengan durasi terbesar) — total dalam rentang
-    const perAlasan = {};
-    (dtRowsForDate || []).forEach(r => {
-        const nama = r.dt_description || '(tanpa keterangan)';
-        perAlasan[nama] = (perAlasan[nama] || 0) + (r.durasi || 0);
-    });
-    const alasanRows = Object.entries(perAlasan).sort((a, b) => b[1] - a[1]).slice(0, 6);
-
-    if (alasanRows.length > 0) {
-        alasanBody.innerHTML = alasanRows.map(([nama, val]) => `
-            <tr><td class="mesin-name">${nama}</td><td class="waste-val">${Math.round(val)} mnt</td></tr>
-        `).join('');
-    } else {
-        alasanBody.innerHTML = '<tr><td colspan="2" style="text-align:center; color:#9ca3af; padding:20px;">Belum ada data</td></tr>';
-    }
-}
-
 function setShiftMini(id, val) {
     const el = document.getElementById(id);
     if (val === null || val === undefined) {
@@ -1271,9 +1022,6 @@ function exportExcel() {
         tambahSheet('Waste Fryer', lastLoadedData.wasteFryer);
         tambahSheet('Waste Proses', lastLoadedData.wasteProses);
         tambahSheet('Cost Material Mingguan', lastLoadedData.costMaterial);
-        tambahSheet('Extruder Harian', lastLoadedData.extruderDaily);
-        tambahSheet('Extruder Quality', lastLoadedData.extruderQuality);
-        tambahSheet('Extruder Downtime', lastLoadedData.extruderDowntime);
 
         if (sheetCount === 0) {
             alert('Belum ada data untuk diexport pada rentang tanggal ini.');
