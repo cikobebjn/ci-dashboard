@@ -396,6 +396,16 @@ async function submitData() {
 
         if (delError) throw new Error('Gagal menghapus data lama: ' + delError.message);
 
+        // Verifikasi: pastikan data lama benar-benar bersih sebelum insert data baru.
+        const { count: sisaCount, error: countError } = await db
+            .from('extruder_daily')
+            .select('*', { count: 'exact', head: true });
+
+        if (!countError && sisaCount > 0) {
+            status.textContent = `Menghapus sisa ${sisaCount} baris data lama...`;
+            await db.from('extruder_daily').delete().gte('tanggal', '1900-01-01');
+        }
+
         fill.style.width = '20%';
         status.textContent = `Mengirim data baru (0 / ${parsedRows.length})...`;
 
@@ -403,7 +413,9 @@ async function submitData() {
         let sent = 0;
         for (let i = 0; i < parsedRows.length; i += batchSize) {
             const batch = parsedRows.slice(i, i + batchSize);
-            const { error: insError } = await db.from('extruder_daily').insert(batch);
+            const { error: insError } = await db
+                .from('extruder_daily')
+                .upsert(batch, { onConflict: 'tanggal,shift' });
             if (insError) throw new Error('Gagal menyimpan data baru: ' + insError.message);
             sent += batch.length;
             const pct = 20 + Math.round((sent / parsedRows.length) * 80);
