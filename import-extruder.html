@@ -1,0 +1,426 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Import Extruder — Bojonegoro Monitoring</title>
+<style>
+body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
+.topbar {
+    background:#1f2937; color:white; padding:15px;
+    display:flex; align-items:center;
+    position:fixed; top:0; left:0; width:100%; z-index:1000;
+    box-sizing:border-box;
+}
+.menu-btn { font-size:28px; cursor:pointer; margin-right:15px; }
+.sidebar {
+    height:100%; width:250px; position:fixed;
+    top:0; left:-250px; background:#111827;
+    transition:0.3s; padding-top:60px; z-index:999;
+}
+.sidebar a { display:block; color:white; padding:15px 20px; text-decoration:none; }
+.sidebar a:hover { background:#374151; }
+.sidebar a.active { background:#3b82f6; }
+.main { padding:80px 24px 24px 24px; max-width:900px; margin:0 auto; }
+
+.sec-title {
+    font-size:13px; font-weight:700; color:#374151;
+    text-transform:uppercase; letter-spacing:0.05em;
+    margin:28px 0 12px;
+}
+
+.card-wide {
+    background:white; border-radius:12px; padding:24px;
+    box-shadow:0 1px 3px rgba(0,0,0,0.08);
+    border-top:4px solid #ea580c;
+    margin-bottom:20px;
+}
+
+.upload-zone {
+    border:2px dashed #d1d5db; border-radius:12px; padding:36px 20px;
+    text-align:center; cursor:pointer; transition:0.2s;
+    background:#fafafa;
+}
+.upload-zone:hover, .upload-zone.dragover { border-color:#ea580c; background:#fff7ed; }
+.upload-zone input[type=file] { display:none; }
+.upload-icon { font-size:40px; margin-bottom:8px; }
+.upload-text { color:#374151; font-weight:600; }
+.upload-sub { color:#9ca3af; font-size:12px; margin-top:4px; }
+
+.file-chip {
+    display:inline-flex; align-items:center; gap:8px;
+    background:#f3f4f6; border-radius:8px; padding:8px 14px;
+    font-size:13px; color:#374151; margin-top:14px;
+}
+.file-chip button {
+    background:none; border:none; color:#dc2626; cursor:pointer; font-size:14px; font-weight:700;
+}
+
+.preview-summary {
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(140px,1fr));
+    gap:12px; margin-top:18px;
+}
+.preview-stat {
+    background:#f9fafb; border-radius:8px; padding:12px 14px; text-align:center;
+}
+.preview-stat .num { font-size:20px; font-weight:700; color:#1f2937; }
+.preview-stat .lbl { font-size:11px; color:#9ca3af; text-transform:uppercase; margin-top:2px; }
+
+.preview-table-wrap { max-height:340px; overflow:auto; margin-top:16px; border:1px solid #f3f4f6; border-radius:8px; }
+table.preview-table { width:100%; border-collapse:collapse; font-size:12px; }
+table.preview-table th {
+    background:#f9fafb; color:#6b7280; font-weight:600; font-size:10px;
+    padding:8px 10px; text-align:center; border-bottom:2px solid #e5e7eb;
+    text-transform:uppercase; position:sticky; top:0;
+}
+table.preview-table td { padding:6px 10px; border-bottom:1px solid #f3f4f6; text-align:center; }
+table.preview-table tr.row-warn td { background:#fef2f2; color:#dc2626; }
+
+.warn-box {
+    background:#fffbeb; border:1px solid #fde68a; color:#92400e;
+    border-radius:8px; padding:12px 14px; font-size:13px; margin-top:14px;
+}
+.warn-box b { display:block; margin-bottom:4px; }
+
+.danger-box {
+    background:#fef2f2; border:1px solid #fecaca; color:#991b1b;
+    border-radius:8px; padding:14px 16px; font-size:13px; margin-top:20px;
+}
+.danger-box b { display:block; margin-bottom:4px; }
+
+.btn-row { display:flex; gap:10px; margin-top:20px; flex-wrap:wrap; }
+.btn-primary {
+    background:#ea580c; color:white; border:none; border-radius:8px;
+    padding:12px 22px; font-size:14px; font-weight:700; cursor:pointer;
+}
+.btn-primary:hover { background:#c2410c; }
+.btn-primary:disabled { background:#9ca3af; cursor:not-allowed; }
+.btn-secondary {
+    background:white; color:#374151; border:1px solid #d1d5db; border-radius:8px;
+    padding:12px 22px; font-size:14px; font-weight:600; cursor:pointer;
+}
+.btn-secondary:hover { background:#f3f4f6; }
+
+.status-line { margin-top:16px; font-size:13px; }
+.status-line.ok   { color:#16a34a; }
+.status-line.err  { color:#dc2626; }
+.status-line.busy { color:#6b7280; }
+
+.progress-track { background:#f3f4f6; border-radius:6px; height:8px; overflow:hidden; margin-top:8px; display:none; }
+.progress-fill { background:#ea580c; height:100%; width:0%; transition:width 0.2s; }
+</style>
+</head>
+<body>
+
+<div class="sidebar" id="sidebar">
+    <a href="index.html">Dashboard Utama</a>
+    <a href="oee.html">OEE</a>
+    <a href="tonase.html">Tonase</a>
+    <a href="waste.html">Waste</a>
+    <a href="cost-material.html">Cost Material</a>
+    <a href="improvement-monitoring.html">Improvement Monitoring</a>
+    <a href="smartway.html" style="margin-top:20px; border-top:1px solid #374151;">🛠️ Smart Way</a>
+    <a href="baopack.html">📦 Baopack</a>
+    <a href="chingfong.html">⚙️ ChingFong</a>
+    <a href="import-extruder.html" class="active">📤 Import Extruder</a>
+    <a href="settings.html">⚙️ Settings</a>
+</div>
+
+<div class="topbar">
+    <span class="menu-btn" onclick="toggleMenu()">☰</span>
+    <h2 style="margin:0;">📤 Import Extruder</h2>
+</div>
+
+<div class="main">
+
+    <div class="card-wide">
+        <div class="sec-title" style="margin-top:0;">1. Upload File Excel</div>
+        <p style="color:#6b7280; font-size:13px; margin-top:-6px;">
+            Format yang dibaca: sheet <b>DATA</b> dengan kolom Tanggal, Week, Bulan, Shift,
+            Target Adukan, Realisasi Adukan, Target SFG Oven, Realisasi SFG Oven — sama seperti
+            file achievement extruder yang biasa dipakai.
+        </p>
+
+        <label class="upload-zone" id="upload-zone" for="file-input">
+            <div class="upload-icon">📄</div>
+            <div class="upload-text">Klik untuk pilih file, atau drag & drop di sini</div>
+            <div class="upload-sub">.xlsx atau .xls</div>
+            <input type="file" id="file-input" accept=".xlsx,.xls">
+        </label>
+
+        <div id="file-chip-area"></div>
+        <div id="preview-area"></div>
+    </div>
+
+    <div class="card-wide" id="submit-card" style="display:none;">
+        <div class="sec-title" style="margin-top:0;">2. Submit ke Dashboard</div>
+        <div class="danger-box">
+            <b>⚠️ Perhatian — data lama akan dihapus</b>
+            Setiap submit akan <b>menghapus SEMUA data extruder yang tersimpan sebelumnya</b>
+            lalu menggantinya dengan data dari file ini. Pastikan file yang diupload sudah benar
+            dan lengkap sebelum melanjutkan.
+        </div>
+        <div class="btn-row">
+            <button class="btn-primary" id="btn-submit" onclick="submitData()">🗑️ Hapus Data Lama & Submit Data Baru</button>
+            <button class="btn-secondary" onclick="resetForm()">Batal</button>
+        </div>
+        <div class="progress-track" id="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+        <div class="status-line" id="status-line"></div>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script>
+const SUPABASE_URL = 'https://bmnhtxalfsfaefacgtpm.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_VItBKenz-q2sYz7MsibODA_nYtLXv9Q';
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let parsedRows = []; // hasil parsing final, siap dikirim ke Supabase
+
+function toggleMenu() {
+    const s = document.getElementById('sidebar');
+    s.style.left = s.style.left === '0px' ? '-250px' : '0px';
+}
+
+const dropZone = document.getElementById('upload-zone');
+const fileInput = document.getElementById('file-input');
+
+['dragover'].forEach(evt => dropZone.addEventListener(evt, e => {
+    e.preventDefault(); dropZone.classList.add('dragover');
+}));
+['dragleave', 'drop'].forEach(evt => dropZone.addEventListener(evt, e => {
+    e.preventDefault(); dropZone.classList.remove('dragover');
+}));
+dropZone.addEventListener('drop', e => {
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+        handleFile(e.dataTransfer.files[0]);
+    }
+});
+fileInput.addEventListener('change', e => {
+    if (e.target.files && e.target.files[0]) handleFile(e.target.files[0]);
+});
+
+function toYMD(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+}
+
+function fmtDateID(ymd) {
+    if (!ymd) return '';
+    return new Date(ymd + 'T00:00:00').toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric' });
+}
+
+function handleFile(file) {
+    document.getElementById('file-chip-area').innerHTML = `
+        <div class="file-chip">
+            📄 ${file.name}
+            <button onclick="resetForm()" title="Hapus file">✕</button>
+        </div>
+    `;
+    document.getElementById('preview-area').innerHTML = '<p style="color:#9ca3af; font-size:13px; margin-top:14px;">Membaca file...</p>';
+    document.getElementById('submit-card').style.display = 'none';
+    document.getElementById('status-line').textContent = '';
+    document.getElementById('status-line').className = 'status-line';
+
+    const reader = new FileReader();
+    reader.onload = e => {
+        try {
+            parseWorkbook(e.target.result);
+        } catch (err) {
+            console.error(err);
+            document.getElementById('preview-area').innerHTML =
+                `<div class="warn-box"><b>Gagal membaca file</b>${err.message || err}</div>`;
+        }
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+function parseWorkbook(arrayBuffer) {
+    const wb = XLSX.read(arrayBuffer, { type: 'array', cellDates: true });
+    const sheetName = wb.SheetNames.includes('DATA') ? 'DATA' : wb.SheetNames[0];
+    const ws = wb.Sheets[sheetName];
+    const rows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: true, defval: null });
+
+    // Cari baris header (yang kolom pertamanya "Tanggal") — supaya tidak tergantung
+    // posisi baris judul di atasnya.
+    let headerIdx = rows.findIndex(r => (r[0] || '').toString().trim().toLowerCase() === 'tanggal');
+    if (headerIdx === -1) {
+        document.getElementById('preview-area').innerHTML =
+            `<div class="warn-box"><b>Format tidak dikenali</b>Tidak ditemukan kolom header "Tanggal" pada sheet "${sheetName}". Pastikan file sesuai format achievement extruder.</div>`;
+        return;
+    }
+
+    const dataRows = rows.slice(headerIdx + 1);
+    const good = [];
+    const skipped = [];
+
+    dataRows.forEach((r, i) => {
+        const [tanggalRaw, week, bulan, shift, targetAdukan, realisasiAdukan, , targetSfg, realisasiSfg] = r;
+
+        if (tanggalRaw === null || tanggalRaw === undefined || shift === null || shift === undefined) {
+            return; // baris kosong, dilewati diam-diam
+        }
+
+        let tanggal = null;
+        if (tanggalRaw instanceof Date) {
+            tanggal = toYMD(tanggalRaw);
+        } else if (typeof tanggalRaw === 'number') {
+            // fallback: serial Excel jika cellDates gagal terbaca sebagai Date
+            const parsed = XLSX.SSF.parse_date_code(tanggalRaw);
+            if (parsed) tanggal = `${parsed.y}-${String(parsed.m).padStart(2,'0')}-${String(parsed.d).padStart(2,'0')}`;
+        } else if (typeof tanggalRaw === 'string' && tanggalRaw.trim()) {
+            const d = new Date(tanggalRaw);
+            if (!isNaN(d)) tanggal = toYMD(d);
+        }
+
+        if (!tanggal) {
+            skipped.push({ line: headerIdx + 2 + i, reason: 'Tanggal tidak valid' });
+            return;
+        }
+
+        const row = {
+            tanggal,
+            shift: Number(shift),
+            target_adukan: targetAdukan === null ? 0 : Number(targetAdukan),
+            realisasi_adukan: realisasiAdukan === null ? 0 : Number(realisasiAdukan),
+            target_sfg_oven: targetSfg === null ? 0 : Number(targetSfg),
+            realisasi_sfg_oven: realisasiSfg === null ? 0 : Number(realisasiSfg),
+        };
+
+        if (!Number.isFinite(row.shift)) {
+            skipped.push({ line: headerIdx + 2 + i, reason: 'Shift tidak valid' });
+            return;
+        }
+
+        good.push(row);
+    });
+
+    parsedRows = good;
+    renderPreview(good, skipped);
+}
+
+function renderPreview(rows, skipped) {
+    const area = document.getElementById('preview-area');
+
+    if (rows.length === 0) {
+        area.innerHTML = `<div class="warn-box"><b>Tidak ada baris data yang valid</b>Periksa kembali isi file Excel.</div>`;
+        document.getElementById('submit-card').style.display = 'none';
+        return;
+    }
+
+    const dates = rows.map(r => r.tanggal).sort();
+    const minDate = dates[0], maxDate = dates[dates.length - 1];
+
+    let html = `
+        <div class="preview-summary">
+            <div class="preview-stat"><div class="num">${rows.length}</div><div class="lbl">Baris Data</div></div>
+            <div class="preview-stat"><div class="num">${fmtDateID(minDate)}</div><div class="lbl">Tanggal Awal</div></div>
+            <div class="preview-stat"><div class="num">${fmtDateID(maxDate)}</div><div class="lbl">Tanggal Akhir</div></div>
+        </div>
+    `;
+
+    if (skipped.length > 0) {
+        html += `<div class="warn-box"><b>${skipped.length} baris dilewati</b>Baris dengan tanggal/shift tidak valid tidak ikut disubmit (contoh baris Excel: ${skipped.slice(0,5).map(s=>s.line).join(', ')}${skipped.length>5?', ...':''}).</div>`;
+    }
+
+    const previewRows = rows.slice(0, 15);
+    html += `
+        <div class="preview-table-wrap">
+            <table class="preview-table">
+                <thead><tr>
+                    <th>Tanggal</th><th>Shift</th><th>Target Adukan</th><th>Realisasi Adukan</th>
+                    <th>Target SFG Oven</th><th>Realisasi SFG Oven</th>
+                </tr></thead>
+                <tbody>
+                    ${previewRows.map(r => `
+                        <tr>
+                            <td>${fmtDateID(r.tanggal)}</td>
+                            <td>${r.shift}</td>
+                            <td>${r.target_adukan}</td>
+                            <td>${r.realisasi_adukan}</td>
+                            <td>${r.target_sfg_oven}</td>
+                            <td>${r.realisasi_sfg_oven}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+        ${rows.length > 15 ? `<p style="color:#9ca3af; font-size:11px; margin-top:6px;">Menampilkan 15 dari ${rows.length} baris.</p>` : ''}
+    `;
+
+    area.innerHTML = html;
+    document.getElementById('submit-card').style.display = 'block';
+}
+
+function resetForm() {
+    parsedRows = [];
+    fileInput.value = '';
+    document.getElementById('file-chip-area').innerHTML = '';
+    document.getElementById('preview-area').innerHTML = '';
+    document.getElementById('submit-card').style.display = 'none';
+    document.getElementById('status-line').textContent = '';
+    document.getElementById('status-line').className = 'status-line';
+    document.getElementById('progress-track').style.display = 'none';
+}
+
+async function submitData() {
+    if (parsedRows.length === 0) return;
+
+    const confirmed = confirm(
+        `Ini akan MENGHAPUS semua data extruder yang sudah tersimpan dan menggantinya dengan ${parsedRows.length} baris dari file ini.\n\nLanjutkan?`
+    );
+    if (!confirmed) return;
+
+    const btn = document.getElementById('btn-submit');
+    const status = document.getElementById('status-line');
+    const track = document.getElementById('progress-track');
+    const fill = document.getElementById('progress-fill');
+
+    btn.disabled = true;
+    track.style.display = 'block';
+    fill.style.width = '5%';
+    status.className = 'status-line busy';
+    status.textContent = 'Menghapus data lama...';
+
+    try {
+        const { error: delError } = await db
+            .from('extruder_daily')
+            .delete()
+            .gte('tanggal', '1900-01-01');
+
+        if (delError) throw new Error('Gagal menghapus data lama: ' + delError.message);
+
+        fill.style.width = '20%';
+        status.textContent = `Mengirim data baru (0 / ${parsedRows.length})...`;
+
+        const batchSize = 500;
+        let sent = 0;
+        for (let i = 0; i < parsedRows.length; i += batchSize) {
+            const batch = parsedRows.slice(i, i + batchSize);
+            const { error: insError } = await db.from('extruder_daily').insert(batch);
+            if (insError) throw new Error('Gagal menyimpan data baru: ' + insError.message);
+            sent += batch.length;
+            const pct = 20 + Math.round((sent / parsedRows.length) * 80);
+            fill.style.width = pct + '%';
+            status.textContent = `Mengirim data baru (${sent} / ${parsedRows.length})...`;
+        }
+
+        status.className = 'status-line ok';
+        status.textContent = `✅ Berhasil. ${parsedRows.length} baris data extruder tersimpan dan menggantikan data lama. Cek di Dashboard Utama.`;
+    } catch (err) {
+        console.error(err);
+        status.className = 'status-line err';
+        status.textContent = '❌ ' + (err.message || 'Terjadi kesalahan saat submit.');
+    } finally {
+        btn.disabled = false;
+    }
+}
+</script>
+</body>
+</html>
