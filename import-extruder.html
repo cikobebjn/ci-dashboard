@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -75,6 +74,8 @@ table.preview-table th {
     text-transform:uppercase; position:sticky; top:0;
 }
 table.preview-table td { padding:6px 10px; border-bottom:1px solid #f3f4f6; text-align:center; }
+table.preview-table td.empty-cell { color:#d1d5db; }
+table.preview-table tr.row-notrun td { background:#f9fafb; color:#9ca3af; }
 table.preview-table tr.row-warn td { background:#fef2f2; color:#dc2626; }
 
 .warn-box {
@@ -139,7 +140,9 @@ table.preview-table tr.row-warn td { background:#fef2f2; color:#dc2626; }
         <p style="color:#6b7280; font-size:13px; margin-top:-6px;">
             Format yang dibaca: sheet <b>DATA</b> dengan kolom Tanggal, Week, Bulan, Shift,
             Target Adukan, Realisasi Adukan, Target SFG Oven, Realisasi SFG Oven — sama seperti
-            file achievement extruder yang biasa dipakai.
+            file achievement extruder yang biasa dipakai. Shift yang tidak running boleh
+            dikosongkan (bukan diisi 0) — nilai kosong akan tetap disimpan kosong (null) supaya
+            bisa difilter dengan benar di Dashboard Utama.
         </p>
 
         <label class="upload-zone" id="upload-zone" for="file-input">
@@ -216,6 +219,15 @@ function fmtDateID(ymd) {
     return new Date(ymd + 'T00:00:00').toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric' });
 }
 
+// Helper: sel kosong (null/undefined/string kosong) -> null (BUKAN 0).
+// Ini penting supaya "shift tidak running" (kosong) tidak tertukar dengan
+// "shift running tapi hasilnya nol".
+function toNumOrNull(v) {
+    if (v === null || v === undefined || v === '') return null;
+    const n = Number(v);
+    return Number.isFinite(n) ? n : null;
+}
+
 function handleFile(file) {
     document.getElementById('file-chip-area').innerHTML = `
         <div class="file-chip">
@@ -259,6 +271,7 @@ function parseWorkbook(arrayBuffer) {
     const dataRows = rows.slice(headerIdx + 1);
     const good = [];
     const skipped = [];
+    let notRunCount = 0;
 
     dataRows.forEach((r, i) => {
         const [tanggalRaw, week, bulan, shift, targetAdukan, realisasiAdukan, , targetSfg, realisasiSfg] = r;
@@ -284,13 +297,15 @@ function parseWorkbook(arrayBuffer) {
             return;
         }
 
+        // Sel kosong disimpan sebagai null (bukan 0) supaya shift yang tidak
+        // running tetap bisa dibedakan dari shift yang running dengan hasil nol.
         const row = {
             tanggal,
             shift: Number(shift),
-            target_adukan: targetAdukan === null ? 0 : Number(targetAdukan),
-            realisasi_adukan: realisasiAdukan === null ? 0 : Number(realisasiAdukan),
-            target_sfg_oven: targetSfg === null ? 0 : Number(targetSfg),
-            realisasi_sfg_oven: realisasiSfg === null ? 0 : Number(realisasiSfg),
+            target_adukan: toNumOrNull(targetAdukan),
+            realisasi_adukan: toNumOrNull(realisasiAdukan),
+            target_sfg_oven: toNumOrNull(targetSfg),
+            realisasi_sfg_oven: toNumOrNull(realisasiSfg),
         };
 
         if (!Number.isFinite(row.shift)) {
@@ -298,14 +313,19 @@ function parseWorkbook(arrayBuffer) {
             return;
         }
 
+        const isNotRunning =
+            row.target_adukan === null && row.realisasi_adukan === null &&
+            row.target_sfg_oven === null && row.realisasi_sfg_oven === null;
+        if (isNotRunning) notRunCount++;
+
         good.push(row);
     });
 
     parsedRows = good;
-    renderPreview(good, skipped);
+    renderPreview(good, skipped, notRunCount);
 }
 
-function renderPreview(rows, skipped) {
+function renderPreview(rows, skipped, notRunCount) {
     const area = document.getElementById('preview-area');
 
     if (rows.length === 0) {
@@ -316,10 +336,13 @@ function renderPreview(rows, skipped) {
 
     const dates = rows.map(r => r.tanggal).sort();
     const minDate = dates[0], maxDate = dates[dates.length - 1];
+    const runningCount = rows.length - notRunCount;
 
     let html = `
         <div class="preview-summary">
-            <div class="preview-stat"><div class="num">${rows.length}</div><div class="lbl">Baris Data</div></div>
+            <div class="preview-stat"><div class="num">${rows.length}</div><div class="lbl">Total Baris</div></div>
+            <div class="preview-stat"><div class="num">${runningCount}</div><div class="lbl">Shift Running</div></div>
+            <div class="preview-stat"><div class="num">${notRunCount}</div><div class="lbl">Shift Tidak Running</div></div>
             <div class="preview-stat"><div class="num">${fmtDateID(minDate)}</div><div class="lbl">Tanggal Awal</div></div>
             <div class="preview-stat"><div class="num">${fmtDateID(maxDate)}</div><div class="lbl">Tanggal Akhir</div></div>
         </div>
@@ -329,6 +352,7 @@ function renderPreview(rows, skipped) {
         html += `<div class="warn-box"><b>${skipped.length} baris dilewati</b>Baris dengan tanggal/shift tidak valid tidak ikut disubmit (contoh baris Excel: ${skipped.slice(0,5).map(s=>s.line).join(', ')}${skipped.length>5?', ...':''}).</div>`;
     }
 
+    const cell = v => v === null ? '<span class="empty-cell">–</span>' : v;
     const previewRows = rows.slice(0, 15);
     html += `
         <div class="preview-table-wrap">
@@ -338,16 +362,19 @@ function renderPreview(rows, skipped) {
                     <th>Target SFG Oven</th><th>Realisasi SFG Oven</th>
                 </tr></thead>
                 <tbody>
-                    ${previewRows.map(r => `
-                        <tr>
+                    ${previewRows.map(r => {
+                        const isNotRunning = r.target_adukan === null && r.realisasi_adukan === null &&
+                            r.target_sfg_oven === null && r.realisasi_sfg_oven === null;
+                        return `
+                        <tr class="${isNotRunning ? 'row-notrun' : ''}">
                             <td>${fmtDateID(r.tanggal)}</td>
                             <td>${r.shift}</td>
-                            <td>${r.target_adukan}</td>
-                            <td>${r.realisasi_adukan}</td>
-                            <td>${r.target_sfg_oven}</td>
-                            <td>${r.realisasi_sfg_oven}</td>
+                            <td>${cell(r.target_adukan)}</td>
+                            <td>${cell(r.realisasi_adukan)}</td>
+                            <td>${cell(r.target_sfg_oven)}</td>
+                            <td>${cell(r.realisasi_sfg_oven)}</td>
                         </tr>
-                    `).join('')}
+                    `;}).join('')}
                 </tbody>
             </table>
         </div>
