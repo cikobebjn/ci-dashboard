@@ -139,6 +139,7 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
 .card.fryer-mini-card         { border-top-color:#0891b2; }
 .card.proses-mini-card        { border-top-color:#d97706; }
 .card.cost-material-card      { border-top-color:#0d9488; }
+.card.variance-card           { border-top-color:#ec4899; }
 .waste-detail-table { width:100%; border-collapse:collapse; font-size:11px; margin-top:10px; }
 .waste-detail-table td { padding:5px 4px; border-bottom:1px solid #f3f4f6; }
 .waste-detail-table tr:last-child td { border-bottom:none; }
@@ -315,6 +316,8 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
     <a href="tonase.html">Tonase</a>
     <a href="waste.html">Waste</a>
     <a href="cost-material.html">Cost Material</a>
+    <a href="input-cost-material.html">Input Cost Material</a>
+    <a href="input-variance.html">📊 Input Variance</a>
     <a href="improvement-monitoring.html">Improvement Monitoring</a>
     <a href="smartway.html" style="margin-top:20px; border-top:1px solid #374151;">🛠️ Smart Way</a>
     <a href="baopack.html">📦 Baopack</a>
@@ -391,6 +394,14 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
             <div class="card-date" id="date-cost"></div>
             <span class="target-badge" id="cost-target-badge">Target: ≤ Rp 28.000/ton</span>
             <table class="waste-detail-table" id="cost-detail-table"><tbody></tbody></table>
+        </div>
+
+        <div class="card variance-card">
+            <h3>📊 Variance Material</h3>
+            <div class="value loading" id="val-variance-total">...</div>
+            <div class="card-date" id="date-variance"></div>
+            <div class="card-sub" id="sub-variance"></div>
+            <table class="waste-detail-table" id="variance-detail-table"><tbody></tbody></table>
         </div>
 
     </div>
@@ -542,6 +553,7 @@ let lastLoadedData = {
     wasteProses: [],
     costMaterial: [],
     extruderDaily: [],
+    varianceWeekly: [],
 };
 
 // Ringkasan kartu Cost Material / Ton, dihitung ulang tiap kali data cost material
@@ -834,8 +846,65 @@ async function loadData(sDate, eDate) {
     // ── Cost Material per Week ──
     await loadCostMaterial();
 
+    // ── Variance Material (per week, tidak terikat filter tanggal) ──
+    await loadVarianceCard();
+
     // ── Extruder ──
     await loadExtruder(sDate, eDate);
+}
+
+// ── Variance Material (kartu Ringkasan) ──
+// Tabel Supabase: variance_weekly (tahun, minggu_ke, short_text, variance_val,
+// pct_var_val, pct_var_qty). Diisi lewat menu Input Variance (upload file
+// "Variance_Week_XX.xlsx", sheet "Resume"). Kartu ini menampilkan minggu
+// terakhir yang datanya ada, tidak terikat rentang tanggal Ringkasan.
+async function loadVarianceCard() {
+    const totalEl = document.getElementById('val-variance-total');
+    const dateEl  = document.getElementById('date-variance');
+    const subEl   = document.getElementById('sub-variance');
+    const tbody   = document.querySelector('#variance-detail-table tbody');
+
+    const { data: latestRow } = await db
+        .from('variance_weekly')
+        .select('tahun,minggu_ke')
+        .order('tahun', { ascending: false })
+        .order('minggu_ke', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+    if (!latestRow) {
+        lastLoadedData.varianceWeekly = [];
+        totalEl.textContent = '—'; totalEl.className = 'value';
+        dateEl.textContent = 'Belum ada data'; subEl.textContent = '';
+        tbody.innerHTML = '';
+        return;
+    }
+
+    const { data: rows } = await db
+        .from('variance_weekly')
+        .select('*')
+        .eq('tahun', latestRow.tahun)
+        .eq('minggu_ke', latestRow.minggu_ke)
+        .limit(5000);
+
+    lastLoadedData.varianceWeekly = rows || [];
+
+    const total = (rows || []).reduce((s, r) => s + (r.variance_val || 0), 0);
+    totalEl.innerHTML = fmtRupiah(total);
+    totalEl.className = 'value ' + (total > 0 ? 'low' : 'good');
+    dateEl.textContent = `Week ${latestRow.minggu_ke} - ${latestRow.tahun}`;
+    subEl.textContent = `${(rows || []).length} item material`;
+
+    const top = [...(rows || [])]
+        .sort((a, b) => Math.abs(b.variance_val || 0) - Math.abs(a.variance_val || 0))
+        .slice(0, 6);
+
+    tbody.innerHTML = top.map(r => `
+        <tr>
+            <td class="mesin-name">${r.short_text}</td>
+            <td class="waste-val ${(r.variance_val || 0) > 0 ? 'over' : ''}">${fmtRupiah(r.variance_val)}</td>
+        </tr>
+    `).join('');
 }
 
 function renderWasteDetail(kategori, perMesin, batasMap, unit) {
@@ -1239,6 +1308,7 @@ function exportExcel() {
         tambahSheet('Waste Fryer', lastLoadedData.wasteFryer);
         tambahSheet('Waste Proses', lastLoadedData.wasteProses);
         tambahSheet('Cost Material Mingguan', lastLoadedData.costMaterial);
+        tambahSheet('Variance Material', lastLoadedData.varianceWeekly);
         tambahSheet('Extruder Harian', lastLoadedData.extruderDaily);
 
         if (sheetCount === 0) {
