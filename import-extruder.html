@@ -260,7 +260,16 @@ function handleFile(file) {
 }
 
 function parseWorkbook(arrayBuffer) {
-    const wb = XLSX.read(arrayBuffer, { type: 'array', cellDates: true });
+    // PENTING: cellDates TIDAK dipakai lagi (sebelumnya: cellDates:true).
+    // Alasan: SheetJS mengonversi serial tanggal Excel jadi objek Date JS,
+    // dan cara konversi itu ternyata terpengaruh timezone browser dengan cara
+    // yang tidak konsisten (terbukti: tanggal bisa geser 1 hari tergantung
+    // timezone sistem, meski sudah dicoba getDate() maupun getUTCDate()).
+    // Sekarang tanggal dibaca sebagai ANGKA SERIAL EXCEL MENTAH, lalu
+    // di-parse manual lewat XLSX.SSF.parse_date_code() — murni aritmatika,
+    // tidak menyentuh objek Date/timezone sama sekali, jadi hasilnya selalu
+    // sama persis di browser/timezone manapun.
+    const wb = XLSX.read(arrayBuffer, { type: 'array' });
     const sheetName = wb.SheetNames.includes('DATA') ? 'DATA' : wb.SheetNames[0];
     const ws = wb.Sheets[sheetName];
     const rows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: true, defval: null });
@@ -287,15 +296,22 @@ function parseWorkbook(arrayBuffer) {
         }
 
         let tanggal = null;
-        if (tanggalRaw instanceof Date) {
-            tanggal = toYMD(tanggalRaw);
-        } else if (typeof tanggalRaw === 'number') {
-            // fallback: serial Excel jika cellDates gagal terbaca sebagai Date
+        if (typeof tanggalRaw === 'number') {
+            // Jalur utama: serial Excel murni -> {y,m,d} lewat SSF, tanpa objek Date sama sekali.
             const parsed = XLSX.SSF.parse_date_code(tanggalRaw);
             if (parsed) tanggal = `${parsed.y}-${String(parsed.m).padStart(2,'0')}-${String(parsed.d).padStart(2,'0')}`;
+        } else if (tanggalRaw instanceof Date) {
+            // Jaga-jaga kalau suatu saat cellDates aktif lagi / versi SheetJS beda.
+            tanggal = toYMD(tanggalRaw);
         } else if (typeof tanggalRaw === 'string' && tanggalRaw.trim()) {
-            const d = new Date(tanggalRaw);
-            if (!isNaN(d)) tanggal = toYMD(d);
+            // Jaga-jaga kalau sel tanggal ternyata berupa teks, bukan serial number.
+            const m = tanggalRaw.trim().match(/^(\d{4})-(\d{2})-(\d{2})/);
+            if (m) {
+                tanggal = `${m[1]}-${m[2]}-${m[3]}`;
+            } else {
+                const d = new Date(tanggalRaw);
+                if (!isNaN(d)) tanggal = toYMD(d);
+            }
         }
 
         if (!tanggal) {
