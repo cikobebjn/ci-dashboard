@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -169,6 +168,20 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
 .cost-table td.total-col { font-weight:700; }
 .cost-table td.total-col.good { color:#16a34a; }
 .cost-table td.total-col.low  { color:#dc2626; }
+
+/* Cost material card period toggle (Mingguan / Bulanan) */
+.cost-period-toggle {
+    display:flex; gap:6px; margin-bottom:10px;
+}
+.cost-period-toggle .period-btn {
+    background:#f3f4f6; color:#6b7280; border:1px solid #e5e7eb;
+    padding:4px 10px; border-radius:6px; cursor:pointer;
+    font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.03em;
+}
+.cost-period-toggle .period-btn.active {
+    background:#0d9488; color:white; border-color:#0d9488;
+}
+.cost-period-toggle .period-btn:hover:not(.active) { background:#e5e7eb; }
 
 /* Extruder */
 .card.extruder-card { border-top-color:#ea580c; }
@@ -370,6 +383,10 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
 
         <div class="card cost-material-card">
             <h3>💰 Cost Material / Ton</h3>
+            <div class="cost-period-toggle">
+                <button type="button" class="period-btn active" id="btn-cost-weekly" onclick="switchCostPeriod('weekly')">Mingguan</button>
+                <button type="button" class="period-btn" id="btn-cost-monthly" onclick="switchCostPeriod('monthly')">Bulanan</button>
+            </div>
             <div class="value loading" id="val-cost-total">...</div>
             <div class="card-date" id="date-cost"></div>
             <span class="target-badge" id="cost-target-badge">Target: ≤ Rp 28.000/ton</span>
@@ -526,6 +543,11 @@ let lastLoadedData = {
     costMaterial: [],
     extruderDaily: [],
 };
+
+// Ringkasan kartu Cost Material / Ton, dihitung ulang tiap kali data cost material
+// diambil. Dipakai oleh toggle Mingguan / Bulanan di kartu Ringkasan.
+let costCardStats = { weekly: null, monthly: null };
+let costCardPeriod = 'weekly';
 
 // Item yang bernama seperti ini adalah PEMAKAIAN BAHAN, bukan waste,
 // jadi tidak boleh ikut dijumlah ke total waste kartu proses.
@@ -951,54 +973,119 @@ async function loadWasteProses(sDate, eDate) {
     });
 }
 
-// ── Cost Material per Week (Simulasi Ratio COGM) ──
-// Ratio (Rp/ton) dihitung di sisi klien: value / tonase, sesuai rumus di file Excel-nya.
-// Tabel ini per-minggu dan tidak terikat pada filter tanggal harian.
-async function loadCostMaterial() {
-    const { data: rows } = await db
-        .from('cost_material_weekly')
-        .select('*')
-        .order('tahun', { ascending: false })
-        .order('minggu_ke', { ascending: false })
-        .limit(8);
+// ── ISO week helpers (dipakai untuk mengelompokkan minggu ke bulan kalender) ──
+// Mengembalikan tanggal Kamis dari suatu ISO week (Kamis dipakai sebagai acuan
+// standar ISO 8601 untuk menentukan bulan/tahun "pemilik" minggu tsb).
+function isoWeekToThursday(tahun, mingguKe) {
+    const simple = new Date(Date.UTC(tahun, 0, 1 + (mingguKe - 1) * 7));
+    const dow = simple.getUTCDay() || 7;
+    simple.setUTCDate(simple.getUTCDate() - dow + 4); // geser ke hari Kamis di minggu yg sama
+    return simple;
+}
+const NAMA_BULAN_ID = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 
-    lastLoadedData.costMaterial = rows || [];
+// Menghitung ringkasan (ratio Rp/ton) dari sekumpulan baris cost_material_weekly.
+function hitungRatioCost(rows) {
+    const totalPkg = rows.reduce((s, r) => s + (r.packaging_value || 0), 0);
+    const totalRaw = rows.reduce((s, r) => s + (r.raw_material_value || 0), 0);
+    const totalSfg = rows.reduce((s, r) => s + (r.sfg_value || 0), 0);
+    const totalTon = rows.reduce((s, r) => s + (r.tonase || 0), 0);
+    const target   = rows.length ? (rows[rows.length - 1].target_cost_per_ton || 28000) : 28000;
+    return {
+        pkgRatio: totalTon ? totalPkg / totalTon : 0,
+        rawRatio: totalTon ? totalRaw / totalTon : 0,
+        sfgRatio: totalTon ? totalSfg / totalTon : 0,
+        totalRatio: totalTon ? (totalPkg + totalRaw + totalSfg) / totalTon : 0,
+        target,
+    };
+}
 
-    const tbody       = document.getElementById('tbl-cost-body');
-    const titleWeek    = document.getElementById('title-cost-week');
-    const totalEl      = document.getElementById('val-cost-total');
+// Menampilkan salah satu ringkasan (weekly/monthly) yang sudah dihitung ke kartu Ringkasan.
+function renderCostCard(period) {
+    const stats = costCardStats[period];
+    const totalEl     = document.getElementById('val-cost-total');
     const dateEl       = document.getElementById('date-cost');
     const badgeEl      = document.getElementById('cost-target-badge');
     const detailTbody  = document.querySelector('#cost-detail-table tbody');
 
-    if (!rows || rows.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#9ca3af; padding:20px;">Belum ada data cost material</td></tr>';
-        titleWeek.textContent = '';
+    if (!stats) {
         totalEl.textContent = '—'; totalEl.className = 'value';
         dateEl.textContent = 'Belum ada data';
+        badgeEl.textContent = 'Target: ≤ Rp 28.000/ton';
         detailTbody.innerHTML = '';
         return;
     }
 
-    // Data terbaru (minggu terakhir) untuk kartu ringkasan
-    const latest = rows[0];
-    const pkgRatioLatest = latest.tonase ? (latest.packaging_value || 0) / latest.tonase : 0;
-    const rawRatioLatest = latest.tonase ? (latest.raw_material_value || 0) / latest.tonase : 0;
-    const sfgRatioLatest = latest.tonase ? (latest.sfg_value || 0) / latest.tonase : 0;
-    const latestTotalRatio = pkgRatioLatest + rawRatioLatest + sfgRatioLatest;
-    const target = latest.target_cost_per_ton || 28000;
+    totalEl.innerHTML = Math.round(stats.totalRatio).toLocaleString('id-ID') + '<span class="kpi-unit"> /ton</span>';
+    totalEl.className = 'value ' + (stats.totalRatio <= stats.target ? 'good' : 'low');
+    dateEl.textContent = stats.label;
+    badgeEl.textContent = `Target: ≤ Rp ${Math.round(stats.target).toLocaleString('id-ID')}/ton`;
 
-    totalEl.innerHTML = Math.round(latestTotalRatio).toLocaleString('id-ID') + '<span class="kpi-unit"> /ton</span>';
-    totalEl.className = 'value ' + (latestTotalRatio <= target ? 'good' : 'low');
-    dateEl.textContent = `Week ${latest.minggu_ke} - ${latest.tahun}`;
-    badgeEl.textContent = `Target: ≤ Rp ${Math.round(target).toLocaleString('id-ID')}/ton`;
-
-    // Breakdown PM / RM / SFG di bawah total, seperti di Excel
     detailTbody.innerHTML = `
-        <tr><td class="mesin-name">Packaging Material</td><td class="waste-val">${fmtRupiah(pkgRatioLatest)}</td></tr>
-        <tr><td class="mesin-name">Raw Material</td><td class="waste-val">${fmtRupiah(rawRatioLatest)}</td></tr>
-        <tr><td class="mesin-name">SFG</td><td class="waste-val">${fmtRupiah(sfgRatioLatest)}</td></tr>
+        <tr><td class="mesin-name">Packaging Material</td><td class="waste-val">${fmtRupiah(stats.pkgRatio)}</td></tr>
+        <tr><td class="mesin-name">Raw Material</td><td class="waste-val">${fmtRupiah(stats.rawRatio)}</td></tr>
+        <tr><td class="mesin-name">SFG</td><td class="waste-val">${fmtRupiah(stats.sfgRatio)}</td></tr>
     `;
+}
+
+// Dipanggil dari tombol toggle Mingguan / Bulanan di kartu Ringkasan.
+function switchCostPeriod(period) {
+    costCardPeriod = period;
+    document.getElementById('btn-cost-weekly').classList.toggle('active', period === 'weekly');
+    document.getElementById('btn-cost-monthly').classList.toggle('active', period === 'monthly');
+    renderCostCard(period);
+}
+
+// ── Cost Material per Week (Simulasi Ratio COGM) ──
+// Ratio (Rp/ton) dihitung di sisi klien: value / tonase, sesuai rumus di file Excel-nya.
+// Tabel ini per-minggu dan tidak terikat pada filter tanggal harian.
+// Diambil lebih dari 8 minggu (limit 15) supaya cukup data untuk menghitung
+// agregat bulan berjalan (kartu Ringkasan → toggle Bulanan) tanpa mengubah
+// tabel tren mingguan di bawah, yang tetap menampilkan 8 minggu terakhir.
+async function loadCostMaterial() {
+    const { data: rowsRaw } = await db
+        .from('cost_material_weekly')
+        .select('*')
+        .order('tahun', { ascending: false })
+        .order('minggu_ke', { ascending: false })
+        .limit(15);
+
+    const rowsDesc = rowsRaw || [];
+    const rows = rowsDesc.slice(0, 8); // 8 minggu terakhir untuk tabel tren
+
+    lastLoadedData.costMaterial = rows;
+
+    const tbody       = document.getElementById('tbl-cost-body');
+    const titleWeek    = document.getElementById('title-cost-week');
+
+    if (rowsDesc.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#9ca3af; padding:20px;">Belum ada data cost material</td></tr>';
+        titleWeek.textContent = '';
+        costCardStats = { weekly: null, monthly: null };
+        renderCostCard(costCardPeriod);
+        return;
+    }
+
+    // ── Ringkasan Mingguan: data minggu terbaru saja ──
+    const latest = rowsDesc[0];
+    const weeklyStat = hitungRatioCost([latest]);
+    weeklyStat.label = `Week ${latest.minggu_ke} - ${latest.tahun}`;
+    costCardStats.weekly = weeklyStat;
+
+    // ── Ringkasan Bulanan: semua minggu (dari 15 yg diambil) yang jatuh di bulan
+    //    kalender yang sama dengan minggu terbaru (ditentukan lewat hari Kamis
+    //    tiap ISO week, sesuai standar ISO 8601) ──
+    const latestThu = isoWeekToThursday(latest.tahun, latest.minggu_ke);
+    const latestMonthKey = `${latestThu.getUTCFullYear()}-${latestThu.getUTCMonth()}`;
+    const monthRows = rowsDesc.filter(r => {
+        const thu = isoWeekToThursday(r.tahun, r.minggu_ke);
+        return `${thu.getUTCFullYear()}-${thu.getUTCMonth()}` === latestMonthKey;
+    });
+    const monthlyStat = hitungRatioCost(monthRows);
+    monthlyStat.label = `${NAMA_BULAN_ID[latestThu.getUTCMonth()]} ${latestThu.getUTCFullYear()} (${monthRows.length} minggu)`;
+    costCardStats.monthly = monthlyStat;
+
+    renderCostCard(costCardPeriod);
 
     titleWeek.textContent = `— Week ${rows[rows.length - 1].minggu_ke} s.d. Week ${latest.minggu_ke} / ${latest.tahun}`;
 
