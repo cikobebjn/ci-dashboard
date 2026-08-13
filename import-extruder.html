@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -208,10 +209,15 @@ fileInput.addEventListener('change', e => {
     if (e.target.files && e.target.files[0]) handleFile(e.target.files[0]);
 });
 
+// PENTING: pakai method UTC (getUTCFullYear/getUTCMonth/getUTCDate), BUKAN
+// getFullYear/getMonth/getDate biasa. SheetJS selalu membuat objek Date dari
+// sel tanggal Excel dalam UTC (misal "2026-08-12T00:00:00.000Z"). Kalau pakai
+// method lokal, hasilnya tergantung timezone sistem komputer/browser — kalau
+// timezone-nya di belakang UTC, semua tanggal akan geser mundur 1 hari.
 function toYMD(d) {
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
+    const y = d.getUTCFullYear();
+    const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(d.getUTCDate()).padStart(2, '0');
     return `${y}-${m}-${day}`;
 }
 
