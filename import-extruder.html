@@ -344,13 +344,6 @@ function parseWorkbook(arrayBuffer) {
     });
 
     parsedRows = good;
-
-    // DEBUG SEMENTARA — hapus setelah masalah tanggal geser selesai didiagnosa.
-    console.log('=== DEBUG: baris 10-14 Agustus 2026 hasil parsing ===');
-    good.filter(r => r.tanggal >= '2026-08-10' && r.tanggal <= '2026-08-14')
-        .forEach(r => console.log(r.tanggal, 'shift', r.shift, '| realisasi_adukan=', r.realisasi_adukan, '| realisasi_sfg=', r.realisasi_sfg_oven));
-    console.log('=== END DEBUG ===');
-
     renderPreview(good, skipped, notRunCount);
 }
 
