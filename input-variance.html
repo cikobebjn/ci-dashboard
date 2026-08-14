@@ -44,9 +44,10 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
 }
 .upload-box input[type=file] { font-size:13px; }
 .upload-box .hint { font-size:11px; color:#6b7280; margin-top:8px; }
-.form-row-inline { display:flex; align-items:center; gap:10px; margin-bottom:14px; flex-wrap:wrap; }
+.form-row-inline { display:flex; align-items:center; gap:10px; margin-bottom:6px; flex-wrap:wrap; }
 .form-row-inline label { font-size:12px; font-weight:600; color:#6b7280; text-transform:uppercase; letter-spacing:0.04em; white-space:nowrap; }
 .form-row-inline input { padding:8px 10px; border:1px solid #d1d5db; border-radius:8px; font-size:13px; width:110px; }
+.form-row-hint { font-size:11px; color:#9ca3af; margin-bottom:14px; }
 
 .btn-secondary {
     background:white; color:#db2777; border:1px solid #db2777;
@@ -85,6 +86,11 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
 .preview-table td.val-cell { font-weight:600; }
 .preview-table td.val-cell.over { color:#dc2626; }
 .preview-table td.val-cell.under { color:#16a34a; }
+.preview-table tr.week-head td {
+    text-align:left; background:#fdf2f8; color:#9d174d;
+    font-weight:700; font-size:11px; text-transform:uppercase; letter-spacing:0.03em;
+    border-bottom:2px solid #fbcfe8;
+}
 
 .riwayat-table { width:100%; border-collapse:collapse; font-size:12px; margin-top:12px; }
 .riwayat-table th {
@@ -125,16 +131,17 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
     <div class="card-wide">
         <div class="upload-box">
             <input type="file" id="file-excel" accept=".xlsx,.xls">
-            <div class="hint">Upload file "Variance_Week_XX.xlsx" — data dibaca dari sheet "Resume" (kolom Week, Short Text, Sum of Variance Val, Sum of % Var Val, Sum of % Var Qty), berhenti otomatis di baris "Grand Total".</div>
+            <div class="hint">Upload file "Variance_Week_XX.xlsx" — data dibaca dari sheet "Resume" (kolom Week, Short Text, Sum of Variance Val, Sum of % Var Val, Sum of % Var Qty), berhenti otomatis di baris "Grand Total". Kalau file berisi lebih dari satu minggu, semua minggu ikut terbaca dan tersimpan sesuai Week masing-masing.</div>
         </div>
 
         <div class="form-row-inline">
-            <label>Tahun data</label>
+            <label>Tahun fallback</label>
             <input type="number" id="upload-tahun">
-            <label style="margin-left:8px;">Week ke-</label>
+            <label style="margin-left:8px;">Week fallback</label>
             <input type="number" id="upload-minggu">
             <span class="hint" id="upload-file-info"></span>
         </div>
+        <div class="form-row-hint">Dua isian di atas cuma dipakai kalau Week/Tahun tidak berhasil terbaca otomatis dari file (mis. baris tanpa label Week, atau sheet "Data" untuk deteksi tahun tidak ada).</div>
 
         <button type="button" class="btn-secondary" id="btn-parse">📄 Baca File & Tampilkan Preview</button>
 
@@ -201,7 +208,8 @@ function fmtPct(v) {
     return (v * 100).toFixed(1) + '%';
 }
 
-let parsedRows = []; // hasil parse excel (belum tentu tersimpan)
+let parsedRows = []; // hasil parse excel (belum tentu tersimpan), bisa mencakup > 1 minggu
+let weekYearMap = {}; // { minggu_ke: tahun } — hasil deteksi otomatis dari sheet "Data" per minggu
 
 // Cari baris header di sheet "Resume": baris yang punya sel "Week" dan "Short Text".
 function findHeaderRow(aoa) {
@@ -217,7 +225,8 @@ function findHeaderRow(aoa) {
 
 // Parse sheet "Resume": kolom Week cuma terisi di baris pertama tiap kelompok minggu
 // (baris di bawahnya kosong / merged secara visual), jadi nilainya di-"forward-fill".
-// Berhenti otomatis begitu ketemu baris "Grand Total".
+// Kalau file berisi beberapa minggu berurutan, semuanya ikut terbaca (tidak berhenti
+// di pergantian minggu) — hanya berhenti otomatis begitu ketemu baris "Grand Total".
 function parseVarianceSheet(wb) {
     const sheetName = wb.SheetNames.find(n => /resume/i.test(n)) || wb.SheetNames[0];
     const ws = wb.Sheets[sheetName];
@@ -246,6 +255,9 @@ function parseVarianceSheet(wb) {
 
         if (typeof weekCell === 'string' && /grand total/i.test(weekCell)) break;
         if (typeof shortText === 'string' && /grand total/i.test(shortText)) break;
+        // Baris subtotal per-minggu (mis. "32 Total") tidak dianggap item, dilewati saja
+        // supaya tidak ikut tersimpan sebagai baris material.
+        if (typeof shortText === 'string' && /^total$/i.test(shortText.trim())) continue;
         if (weekCell !== null && weekCell !== undefined && weekCell !== '') currentWeek = weekCell;
         if (!shortText) continue;
 
@@ -261,6 +273,8 @@ function parseVarianceSheet(wb) {
 }
 
 // Coba tebak tahun dari sheet "Data" (kolom "Scheduled start"), dicocokkan ke minggu target.
+// Dipanggil sekali per minggu yang terdeteksi, supaya file yang mencakup beberapa
+// minggu (bahkan lintas pergantian tahun) tetap tersimpan dengan tahun yang benar.
 function guessYearFromWorkbook(wb, targetWeek) {
     const dataSheetName = wb.SheetNames.find(n => /^data$/i.test(n));
     if (!dataSheetName) return null;
@@ -284,7 +298,8 @@ document.getElementById('file-excel').addEventListener('change', () => {
     const f = document.getElementById('file-excel').files[0];
     document.getElementById('upload-file-info').textContent = f ? f.name : '';
     if (f) {
-        // Coba tebak Week dari nama file, cth "Variance_Week_32.xlsx"
+        // Coba tebak Week dari nama file, cth "Variance_Week_32.xlsx" — dipakai
+        // sebagai fallback saja kalau file ternyata cuma berisi 1 minggu tanpa label.
         const m = f.name.match(/week[_\s]*(\d+)/i);
         if (m) document.getElementById('upload-minggu').value = parseInt(m[1]);
     }
@@ -305,16 +320,24 @@ document.getElementById('btn-parse').addEventListener('click', async () => {
         parsedRows = parseVarianceSheet(wb);
         if (parsedRows.length === 0) throw new Error('Tidak ada baris item yang terbaca (cek sheet "Resume").');
 
-        let mingguInput = parseInt(document.getElementById('upload-minggu').value);
-        if (!mingguInput) {
-            mingguInput = parsedRows[0].minggu_ke || null;
-            if (mingguInput) document.getElementById('upload-minggu').value = mingguInput;
-        }
+        // Deteksi tahun otomatis untuk SETIAP minggu yang ditemukan di file (bukan cuma
+        // minggu pertama), supaya file multi-minggu tetap tersimpan dengan tahun yang benar.
+        const distinctWeeks = [...new Set(parsedRows.map(r => r.minggu_ke).filter(w => w !== null && w !== undefined && w !== ''))];
+        weekYearMap = {};
+        distinctWeeks.forEach(wk => {
+            const y = guessYearFromWorkbook(wb, wk);
+            if (y) weekYearMap[wk] = y;
+        });
 
-        let tahunInput = parseInt(document.getElementById('upload-tahun').value);
-        if (!tahunInput) {
-            tahunInput = guessYearFromWorkbook(wb, mingguInput) || new Date().getFullYear();
-            document.getElementById('upload-tahun').value = tahunInput;
+        // Isi input fallback "Week" & "Tahun" kalau masih kosong, memakai minggu
+        // pertama yang ditemukan sebagai contoh (hanya dipakai untuk baris yang
+        // minggu_ke-nya tidak terbaca sama sekali dari file).
+        if (!parseInt(document.getElementById('upload-minggu').value) && distinctWeeks.length) {
+            document.getElementById('upload-minggu').value = distinctWeeks[0];
+        }
+        if (!parseInt(document.getElementById('upload-tahun').value)) {
+            const firstYear = weekYearMap[distinctWeeks[0]];
+            document.getElementById('upload-tahun').value = firstYear || new Date().getFullYear();
         }
 
         renderPreview();
@@ -326,37 +349,65 @@ document.getElementById('btn-parse').addEventListener('click', async () => {
     }
 });
 
+// Preview dikelompokkan per Week (dengan header + subtotal per minggu), supaya jelas
+// kalau satu file ternyata mencakup lebih dari satu minggu sekaligus.
 function renderPreview() {
     const total = parsedRows.reduce((s, r) => s + (r.variance_val || 0), 0);
+    const tahunFallback = parseInt(document.getElementById('upload-tahun').value) || new Date().getFullYear();
+
+    const byWeek = {};
+    parsedRows.forEach(r => {
+        const wk = (r.minggu_ke === null || r.minggu_ke === undefined || r.minggu_ke === '') ? '__tanpa_week__' : r.minggu_ke;
+        if (!byWeek[wk]) byWeek[wk] = [];
+        byWeek[wk].push(r);
+    });
+    const weekKeys = Object.keys(byWeek);
+
     document.getElementById('summary-line').innerHTML =
-        `Ditemukan <b>${parsedRows.length} item</b> material &nbsp;|&nbsp; Total Variance: <b>${fmtRupiah(total)}</b> ` +
-        `&nbsp;<span class="hint" style="display:inline;">(semua ${parsedRows.length} item akan disimpan — preview di bawah diurutkan dari nilai variance terbesar)</span>`;
+        `Ditemukan <b>${parsedRows.length} item</b> material di <b>${weekKeys.length} minggu</b> ` +
+        `(${weekKeys.map(w => w === '__tanpa_week__' ? 'tanpa label Week' : 'Week ' + w).join(', ')}) ` +
+        `&nbsp;|&nbsp; Total Variance: <b>${fmtRupiah(total)}</b> ` +
+        `&nbsp;<span class="hint" style="display:inline;">(semua item & semua minggu akan disimpan sesuai Week masing-masing)</span>`;
 
     const tbody = document.getElementById('tbl-preview');
-    const sorted = [...parsedRows].sort((a, b) => Math.abs(b.variance_val || 0) - Math.abs(a.variance_val || 0));
     tbody.innerHTML = '';
-    sorted.forEach(r => {
-        const isOver = (r.variance_val || 0) > 0;
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>${r.short_text}</td>
-            <td class="val-cell ${isOver ? 'over' : 'under'}">${fmtRupiah(r.variance_val)}</td>
-            <td>${fmtPct(r.pct_var_val)}</td>
-            <td>${fmtPct(r.pct_var_qty)}</td>
-        `;
-        tbody.appendChild(tr);
+
+    weekKeys.forEach(wk => {
+        const rows = byWeek[wk];
+        const subtotal = rows.reduce((s, r) => s + (r.variance_val || 0), 0);
+        const isNoWeek = wk === '__tanpa_week__';
+        const wkLabel = isNoWeek ? (parseInt(document.getElementById('upload-minggu').value) || '?') : wk;
+        const yr = isNoWeek ? tahunFallback : (weekYearMap[wk] || tahunFallback);
+
+        const trHead = document.createElement('tr');
+        trHead.className = 'week-head';
+        trHead.innerHTML = `<td colspan="4">Week ${wkLabel} / ${yr}${isNoWeek ? ' (fallback, tidak terbaca dari file)' : ''} — ${rows.length} item — Total ${fmtRupiah(subtotal)}</td>`;
+        tbody.appendChild(trHead);
+
+        const sorted = [...rows].sort((a, b) => Math.abs(b.variance_val || 0) - Math.abs(a.variance_val || 0));
+        sorted.forEach(r => {
+            const isOver = (r.variance_val || 0) > 0;
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${r.short_text}</td>
+                <td class="val-cell ${isOver ? 'over' : 'under'}">${fmtRupiah(r.variance_val)}</td>
+                <td>${fmtPct(r.pct_var_val)}</td>
+                <td>${fmtPct(r.pct_var_qty)}</td>
+            `;
+            tbody.appendChild(tr);
+        });
     });
 }
 
 document.getElementById('btn-save-all').addEventListener('click', async () => {
     const btn = document.getElementById('btn-save-all');
     const statusEl = document.getElementById('upload-status-msg');
-    const tahun  = parseInt(document.getElementById('upload-tahun').value) || new Date().getFullYear();
-    const minggu = parseInt(document.getElementById('upload-minggu').value);
+    const tahunFallback  = parseInt(document.getElementById('upload-tahun').value) || new Date().getFullYear();
+    const mingguFallback = parseInt(document.getElementById('upload-minggu').value);
 
-    if (!minggu) {
+    if (!mingguFallback && parsedRows.some(r => r.minggu_ke === null || r.minggu_ke === undefined || r.minggu_ke === '')) {
         statusEl.className = 'status-msg err';
-        statusEl.textContent = 'Isi "Week ke-" dulu sebelum menyimpan.';
+        statusEl.textContent = 'Ada item tanpa label Week di file — isi "Week fallback" dulu sebelum menyimpan.';
         return;
     }
 
@@ -364,14 +415,24 @@ document.getElementById('btn-save-all').addEventListener('click', async () => {
     btn.textContent = 'Menyimpan...';
     statusEl.className = 'status-msg';
 
-    const payloads = parsedRows.map(r => ({
-        tahun,
-        minggu_ke: minggu,
-        short_text: r.short_text,
-        variance_val: r.variance_val,
-        pct_var_val: r.pct_var_val,
-        pct_var_qty: r.pct_var_qty,
-    }));
+    // Setiap baris disimpan dengan minggu_ke & tahun MILIKNYA SENDIRI (hasil parse +
+    // deteksi otomatis), bukan dipaksa satu nilai — inilah perbaikan supaya file yang
+    // berisi beberapa minggu sekaligus tersimpan lengkap, bukan cuma minggu terakhir.
+    const payloads = parsedRows.map(r => {
+        const hasWeek = !(r.minggu_ke === null || r.minggu_ke === undefined || r.minggu_ke === '');
+        const minggu_ke = hasWeek ? r.minggu_ke : mingguFallback;
+        const tahun = (hasWeek && weekYearMap[r.minggu_ke]) ? weekYearMap[r.minggu_ke] : tahunFallback;
+        return {
+            tahun,
+            minggu_ke,
+            short_text: r.short_text,
+            variance_val: r.variance_val,
+            pct_var_val: r.pct_var_val,
+            pct_var_qty: r.pct_var_qty,
+        };
+    });
+
+    const jumlahMinggu = new Set(payloads.map(p => `${p.tahun}-${p.minggu_ke}`)).size;
 
     // Kirim per-batch (500 baris) supaya tidak melebihi limit payload Supabase.
     const BATCH = 500;
@@ -392,7 +453,7 @@ document.getElementById('btn-save-all').addEventListener('click', async () => {
         statusEl.textContent = 'Gagal menyimpan: ' + error.message;
     } else {
         statusEl.className = 'status-msg ok';
-        statusEl.textContent = `${payloads.length} item berhasil disimpan untuk Week ${minggu}/${tahun}.`;
+        statusEl.textContent = `${payloads.length} item berhasil disimpan, mencakup ${jumlahMinggu} minggu.`;
         loadRiwayat();
     }
 });
