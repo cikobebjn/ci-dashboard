@@ -184,6 +184,21 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
 }
 .cost-period-toggle .period-btn:hover:not(.active) { background:#e5e7eb; }
 
+/* Variance card period toggle (uses same look, teal->pink accent) */
+.variance-card .cost-period-toggle .period-btn.active {
+    background:#db2777; border-color:#db2777;
+}
+
+/* Variance card week/month select */
+.variance-select {
+    padding:5px 8px; border:1px solid #d1d5db; border-radius:6px;
+    font-size:11px; color:#374151; margin-bottom:10px; width:100%;
+    box-sizing:border-box; cursor:pointer; background:#f9fafb;
+}
+.variance-select:focus {
+    outline:none; border-color:#db2777; box-shadow:0 0 0 2px #fce7f3;
+}
+
 /* Extruder */
 .card.extruder-card { border-top-color:#ea580c; }
 
@@ -398,6 +413,12 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
 
         <div class="card variance-card">
             <h3>📊 Variance Material</h3>
+            <div class="cost-period-toggle">
+                <button type="button" class="period-btn active" id="btn-variance-weekly" onclick="switchVariancePeriod('weekly')">Mingguan</button>
+                <button type="button" class="period-btn" id="btn-variance-monthly" onclick="switchVariancePeriod('monthly')">Bulanan</button>
+            </div>
+            <select class="variance-select" id="variance-week-select" onchange="onVarianceWeekChange()"></select>
+            <select class="variance-select" id="variance-month-select" style="display:none;" onchange="onVarianceMonthChange()"></select>
             <div class="value loading" id="val-variance-total">...</div>
             <div class="card-date" id="date-variance"></div>
             <div class="card-sub" id="sub-variance"></div>
@@ -560,6 +581,17 @@ let lastLoadedData = {
 // diambil. Dipakai oleh toggle Mingguan / Bulanan di kartu Ringkasan.
 let costCardStats = { weekly: null, monthly: null };
 let costCardPeriod = 'weekly';
+
+// ── Variance Material (kartu Ringkasan) ──
+// Semua baris variance_weekly diambil sekali (independen dari filter tanggal
+// Ringkasan), lalu toggle Mingguan/Bulanan + pilihan Week/Bulan tinggal
+// memfilter dari cache ini di sisi klien.
+let varianceAllRows = [];        // semua baris variance_weekly
+let varianceWeeksList = [];      // [{ tahun, minggu_ke }] urut terbaru dulu
+let varianceMonthsList = [];     // [{ key, tahun, bulan, weeks:[{tahun,minggu_ke}] }] urut terbaru dulu
+let variancePeriod = 'weekly';
+let varianceSelectedWeekKey = null;   // "tahun-minggu_ke"
+let varianceSelectedMonthKey = null;  // "tahun-bulan"
 
 // Item yang bernama seperti ini adalah PEMAKAIAN BAHAN, bukan waste,
 // jadi tidak boleh ikut dijumlah ke total waste kartu proses.
@@ -846,65 +878,176 @@ async function loadData(sDate, eDate) {
     // ── Cost Material per Week ──
     await loadCostMaterial();
 
-    // ── Variance Material (per week, tidak terikat filter tanggal) ──
-    await loadVarianceCard();
-
     // ── Extruder ──
     await loadExtruder(sDate, eDate);
 }
 
+// ── ISO week helpers (dipakai untuk mengelompokkan minggu ke bulan kalender) ──
+// Mengembalikan tanggal Kamis dari suatu ISO week (Kamis dipakai sebagai acuan
+// standar ISO 8601 untuk menentukan bulan/tahun "pemilik" minggu tsb).
+function isoWeekToThursday(tahun, mingguKe) {
+    const simple = new Date(Date.UTC(tahun, 0, 1 + (mingguKe - 1) * 7));
+    const dow = simple.getUTCDay() || 7;
+    simple.setUTCDate(simple.getUTCDate() - dow + 4); // geser ke hari Kamis di minggu yg sama
+    return simple;
+}
+const NAMA_BULAN_ID = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+
 // ── Variance Material (kartu Ringkasan) ──
 // Tabel Supabase: variance_weekly (tahun, minggu_ke, short_text, variance_val,
 // pct_var_val, pct_var_qty). Diisi lewat menu Input Variance (upload file
-// "Variance_Week_XX.xlsx", sheet "Resume"). Kartu ini menampilkan minggu
-// terakhir yang datanya ada, tidak terikat rentang tanggal Ringkasan.
+// "Variance_Week_XX.xlsx", sheet "Resume"). Data diambil sekali (independen
+// dari filter tanggal Ringkasan) lalu toggle Mingguan/Bulanan + pilihan
+// Week/Bulan cukup memfilter cache di sisi klien.
 async function loadVarianceCard() {
+    const { data: rows } = await db
+        .from('variance_weekly')
+        .select('*')
+        .limit(20000);
+
+    varianceAllRows = rows || [];
+    lastLoadedData.varianceWeekly = varianceAllRows;
+
+    buildVarianceLists();
+    populateVarianceSelects();
+    renderVarianceCard();
+}
+
+// Membangun daftar week unik & pengelompokan bulan (via hari Kamis ISO week)
+// dari varianceAllRows, urut dari yang terbaru.
+function buildVarianceLists() {
+    const seen = new Set();
+    varianceWeeksList = [];
+    varianceAllRows.forEach(r => {
+        const key = `${r.tahun}-${r.minggu_ke}`;
+        if (!seen.has(key)) {
+            seen.add(key);
+            varianceWeeksList.push({ tahun: r.tahun, minggu_ke: r.minggu_ke });
+        }
+    });
+    varianceWeeksList.sort((a, b) => (b.tahun - a.tahun) || (b.minggu_ke - a.minggu_ke));
+
+    const monthMap = {};
+    varianceWeeksList.forEach(w => {
+        const thu = isoWeekToThursday(w.tahun, w.minggu_ke);
+        const mk = `${thu.getUTCFullYear()}-${thu.getUTCMonth()}`;
+        if (!monthMap[mk]) monthMap[mk] = { key: mk, tahun: thu.getUTCFullYear(), bulan: thu.getUTCMonth(), weeks: [] };
+        monthMap[mk].weeks.push(w);
+    });
+    varianceMonthsList = Object.values(monthMap).sort((a, b) => (b.tahun - a.tahun) || (b.bulan - a.bulan));
+}
+
+// Mengisi dropdown pilihan Week & Bulan di kartu Variance, default ke yang terbaru
+// (hanya kalau belum ada pilihan sebelumnya, supaya pilihan user tidak ke-reset).
+function populateVarianceSelects() {
+    const weekSel  = document.getElementById('variance-week-select');
+    const monthSel = document.getElementById('variance-month-select');
+
+    weekSel.innerHTML = varianceWeeksList
+        .map(w => `<option value="${w.tahun}-${w.minggu_ke}">Week ${w.minggu_ke} - ${w.tahun}</option>`)
+        .join('');
+    if (varianceWeeksList.length > 0) {
+        const stillValid = varianceSelectedWeekKey && varianceWeeksList.some(w => `${w.tahun}-${w.minggu_ke}` === varianceSelectedWeekKey);
+        if (!stillValid) varianceSelectedWeekKey = `${varianceWeeksList[0].tahun}-${varianceWeeksList[0].minggu_ke}`;
+        weekSel.value = varianceSelectedWeekKey;
+    } else {
+        varianceSelectedWeekKey = null;
+    }
+
+    monthSel.innerHTML = varianceMonthsList
+        .map(m => `<option value="${m.key}">${NAMA_BULAN_ID[m.bulan]} ${m.tahun}</option>`)
+        .join('');
+    if (varianceMonthsList.length > 0) {
+        const stillValid = varianceSelectedMonthKey && varianceMonthsList.some(m => m.key === varianceSelectedMonthKey);
+        if (!stillValid) varianceSelectedMonthKey = varianceMonthsList[0].key;
+        monthSel.value = varianceSelectedMonthKey;
+    } else {
+        varianceSelectedMonthKey = null;
+    }
+}
+
+// Dipanggil dari tombol toggle Mingguan / Bulanan di kartu Variance.
+function switchVariancePeriod(period) {
+    variancePeriod = period;
+    document.getElementById('btn-variance-weekly').classList.toggle('active', period === 'weekly');
+    document.getElementById('btn-variance-monthly').classList.toggle('active', period === 'monthly');
+    document.getElementById('variance-week-select').style.display  = period === 'weekly'  ? 'block' : 'none';
+    document.getElementById('variance-month-select').style.display = period === 'monthly' ? 'block' : 'none';
+    renderVarianceCard();
+}
+
+function onVarianceWeekChange() {
+    varianceSelectedWeekKey = document.getElementById('variance-week-select').value;
+    renderVarianceCard();
+}
+
+function onVarianceMonthChange() {
+    varianceSelectedMonthKey = document.getElementById('variance-month-select').value;
+    renderVarianceCard();
+}
+
+// Menampilkan kartu Variance sesuai periode (Mingguan/Bulanan) & pilihan Week/Bulan.
+// Item dengan variance MINUS (hemat, bukan over) sengaja tidak ditampilkan di
+// daftar detail — kartu ini fokus menyorot item yang over budget.
+function renderVarianceCard() {
     const totalEl = document.getElementById('val-variance-total');
     const dateEl  = document.getElementById('date-variance');
     const subEl   = document.getElementById('sub-variance');
     const tbody   = document.querySelector('#variance-detail-table tbody');
 
-    const { data: latestRow } = await db
-        .from('variance_weekly')
-        .select('tahun,minggu_ke')
-        .order('tahun', { ascending: false })
-        .order('minggu_ke', { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-    if (!latestRow) {
-        lastLoadedData.varianceWeekly = [];
+    if (varianceAllRows.length === 0) {
         totalEl.textContent = '—'; totalEl.className = 'value';
         dateEl.textContent = 'Belum ada data'; subEl.textContent = '';
         tbody.innerHTML = '';
         return;
     }
 
-    const { data: rows } = await db
-        .from('variance_weekly')
-        .select('*')
-        .eq('tahun', latestRow.tahun)
-        .eq('minggu_ke', latestRow.minggu_ke)
-        .limit(5000);
+    let rows = [];
+    let label = '';
 
-    lastLoadedData.varianceWeekly = rows || [];
+    if (variancePeriod === 'weekly') {
+        if (!varianceSelectedWeekKey) return;
+        const [tahun, minggu_ke] = varianceSelectedWeekKey.split('-').map(Number);
+        rows = varianceAllRows.filter(r => r.tahun === tahun && r.minggu_ke === minggu_ke);
+        label = `Week ${minggu_ke} - ${tahun}`;
+    } else {
+        if (!varianceSelectedMonthKey) return;
+        const monthObj = varianceMonthsList.find(m => m.key === varianceSelectedMonthKey);
+        if (!monthObj) return;
+        const weekKeys = new Set(monthObj.weeks.map(w => `${w.tahun}-${w.minggu_ke}`));
+        rows = varianceAllRows.filter(r => weekKeys.has(`${r.tahun}-${r.minggu_ke}`));
+        label = `${NAMA_BULAN_ID[monthObj.bulan]} ${monthObj.tahun} (${monthObj.weeks.length} minggu)`;
+    }
 
-    const total = (rows || []).reduce((s, r) => s + (r.variance_val || 0), 0);
+    // Gabungkan nilai per short_text (perlu untuk mode Bulanan yang menjumlah
+    // beberapa minggu; untuk mode Mingguan hasilnya sama saja dengan data asli).
+    const agg = {};
+    rows.forEach(r => {
+        if (!agg[r.short_text]) agg[r.short_text] = 0;
+        agg[r.short_text] += r.variance_val || 0;
+    });
+    const aggRows = Object.entries(agg).map(([short_text, variance_val]) => ({ short_text, variance_val }));
+
+    const total = aggRows.reduce((s, r) => s + (r.variance_val || 0), 0);
     totalEl.innerHTML = fmtRupiah(total);
     totalEl.className = 'value ' + (total > 0 ? 'low' : 'good');
-    dateEl.textContent = `Week ${latestRow.minggu_ke} - ${latestRow.tahun}`;
-    subEl.textContent = `${(rows || []).length} item material`;
+    dateEl.textContent = label;
+    subEl.textContent = `${aggRows.length} item material`;
 
-    const top = [...(rows || [])]
-        .sort((a, b) => Math.abs(b.variance_val || 0) - Math.abs(a.variance_val || 0))
+    // Hanya item over budget (variance > 0) yang ditampilkan di daftar detail.
+    const top = aggRows
+        .filter(r => (r.variance_val || 0) > 0)
+        .sort((a, b) => (b.variance_val || 0) - (a.variance_val || 0))
         .slice(0, 6);
 
-    tbody.innerHTML = top.map(r => `
-        <tr>
-            <td class="mesin-name">${r.short_text}</td>
-            <td class="waste-val ${(r.variance_val || 0) > 0 ? 'over' : ''}">${fmtRupiah(r.variance_val)}</td>
-        </tr>
-    `).join('');
+    tbody.innerHTML = top.length
+        ? top.map(r => `
+            <tr>
+                <td class="mesin-name">${r.short_text}</td>
+                <td class="waste-val over">${fmtRupiah(r.variance_val)}</td>
+            </tr>
+        `).join('')
+        : '<tr><td colspan="2" style="text-align:center; color:#9ca3af; padding:8px;">Tidak ada item over budget</td></tr>';
 }
 
 function renderWasteDetail(kategori, perMesin, batasMap, unit) {
@@ -1041,17 +1184,6 @@ async function loadWasteProses(sDate, eDate) {
         container.appendChild(card);
     });
 }
-
-// ── ISO week helpers (dipakai untuk mengelompokkan minggu ke bulan kalender) ──
-// Mengembalikan tanggal Kamis dari suatu ISO week (Kamis dipakai sebagai acuan
-// standar ISO 8601 untuk menentukan bulan/tahun "pemilik" minggu tsb).
-function isoWeekToThursday(tahun, mingguKe) {
-    const simple = new Date(Date.UTC(tahun, 0, 1 + (mingguKe - 1) * 7));
-    const dow = simple.getUTCDay() || 7;
-    simple.setUTCDate(simple.getUTCDate() - dow + 4); // geser ke hari Kamis di minggu yg sama
-    return simple;
-}
-const NAMA_BULAN_ID = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 
 // Menghitung ringkasan (ratio Rp/ton) dari sekumpulan baris cost_material_weekly.
 function hitungRatioCost(rows) {
@@ -1347,6 +1479,7 @@ async function init() {
     }
 
     loadData(startDate, endDate);
+    loadVarianceCard();
 }
 
 init();
