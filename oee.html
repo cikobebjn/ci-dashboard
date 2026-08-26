@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -359,7 +360,33 @@ function prosesExcel() {
             const maxColD = rangeD.e.c;
 
             let lastDailyDate = null, lastDailyVal = null;
-            const allDailyRows = []; // { tanggal, oee } — SEMUA tanggal
+            const allDailyRows = []; // { tanggal, oee, target_pcs, output_pcs } — SEMUA tanggal
+
+            // ══════════════════════════════
+            // DATA (baris mentah per shift/mesin) → dipakai untuk hitung OEE
+            // BERBOBOT VOLUME per tanggal: SUM(OUTPUT PCS) / SUM(TARGET PCS).
+            // Ini rumus yang sama dengan sheet "OEE WEEKLY", supaya rata-rata
+            // rentang tanggal di dashboard konsisten dengan angka mingguan.
+            // Kolom: C=DATE(idx2), I=TARGET PCS(idx8), J=OUTPUT PCS(idx9)
+            // ══════════════════════════════
+            const dailyPcs = {}; // { tanggal: { target, output } }
+            const wsData = wb.Sheets['DATA'];
+            if (wsData && wsData['!ref']) {
+                const rangeData = XLSX.utils.decode_range(wsData['!ref']);
+                for (let r = 3; r <= rangeData.e.r; r++) { // row idx 3 = Excel row 4 (data mulai)
+                    const tglCellD = cell(wsData, r, 2); // kolom C
+                    if (!tglCellD || tglCellD.v === undefined) continue;
+                    const tglStrD = excelDateToStr(tglCellD.v);
+                    if (!tglStrD) continue;
+                    const targetCellD = cell(wsData, r, 8); // kolom I
+                    const outputCellD = cell(wsData, r, 9); // kolom J
+                    const targetV = targetCellD && typeof targetCellD.v === 'number' ? targetCellD.v : 0;
+                    const outputV = outputCellD && typeof outputCellD.v === 'number' ? outputCellD.v : 0;
+                    if (!dailyPcs[tglStrD]) dailyPcs[tglStrD] = { target: 0, output: 0 };
+                    dailyPcs[tglStrD].target += targetV;
+                    dailyPcs[tglStrD].output += outputV;
+                }
+            }
 
             for (let c = 3; c <= maxColD; c++) {
                 const tglCell = cell(wsDaily, 1, c); // row 2 = index 1
@@ -369,7 +396,13 @@ function prosesExcel() {
 
                 const oee = getOEEVal(cell(wsDaily, 13, c)); // row 14 = index 13
                 if (oee !== null) {
-                    allDailyRows.push({ tanggal: tglStr, oee });
+                    const pcs = dailyPcs[tglStr];
+                    allDailyRows.push({
+                        tanggal: tglStr,
+                        oee,
+                        target_pcs: pcs ? pcs.target : null,
+                        output_pcs: pcs ? pcs.output : null,
+                    });
                     if (!lastDailyDate || tglStr > lastDailyDate) {
                         lastDailyDate = tglStr;
                         lastDailyVal  = oee;
