@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -367,6 +368,7 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
             <h3>Daily OEE (rata-rata)</h3>
             <div class="value loading" id="val-oee">...</div>
             <div class="card-date" id="date-oee"></div>
+            <div class="card-sub" id="sub-oee-mode" style="font-size:10px; color:#9ca3af;"></div>
             <span class="target-badge">Target: ≥ 55%</span>
         </div>
 
@@ -690,14 +692,36 @@ async function loadData(sDate, eDate) {
 
     const oeeEl   = document.getElementById('val-oee');
     const oeeDate = document.getElementById('date-oee');
+    const oeeMode = document.getElementById('sub-oee-mode');
     if (oeeRows && oeeRows.length > 0) {
-        const avg = oeeRows.reduce((s, r) => s + (r.oee || 0), 0) / oeeRows.length;
+        // Kalau SEMUA hari di rentang ini punya target_pcs/output_pcs (hasil
+        // import dari sheet DATA), pakai rata-rata BERBOBOT volume produksi:
+        // SUM(output pcs) / SUM(target pcs) — rumus yang sama dengan sheet
+        // "OEE WEEKLY" di file Excel, supaya angkanya konsisten dengan Week
+        // summary. Kalau ada hari yang datanya lama (belum punya pcs, hasil
+        // import sebelum fitur ini), fallback ke rata-rata sederhana seperti
+        // sebelumnya supaya tidak salah hitung karena campur metode.
+        const hasPcsSemua = oeeRows.every(r =>
+            r.target_pcs !== null && r.target_pcs !== undefined && r.target_pcs > 0);
+
+        let avg;
+        if (hasPcsSemua) {
+            const totalOutput = oeeRows.reduce((s, r) => s + (r.output_pcs || 0), 0);
+            const totalTarget = oeeRows.reduce((s, r) => s + (r.target_pcs || 0), 0);
+            avg = totalTarget > 0 ? (totalOutput / totalTarget) * 100 : 0;
+            oeeMode.textContent = '⚖️ Berbobot volume produksi (sama seperti OEE WEEKLY)';
+        } else {
+            avg = oeeRows.reduce((s, r) => s + (r.oee || 0), 0) / oeeRows.length;
+            oeeMode.textContent = 'Rata-rata harian sederhana (sebagian data lama belum ada pcs)';
+        }
+
         oeeEl.textContent = avg.toFixed(2) + '%';
         oeeEl.className   = 'value ' + (avg >= OEE_TARGET ? 'good' : 'low');
         oeeDate.textContent = fmtRange(sDate, eDate);
     } else {
         oeeEl.textContent = '—'; oeeEl.className = 'value';
         oeeDate.textContent = 'Tidak ada data';
+        oeeMode.textContent = '';
     }
 
     // ── Tonase — total dalam rentang tanggal ──
