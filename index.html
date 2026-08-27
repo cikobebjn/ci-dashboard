@@ -200,6 +200,11 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
     outline:none; border-color:#db2777; box-shadow:0 0 0 2px #fce7f3;
 }
 
+/* OEE card period toggle (uses same look, indigo accent) */
+.oee-card .cost-period-toggle .period-btn.active {
+    background:#6366f1; border-color:#6366f1;
+}
+
 /* Extruder */
 .card.extruder-card { border-top-color:#ea580c; }
 
@@ -368,8 +373,15 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
             <h3>Daily OEE (rata-rata)</h3>
             <div class="value loading" id="val-oee">...</div>
             <div class="card-date" id="date-oee"></div>
-            <div class="card-sub" id="sub-oee-mode" style="font-size:10px; color:#9ca3af;"></div>
             <span class="target-badge">Target: ≥ 55%</span>
+            <div style="margin-top:12px; padding-top:10px; border-top:1px dashed #e5e7eb;">
+                <div class="cost-period-toggle">
+                    <button type="button" class="period-btn active" id="btn-oee-weekly" onclick="switchOeePeriod('weekly')">Mingguan</button>
+                    <button type="button" class="period-btn" id="btn-oee-monthly" onclick="switchOeePeriod('monthly')">Bulanan</button>
+                </div>
+                <div class="value loading" id="val-oee-period" style="font-size:22px;">...</div>
+                <div class="card-date" id="date-oee-period"></div>
+            </div>
         </div>
 
         <div class="card tonase-card">
@@ -584,6 +596,12 @@ let lastLoadedData = {
 let costCardStats = { weekly: null, monthly: null };
 let costCardPeriod = 'weekly';
 
+// ── OEE Weekly / Monthly (kartu Ringkasan) ──
+// Dihitung dari tabel oee_daily, independen dari filter tanggal Ringkasan.
+// Minggu berjalan dari Minggu (Sunday) s.d. Sabtu (Saturday).
+let oeeCardStats = { weekly: null, monthly: null };
+let oeeCardPeriod = 'weekly';
+
 // ── Variance Material (kartu Ringkasan) ──
 // Semua baris variance_weekly diambil sekali (independen dari filter tanggal
 // Ringkasan), lalu toggle Mingguan/Bulanan + pilihan Week/Bulan tinggal
@@ -644,6 +662,20 @@ function fmtRupiah(v) {
     return 'Rp ' + Math.round(v).toLocaleString('id-ID');
 }
 
+// ── Helper minggu Minggu–Sabtu (Sunday–Saturday) ──
+// Mengembalikan { start, end } (YYYY-MM-DD) untuk minggu yang memuat tanggal d,
+// dengan awal minggu = hari Minggu dan akhir minggu = hari Sabtu.
+function sundayWeekRange(d) {
+    const date = new Date(d + 'T00:00:00');
+    const dow = date.getDay(); // 0 = Minggu ... 6 = Sabtu
+    const sun = new Date(date);
+    sun.setDate(date.getDate() - dow);
+    const sat = new Date(sun);
+    sat.setDate(sun.getDate() + 6);
+    const toISO = x => x.toISOString().slice(0, 10);
+    return { start: toISO(sun), end: toISO(sat) };
+}
+
 // Dipanggil saat salah satu input tanggal (Dari / Sampai) berubah.
 function gantiRentang() {
     let s = document.getElementById('filter-date-start').value;
@@ -678,6 +710,89 @@ function keTanggalTerakhir() {
     }
 }
 
+// Menghitung rata-rata OEE (berbobot volume produksi jika memungkinkan,
+// fallback ke rata-rata sederhana) dari sekumpulan baris oee_daily.
+function hitungRataOee(rows) {
+    if (!rows || rows.length === 0) return null;
+    const hasPcsSemua = rows.every(r =>
+        r.target_pcs !== null && r.target_pcs !== undefined && r.target_pcs > 0);
+    if (hasPcsSemua) {
+        const totalOutput = rows.reduce((s, r) => s + (r.output_pcs || 0), 0);
+        const totalTarget = rows.reduce((s, r) => s + (r.target_pcs || 0), 0);
+        return totalTarget > 0 ? (totalOutput / totalTarget) * 100 : 0;
+    }
+    return rows.reduce((s, r) => s + (r.oee || 0), 0) / rows.length;
+}
+
+// Mengambil & menghitung ringkasan OEE Weekly (minggu Minggu–Sabtu yang memuat
+// tanggal terakhir data) dan Monthly (bulan kalender berjalan dari data terakhir),
+// independen dari filter tanggal Ringkasan.
+async function loadOeeCard() {
+    if (!lastAvailableDate) {
+        oeeCardStats = { weekly: null, monthly: null };
+        renderOeeCard(oeeCardPeriod);
+        return;
+    }
+
+    // ── Weekly: Minggu (Sunday) s.d. Sabtu (Saturday) yang memuat tanggal terakhir ──
+    const { start: weekStart, end: weekEndFull } = sundayWeekRange(lastAvailableDate);
+    const weekEnd = weekEndFull > lastAvailableDate ? lastAvailableDate : weekEndFull;
+
+    const { data: weekRows } = await db
+        .from('oee_daily')
+        .select('*')
+        .gte('tanggal', weekStart)
+        .lte('tanggal', weekEnd);
+
+    const weekAvg = hitungRataOee(weekRows);
+    oeeCardStats.weekly = {
+        avg: weekAvg,
+        label: fmtRange(weekStart, weekEnd),
+    };
+
+    // ── Monthly: tgl 1 bulan berjalan s.d. tanggal terakhir data ──
+    const [y, m] = lastAvailableDate.split('-');
+    const monthStart = `${y}-${m}-01`;
+
+    const { data: monthRows } = await db
+        .from('oee_daily')
+        .select('*')
+        .gte('tanggal', monthStart)
+        .lte('tanggal', lastAvailableDate);
+
+    const monthAvg = hitungRataOee(monthRows);
+    oeeCardStats.monthly = {
+        avg: monthAvg,
+        label: fmtRange(monthStart, lastAvailableDate),
+    };
+
+    renderOeeCard(oeeCardPeriod);
+}
+
+function renderOeeCard(period) {
+    const stats = oeeCardStats[period];
+    const el   = document.getElementById('val-oee-period');
+    const dateEl = document.getElementById('date-oee-period');
+
+    if (!stats || stats.avg === null || stats.avg === undefined) {
+        el.textContent = '—'; el.className = 'value';
+        dateEl.textContent = 'Belum ada data';
+        return;
+    }
+
+    el.textContent = stats.avg.toFixed(2) + '%';
+    el.className = 'value ' + (stats.avg >= OEE_TARGET ? 'good' : 'low');
+    dateEl.textContent = stats.label;
+}
+
+// Dipanggil dari tombol toggle Mingguan / Bulanan di kartu Daily OEE.
+function switchOeePeriod(period) {
+    oeeCardPeriod = period;
+    document.getElementById('btn-oee-weekly').classList.toggle('active', period === 'weekly');
+    document.getElementById('btn-oee-monthly').classList.toggle('active', period === 'monthly');
+    renderOeeCard(period);
+}
+
 async function loadData(sDate, eDate) {
 
     // ── Daily OEE — rata-rata dalam rentang tanggal ──
@@ -692,36 +807,14 @@ async function loadData(sDate, eDate) {
 
     const oeeEl   = document.getElementById('val-oee');
     const oeeDate = document.getElementById('date-oee');
-    const oeeMode = document.getElementById('sub-oee-mode');
     if (oeeRows && oeeRows.length > 0) {
-        // Kalau SEMUA hari di rentang ini punya target_pcs/output_pcs (hasil
-        // import dari sheet DATA), pakai rata-rata BERBOBOT volume produksi:
-        // SUM(output pcs) / SUM(target pcs) — rumus yang sama dengan sheet
-        // "OEE WEEKLY" di file Excel, supaya angkanya konsisten dengan Week
-        // summary. Kalau ada hari yang datanya lama (belum punya pcs, hasil
-        // import sebelum fitur ini), fallback ke rata-rata sederhana seperti
-        // sebelumnya supaya tidak salah hitung karena campur metode.
-        const hasPcsSemua = oeeRows.every(r =>
-            r.target_pcs !== null && r.target_pcs !== undefined && r.target_pcs > 0);
-
-        let avg;
-        if (hasPcsSemua) {
-            const totalOutput = oeeRows.reduce((s, r) => s + (r.output_pcs || 0), 0);
-            const totalTarget = oeeRows.reduce((s, r) => s + (r.target_pcs || 0), 0);
-            avg = totalTarget > 0 ? (totalOutput / totalTarget) * 100 : 0;
-            oeeMode.textContent = '⚖️ Berbobot volume produksi (sama seperti OEE WEEKLY)';
-        } else {
-            avg = oeeRows.reduce((s, r) => s + (r.oee || 0), 0) / oeeRows.length;
-            oeeMode.textContent = 'Rata-rata harian sederhana (sebagian data lama belum ada pcs)';
-        }
-
+        const avg = hitungRataOee(oeeRows);
         oeeEl.textContent = avg.toFixed(2) + '%';
         oeeEl.className   = 'value ' + (avg >= OEE_TARGET ? 'good' : 'low');
         oeeDate.textContent = fmtRange(sDate, eDate);
     } else {
         oeeEl.textContent = '—'; oeeEl.className = 'value';
         oeeDate.textContent = 'Tidak ada data';
-        oeeMode.textContent = '';
     }
 
     // ── Tonase — total dalam rentang tanggal ──
@@ -1504,6 +1597,7 @@ async function init() {
 
     loadData(startDate, endDate);
     loadVarianceCard();
+    loadOeeCard();
 }
 
 init();
