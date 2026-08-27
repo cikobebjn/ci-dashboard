@@ -672,7 +672,16 @@ function sundayWeekRange(d) {
     sun.setDate(date.getDate() - dow);
     const sat = new Date(sun);
     sat.setDate(sun.getDate() + 6);
-    const toISO = x => x.toISOString().slice(0, 10);
+    // PENTING: jangan pakai toISOString() di sini — itu mengonversi ke UTC,
+    // sehingga di zona waktu UTC+ (mis. WIB/WITA) tanggal bisa mundur satu
+    // hari (mis. Minggu 23 Agu jadi tampil 22 Agu). Format manual dari
+    // komponen tanggal LOKAL supaya tanggalnya tidak bergeser.
+    const toISO = x => {
+        const yyyy = x.getFullYear();
+        const mm = String(x.getMonth() + 1).padStart(2, '0');
+        const dd = String(x.getDate()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`;
+    };
     return { start: toISO(sun), end: toISO(sat) };
 }
 
