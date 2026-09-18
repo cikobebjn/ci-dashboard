@@ -1,129 +1,517 @@
 
+
+
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Tonase - Bojonegoro</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OEE - Bojonegoro</title>
 <style>
-body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
-.topbar {
-    background:#1f2937; color:white; padding:15px;
-    display:flex; align-items:center;
-    position:fixed; top:0; left:0; width:100%; z-index:1000;
-    box-sizing:border-box;
+:root {
+    --primary:#1268e8;
+    --primary-dark:#0748ad;
+    --primary-soft:#eaf3ff;
+    --accent:#7c3aed;
+    --success:#16a065;
+    --warning:#f59e0b;
+    --danger:#e5484d;
+    --ink:#152238;
+    --muted:#6b7a90;
+    --line:#e5ebf3;
+    --surface:rgba(255,255,255,.94);
+    --shadow:0 18px 50px rgba(26,63,114,.11);
 }
-.menu-btn { font-size:28px; cursor:pointer; margin-right:15px; }
-.sidebar {
-    height:100%; width:250px; position:fixed;
-    top:0; left:-250px; background:#111827;
-    transition:0.3s; padding-top:60px; z-index:999;
-}
-.sidebar a { display:block; color:white; padding:15px 20px; text-decoration:none; }
-.sidebar a:hover { background:#374151; }
-.sidebar a.active { background:#3b82f6; }
-.main { padding:80px 24px 24px 24px; }
 
-/* Upload card */
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body {
+    margin:0;
+    min-height:100vh;
+    overflow-x:hidden;
+    font-family:Arial, sans-serif;
+    color:var(--ink);
+    background:
+        radial-gradient(circle at 8% 8%, rgba(18,104,232,.13), transparent 28%),
+        radial-gradient(circle at 92% 5%, rgba(124,58,237,.10), transparent 26%),
+        linear-gradient(145deg,#eef5ff 0%,#f8fafc 48%,#f5f1ff 100%);
+}
+body::before,
+body::after {
+    content:"";
+    position:fixed;
+    z-index:-1;
+    border-radius:50%;
+    pointer-events:none;
+}
+body::before {
+    width:280px; height:280px; left:-110px; bottom:7%;
+    background:rgba(18,104,232,.06);
+}
+body::after {
+    width:340px; height:340px; right:-150px; top:35%;
+    background:rgba(124,58,237,.05);
+}
+
+/* Top navigation */
+.topbar {
+    position:fixed;
+    top:0; left:0; right:0;
+    height:64px;
+    z-index:1000;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    padding:0 22px;
+    color:#fff;
+    background:linear-gradient(135deg,rgba(7,72,173,.96),rgba(18,104,232,.94) 55%,rgba(124,58,237,.92));
+    border-bottom:1px solid rgba(255,255,255,.16);
+    box-shadow:0 8px 28px rgba(20,58,125,.18);
+    backdrop-filter:blur(15px);
+}
+.topbar h2 {
+    margin:0 !important;
+    font-size:18px;
+    font-weight:700;
+    letter-spacing:-.01em;
+}
+.menu-btn {
+    width:40px;
+    height:40px;
+    display:grid;
+    place-items:center;
+    margin:0;
+    border:1px solid rgba(255,255,255,.20);
+    border-radius:12px;
+    background:rgba(255,255,255,.10);
+    font-size:23px;
+    cursor:pointer;
+    transition:.2s ease;
+}
+.menu-btn:hover { background:rgba(255,255,255,.18); transform:translateY(-1px); }
+
+/* Sidebar */
+.sidebar {
+    height:100%;
+    width:270px;
+    position:fixed;
+    top:0; left:-270px;
+    z-index:1100;
+    padding:78px 14px 24px;
+    overflow-y:auto;
+    background:linear-gradient(180deg,#111a2d 0%,#152340 55%,#101827 100%);
+    box-shadow:18px 0 45px rgba(12,26,54,.22);
+    transition:left .28s ease;
+}
+.sidebar::before {
+    content:"BOJONEGORO";
+    position:absolute;
+    top:22px; left:20px;
+    color:rgba(255,255,255,.60);
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.18em;
+}
+.sidebar a {
+    display:flex;
+    align-items:center;
+    min-height:44px;
+    margin:4px 0;
+    padding:11px 14px;
+    border-radius:12px;
+    color:#dce6f5;
+    text-decoration:none;
+    font-size:13px;
+    transition:.2s ease;
+}
+.sidebar a:hover { background:rgba(255,255,255,.08); color:#fff; transform:translateX(2px); }
+.sidebar a.active {
+    color:#fff;
+    background:linear-gradient(135deg,var(--primary),#6650dc);
+    box-shadow:0 9px 20px rgba(18,104,232,.26);
+}
+
+.main {
+    width:min(1280px,calc(100% - 36px));
+    margin:0 auto;
+    padding:88px 0 44px;
+}
+
+/* Hero */
+.page-hero {
+    position:relative;
+    overflow:hidden;
+    min-height:190px;
+    display:grid;
+    grid-template-columns:minmax(0,1fr) auto;
+    align-items:center;
+    gap:28px;
+    margin-bottom:22px;
+    padding:30px 34px;
+    border:1px solid rgba(255,255,255,.40);
+    border-radius:28px;
+    color:#fff;
+    background:
+        linear-gradient(120deg,rgba(0,32,91,.12),rgba(61,16,135,.16)),
+        linear-gradient(135deg,#0b63dc 0%,#174fb6 52%,#7338d2 100%);
+    box-shadow:0 24px 60px rgba(25,73,157,.24);
+}
+.page-hero::before {
+    content:"";
+    position:absolute;
+    width:330px; height:330px;
+    right:-80px; top:-190px;
+    border:1px solid rgba(255,255,255,.15);
+    border-radius:50%;
+    box-shadow:0 0 0 42px rgba(255,255,255,.035),0 0 0 86px rgba(255,255,255,.024);
+}
+.hero-copy,.hero-target { position:relative; z-index:1; }
+.hero-kicker {
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:13px;
+    padding:7px 11px;
+    border:1px solid rgba(255,255,255,.22);
+    border-radius:999px;
+    background:rgba(255,255,255,.10);
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.09em;
+    text-transform:uppercase;
+}
+.hero-kicker::before {
+    content:"";
+    width:8px; height:8px;
+    border-radius:50%;
+    background:#6df1ad;
+    box-shadow:0 0 0 5px rgba(109,241,173,.16);
+}
+.page-hero h1 {
+    margin:0;
+    font-size:clamp(31px,4vw,46px);
+    line-height:1;
+    letter-spacing:-.035em;
+}
+.page-hero p {
+    max-width:680px;
+    margin:10px 0 0;
+    color:rgba(255,255,255,.78);
+    font-size:14px;
+    line-height:1.55;
+}
+.hero-target {
+    min-width:205px;
+    padding:20px;
+    border:1px solid rgba(255,255,255,.22);
+    border-radius:20px;
+    background:rgba(255,255,255,.12);
+    backdrop-filter:blur(12px);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.14);
+}
+.hero-target span {
+    display:block;
+    color:rgba(255,255,255,.72);
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+}
+.hero-target strong {
+    display:block;
+    margin-top:5px;
+    font-size:31px;
+    line-height:1;
+}
+.hero-target small {
+    display:block;
+    margin-top:7px;
+    color:rgba(255,255,255,.75);
+    font-size:11px;
+}
+
+/* Shared panels */
+.upload-card,
+.status-bar,
+.kpi-card,
+.table-panel {
+    border:1px solid rgba(222,231,243,.96);
+    background:var(--surface);
+    box-shadow:var(--shadow);
+    backdrop-filter:blur(14px);
+}
 .upload-card {
-    background:white; border-radius:12px;
-    padding:24px; margin-bottom:20px;
-    box-shadow:0 1px 3px rgba(0,0,0,0.1);
+    padding:26px;
+    margin-bottom:16px;
+    border-radius:24px;
 }
-.upload-card h3 { margin:0 0 16px; color:#1f2937; font-size:16px; }
+.upload-card h3 {
+    margin:0 0 17px;
+    color:var(--ink);
+    font-size:18px;
+    letter-spacing:-.02em;
+}
 .drop-zone {
-    border:2px dashed #d1d5db; border-radius:8px;
-    padding:32px; text-align:center; cursor:pointer;
-    transition:0.2s; color:#6b7280; font-size:14px;
+    position:relative;
+    padding:34px 24px;
+    overflow:hidden;
+    border:1.5px dashed #bed1eb;
+    border-radius:18px;
+    color:#60718a;
+    background:linear-gradient(145deg,#f8fbff,#f4f7fc);
+    text-align:center;
+    cursor:pointer;
+    font-size:14px;
+    transition:.22s ease;
 }
-.drop-zone:hover, .drop-zone.dragover {
-    border-color:#10b981; background:#ecfdf5; color:#10b981;
+.drop-zone::after {
+    content:"";
+    position:absolute;
+    width:150px; height:150px;
+    right:-70px; bottom:-100px;
+    border-radius:50%;
+    background:rgba(18,104,232,.06);
+}
+.drop-zone:hover,.drop-zone.dragover {
+    border-color:#61a2f8;
+    color:var(--primary);
+    background:#f5f9ff;
+    box-shadow:0 0 0 4px rgba(18,104,232,.07),0 14px 28px rgba(31,87,160,.08);
+    transform:translateY(-1px);
 }
 .drop-zone input[type=file] { display:none; }
-.drop-icon { font-size:32px; margin-bottom:8px; }
-#file-name { font-size:13px; color:#374151; margin-top:8px; }
-.btn-upload {
-    background:#1f2937; color:white; border:none;
-    padding:10px 20px; border-radius:8px; cursor:pointer;
-    font-size:14px; display:none;
+.drop-icon {
+    position:relative;
+    z-index:1;
+    margin-bottom:9px;
+    font-size:36px;
 }
-.btn-upload:hover { background:#374151; }
+#file-name {
+    margin-top:11px;
+    color:#42536b;
+    font-size:12px;
+    font-weight:700;
+}
+
+button { font-family:Arial,sans-serif; }
+.btn-upload,.btn-save {
+    min-height:43px;
+    padding:10px 17px;
+    border:0;
+    border-radius:12px;
+    color:#fff;
+    cursor:pointer;
+    font-size:13px;
+    font-weight:700;
+    transition:.18s ease;
+}
+.btn-upload {
+    display:none;
+    margin-top:12px;
+    background:linear-gradient(135deg,#263a5e,#172740);
+    box-shadow:0 9px 20px rgba(24,39,67,.17);
+}
 .btn-upload.visible { display:inline-block; }
 .btn-save {
-    background:#10b981; color:white; border:none;
-    padding:10px 20px; border-radius:8px; cursor:pointer; font-size:14px;
+    background:linear-gradient(135deg,var(--primary),#5d43db);
+    box-shadow:0 9px 20px rgba(18,104,232,.22);
 }
-.btn-save:hover { background:#059669; }
-.btn-save:disabled { background:#6ee7b7; cursor:not-allowed; }
+.btn-upload:hover,.btn-save:hover:not(:disabled) { transform:translateY(-2px); filter:brightness(1.03); }
+.btn-save:disabled { cursor:not-allowed; opacity:.55; box-shadow:none; }
+
 .warning-badge {
-    background:#fef3c7; border:1px solid #fbbf24; color:#92400e;
-    border-radius:6px; padding:8px 12px; font-size:12px;
-    margin-top:10px; display:none;
+    display:none;
+    margin-top:12px;
+    padding:11px 13px;
+    border:1px solid #f4cf72;
+    border-radius:12px;
+    color:#8a5b06;
+    background:#fff9e8;
+    font-size:12px;
+    line-height:1.5;
 }
 .warning-badge.show { display:block; }
 
-/* Status bar */
 .status-bar {
-    background:white; border-radius:8px;
-    padding:12px 16px; margin-bottom:20px;
-    font-size:13px; color:#6b7280;
-    display:flex; align-items:center; gap:8px;
-    box-shadow:0 1px 3px rgba(0,0,0,0.06);
+    min-height:46px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:22px;
+    padding:11px 16px;
+    border-radius:15px;
+    color:var(--muted);
+    font-size:12px;
+    box-shadow:0 10px 28px rgba(38,70,113,.07);
 }
-.status-dot { width:8px; height:8px; border-radius:50%; background:#d1d5db; }
-.status-dot.active { background:#10b981; }
-.status-bar.loading { color:#3b82f6; }
-.status-bar.error   { color:#dc2626; }
+.status-dot {
+    width:9px; height:9px;
+    flex:0 0 auto;
+    border-radius:50%;
+    background:#cbd4e1;
+    box-shadow:0 0 0 5px rgba(203,212,225,.25);
+}
+.status-dot.active { background:var(--success); box-shadow:0 0 0 5px rgba(22,160,101,.12); }
+.status-bar.loading { color:var(--primary); }
+.status-bar.loading .status-dot { background:var(--primary); box-shadow:0 0 0 5px rgba(18,104,232,.12); }
+.status-bar.error { color:var(--danger); }
+.status-bar.error .status-dot { background:var(--danger); box-shadow:0 0 0 5px rgba(229,72,77,.12); }
 
-/* Section title */
 .section-title {
-    font-size:13px; font-weight:600; color:#6b7280;
-    text-transform:uppercase; letter-spacing:0.05em;
-    margin:0 0 12px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin:27px 2px 12px;
+    color:#3c4d65;
+    font-size:12px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.07em;
+}
+.section-title::before {
+    content:"";
+    width:4px; height:18px;
+    border-radius:999px;
+    background:linear-gradient(180deg,var(--primary),var(--accent));
 }
 
-/* KPI grid */
 .kpi-grid {
     display:grid;
-    grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));
-    gap:16px; margin-bottom:28px;
+    grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+    gap:14px;
+    margin-bottom:20px;
 }
 .kpi-card {
-    background:white; border-radius:12px; padding:20px 24px;
-    box-shadow:0 1px 3px rgba(0,0,0,0.08);
-    border-top:4px solid #10b981;
+    position:relative;
+    overflow:hidden;
+    min-height:142px;
+    padding:20px 20px 18px;
+    border-radius:20px;
+    border-top:0;
+    transition:.2s ease;
 }
-.kpi-card.secondary { border-top-color:#6366f1; }
-.kpi-label { font-size:12px; color:#6b7280; margin:0 0 6px; font-weight:600;
-             text-transform:uppercase; letter-spacing:0.04em; }
-.kpi-value { font-size:36px; font-weight:700; color:#1f2937; margin:0; line-height:1.1; }
-.kpi-value.empty { font-size:24px; color:#d1d5db; }
-.kpi-sub { font-size:12px; color:#9ca3af; margin-top:6px; }
-.kpi-unit { font-size:16px; font-weight:400; color:#6b7280; margin-left:2px; }
+.kpi-card:hover { transform:translateY(-2px); box-shadow:0 20px 42px rgba(38,70,113,.13); }
+.kpi-card::after {
+    content:"";
+    position:absolute;
+    width:105px; height:105px;
+    right:-45px; bottom:-48px;
+    border-radius:50%;
+    background:var(--kpi-soft,#eaf3ff);
+}
+.kpi-card::before {
+    content:"";
+    position:absolute;
+    top:0; left:0; right:0;
+    height:4px;
+    background:var(--kpi-accent,#1268e8);
+}
+.kpi-card.shift1 { --kpi-accent:#378add; --kpi-soft:#eaf3ff; }
+.kpi-card.shift2 { --kpi-accent:#16a065; --kpi-soft:#e9f9f1; }
+.kpi-card.shift3 { --kpi-accent:#f59e0b; --kpi-soft:#fff5df; }
+.kpi-card.daily  { --kpi-accent:#7c3aed; --kpi-soft:#f1eaff; }
+.kpi-label {
+    position:relative;
+    z-index:1;
+    margin:0 0 8px;
+    color:var(--muted);
+    font-size:12px;
+    font-weight:700;
+}
+.kpi-value {
+    position:relative;
+    z-index:1;
+    margin:0;
+    color:var(--ink);
+    font-size:35px;
+    font-weight:700;
+    line-height:1;
+    letter-spacing:-.035em;
+}
+.kpi-value.low { color:var(--danger); }
+.kpi-value.good { color:var(--success); }
+.kpi-date {
+    position:relative;
+    z-index:1;
+    margin-top:7px;
+    color:#8d99aa;
+    font-size:11px;
+}
+.kpi-empty { color:#cdd6e2; font-size:26px; }
+.target-badge {
+    position:relative;
+    z-index:1;
+    display:inline-block;
+    margin-top:8px;
+    padding:4px 8px;
+    border:1px solid #e2e8f0;
+    border-radius:999px;
+    color:#6e7c91;
+    background:#f8fafc;
+    font-size:10px;
+    font-weight:700;
+}
 
-/* Tabel harian */
-.table-card {
-    background:white; border-radius:12px; padding:20px 24px;
-    box-shadow:0 1px 3px rgba(0,0,0,0.08); margin-bottom:24px;
+/* OEE table */
+.main > div[style*="background:white"] {
+    overflow:hidden !important;
+    margin-bottom:22px !important;
+    border:1px solid rgba(222,231,243,.96) !important;
+    border-radius:20px !important;
+    background:rgba(255,255,255,.94) !important;
+    box-shadow:var(--shadow) !important;
 }
-.table-card h4 { margin:0 0 16px; font-size:14px; color:#374151; }
-table { width:100%; border-collapse:collapse; font-size:13px; }
-th {
-    background:#f9fafb; color:#6b7280; font-weight:600;
-    padding:10px 12px; text-align:left; border-bottom:2px solid #e5e7eb;
-    font-size:12px; text-transform:uppercase; letter-spacing:0.04em;
+#tbl-per-line {
+    width:100% !important;
+    min-width:660px;
+    border-collapse:separate !important;
+    border-spacing:0 !important;
+    font-size:12px !important;
 }
-td { padding:10px 12px; border-bottom:1px solid #f3f4f6; color:#374151; }
-tr:last-child td { border-bottom:none; }
-tr:hover td { background:#f9fafb; }
-td.ton-val { font-weight:600; color:#1f2937; }
+#tbl-per-line thead tr { background:#f7f9fc !important; }
+#tbl-per-line th {
+    padding:13px 14px !important;
+    border-bottom:1px solid #dfe7f1 !important;
+    background:#f7f9fc !important;
+    font-size:10px !important;
+    letter-spacing:.055em !important;
+}
+#tbl-per-line tbody tr { transition:background .15s ease; }
+#tbl-per-line tbody tr:hover { background:#f9fbff; }
+#tbl-per-line td { border-bottom:1px solid #eef2f7; }
+
+@media (max-width:900px) {
+    .page-hero { grid-template-columns:1fr; }
+    .hero-target { width:min(100%,300px); }
+}
+
+@media (max-width:640px) {
+    .topbar { height:58px; padding:0 12px; }
+    .topbar h2 { font-size:16px; }
+    .menu-btn { width:36px; height:36px; border-radius:10px; font-size:21px; }
+    .main { width:min(100% - 20px,1280px); padding-top:72px; }
+    .page-hero { min-height:auto; padding:24px 20px; border-radius:22px; gap:18px; }
+    .page-hero h1 { font-size:34px; }
+    .page-hero p { font-size:13px; }
+    .hero-target { padding:16px; border-radius:16px; }
+    .hero-target strong { font-size:27px; }
+    .upload-card { padding:18px 15px; border-radius:20px; }
+    .drop-zone { padding:27px 15px; border-radius:15px; }
+    .kpi-grid { grid-template-columns:1fr; gap:11px; }
+    .kpi-card { min-height:128px; padding:18px; border-radius:18px; }
+    .kpi-value { font-size:31px; }
+    .section-title { margin-top:23px; font-size:11px; }
+    .main > div[style*="background:white"] { overflow-x:auto !important; border-radius:18px !important; }
+    #tbl-per-line { min-width:650px; }
+}
 </style>
 </head>
 <body>
 
 <div class="sidebar" id="sidebar">
     <a href="index.html">Dashboard Utama</a>
-    <a href="oee.html">OEE</a>
-    <a href="tonase.html" class="active">Tonase</a>
+    <a href="oee.html" class="active">OEE</a>
+    <a href="tonase.html">Tonase</a>
     <a href="waste.html">Waste</a>
     <a href="cost-material.html">Cost Material</a>
     <a href="improvement-monitoring.html">Improvement Monitoring</a>
@@ -136,29 +524,39 @@ td.ton-val { font-weight:600; color:#1f2937; }
 
 <div class="topbar">
     <span class="menu-btn" onclick="toggleMenu()">☰</span>
-    <h2 style="margin:0;">Tonase Produksi - Bojonegoro</h2>
+    <h2 style="margin:0;">OEE Monitoring · Bojonegoro</h2>
 </div>
 
 <div class="main">
 
-    <!-- Upload Card -->
+    <section class="page-hero">
+        <div class="hero-copy">
+            <div class="hero-kicker">Factory Performance Dashboard</div>
+            <h1>OEE Monitoring</h1>
+            <p>Monitor performa OEE shiftly, daily, dan setiap mesin/line sekaligus memperbarui data melalui file Excel.</p>
+        </div>
+        <div class="hero-target">
+            <span>Target OEE</span>
+            <strong>≥ 55%</strong>
+            <small>Standar capaian Bojonegoro</small>
+        </div>
+    </section>
+
     <div class="upload-card">
-        <h3>📦 Import Excel Tonase</h3>
+        <h3>📤 Import Excel OEE</h3>
         <div class="drop-zone" id="drop-zone"
              onclick="document.getElementById('file-input').click()"
              ondragover="handleDrag(event,true)"
              ondragleave="handleDrag(event,false)"
              ondrop="handleDrop(event)">
             <input type="file" id="file-input" accept=".xlsx" onchange="handleFile(this.files[0])">
-            <div class="drop-icon">📊</div>
+            <div class="drop-icon">📂</div>
             <div>Klik atau drag file Excel ke sini</div>
-            <div style="font-size:12px; margin-top:4px; color:#9ca3af;">
-                Format: Report Production Order Header + Text
-            </div>
+            <div style="font-size:12px; margin-top:4px;">Format: OEE_-_BOJONEGORO_2026.xlsx</div>
         </div>
         <div id="file-name"></div>
         <div class="warning-badge" id="warning-badge">
-            ⚠️ <strong>Perhatian:</strong> Menyimpan file baru akan <strong>menghapus semua data lama</strong> dan menggantinya dengan data terbaru.
+            ⚠️ <strong>Perhatian:</strong> Data untuk tanggal yang ada di file ini akan <strong>diperbarui (ditimpa)</strong>, sedangkan data pada tanggal lain yang <strong>tidak ada</strong> di file ini akan <strong>tetap tersimpan</strong> (tidak terhapus).
         </div>
         <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-top:12px;">
             <button class="btn-upload" id="btn-proses" onclick="prosesExcel()">🔍 Proses Excel</button>
@@ -168,47 +566,57 @@ td.ton-val { font-weight:600; color:#1f2937; }
         </div>
     </div>
 
-    <!-- Status Bar -->
     <div class="status-bar" id="status-bar">
         <div class="status-dot" id="status-dot"></div>
-        <span id="status-text">Memuat data...</span>
+        <span id="status-text">Belum ada data. Import Excel untuk memulai.</span>
     </div>
 
-    <!-- KPI Cards -->
-    <div class="section-title">Rekapitulasi Tonase</div>
+    <div class="section-title">OEE Shiftly — Hari Terakhir</div>
     <div class="kpi-grid">
-        <div class="kpi-card">
-            <div class="kpi-label">📦 Total Tonase Bulan Ini</div>
-            <div class="kpi-value empty" id="val-total">—</div>
-            <div class="kpi-sub" id="sub-total"></div>
+        <div class="kpi-card shift1">
+            <div class="kpi-label">Shift 1</div>
+            <div class="kpi-value kpi-empty" id="val-s1">—</div>
+            <div class="kpi-date" id="date-s1"></div>
+            <span class="target-badge">Target: ≥ 55%</span>
         </div>
-        <div class="kpi-card secondary">
-            <div class="kpi-label">📅 Tonase Hari Terakhir</div>
-            <div class="kpi-value empty" id="val-harian">—</div>
-            <div class="kpi-sub" id="sub-harian"></div>
+        <div class="kpi-card shift2">
+            <div class="kpi-label">Shift 2</div>
+            <div class="kpi-value kpi-empty" id="val-s2">—</div>
+            <div class="kpi-date" id="date-s2"></div>
+            <span class="target-badge">Target: ≥ 55%</span>
         </div>
-        <div class="kpi-card secondary">
-            <div class="kpi-label">📈 Rata-rata per Hari</div>
-            <div class="kpi-value empty" id="val-avg">—</div>
-            <div class="kpi-sub" id="sub-avg"></div>
+        <div class="kpi-card shift3">
+            <div class="kpi-label">Shift 3</div>
+            <div class="kpi-value kpi-empty" id="val-s3">—</div>
+            <div class="kpi-date" id="date-s3"></div>
+            <span class="target-badge">Target: ≥ 55%</span>
         </div>
     </div>
 
-    <!-- Tabel harian -->
-    <div class="table-card">
-        <h4>📋 Rincian Tonase per Hari</h4>
-        <table id="tbl-harian">
+    <div class="section-title">OEE Daily — Hari Terakhir</div>
+    <div class="kpi-grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));">
+        <div class="kpi-card daily">
+            <div class="kpi-label">OEE Bojonegoro</div>
+            <div class="kpi-value kpi-empty" id="val-daily">—</div>
+            <div class="kpi-date" id="date-daily"></div>
+            <span class="target-badge">Target: ≥ 55%</span>
+        </div>
+    </div>
+
+    <div class="section-title">OEE per Line — Hari Terakhir</div>
+    <div style="background:white; border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,0.08); overflow:hidden; margin-bottom:20px;">
+        <table id="tbl-per-line" style="width:100%; border-collapse:collapse; font-size:13px;">
             <thead>
-                <tr>
-                    <th>Tanggal</th>
-                    <th>Hari</th>
-                    <th style="text-align:right;">Tonase (ton)</th>
+                <tr style="background:#f9fafb;">
+                    <th style="padding:11px 16px; text-align:left; color:#6b7280; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.04em; border-bottom:2px solid #e5e7eb;">Mesin / Line</th>
+                    <th style="padding:11px 12px; text-align:center; color:#3b82f6; font-size:11px; font-weight:700; text-transform:uppercase; border-bottom:2px solid #e5e7eb; width:90px;">Shift 1</th>
+                    <th style="padding:11px 12px; text-align:center; color:#10b981; font-size:11px; font-weight:700; text-transform:uppercase; border-bottom:2px solid #e5e7eb; width:90px;">Shift 2</th>
+                    <th style="padding:11px 12px; text-align:center; color:#f59e0b; font-size:11px; font-weight:700; text-transform:uppercase; border-bottom:2px solid #e5e7eb; width:90px;">Shift 3</th>
+                    <th style="padding:11px 12px; text-align:center; color:#6b7280; font-size:11px; font-weight:600; text-transform:uppercase; border-bottom:2px solid #e5e7eb; width:90px;">Target</th>
                 </tr>
             </thead>
-            <tbody id="tbl-body">
-                <tr><td colspan="3" style="text-align:center; color:#9ca3af; padding:24px;">
-                    Belum ada data
-                </td></tr>
+            <tbody id="tbl-line-body">
+                <tr><td colspan="5" style="text-align:center; color:#9ca3af; padding:24px;">Belum ada data</td></tr>
             </tbody>
         </table>
     </div>
@@ -217,15 +625,15 @@ td.ton-val { font-weight:600; color:#1f2937; }
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
 const SUPABASE_URL = 'https://bmnhtxalfsfaefacgtpm.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_VItBKenz-q2sYz7MsibODA_nYtLXv9Q';
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-let parsedData = null; // { bulan, tahun, rows: [{tanggal, tonase}], total }
-
-const HARI = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+const OEE_TARGET = 55;
+let parsedData = null;
 
 function toggleMenu() {
     const s = document.getElementById('sidebar');
@@ -238,8 +646,8 @@ function handleDrag(e, over) {
 function handleDrop(e) {
     e.preventDefault();
     handleDrag(e, false);
-    const f = e.dataTransfer.files[0];
-    if (f) handleFile(f);
+    const file = e.dataTransfer.files[0];
+    if (file) handleFile(file);
 }
 function handleFile(file) {
     if (!file) return;
@@ -253,13 +661,44 @@ function handleFile(file) {
     parsedData = null;
 }
 
-function excelDateToStr(v) {
-    if (!v && v !== 0) return null;
-    if (v instanceof Date) return v.toISOString().slice(0, 10);
-    if (typeof v === 'number') {
-        return new Date(Math.round((v - 25569) * 86400 * 1000)).toISOString().slice(0, 10);
+// ── Konversi serial date Excel ke string YYYY-MM-DD ──
+function excelDateToStr(serial) {
+    if (!serial && serial !== 0) return null;
+    if (serial instanceof Date) {
+        return serial.toISOString().slice(0, 10);
     }
-    if (typeof v === 'string' && v.match(/^\d{4}-\d{2}-\d{2}/)) return v.slice(0, 10);
+    if (typeof serial === 'number') {
+        // Excel epoch: 1 Jan 1900 = serial 1
+        const d = new Date(Math.round((serial - 25569) * 86400 * 1000));
+        return d.toISOString().slice(0, 10);
+    }
+    if (typeof serial === 'string' && serial.match(/^\d{4}-\d{2}-\d{2}/)) {
+        return serial.slice(0, 10);
+    }
+    return null;
+}
+
+// ── Baca nilai OEE dari cell (cached value, bukan formula) ──
+function getOEEVal(cell) {
+    if (!cell) return null;
+    // XLSX.js: cell.v = cached value, cell.w = formatted string
+    // Kalau formula, cell.v adalah hasil kalkulasi terakhir
+    let v = cell.v;
+    if (v === undefined || v === null || v === '-' || v === '') return null;
+    if (typeof v === 'string') {
+        // Bisa jadi "49.00%" atau "0.49"
+        v = v.replace('%', '').trim();
+        v = parseFloat(v);
+        if (isNaN(v)) return null;
+        // Kalau hasilnya <1 berarti dalam bentuk desimal (0.49 = 49%)
+        if (v < 1) v = v * 100;
+        return +v.toFixed(2);
+    }
+    if (typeof v === 'number') {
+        // Excel menyimpan OEE sebagai desimal (0.49 = 49%)
+        if (v <= 1) v = v * 100;
+        return +v.toFixed(2);
+    }
     return null;
 }
 
@@ -271,50 +710,201 @@ function prosesExcel() {
     const reader = new FileReader();
     reader.onload = function(e) {
         try {
+            // raw:true agar XLSX.js tidak convert, cellDates:false agar tanggal tetap serial number
+            // cellFormula:true agar cached value (cell.v) tetap tersedia
             const wb = XLSX.read(e.target.result, {
-                type: 'array', raw: true, cellDates: false, cellFormula: true
+                type: 'array',
+                raw: true,
+                cellDates: false,
+                cellFormula: true,
+                cellNF: false
             });
 
-            // Sheet "Data" - header row 3, data mulai row 4
-            // Col D (3, 0-based) = Schedule Start Date
-            // Col AH (33, 0-based) = Tonase
-            const ws = wb.Sheets['Data'];
-            if (!ws) throw new Error('Sheet "Data" tidak ditemukan');
+            // ══════════════════════════════
+            // OEE SHIFTLY
+            // Struktur: row 2 = tanggal (hanya di kolom SHIFT 1, setiap 3 kolom)
+            //           row 3 = SHIFT 1 / SHIFT 2 / SHIFT 3
+            //           row 19 = total BOJONEGORO
+            // Kolom data mulai index 3 (kolom D = index 3 dalam 0-based)
+            // ══════════════════════════════
+            const wsShiftly = wb.Sheets['OEE SHIFTLY'];
+            if (!wsShiftly) throw new Error('Sheet "OEE SHIFTLY" tidak ditemukan');
 
-            const range = XLSX.utils.decode_range(ws['!ref']);
-            const getCell = (r, c) => ws[XLSX.utils.encode_cell({ r, c })];
+            const range = XLSX.utils.decode_range(wsShiftly['!ref']);
+            const maxCol = range.e.c; // kolom terakhir (0-based)
 
-            // SUM tonase per tanggal
-            const dailyMap = {};
-            for (let r = 3; r <= range.e.r; r++) { // row 4 = index 3
-                const tglCell = getCell(r, 3);  // col D = index 3
-                const tonCell = getCell(r, 33); // col AH = index 33
+            // Fungsi ambil cell dari sheet
+            const cell = (ws, r, c) => ws[XLSX.utils.encode_cell({ r, c })];
 
+            let lastShiftDate = null;
+            let lastShift1 = null, lastShift2 = null, lastShift3 = null;
+            const allShiftlyRows = []; // { tanggal, shift, oee } — SEMUA tanggal, bukan cuma terakhir
+
+            // Iterasi per 3 kolom, mulai kolom 3 (D), row 1 (0-based = row 2 Excel)
+            for (let c = 3; c <= maxCol - 2; c += 3) {
+                const tglCell = cell(wsShiftly, 1, c); // row 2 = index 1
+                if (!tglCell || tglCell.v === undefined) continue;
+
+                const tglStr = excelDateToStr(tglCell.v);
+                if (!tglStr) continue;
+
+                const s1 = getOEEVal(cell(wsShiftly, 18, c));     // row 19 = index 18
+                const s2 = getOEEVal(cell(wsShiftly, 18, c + 1));
+                const s3 = getOEEVal(cell(wsShiftly, 18, c + 2));
+
+                if (s1 !== null) allShiftlyRows.push({ tanggal: tglStr, shift: 'SHIFT 1', oee: s1 });
+                if (s2 !== null) allShiftlyRows.push({ tanggal: tglStr, shift: 'SHIFT 2', oee: s2 });
+                if (s3 !== null) allShiftlyRows.push({ tanggal: tglStr, shift: 'SHIFT 3', oee: s3 });
+
+                if (s1 !== null || s2 !== null || s3 !== null) {
+                    // simpan tanggal terakhir yg ada datanya utk preview kartu
+                    if (!lastShiftDate || tglStr > lastShiftDate) {
+                        lastShiftDate = tglStr;
+                        lastShift1 = s1; lastShift2 = s2; lastShift3 = s3;
+                    }
+                }
+            }
+
+            // ══════════════════════════════
+            // OEE DAILY
+            // Struktur: row 2 = tanggal (tiap kolom 1 tanggal)
+            //           row 14 = total BOJONEGORO
+            // ══════════════════════════════
+            const wsDaily = wb.Sheets['OEE DAILY'];
+            if (!wsDaily) throw new Error('Sheet "OEE DAILY" tidak ditemukan');
+
+            const rangeD = XLSX.utils.decode_range(wsDaily['!ref']);
+            const maxColD = rangeD.e.c;
+
+            let lastDailyDate = null, lastDailyVal = null;
+            const allDailyRows = []; // { tanggal, oee, target_pcs, output_pcs } — SEMUA tanggal
+
+            // ══════════════════════════════
+            // DATA (baris mentah per shift/mesin) → dipakai untuk hitung OEE
+            // BERBOBOT VOLUME per tanggal: SUM(OUTPUT PCS) / SUM(TARGET PCS).
+            // Ini rumus yang sama dengan sheet "OEE WEEKLY", supaya rata-rata
+            // rentang tanggal di dashboard konsisten dengan angka mingguan.
+            // Kolom: C=DATE(idx2), I=TARGET PCS(idx8), J=OUTPUT PCS(idx9)
+            // ══════════════════════════════
+            const dailyPcs = {}; // { tanggal: { target, output } }
+            const wsData = wb.Sheets['DATA'];
+            if (wsData && wsData['!ref']) {
+                const rangeData = XLSX.utils.decode_range(wsData['!ref']);
+                for (let r = 3; r <= rangeData.e.r; r++) { // row idx 3 = Excel row 4 (data mulai)
+                    const tglCellD = cell(wsData, r, 2); // kolom C
+                    if (!tglCellD || tglCellD.v === undefined) continue;
+                    const tglStrD = excelDateToStr(tglCellD.v);
+                    if (!tglStrD) continue;
+                    const targetCellD = cell(wsData, r, 8); // kolom I
+                    const outputCellD = cell(wsData, r, 9); // kolom J
+                    const targetV = targetCellD && typeof targetCellD.v === 'number' ? targetCellD.v : 0;
+                    const outputV = outputCellD && typeof outputCellD.v === 'number' ? outputCellD.v : 0;
+                    if (!dailyPcs[tglStrD]) dailyPcs[tglStrD] = { target: 0, output: 0 };
+                    dailyPcs[tglStrD].target += targetV;
+                    dailyPcs[tglStrD].output += outputV;
+                }
+            }
+
+            for (let c = 3; c <= maxColD; c++) {
+                const tglCell = cell(wsDaily, 1, c); // row 2 = index 1
                 if (!tglCell || tglCell.v === undefined) continue;
                 const tglStr = excelDateToStr(tglCell.v);
                 if (!tglStr) continue;
 
-                const ton = tonCell ? (parseFloat(tonCell.v) || 0) : 0;
-                dailyMap[tglStr] = (dailyMap[tglStr] || 0) + ton;
+                const oee = getOEEVal(cell(wsDaily, 13, c)); // row 14 = index 13
+                if (oee !== null) {
+                    const pcs = dailyPcs[tglStr];
+                    allDailyRows.push({
+                        tanggal: tglStr,
+                        oee,
+                        target_pcs: pcs ? pcs.target : null,
+                        output_pcs: pcs ? pcs.output : null,
+                    });
+                    if (!lastDailyDate || tglStr > lastDailyDate) {
+                        lastDailyDate = tglStr;
+                        lastDailyVal  = oee;
+                    }
+                }
             }
 
-            // Buat rows terurut, filter yang ada tonase > 0
-            const rows = Object.entries(dailyMap)
-                .filter(([, v]) => v > 0)
-                .sort(([a], [b]) => a.localeCompare(b))
-                .map(([tanggal, tonase]) => ({ tanggal, tonase: +tonase.toFixed(3) }));
+            // Nama mesin per row (row index 3-17 = Excel row 4-18)
+            // Target dibaca dari col C (index 2) dalam bentuk desimal → ×100
+            const MESIN_ROWS = [
+                { row: 3,  nama: 'BOATO' },
+                { row: 4,  nama: 'LINE 1A - FILLING CF (4 MSN)' },
+                { row: 5,  nama: 'LINE 1B - FILLING BOPACK (3 MSN)' },
+                { row: 6,  nama: 'LINE 4A - FILLING SW (4 MSN)' },
+                { row: 7,  nama: 'LINE 4B - FILLING SW (2 MSN)' },
+                { row: 8,  nama: 'LINE 2 - FILLING CF (12 MSN)' },
+                { row: 9,  nama: 'LINE 4 - FILLING SW' },
+                { row: 10, nama: 'LINE 5A - FILLING BOOSTAR (5 MSN)' },
+                { row: 11, nama: 'LINE 5B - FILLING SW (1 MSN)' },
+                { row: 12, nama: 'Line 6 - Filling Dried Noodle' },
+                { row: 13, nama: 'LINE 5E - FILLING BOOSTAR (4MSN)' },
+                { row: 14, nama: 'LINE 5F - FILLING BOOSTAR (1MSN)' },
+                { row: 15, nama: 'LINE 5C - FILLING BOOSTAR (2 MSN)' },
+                { row: 16, nama: 'LINE 5D - FILLING BOOSTAR (3 MSN)' },
+                { row: 17, nama: 'LINE 7 - FILLING SW' },
+            ];
 
-            if (rows.length === 0) throw new Error('Tidak ada data tonase ditemukan');
+            // Baca target sekali di luar loop tanggal (nilainya tetap, tidak per-tanggal)
+            const targetPerMesin = {};
+            MESIN_ROWS.forEach(m => {
+                const tgtCell = cell(wsShiftly, m.row, 2);
+                targetPerMesin[m.row] = tgtCell && typeof tgtCell.v === 'number'
+                    ? Math.round(tgtCell.v * 100) : 55;
+            });
 
-            const total = +rows.reduce((s, r) => s + r.tonase, 0).toFixed(3);
-            const lastRow = rows[rows.length - 1];
-            const firstDate = new Date(rows[0].tanggal);
-            const bulan = firstDate.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+            // Parse per-line per-shift untuk SEMUA tanggal
+            const allLineRows = []; // { tanggal, shift, mesin, target, oee }
+            for (let c = 3; c <= maxCol - 2; c += 3) {
+                const tglCell = cell(wsShiftly, 1, c);
+                if (!tglCell || tglCell.v === undefined) continue;
+                const tglStr = excelDateToStr(tglCell.v);
+                if (!tglStr) continue;
 
-            parsedData = { bulan, rows, total };
+                MESIN_ROWS.forEach(m => {
+                    const s1 = getOEEVal(cell(wsShiftly, m.row, c));
+                    const s2 = getOEEVal(cell(wsShiftly, m.row, c + 1));
+                    const s3 = getOEEVal(cell(wsShiftly, m.row, c + 2));
+                    const target = targetPerMesin[m.row];
+                    if (s1 !== null) allLineRows.push({ tanggal: tglStr, shift: 1, mesin: m.nama, target, oee: s1 });
+                    if (s2 !== null) allLineRows.push({ tanggal: tglStr, shift: 2, mesin: m.nama, target, oee: s2 });
+                    if (s3 !== null) allLineRows.push({ tanggal: tglStr, shift: 3, mesin: m.nama, target, oee: s3 });
+                });
+            }
+
+            // Data per-line utk preview kartu (hanya tanggal terakhir)
+            const perLineData = [];
+            MESIN_ROWS.forEach(m => {
+                const rowsIni = allLineRows.filter(r => r.tanggal === lastShiftDate && r.mesin === m.nama);
+                if (rowsIni.length > 0) {
+                    const byShift = {};
+                    rowsIni.forEach(r => { byShift[`shift${r.shift}`] = r.oee; });
+                    perLineData.push({ mesin: m.nama, target: rowsIni[0].target, shift1: byShift.shift1 ?? null, shift2: byShift.shift2 ?? null, shift3: byShift.shift3 ?? null });
+                }
+            });
+
+            const tanggalUnikShiftly = [...new Set(allShiftlyRows.map(r => r.tanggal))].sort();
+            const tanggalUnikDaily   = [...new Set(allDailyRows.map(r => r.tanggal))].sort();
+
+            parsedData = {
+                date      : lastShiftDate,
+                shift1    : lastShift1,
+                shift2    : lastShift2,
+                shift3    : lastShift3,
+                daily_date: lastDailyDate,
+                daily_oee : lastDailyVal,
+                per_line  : perLineData,
+                all_shiftly: allShiftlyRows,
+                all_daily  : allDailyRows,
+                all_line   : allLineRows,
+            };
 
             tampilkanData(parsedData);
-            setStatus('active', `✅ Berhasil dibaca. ${rows.length} hari data, total ${total.toFixed(2)} ton`);
+            setStatus('active',
+                `✅ Data berhasil dibaca: ${tanggalUnikShiftly.length} hari shiftly, ${tanggalUnikDaily.length} hari daily. ` +
+                `Tanggal terakhir: ${fmtDate(lastShiftDate)}`);
 
             const btnSave = document.getElementById('btn-save');
             btnSave.style.display = 'inline-block';
@@ -331,59 +921,72 @@ function prosesExcel() {
 }
 
 function tampilkanData(d) {
-    // KPI total
-    const totalEl = document.getElementById('val-total');
-    totalEl.innerHTML = d.total.toFixed(2) + '<span class="kpi-unit">ton</span>';
-    totalEl.className = 'kpi-value';
-    document.getElementById('sub-total').textContent = d.bulan;
+    setVal('val-s1', 'date-s1', d.shift1, fmtDate(d.date));
+    setVal('val-s2', 'date-s2', d.shift2, fmtDate(d.date));
+    setVal('val-s3', 'date-s3', d.shift3, fmtDate(d.date));
+    setVal('val-daily', 'date-daily', d.daily_oee, fmtDate(d.daily_date));
+    if (d.per_line) tampilkanPerLine(d.per_line, d.date);
+}
 
-    // KPI hari terakhir
-    const last = d.rows[d.rows.length - 1];
-    const harianEl = document.getElementById('val-harian');
-    harianEl.innerHTML = last.tonase.toFixed(2) + '<span class="kpi-unit">ton</span>';
-    harianEl.className = 'kpi-value';
-    document.getElementById('sub-harian').textContent = fmtDate(last.tanggal);
+function tampilkanPerLine(lines, tanggal) {
+    const tbody = document.getElementById('tbl-line-body');
+    if (!lines || lines.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#9ca3af;padding:24px;">Belum ada data per line</td></tr>';
+        return;
+    }
 
-    // KPI rata-rata
-    const hariAktif = d.rows.length;
-    const avg = +(d.total / hariAktif).toFixed(2);
-    const avgEl = document.getElementById('val-avg');
-    avgEl.innerHTML = avg + '<span class="kpi-unit">ton</span>';
-    avgEl.className = 'kpi-value';
-    document.getElementById('sub-avg').textContent = `dari ${hariAktif} hari produksi`;
+    function oeeCell(val, target) {
+        if (val === null || val === undefined) return '<td style="text-align:center;color:#d1d5db;padding:10px 12px;">—</td>';
+        const color = val >= target ? '#16a34a' : '#dc2626';
+        const bg    = val >= target ? '#f0fdf4' : '#fff5f5';
+        return `<td style="text-align:center; padding:10px 12px; background:${bg};">
+            <span style="font-weight:700; color:${color}; font-size:13px;">${val.toFixed(1)}%</span>
+        </td>`;
+    }
 
-    // Tabel harian
-    const tbody = document.getElementById('tbl-body');
     tbody.innerHTML = '';
-    // Tampilkan dari terbaru ke terlama
-    [...d.rows].reverse().forEach(row => {
-        const dt = new Date(row.tanggal + 'T00:00:00');
-        const hari = HARI[dt.getDay()];
+    lines.forEach((m, i) => {
         const tr = document.createElement('tr');
+        tr.style.borderBottom = '1px solid #f3f4f6';
         tr.innerHTML = `
-            <td>${fmtDate(row.tanggal)}</td>
-            <td>${hari}</td>
-            <td class="ton-val" style="text-align:right;">${row.tonase.toFixed(3)}</td>
+            <td style="padding:10px 16px; font-size:12px; color:#374151; font-weight:600;
+                background:${i % 2 === 0 ? 'white' : '#fafafa'};">${m.mesin}</td>
+            ${oeeCell(m.shift1, m.target)}
+            ${oeeCell(m.shift2, m.target)}
+            ${oeeCell(m.shift3, m.target)}
+            <td style="text-align:center; padding:10px 12px; color:#6b7280; font-size:12px;">${m.target}%</td>
         `;
         tbody.appendChild(tr);
     });
 
-    // Row total
-    const trTotal = document.createElement('tr');
-    trTotal.style.background = '#f0fdf4';
-    trTotal.innerHTML = `
-        <td colspan="2" style="font-weight:700; color:#059669;">TOTAL ${d.bulan.toUpperCase()}</td>
-        <td class="ton-val" style="text-align:right; color:#059669; font-size:15px;">${d.total.toFixed(3)}</td>
+    // Footer tanggal
+    const trFoot = document.createElement('tr');
+    trFoot.innerHTML = `
+        <td colspan="5" style="padding:8px 16px; font-size:11px; color:#9ca3af;
+            background:#f9fafb; border-top:2px solid #e5e7eb;">
+            Data tanggal: ${fmtDate(tanggal)} &nbsp;·&nbsp;
+            <span style="color:#16a34a;">■</span> ≥ target &nbsp;
+            <span style="color:#dc2626;">■</span> &lt; target
+        </td>
     `;
-    tbody.appendChild(trTotal);
+    tbody.appendChild(trFoot);
+}
+
+function setVal(valId, dateId, val, date) {
+    const el = document.getElementById(valId);
+    const de = document.getElementById(dateId);
+    if (val === null || val === undefined) {
+        el.textContent = '—'; el.className = 'kpi-value kpi-empty'; de.textContent = ''; return;
+    }
+    el.textContent = val.toFixed(2) + '%';
+    el.className = 'kpi-value ' + (val >= OEE_TARGET ? 'good' : 'low');
+    de.textContent = date;
 }
 
 function fmtDate(d) {
     if (!d) return '';
     try {
-        return new Date(d + 'T00:00:00').toLocaleDateString('id-ID', {
-            day: '2-digit', month: 'short', year: 'numeric'
-        });
+        return new Date(d).toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric' });
     } catch { return d; }
 }
 
@@ -392,28 +995,124 @@ function setStatus(type, msg) {
     const dot  = document.getElementById('status-dot');
     const text = document.getElementById('status-text');
     bar.className = 'status-bar ' + (type === 'loading' ? 'loading' : type === 'error' ? 'error' : '');
-    dot.className = 'status-dot ' + (type === 'active' ? 'active' : '');
+    dot.className  = 'status-dot ' + (type === 'active' ? 'active' : '');
     text.textContent = msg;
+}
+
+// ── Load data dari Supabase saat halaman dibuka ──
+async function loadFromSupabase() {
+    setStatus('loading', 'Memuat data dari Supabase...');
+    try {
+        // Shiftly total
+        const { data: shiftRows } = await db
+            .from('oee_shiftly')
+            .select('*')
+            .order('tanggal', { ascending: false })
+            .limit(3);
+
+        if (shiftRows && shiftRows.length > 0) {
+            const tgl = shiftRows[0].tanggal;
+            const fmtTgl = fmtDate(tgl);
+            const byShift = {};
+            shiftRows.forEach(r => { byShift[r.shift] = r.oee; });
+            setVal('val-s1', 'date-s1', byShift['SHIFT 1'] ?? null, fmtTgl);
+            setVal('val-s2', 'date-s2', byShift['SHIFT 2'] ?? null, fmtTgl);
+            setVal('val-s3', 'date-s3', byShift['SHIFT 3'] ?? null, fmtTgl);
+        }
+
+        // Daily total
+        const { data: dailyRow } = await db
+            .from('oee_daily')
+            .select('*')
+            .order('tanggal', { ascending: false })
+            .limit(1)
+            .single();
+
+        if (dailyRow) {
+            setVal('val-daily', 'date-daily', dailyRow.oee, fmtDate(dailyRow.tanggal));
+            setStatus('active', '✅ Data dimuat dari Supabase. Tanggal: ' + fmtDate(dailyRow.tanggal));
+        } else {
+            setStatus('default', 'Belum ada data. Import Excel untuk memulai.');
+        }
+
+        // Per-line per-shift
+        try {
+            const { data: lineRows } = await db
+                .from('oee_shiftly_line')
+                .select('*')
+                .order('tanggal', { ascending: false })
+                .limit(100);
+
+            if (lineRows && lineRows.length > 0) {
+                const lastDate = lineRows[0].tanggal;
+                const mesinMap = {};
+                lineRows.filter(r => r.tanggal === lastDate).forEach(r => {
+                    if (!mesinMap[r.mesin]) mesinMap[r.mesin] = { mesin: r.mesin, target: r.target, shift1: null, shift2: null, shift3: null };
+                    mesinMap[r.mesin][`shift${r.shift}`] = r.oee;
+                });
+                tampilkanPerLine(Object.values(mesinMap), lastDate);
+            }
+        } catch(_) {}
+
+    } catch (err) {
+        setStatus('default', 'Belum ada data. Import Excel untuk memulai.');
+    }
 }
 
 async function simpanKeSupabase() {
     if (!parsedData) return;
     const btn = document.getElementById('btn-save');
-    btn.disabled = true;
-    btn.textContent = '⏳ Memperbarui...';
-    setStatus('loading', 'Menghapus data lama & menyimpan data baru...');
+    btn.disabled = true; btn.textContent = '⏳ Memperbarui...';
+    setStatus('loading', 'Memperbarui data (tanggal lain tetap tersimpan)...');
+
+    const BATCH = 500;
+    async function insertBatched(table, rows) {
+        for (let i = 0; i < rows.length; i += BATCH) {
+            const chunk = rows.slice(i, i + BATCH);
+            const { error } = await db.from(table).insert(chunk);
+            if (error) throw error;
+        }
+    }
 
     try {
-        // Hapus semua data lama
-        const { error: e1 } = await db.from('tonase_harian').delete().gte('tanggal', '2000-01-01');
-        if (e1) throw e1;
+        const allShiftly = parsedData.all_shiftly || [];
+        const allDaily   = parsedData.all_daily   || [];
+        const allLine    = parsedData.all_line    || [];
 
-        // Insert data baru per hari
-        const rows = parsedData.rows.map(r => ({ tanggal: r.tanggal, tonase: r.tonase }));
-        const { error: e2 } = await db.from('tonase_harian').insert(rows);
-        if (e2) throw e2;
+        // ── oee_shiftly: hapus & ganti HANYA utk tanggal yang ada di file ini ──
+        if (allShiftly.length > 0) {
+            const tanggalShiftly = [...new Set(allShiftly.map(r => r.tanggal))];
+            const { error: eDel1 } = await db.from('oee_shiftly').delete().in('tanggal', tanggalShiftly);
+            if (eDel1) throw eDel1;
+            await insertBatched('oee_shiftly', allShiftly);
+        }
 
-        setStatus('active', `✅ Tersimpan! ${rows.length} hari data, total ${parsedData.total.toFixed(2)} ton`);
+        // ── oee_shiftly_line: hapus & ganti HANYA utk tanggal yang ada di file ini ──
+        if (allLine.length > 0) {
+            const tanggalLine = [...new Set(allLine.map(r => r.tanggal))];
+            try {
+                const { error: eDel2 } = await db.from('oee_shiftly_line').delete().in('tanggal', tanggalLine);
+                if (eDel2) console.warn('Delete oee_shiftly_line gagal:', eDel2.message);
+                await insertBatched('oee_shiftly_line', allLine);
+            } catch (errLine) {
+                setStatus('error', '⚠️ Gagal simpan per-line: ' + errLine.message);
+                console.error('oee_shiftly_line gagal:', errLine);
+            }
+        }
+
+        // ── oee_daily: hapus & ganti HANYA utk tanggal yang ada di file ini ──
+        if (allDaily.length > 0) {
+            const tanggalDaily = [...new Set(allDaily.map(r => r.tanggal))];
+            const { error: eDel3 } = await db.from('oee_daily').delete().in('tanggal', tanggalDaily);
+            if (eDel3) throw eDel3;
+            await insertBatched('oee_daily', allDaily);
+        }
+
+        const jmlHariShiftly = new Set(allShiftly.map(r => r.tanggal)).size;
+        const jmlHariDaily   = new Set(allDaily.map(r => r.tanggal)).size;
+
+        setStatus('active',
+            `✅ Data berhasil diperbarui: ${jmlHariShiftly} hari shiftly & ${jmlHariDaily} hari daily. Data hari lain tetap tersimpan.`);
         btn.textContent = '✅ Diperbarui';
         document.getElementById('warning-badge').classList.remove('show');
         loadFromSupabase();
@@ -426,40 +1125,7 @@ async function simpanKeSupabase() {
     }
 }
 
-async function loadFromSupabase() {
-    setStatus('loading', 'Memuat data dari Supabase...');
-    try {
-        const { data: rows, error } = await db
-            .from('tonase_harian')
-            .select('*')
-            .order('tanggal', { ascending: true });
-
-        if (error) throw error;
-        if (!rows || rows.length === 0) {
-            setStatus('default', 'Belum ada data. Import Excel untuk memulai.');
-            return;
-        }
-
-        const total = +rows.reduce((s, r) => s + (r.tonase || 0), 0).toFixed(3);
-        const firstDate = new Date(rows[0].tanggal + 'T00:00:00');
-        const bulan = firstDate.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
-
-        const d = {
-            bulan,
-            rows: rows.map(r => ({ tanggal: r.tanggal, tonase: +r.tonase })),
-            total
-        };
-
-        tampilkanData(d);
-        const last = rows[rows.length - 1];
-        setStatus('active', `✅ Data dimuat. Total s.d. ${fmtDate(last.tanggal)}: ${total.toFixed(2)} ton`);
-
-    } catch (err) {
-        setStatus('error', '❌ Gagal memuat: ' + err.message);
-        console.error(err);
-    }
-}
-
+// Jalankan saat halaman pertama kali dibuka
 loadFromSupabase();
 </script>
 </body>
