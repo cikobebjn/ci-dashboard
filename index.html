@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -735,6 +736,7 @@ body::after {
 .card.fryer-mini-card { --card-soft:#e5f8fc; }
 .card.proses-mini-card { --card-soft:#fff0e5; }
 .card.extruder-card { --card-soft:#fff0e5; }
+.card.extruder-downtime-card { --card-soft:#fff3e8; }
 .card > * { position:relative; z-index:1; }
 .card h3 {
     margin:0 0 11px;
@@ -1050,6 +1052,14 @@ body::after {
             <span class="target-badge">Target: 100%</span>
         </div>
 
+        <div class="card extruder-card extruder-downtime-card">
+            <h3>⏱️ Downtime Extruder</h3>
+            <div class="value loading" id="val-extruder-downtime">...</div>
+            <div class="card-date" id="date-extruder-downtime"></div>
+            <div class="card-sub" id="sub-extruder-downtime"></div>
+            <table class="waste-detail-table" id="extruder-downtime-detail-table"><tbody></tbody></table>
+        </div>
+
     </div>
 
     <div class="card-wide">
@@ -1100,6 +1110,7 @@ let lastLoadedData = {
     wasteProses: [],
     costMaterial: [],
     extruderDaily: [],
+    extruderDowntime: [],
     varianceWeekly: [],
 };
 
@@ -1518,6 +1529,9 @@ async function loadData(sDate, eDate) {
 
     // ── Extruder ──
     await loadExtruder(sDate, eDate);
+
+    // ── Downtime Extruder ──
+    await loadExtruderDowntime(sDate, eDate);
 }
 
 // ── ISO week helpers (dipakai untuk mengelompokkan minggu ke bulan kalender) ──
@@ -1976,6 +1990,79 @@ function setExtruderKpi(id, subId, realisasi, target) {
     subEl.textContent = `${Math.round(realisasi).toLocaleString('id-ID')} / ${Math.round(target).toLocaleString('id-ID')}`;
 }
 
+function formatDowntimeMinutes(totalMinutes) {
+    const mins = Math.max(0, Math.round(Number(totalMinutes) || 0));
+    const hours = Math.floor(mins / 60);
+    const rest = mins % 60;
+    if (hours === 0) return `${rest} min`;
+    return rest ? `${hours}j ${rest}m` : `${hours}j`;
+}
+
+async function loadExtruderDowntime(sDate, eDate) {
+    const valueEl = document.getElementById('val-extruder-downtime');
+    const dateEl = document.getElementById('date-extruder-downtime');
+    const subEl = document.getElementById('sub-extruder-downtime');
+    const detailBody = document.querySelector('#extruder-downtime-detail-table tbody');
+
+    try {
+        const { data: rows, error } = await db
+            .from('extruder_downtime')
+            .select('*')
+            .gte('tanggal', sDate)
+            .lte('tanggal', eDate)
+            .order('tanggal', { ascending: true })
+            .limit(5000);
+
+        if (error) throw error;
+        lastLoadedData.extruderDowntime = rows || [];
+
+        if (!rows || rows.length === 0) {
+            valueEl.textContent = '—';
+            valueEl.className = 'value';
+            dateEl.textContent = 'Tidak ada data downtime';
+            subEl.textContent = '';
+            detailBody.innerHTML = '';
+            return;
+        }
+
+        const totalMin = rows.reduce((s, r) => s + (Number(r.durasi_min) || 0), 0);
+        const avgMin = totalMin / rows.length;
+        const machineMap = {};
+        const descMap = {};
+
+        rows.forEach(r => {
+            const mesin = (r.mesin || 'Tanpa Mesin').trim();
+            machineMap[mesin] = (machineMap[mesin] || 0) + (Number(r.durasi_min) || 0);
+            const desc = (r.dt_description || '').trim();
+            if (desc) descMap[desc] = (descMap[desc] || 0) + 1;
+        });
+
+        const topCause = Object.entries(descMap).sort((a, b) => b[1] - a[1])[0];
+        valueEl.textContent = formatDowntimeMinutes(totalMin);
+        valueEl.className = 'value';
+        dateEl.textContent = fmtRange(sDate, eDate);
+        subEl.textContent = `${rows.length} kejadian · rata-rata ${Math.round(avgMin)} menit/kejadian` +
+            (topCause ? ` · terbanyak: ${topCause[0]}` : '');
+
+        detailBody.innerHTML = Object.entries(machineMap)
+            .sort((a, b) => b[1] - a[1])
+            .map(([mesin, min]) => `
+                <tr>
+                    <td class="mesin-name">${mesin}</td>
+                    <td class="waste-val">${formatDowntimeMinutes(min)}</td>
+                </tr>`)
+            .join('');
+    } catch (err) {
+        console.warn('Downtime Extruder belum tersedia:', err);
+        lastLoadedData.extruderDowntime = [];
+        valueEl.textContent = '—';
+        valueEl.className = 'value';
+        dateEl.textContent = 'Tabel downtime belum tersedia';
+        subEl.textContent = 'Jalankan setup_extruder_downtime.sql lalu import ulang file Extruder.';
+        detailBody.innerHTML = '';
+    }
+}
+
 async function loadExtruder(sDate, eDate) {
     const { data: rows } = await db
         .from('extruder_daily')
@@ -2080,6 +2167,7 @@ function exportExcel() {
         tambahSheet('Cost Material Mingguan', lastLoadedData.costMaterial);
         tambahSheet('Variance Material', lastLoadedData.varianceWeekly);
         tambahSheet('Extruder Harian', lastLoadedData.extruderDaily);
+        tambahSheet('Extruder Downtime', lastLoadedData.extruderDowntime);
 
         if (sheetCount === 0) {
             alert('Belum ada data untuk diexport pada rentang tanggal ini.');
