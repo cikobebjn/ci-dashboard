@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -26,13 +25,13 @@
 <div class="sidebar" id="sidebar">
 <a href="index.html">Dashboard Utama</a><a href="oee.html">OEE</a><a href="tonase.html">Tonase</a><a href="waste.html">Waste</a><a href="cost-material.html">Cost Material</a><a href="input-cost-material.html">Input Cost Material</a><a href="input-variance.html" class="active">📊 Input Variance</a><a href="improvement-monitoring.html">Improvement Monitoring</a><a href="smartway.html">🛠️ Smart Way</a><a href="settings.html">⚙️ Settings</a>
 </div>
-<div class="topbar"><span class="menu-btn" onclick="toggleMenu()">☰</span><h2>Input Variance Material<small>Weekly Excel · Factory Bojonegoro</small></h2></div>
+<div class="topbar"><span class="menu-btn" onclick="toggleMenu()">☰</span><h2>Input Variance Material<small>Weekly + Monthly · Factory Bojonegoro</small></h2></div>
 <div class="main">
-<section class="hero"><div><div class="hero-kicker">Material Variance Weekly</div><h1>Upload Excel Mingguan</h1><p>Gunakan file <b>Material Variance Weekly Bojo 2026</b> dengan struktur sheet Data, Order Type, dan DB. Sistem membaca seluruh periode di workbook dan menjadikan file terbaru sebagai sumber data variance utama.</p></div><div class="hero-note"><b>Workflow full replace</b><br>1. Upload workbook terbaru<br>2. Sistem membaca semua week<br>3. Preview week mana pun untuk pengecekan<br>4. Simpan — database disinkronkan penuh dengan Excel terbaru</div></section>
+<section class="hero"><div><div class="hero-kicker">Material Variance Weekly</div><h1>Upload Excel Mingguan</h1><p>Gunakan file <b>Material Variance Weekly Bojo 2026</b> dengan struktur sheet Data, Order Type, dan DB. Sistem membaca seluruh periode di workbook dan menjadikan file terbaru sebagai sumber data variance utama untuk tampilan Weekly maupun Monthly.</p></div><div class="hero-note"><b>Workflow full replace</b><br>1. Upload workbook terbaru<br>2. Sistem membaca semua week & bulan<br>3. Preview week mana pun untuk pengecekan<br>4. Simpan — database disinkronkan penuh dengan Excel terbaru</div></section>
 
-<div class="card"><div class="sec-title">📤 Upload Source Excel</div><div class="upload-box"><input type="file" id="file-excel" accept=".xlsx,.xls"><div class="hint">Format harus mengikuti workbook contoh. Sistem akan membaca <b>seluruh baris pada sheet Data</b> dan seluruh week yang tersedia. Week dihitung dari <b>Scheduled start</b>, sehingga tidak bergantung pada formula Excel di browser.</div><div class="file-info" id="file-info"></div></div><button class="btn btn-parse btn-read-all" id="btn-parse">📖 Baca Seluruh Week dari Excel</button><div class="status" id="parse-status"></div><div class="replace-note"><b>Mode sinkronisasi: FULL REPLACE</b><span>Saat disimpan, database variance lama akan disesuaikan agar sama dengan seluruh isi workbook Excel terbaru — bukan hanya week yang sedang dipreview.</span></div></div>
+<div class="card"><div class="sec-title">📤 Upload Source Excel</div><div class="upload-box"><input type="file" id="file-excel" accept=".xlsx,.xls"><div class="hint">Format harus mengikuti workbook contoh. Sistem akan membaca <b>seluruh baris pada sheet Data</b> dan seluruh week dan bulan yang tersedia. Week dan bulan dihitung dari <b>Scheduled start</b>, sehingga tidak bergantung pada formula Excel di browser.</div><div class="file-info" id="file-info"></div></div><button class="btn btn-parse btn-read-all" id="btn-parse">📖 Baca Seluruh Periode dari Excel</button><div class="status" id="parse-status"></div><div class="replace-note"><b>Mode sinkronisasi: FULL REPLACE</b><span>Saat disimpan, database variance lama akan disesuaikan agar sama dengan seluruh isi workbook Excel terbaru — bukan hanya week yang sedang dipreview.</span></div></div>
 
-<div class="card" id="preview-card" style="display:none"><div class="sec-title">📊 Preview — Sama dengan Pivot Excel</div><div class="preview-selector"><div class="field"><label>Preview week saja — tidak memengaruhi data yang di-upload</label><select id="week-select"><option>—</option></select></div><div class="preview-badge" id="all-week-badge">Semua week akan disimpan</div></div><div id="preview-caption" class="hint" style="margin-top:8px"></div><div class="preview-head"><div class="metric"><span>Variance Value</span><b id="pv-value">—</b></div><div class="metric"><span>% Variance Value</span><b id="pv-pct-value">—</b></div><div class="metric"><span>% Variance Qty</span><b id="pv-pct-qty">—</b></div></div><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Material Group</th><th>Variance Value</th><th>% Var Value</th><th>% Var Qty</th></tr></thead><tbody id="preview-group-body"></tbody></table></div><div class="hint" id="preview-detail"></div><button class="btn btn-save" id="btn-save">🔄 REPLACE DATABASE DENGAN SEMUA DATA EXCEL</button><div class="save-warning">Tombol ini menyimpan <b>seluruh week</b> dari workbook. Week yang dipilih di atas hanya untuk melihat preview.</div><div class="status" id="save-status"></div></div>
+<div class="card" id="preview-card" style="display:none"><div class="sec-title">📊 Preview — Sama dengan Pivot Excel</div><div class="preview-selector"><div class="field"><label>Preview week saja — tidak memengaruhi data yang di-upload</label><select id="week-select"><option>—</option></select></div><div class="preview-badge" id="all-week-badge">Semua week & bulan akan disimpan</div></div><div id="preview-caption" class="hint" style="margin-top:8px"></div><div class="preview-head"><div class="metric"><span>Variance Value</span><b id="pv-value">—</b></div><div class="metric"><span>% Variance Value</span><b id="pv-pct-value">—</b></div><div class="metric"><span>% Variance Qty</span><b id="pv-pct-qty">—</b></div></div><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Material Group</th><th>Variance Value</th><th>% Var Value</th><th>% Var Qty</th></tr></thead><tbody id="preview-group-body"></tbody></table></div><div class="hint" id="preview-detail"></div><button class="btn btn-save" id="btn-save">🔄 REPLACE DATABASE DENGAN SEMUA DATA EXCEL</button><div class="save-warning">Tombol ini menyimpan <b>seluruh week dan bulan</b> dari workbook. Week yang dipilih di atas hanya untuk melihat preview.</div><div class="status" id="save-status"></div></div>
 
 <div class="card"><div class="sec-title">🕘 Riwayat Import Weekly</div><div class="history-summary" id="history-summary"><span>Memeriksa seluruh periode di database...</span><b>—</b></div><div class="history-scroll"><table class="history-table"><thead><tr><th>Week</th><th>Kelompok Data</th><th>Variance Value</th><th>Upload</th></tr></thead><tbody id="history-body"><tr><td colspan="4" class="history-empty">Memuat...</td></tr></tbody></table></div></div>
 </div>
@@ -42,8 +41,8 @@
     <div class="sync-body">
       <div class="sync-stats"><div class="sync-stat"><span>Week</span><b id="modal-weeks">—</b></div><div class="sync-stat"><span>Kelompok Data</span><b id="modal-rows">—</b></div><div class="sync-stat"><span>Rentang</span><b id="modal-range">—</b></div></div>
       <div class="sync-file" id="modal-file">—</div>
-      <div class="sync-warning"><b>Full replace:</b> data variance lama akan dikosongkan, lalu seluruh data dari Excel ini dimasukkan kembali. Status sukses hanya muncul setelah jumlah week di database terverifikasi sama dengan Excel.</div>
-      <label class="sync-check"><input type="checkbox" id="sync-ack"><span>Saya memahami bahwa workbook ini akan menjadi sumber data variance utama dan seluruh week di dalamnya akan disinkronkan.</span></label>
+      <div class="sync-warning"><b>Full replace:</b> data variance lama akan dikosongkan, lalu seluruh data dari Excel ini dimasukkan kembali. Status sukses hanya muncul setelah jumlah week dan bulan di database terverifikasi sama dengan Excel.</div>
+      <label class="sync-check"><input type="checkbox" id="sync-ack"><span>Saya memahami bahwa workbook ini akan menjadi sumber data variance utama dan seluruh week dan bulan di dalamnya akan disinkronkan.</span></label>
       <div class="sync-actions"><button type="button" class="sync-cancel" id="sync-cancel">Batal</button><button type="button" class="sync-confirm" id="sync-confirm" disabled>Ya, Sinkronkan Semua Data</button></div>
     </div>
   </div>
@@ -54,7 +53,7 @@
 const SUPABASE_URL='https://bmnhtxalfsfaefacgtpm.supabase.co';
 const SUPABASE_KEY='sb_publishable_VItBKenz-q2sYz7MsibODA_nYtLXv9Q';
 const {createClient}=supabase; const db=createClient(SUPABASE_URL,SUPABASE_KEY);
-let workbookRows=[]; let weekList=[]; let sourceFile='';
+let workbookRows=[]; let weekList=[]; let monthList=[]; let sourceFile='';
 function toggleMenu(){const s=document.getElementById('sidebar');s.style.left=s.style.left==='0px'?`-${s.offsetWidth}px`:'0px';}
 function norm(v){return String(v??'').trim();} function num(v){const n=Number(v);return Number.isFinite(n)?n:0;}
 function fmtRp(v){const n=Math.round(Number(v)||0);return(n<0?'-Rp '+Math.abs(n).toLocaleString('id-ID'):'Rp '+n.toLocaleString('id-ID'));}
@@ -66,27 +65,99 @@ function aoaSheet(wb,name){const actual=wb.SheetNames.find(n=>n.trim().toLowerCa
 function headerMap(aoa,required){let idx=-1;for(let r=0;r<Math.min(20,aoa.length);r++){const vals=(aoa[r]||[]).map(x=>norm(x).toLowerCase());if(required.every(k=>vals.includes(k.toLowerCase()))){idx=r;break;}}if(idx<0)throw new Error('Header sheet Data tidak sesuai workbook contoh.');const h=(aoa[idx]||[]).map(norm);const col=(...names)=>h.findIndex(x=>names.some(n=>x.toLowerCase()===n.toLowerCase()));return{idx,col};}
 function mapOrderType(wb){const a=aoaSheet(wb,'Order Type'),mOrder=new Map(),mGroup=new Map();for(let i=1;i<a.length;i++){if(a[i]?.[0])mOrder.set(norm(a[i][0]),norm(a[i][2]));if(a[i]?.[6])mGroup.set(norm(a[i][6]),norm(a[i][7]));}return{mOrder,mGroup};}
 function mapDb(wb){const a=aoaSheet(wb,'DB'),m=new Map();for(let i=1;i<a.length;i++)if(a[i]?.[0])m.set(norm(a[i][0]),norm(a[i][1]));return m;}
-function parseWorkbook(wb){const data=aoaSheet(wb,'Data'),{mOrder,mGroup}=mapOrderType(wb),lineMap=mapDb(wb);const {idx,col}=headerMap(data,['Scheduled start','Short Text','Target Est. Qty','Total Actual Qty','Total Actual Costs']);
- const cDate=col('Scheduled start'),cWeek=col('Week'),cOrderType=col('Order Type'),cGed=col('Gedung'),cMD=col('Material Description'),cOrigin=col('Origin'),cShort=col('Short Text'),cMG=col('Material Group'),cTQ=col('Target Est. Qty'),cAQ=col('Total Actual Qty'),cTC=col('Target Est. Cost'),cAC=col('Total Actual Costs'),cDesc=col('Description'),cLine=col('Line'),cMP=col('Moving Price');
- if([cDate,cShort,cTQ,cAQ,cAC].some(x=>x<0))throw new Error('Kolom wajib pada sheet Data tidak lengkap.'); const agg=new Map();
- for(let i=idx+1;i<data.length;i++){const r=data[i]||[];const dt=parseDate(r[cDate]);if(!dt)continue;const year=dt.getFullYear();const week=excelWeekNum(dt);const orderType=cOrderType>=0?norm(r[cOrderType]):'';const ged=(cGed>=0?norm(r[cGed]):'')||mOrder.get(orderType)||'';const origin=cOrigin>=0?norm(r[cOrigin]):'';const mg=(cMG>=0?norm(r[cMG]):'')||mGroup.get(origin.charAt(0))||'';const short=norm(r[cShort]);if(!short)continue;const desc=cDesc>=0?norm(r[cDesc]):'';const line=(cLine>=0?norm(r[cLine]):'')||lineMap.get(desc)||desc;const md=cMD>=0?norm(r[cMD]):'';const tq=num(r[cTQ]),aq=num(r[cAQ]),ac=num(r[cAC]);let tc=cTC>=0?num(r[cTC]):0;if(!tc){let mp=cMP>=0?num(r[cMP]):0;if(!mp&&aq)mp=ac/aq;tc=mp*tq;}const key=[year,week,ged,mg,short,line,md].join('|');if(!agg.has(key))agg.set(key,{tahun:year,minggu_ke:week,gedung:ged,material_group:mg,short_text:short,line,material_description:md,target_qty:0,actual_qty:0,target_cost:0,actual_cost:0,row_count:0});const a=agg.get(key);a.target_qty+=tq;a.actual_qty+=aq;a.target_cost+=tc;a.actual_cost+=ac;a.row_count++;}
- workbookRows=[...agg.values()];if(!workbookRows.length)throw new Error('Tidak ada baris variance yang berhasil dibaca.');const seen=new Map();workbookRows.forEach(r=>{const k=`${r.tahun}-${r.minggu_ke}`;if(!seen.has(k))seen.set(k,{key:k,tahun:r.tahun,week:r.minggu_ke});});weekList=[...seen.values()].sort((a,b)=>(b.tahun-a.tahun)||(b.week-a.week));}
+function parseWorkbook(wb){
+ const data=aoaSheet(wb,'Data'),{mOrder,mGroup}=mapOrderType(wb),lineMap=mapDb(wb);
+ const {idx,col}=headerMap(data,['Scheduled start','Short Text','Target Est. Qty','Total Actual Qty','Total Actual Costs']);
+ const cDate=col('Scheduled start'),cOrderType=col('Order Type'),cGed=col('Gedung'),cMD=col('Material Description'),cOrigin=col('Origin'),cShort=col('Short Text'),cMG=col('Material Group'),cTQ=col('Target Est. Qty'),cAQ=col('Total Actual Qty'),cTC=col('Target Est. Cost'),cAC=col('Total Actual Costs'),cDesc=col('Description'),cLine=col('Line'),cMP=col('Moving Price');
+ if([cDate,cShort,cTQ,cAQ,cAC].some(x=>x<0))throw new Error('Kolom wajib pada sheet Data tidak lengkap.');
+ const agg=new Map();
+ for(let i=idx+1;i<data.length;i++){
+   const r=data[i]||[]; const dt=parseDate(r[cDate]); if(!dt)continue;
+   const year=dt.getFullYear(), month=dt.getMonth()+1, week=excelWeekNum(dt);
+   const orderType=cOrderType>=0?norm(r[cOrderType]):'';
+   const ged=(cGed>=0?norm(r[cGed]):'')||mOrder.get(orderType)||'';
+   const origin=cOrigin>=0?norm(r[cOrigin]):'';
+   const mg=(cMG>=0?norm(r[cMG]):'')||mGroup.get(origin.charAt(0))||'';
+   const short=norm(r[cShort]); if(!short)continue;
+   const desc=cDesc>=0?norm(r[cDesc]):'';
+   const line=(cLine>=0?norm(r[cLine]):'')||lineMap.get(desc)||desc;
+   const md=cMD>=0?norm(r[cMD]):'';
+   const tq=num(r[cTQ]),aq=num(r[cAQ]),ac=num(r[cAC]);
+   let tc=cTC>=0?num(r[cTC]):0;
+   if(!tc){let mp=cMP>=0?num(r[cMP]):0;if(!mp&&aq)mp=ac/aq;tc=mp*tq;}
+   const key=[year,month,week,ged,mg,short,line,md].join('|');
+   if(!agg.has(key))agg.set(key,{tahun:year,bulan:month,minggu_ke:week,gedung:ged,material_group:mg,short_text:short,line,material_description:md,target_qty:0,actual_qty:0,target_cost:0,actual_cost:0,row_count:0});
+   const a=agg.get(key);a.target_qty+=tq;a.actual_qty+=aq;a.target_cost+=tc;a.actual_cost+=ac;a.row_count++;
+ }
+ workbookRows=[...agg.values()];
+ if(!workbookRows.length)throw new Error('Tidak ada baris variance yang berhasil dibaca.');
+ const seenWeeks=new Map(),seenMonths=new Map();
+ workbookRows.forEach(r=>{
+   const wk=`${r.tahun}-${r.minggu_ke}`; if(!seenWeeks.has(wk))seenWeeks.set(wk,{key:wk,tahun:r.tahun,week:r.minggu_ke});
+   const mk=`${r.tahun}-${r.bulan}`; if(!seenMonths.has(mk))seenMonths.set(mk,{key:mk,tahun:r.tahun,bulan:r.bulan});
+ });
+ weekList=[...seenWeeks.values()].sort((a,b)=>(b.tahun-a.tahun)||(b.week-a.week));
+ monthList=[...seenMonths.values()].sort((a,b)=>(b.tahun-a.tahun)||(b.bulan-a.bulan));
+}
 function classMetric(el,v){el.className=v>0?'over':v<0?'saving':'';}
 function renderPreview(){const key=document.getElementById('week-select').value;if(!key)return;const [y,w]=key.split('-').map(Number);const rows=workbookRows.filter(r=>r.tahun===y&&r.minggu_ke===w);const m=metric(rows);const ev=document.getElementById('pv-value'),epv=document.getElementById('pv-pct-value'),epq=document.getElementById('pv-pct-qty');ev.textContent=fmtRp(m.vv);epv.textContent=fmtPct(m.pv);epq.textContent=fmtPct(m.pq);classMetric(ev,m.vv);classMetric(epv,m.pv||0);classMetric(epq,m.pq||0);document.getElementById('preview-caption').textContent=`Week ${w} / ${y} · ${rows.length} kelompok data · source ${sourceFile}`;
  const groups=[...new Set(rows.map(r=>r.material_group).filter(Boolean))].sort();document.getElementById('preview-group-body').innerHTML=groups.map(g=>{const x=metric(rows.filter(r=>r.material_group===g));const c=x.vv>0?'over':x.vv<0?'saving':'';return`<tr><td>${g}</td><td class="${c}">${fmtRp(x.vv)}</td><td class="${x.pv>0?'over':x.pv<0?'saving':''}">${fmtPct(x.pv)}</td><td class="${x.pq>0?'over':x.pq<0?'saving':''}">${fmtPct(x.pq)}</td></tr>`;}).join('');document.getElementById('preview-detail').textContent='Perhitungan mengikuti calculated field Excel: Variance Value = Total Actual Costs − Target Est. Cost; persentase dihitung setelah total Target/Actual sesuai filter.';document.getElementById('preview-card').style.display='block';}
 document.getElementById('file-excel').addEventListener('change',()=>{const f=document.getElementById('file-excel').files[0];document.getElementById('file-info').textContent=f?f.name:'';});
-document.getElementById('btn-parse').addEventListener('click',async()=>{const f=document.getElementById('file-excel').files[0],st=document.getElementById('parse-status');if(!f){alert('Pilih file Excel dulu.');return;}try{st.className='status';const wb=XLSX.read(await f.arrayBuffer(),{type:'array',cellDates:true});sourceFile=f.name;parseWorkbook(wb);const sel=document.getElementById('week-select');sel.innerHTML=weekList.map(x=>`<option value="${x.key}">Week ${x.week} / ${x.tahun}</option>`).join('');sel.disabled=false;sel.value=weekList[0].key;renderPreview();st.className='status ok';const minW=weekList.length?weekList[weekList.length-1].week:'—',maxW=weekList.length?weekList[0].week:'—';st.textContent=`Siap disinkronkan: ${weekList.length} week (Week ${minW}–${maxW}), ${workbookRows.length.toLocaleString('id-ID')} kelompok data. Tidak perlu memilih week satu per satu.`;document.getElementById('all-week-badge').textContent=`${weekList.length} week akan disimpan sekaligus`;}catch(e){st.className='status err';st.textContent='Gagal membaca file: '+e.message;}});
+document.getElementById('btn-parse').addEventListener('click',async()=>{
+ const f=document.getElementById('file-excel').files[0],st=document.getElementById('parse-status');
+ if(!f){alert('Pilih file Excel dulu.');return;}
+ try{
+   st.className='status';
+   const wb=XLSX.read(await f.arrayBuffer(),{type:'array',cellDates:true});
+   sourceFile=f.name;parseWorkbook(wb);
+   const sel=document.getElementById('week-select');
+   sel.innerHTML=weekList.map(x=>`<option value="${x.key}">Week ${x.week} / ${x.tahun}</option>`).join('');
+   sel.disabled=false;sel.value=weekList[0].key;renderPreview();
+   st.className='status ok';
+   const minW=weekList.length?weekList[weekList.length-1].week:'—',maxW=weekList.length?weekList[0].week:'—';
+   st.textContent=`Siap disinkronkan: ${weekList.length} week (Week ${minW}–${maxW}), ${monthList.length} bulan, ${workbookRows.length.toLocaleString('id-ID')} kelompok data. Monthly dihitung dari Scheduled start asli.`;
+   document.getElementById('all-week-badge').textContent=`${weekList.length} week · ${monthList.length} bulan akan disimpan`;
+ }catch(e){st.className='status err';st.textContent='Gagal membaca file: '+e.message;}
+});
 document.getElementById('week-select').addEventListener('change',renderPreview);
 document.getElementById('btn-save').addEventListener('click',()=>{if(!workbookRows.length){alert('Baca file Excel terlebih dahulu.');return;}openSyncModal();});
-function openSyncModal(){const first=weekList[weekList.length-1],last=weekList[0];document.getElementById('modal-weeks').textContent=weekList.length+' week';document.getElementById('modal-rows').textContent=workbookRows.length.toLocaleString('id-ID');document.getElementById('modal-range').textContent=`W${first?.week??'—'}–W${last?.week??'—'}`;document.getElementById('modal-file').textContent='File: '+sourceFile;const ack=document.getElementById('sync-ack');ack.checked=false;document.getElementById('sync-confirm').disabled=true;const m=document.getElementById('sync-modal');m.classList.add('open');m.setAttribute('aria-hidden','false');}
+function openSyncModal(){const first=weekList[weekList.length-1],last=weekList[0];document.getElementById('modal-weeks').textContent=weekList.length+' week / '+monthList.length+' bulan';document.getElementById('modal-rows').textContent=workbookRows.length.toLocaleString('id-ID');document.getElementById('modal-range').textContent=`W${first?.week??'—'}–W${last?.week??'—'}`;document.getElementById('modal-file').textContent='File: '+sourceFile;const ack=document.getElementById('sync-ack');ack.checked=false;document.getElementById('sync-confirm').disabled=true;const m=document.getElementById('sync-modal');m.classList.add('open');m.setAttribute('aria-hidden','false');}
 function closeSyncModal(){const m=document.getElementById('sync-modal');m.classList.remove('open');m.setAttribute('aria-hidden','true');}
 document.getElementById('sync-ack').addEventListener('change',e=>{document.getElementById('sync-confirm').disabled=!e.target.checked;});
 document.getElementById('sync-cancel').addEventListener('click',closeSyncModal);
 document.getElementById('sync-modal').addEventListener('click',e=>{if(e.target.id==='sync-modal')closeSyncModal();});
 document.getElementById('sync-confirm').addEventListener('click',async()=>{closeSyncModal();await fullReplaceVariance();});
 async function verifyAllWeeks(){const expected=new Map();workbookRows.forEach(r=>{const k=`${r.tahun}-${r.minggu_ke}`;expected.set(k,(expected.get(k)||0)+1);});const checks=[];for(const w of weekList){const {count,error}=await db.from('variance_weekly_detail').select('id',{count:'exact',head:true}).eq('tahun',w.tahun).eq('minggu_ke',w.week);if(error)throw error;const k=`${w.tahun}-${w.week}`;checks.push({key:k,expected:expected.get(k)||0,actual:count||0});}return checks;}
+async function verifyAllMonths(){const expected=new Map();workbookRows.forEach(r=>{const k=`${r.tahun}-${r.bulan}`;expected.set(k,(expected.get(k)||0)+1);});const checks=[];for(const m of monthList){const {count,error}=await db.from('variance_weekly_detail').select('id',{count:'exact',head:true}).eq('tahun',m.tahun).eq('bulan',m.bulan);if(error)throw error;const k=`${m.tahun}-${m.bulan}`;checks.push({key:k,expected:expected.get(k)||0,actual:count||0});}return checks;}
 function renderHistoryFromWorkbook(stamp){const b=document.getElementById('history-body'),sum=document.getElementById('history-summary');const map={};workbookRows.forEach(r=>{const k=`${r.tahun}-${r.minggu_ke}`;if(!map[k])map[k]={tahun:r.tahun,week:r.minggu_ke,count:0,tc:0,ac:0,up:stamp};map[k].count++;map[k].tc+=num(r.target_cost);map[k].ac+=num(r.actual_cost);});const arr=Object.values(map).sort((a,b)=>(b.tahun-a.tahun)||(b.week-a.week));sum.innerHTML=`<span>Database telah diverifikasi terhadap workbook terbaru.</span><b>${arr.length}/${weekList.length} week · ${workbookRows.length.toLocaleString('id-ID')} kelompok</b>`;b.innerHTML=arr.map(x=>`<tr><td>Week ${x.week} / ${x.tahun}</td><td>${x.count}</td><td class="${x.ac-x.tc>0?'over':'saving'}">${fmtRp(x.ac-x.tc)}</td><td>${new Date(stamp).toLocaleString('id-ID')}</td></tr>`).join('');}
-async function fullReplaceVariance(){const st=document.getElementById('save-status'),btn=document.getElementById('btn-save');const totalWeeks=weekList.length;const stamp=new Date().toISOString();const rows=workbookRows.map(r=>({...r,source_file:sourceFile,uploaded_at:stamp}));btn.disabled=true;st.className='status';st.textContent='';try{btn.textContent='Mengosongkan data variance lama...';const clear=await db.from('variance_weekly_detail').delete().gte('id',0);if(clear.error)throw clear.error;for(let i=0;i<rows.length;i+=400){btn.textContent=`Menyimpan ${Math.min(i+400,rows.length).toLocaleString('id-ID')} / ${rows.length.toLocaleString('id-ID')}...`;const res=await db.from('variance_weekly_detail').insert(rows.slice(i,i+400));if(res.error)throw res.error;}btn.textContent=`Memverifikasi ${totalWeeks} week...`;const checks=await verifyAllWeeks();const bad=checks.filter(x=>x.actual!==x.expected);const totalActual=checks.reduce((a,x)=>a+x.actual,0);if(bad.length){const miss=bad.slice(0,8).map(x=>`${x.key}: ${x.actual}/${x.expected}`).join(', ');throw new Error(`Verifikasi database tidak cocok pada ${bad.length} week (${miss}${bad.length>8?', ...':''}).`);}if(totalActual!==rows.length)throw new Error(`Jumlah data database ${totalActual.toLocaleString('id-ID')} tidak sama dengan Excel ${rows.length.toLocaleString('id-ID')}.`);renderHistoryFromWorkbook(stamp);st.className='status ok';st.textContent=`Sinkronisasi & verifikasi selesai: ${totalActual.toLocaleString('id-ID')} kelompok data, ${checks.length}/${totalWeeks} week tersimpan lengkap dari ${sourceFile}.`; }catch(e){st.className='status err';st.textContent='Sinkronisasi belum terverifikasi: '+e.message+' Jika proses terhenti setelah pengosongan tabel, klik sinkronkan kembali menggunakan workbook yang sama.';}finally{btn.disabled=false;btn.textContent='🔄 REPLACE DATABASE DENGAN SEMUA DATA EXCEL';}}
+async function fullReplaceVariance(){
+ const st=document.getElementById('save-status'),btn=document.getElementById('btn-save');
+ const totalWeeks=weekList.length,totalMonths=monthList.length,stamp=new Date().toISOString();
+ const rows=workbookRows.map(r=>({...r,source_file:sourceFile,uploaded_at:stamp}));
+ btn.disabled=true;st.className='status';st.textContent='';
+ try{
+   btn.textContent='Mengosongkan data variance lama...';
+   const clear=await db.from('variance_weekly_detail').delete().gte('id',0);if(clear.error)throw clear.error;
+   for(let i=0;i<rows.length;i+=400){
+     btn.textContent=`Menyimpan ${Math.min(i+400,rows.length).toLocaleString('id-ID')} / ${rows.length.toLocaleString('id-ID')}...`;
+     const res=await db.from('variance_weekly_detail').insert(rows.slice(i,i+400));if(res.error)throw res.error;
+   }
+   btn.textContent=`Memverifikasi ${totalWeeks} week & ${totalMonths} bulan...`;
+   const [weekChecks,monthChecks]=await Promise.all([verifyAllWeeks(),verifyAllMonths()]);
+   const badWeeks=weekChecks.filter(x=>x.actual!==x.expected),badMonths=monthChecks.filter(x=>x.actual!==x.expected);
+   const totalActual=weekChecks.reduce((a,x)=>a+x.actual,0);
+   if(badWeeks.length){const miss=badWeeks.slice(0,8).map(x=>`${x.key}: ${x.actual}/${x.expected}`).join(', ');throw new Error(`Verifikasi week tidak cocok pada ${badWeeks.length} periode (${miss}${badWeeks.length>8?', ...':''}).`);}
+   if(badMonths.length){const miss=badMonths.slice(0,8).map(x=>`${x.key}: ${x.actual}/${x.expected}`).join(', ');throw new Error(`Verifikasi bulan tidak cocok pada ${badMonths.length} periode (${miss}${badMonths.length>8?', ...':''}).`);}
+   if(totalActual!==rows.length)throw new Error(`Jumlah data database ${totalActual.toLocaleString('id-ID')} tidak sama dengan Excel ${rows.length.toLocaleString('id-ID')}.`);
+   renderHistoryFromWorkbook(stamp);
+   st.className='status ok';
+   st.textContent=`Sinkronisasi & verifikasi selesai: ${totalActual.toLocaleString('id-ID')} kelompok data, ${weekChecks.length}/${totalWeeks} week dan ${monthChecks.length}/${totalMonths} bulan tersimpan lengkap dari ${sourceFile}.`;
+ }catch(e){
+   st.className='status err';
+   const schemaHint=/bulan|column/i.test(String(e.message||''))?' Jalankan update_variance_monthly_support.sql di Supabase SQL Editor, lalu sinkronkan ulang workbook.':'';
+   st.textContent='Sinkronisasi belum terverifikasi: '+e.message+'.'+schemaHint+' Jika proses terhenti setelah pengosongan tabel, klik sinkronkan kembali menggunakan workbook yang sama.';
+ }finally{btn.disabled=false;btn.textContent='🔄 REPLACE DATABASE DENGAN SEMUA DATA EXCEL';}
+}
 async function fetchAllVarianceHistory(){
   const pageSize=1000;
   let from=0;
