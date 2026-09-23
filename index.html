@@ -892,6 +892,48 @@ body::after {
     color:#9aa3b1; font-size:8px;
 }
 .variance-status-dot { width:6px; height:6px; border-radius:50%; background:#16a34a; display:inline-block; margin-right:5px; }
+
+.variance-material-section { margin-top:10px; padding-top:10px; border-top:1px solid #f0e9ee; }
+.variance-material-head { display:flex; align-items:flex-end; justify-content:space-between; gap:10px; margin-bottom:7px; }
+.variance-material-title { color:#7c5c70; font-size:8px; font-weight:850; text-transform:uppercase; letter-spacing:.06em; }
+.variance-material-hint { margin-top:3px; color:#a2929d; font-size:7.5px; line-height:1.35; }
+.variance-material-toggle { border:1px solid #eadfe7; border-radius:8px; padding:5px 8px; background:#fff; color:#7b4c68; font-size:8px; font-weight:800; cursor:pointer; }
+.variance-material-toggle:hover { background:#fff7fb; border-color:#e7c7db; }
+.variance-material-wrap { overflow:auto; max-height:340px; border:1px solid #edf0f4; border-radius:11px; background:#fff; }
+.variance-material-table { width:100%; border-collapse:collapse; min-width:590px; font-size:8.5px; }
+.variance-material-table th { position:sticky; top:0; z-index:2; padding:7px 6px; border-bottom:1px solid #e9edf2; background:#f8fafc; color:#929dad; font-size:7px; font-weight:850; text-transform:uppercase; text-align:right; white-space:nowrap; }
+.variance-material-table th:first-child { text-align:left; }
+.variance-material-table td { padding:7px 6px; border-bottom:1px solid #f1f3f6; color:#526075; text-align:right; vertical-align:middle; }
+.variance-material-table td:first-child { text-align:left; }
+.variance-material-table tr.material-row { cursor:pointer; transition:.15s ease; }
+.variance-material-table tr.material-row:hover td { background:#fff9fc; }
+.variance-material-table tr.material-row.open td { background:#fff7fb; }
+.variance-item-name { display:flex; align-items:flex-start; gap:6px; color:#344257; font-weight:800; line-height:1.3; }
+.variance-item-caret { flex:0 0 auto; width:16px; height:16px; display:grid; place-items:center; margin-top:-1px; border:1px solid #eadfe7; border-radius:5px; background:#fff; color:#9b637f; font-size:8px; }
+.variance-item-caret.open { transform:rotate(90deg); }
+.variance-material-table .over { color:#dc2626; font-weight:800; }
+.variance-material-table .saving { color:#16a34a; font-weight:800; }
+.variance-contrib { min-width:86px; }
+.variance-contrib-bar { height:4px; margin-top:3px; overflow:hidden; border-radius:999px; background:#f1f3f6; }
+.variance-contrib-bar > span { display:block; height:100%; border-radius:999px; background:linear-gradient(90deg,#ef4444,#db2777); }
+.variance-drill-row td { padding:0!important; background:#fbfcfe!important; }
+.variance-drill { padding:9px 10px 10px 27px; border-bottom:1px solid #eef1f5; }
+.variance-drill-label { margin-bottom:6px; color:#9a7b8f; font-size:7px; font-weight:850; text-transform:uppercase; letter-spacing:.06em; }
+.variance-line-block { margin:6px 0; border:1px solid #edf0f4; border-radius:9px; overflow:hidden; background:#fff; }
+.variance-line-head { display:grid; grid-template-columns:minmax(0,1fr) 105px 68px 68px; gap:6px; align-items:center; padding:6px 8px; background:#f8fafc; color:#526075; font-size:8px; }
+.variance-line-head b { color:#344257; }
+.variance-product-row { display:grid; grid-template-columns:minmax(0,1fr) 105px 68px 68px; gap:6px; align-items:center; padding:6px 8px 6px 22px; border-top:1px solid #f0f2f5; color:#68768a; font-size:7.5px; }
+.variance-line-head span:not(:first-child), .variance-product-row span:not(:first-child) { text-align:right; }
+.variance-product-row .over, .variance-line-head .over { color:#dc2626; font-weight:800; }
+.variance-product-row .saving, .variance-line-head .saving { color:#16a34a; font-weight:800; }
+.variance-priority-note { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:6px; color:#9aa3b1; font-size:7.5px; }
+.variance-priority-note strong { color:#7b526a; }
+@media (max-width:700px){
+    .variance-material-head{align-items:flex-start;flex-direction:column;}
+    .variance-material-toggle{width:100%;}
+    .variance-material-wrap{max-height:380px;}
+}
+
 @media (max-width:1100px){ .variance-card{grid-column:1/-1;} }
 @media (max-width:700px){
     .variance-filter-grid{grid-template-columns:1fr 1fr;}
@@ -1266,6 +1308,24 @@ body::after {
                 <thead><tr><th>Material Group</th><th>Variance Value</th><th>% Var Value</th><th>% Var Qty</th></tr></thead>
                 <tbody id="variance-group-body"><tr><td colspan="4" style="text-align:center;color:#9ca3af;">Memuat...</td></tr></tbody>
             </table>
+
+            <div class="variance-material-section">
+                <div class="variance-material-head">
+                    <div>
+                        <div class="variance-material-title">Material Priority for Improvement</div>
+                        <div class="variance-material-hint">Item material diurutkan dari over-variance terbesar. Klik item untuk drill-down Line → Produk/SKU.</div>
+                    </div>
+                    <button type="button" class="variance-material-toggle" id="variance-material-toggle" onclick="toggleVariancePriorityList()">Lihat Semua Item</button>
+                </div>
+                <div class="variance-material-wrap">
+                    <table class="variance-material-table">
+                        <thead><tr><th>Item Material</th><th>Variance Value</th><th>% Var Value</th><th>% Var Qty</th><th>Kontribusi Over</th></tr></thead>
+                        <tbody id="variance-material-body"><tr><td colspan="5" style="text-align:center;color:#9ca3af;padding:12px;">Memuat item material...</td></tr></tbody>
+                    </table>
+                </div>
+                <div class="variance-priority-note"><span id="variance-priority-info">Prioritas berdasarkan variance positif.</span><span id="variance-priority-total"></span></div>
+            </div>
+
             <div class="variance-footer">
                 <span id="variance-filter-info"><span class="variance-status-dot"></span>Weekly Excel</span>
                 <span id="variance-row-info"></span>
@@ -1455,6 +1515,8 @@ let varianceMonthsList = [];
 let variancePeriod = 'weekly';
 let varianceSelectedWeekKey = null;
 let varianceSelectedMonthKey = null;
+let variancePriorityShowAll = false;
+let variancePriorityExpanded = '';
 const varianceFilters = { gedung:'Gedung 6', group:'', material:'', line:'' };
 
 // Item yang bernama seperti ini adalah PEMAKAIAN BAHAN, bukan waste,
@@ -2016,6 +2078,7 @@ function switchVariancePeriod(period){
     document.getElementById('btn-variance-weekly')?.classList.toggle('active',period==='weekly');
     document.getElementById('btn-variance-monthly')?.classList.toggle('active',period==='monthly');
     varianceFilters.group=''; varianceFilters.material=''; varianceFilters.line='';
+    variancePriorityExpanded='';
     populateVariancePeriodSelect();
     rebuildVarianceFilterOptions('period');
     renderVarianceCard();
@@ -2025,6 +2088,7 @@ function onVariancePeriodSelectChange(){
     if(variancePeriod==='monthly') varianceSelectedMonthKey=value;
     else varianceSelectedWeekKey=value;
     varianceFilters.group=''; varianceFilters.material=''; varianceFilters.line='';
+    variancePriorityExpanded='';
     rebuildVarianceFilterOptions('period');
     renderVarianceCard();
 }
@@ -2039,9 +2103,92 @@ function onVarianceFilterChange(type){
         varianceFilters.material=document.getElementById('variance-material-select').value;
         varianceFilters.line='';
     } else if(type==='line') varianceFilters.line=document.getElementById('variance-line-select').value;
+    variancePriorityExpanded='';
     rebuildVarianceFilterOptions(type);
     renderVarianceCard();
 }
+
+function varianceAggregate(rows,key){
+    const map=new Map();
+    rows.forEach(r=>{
+        const name=String(r[key]||'').trim()||'(Tanpa nama)';
+        if(!map.has(name)) map.set(name,[]);
+        map.get(name).push(r);
+    });
+    return [...map.entries()].map(([name,itemRows])=>({name,rows:itemRows,metric:varianceMetric(itemRows)}));
+}
+function varianceMetricClass(v){ return v>0?'over':v<0?'saving':''; }
+function varianceContributionPct(v,totalOver){ return v>0 && totalOver>0 ? (v/totalOver*100) : 0; }
+function toggleVariancePriorityList(){
+    variancePriorityShowAll=!variancePriorityShowAll;
+    renderVarianceCard();
+}
+function toggleVarianceMaterialDetail(encodedName){
+    const name=decodeURIComponent(encodedName);
+    variancePriorityExpanded=variancePriorityExpanded===name?'':name;
+    renderVarianceCard();
+}
+function renderVarianceMaterialPriority(rows){
+    const body=document.getElementById('variance-material-body');
+    if(!body) return;
+    const items=varianceAggregate(rows,'short_text').sort((a,b)=>b.metric.varianceValue-a.metric.varianceValue);
+    const totalOver=items.filter(x=>x.metric.varianceValue>0).reduce((s,x)=>s+x.metric.varianceValue,0);
+    let candidates;
+    if(varianceFilters.material){
+        candidates=items;
+    }else if(variancePriorityShowAll){
+        candidates=items;
+    }else{
+        candidates=items.filter(x=>x.metric.varianceValue>0).slice(0,10);
+    }
+    const toggle=document.getElementById('variance-material-toggle');
+    if(toggle){
+        const overCount=items.filter(x=>x.metric.varianceValue>0).length;
+        toggle.textContent=variancePriorityShowAll?'Tampilkan Top 10 Over':`Lihat Semua Item (${items.length})`;
+        toggle.style.display=(items.length<=10 || varianceFilters.material)?'none':'inline-block';
+        toggle.title=`${overCount} item memiliki variance positif`;
+    }
+    if(!candidates.length){
+        body.innerHTML='<tr><td colspan="5" style="text-align:center;color:#9ca3af;padding:12px;">Tidak ada item material pada filter ini</td></tr>';
+    }else{
+        body.innerHTML=candidates.map(item=>{
+            const im=item.metric, cls=varianceMetricClass(im.varianceValue);
+            const contribution=varianceContributionPct(im.varianceValue,totalOver);
+            const open=variancePriorityExpanded===item.name;
+            const encoded=encodeURIComponent(item.name);
+            let html=`<tr class="material-row ${open?'open':''}" onclick="toggleVarianceMaterialDetail('${encoded}')">
+                <td><div class="variance-item-name"><span class="variance-item-caret ${open?'open':''}">▶</span><span>${escapeHtml(item.name)}</span></div></td>
+                <td class="${cls}">${fmtRupiah(im.varianceValue)}</td>
+                <td class="${varianceMetricClass(im.pctValue||0)}">${fmtVariancePct(im.pctValue)}</td>
+                <td class="${varianceMetricClass(im.pctQty||0)}">${fmtVariancePct(im.pctQty)}</td>
+                <td class="variance-contrib">${contribution.toFixed(1)}%<div class="variance-contrib-bar"><span style="width:${Math.min(100,Math.max(0,contribution)).toFixed(1)}%"></span></div></td>
+            </tr>`;
+            if(open){
+                const lines=varianceAggregate(item.rows,'line').sort((a,b)=>b.metric.varianceValue-a.metric.varianceValue);
+                const detail=lines.map(line=>{
+                    const lm=line.metric, lc=varianceMetricClass(lm.varianceValue);
+                    const products=varianceAggregate(line.rows,'material_description').sort((a,b)=>b.metric.varianceValue-a.metric.varianceValue);
+                    const productHtml=products.map(prod=>{
+                        const pm=prod.metric, pc=varianceMetricClass(pm.varianceValue);
+                        return `<div class="variance-product-row"><span>↳ ${escapeHtml(prod.name)}</span><span class="${pc}">${fmtRupiah(pm.varianceValue)}</span><span class="${varianceMetricClass(pm.pctValue||0)}">${fmtVariancePct(pm.pctValue)}</span><span class="${varianceMetricClass(pm.pctQty||0)}">${fmtVariancePct(pm.pctQty)}</span></div>`;
+                    }).join('');
+                    return `<div class="variance-line-block"><div class="variance-line-head"><span><b>${escapeHtml(line.name)}</b></span><span class="${lc}">${fmtRupiah(lm.varianceValue)}</span><span class="${varianceMetricClass(lm.pctValue||0)}">${fmtVariancePct(lm.pctValue)}</span><span class="${varianceMetricClass(lm.pctQty||0)}">${fmtVariancePct(lm.pctQty)}</span></div>${productHtml}</div>`;
+                }).join('');
+                html+=`<tr class="variance-drill-row"><td colspan="5"><div class="variance-drill"><div class="variance-drill-label">Drill-down Line → Produk/SKU</div>${detail||'<div style="color:#9ca3af;font-size:8px;">Tidak ada detail line.</div>'}</div></td></tr>`;
+            }
+            return html;
+        }).join('');
+    }
+    const info=document.getElementById('variance-priority-info');
+    if(info){
+        if(varianceFilters.material) info.innerHTML=`Fokus item: <strong>${escapeHtml(varianceFilters.material)}</strong>`;
+        else if(variancePriorityShowAll) info.textContent='Semua item ditampilkan; merah = over variance, hijau = saving.';
+        else info.textContent='Top 10 item over-variance terbesar — kandidat utama improvement.';
+    }
+    const total=document.getElementById('variance-priority-total');
+    if(total) total.innerHTML=`Total Over: <strong>${fmtRupiah(totalOver)}</strong>`;
+}
+
 function renderVarianceCard(){
     const base=varianceRowsForPeriod();
     const rows=varianceApplyFilters(base);
@@ -2057,6 +2204,8 @@ function renderVarianceCard(){
         const cls=gm.varianceValue>0?'over':gm.varianceValue<0?'saving':'';
         return `<tr><td>${escapeHtml(g)}</td><td class="${cls}">${fmtRupiah(gm.varianceValue)}</td><td class="${gm.pctValue>0?'over':gm.pctValue<0?'saving':''}">${fmtVariancePct(gm.pctValue)}</td><td class="${gm.pctQty>0?'over':gm.pctQty<0?'saving':''}">${fmtVariancePct(gm.pctQty)}</td></tr>`;
     }).join(''):'<tr><td colspan="4" style="text-align:center;color:#9ca3af;padding:8px;">Tidak ada data pada filter ini</td></tr>';
+
+    renderVarianceMaterialPriority(rows);
 
     const filterInfo=[];
     if(varianceFilters.gedung)filterInfo.push(varianceFilters.gedung);
