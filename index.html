@@ -1,81 +1,3 @@
-Tue, Sep 15 at 8:46 AM
-Pasted text(1).txt
-Document
-buat tampilan lebih modern
-Pasted text(2).txt
-Document
-lihat dashboard presensi berikut, modern
-Monday 2:00 PM
-CP.pptx
-Presentation
-buatkan versi inggris
-
-Saya akan buat versi Inggris dari file CP.pptx dengan desain, layout, font, dan ukuran teks tetap mengikuti versi original—yang diubah hanya bahasanya.
-
-Saya pertahankan font asli di setiap slide (Poppins, Century Gothic, Arial, dan lainnya sesuai file sumber), termasuk ukuran, warna, dan layout. Nama produk/brand seperti Kobe, BonCabe, Selera, Cakar Naga tetap sebagai nama resmi; judul dan narasi saya ubah ke bahasa Inggris.
-
-Saya sedang cek hasil terjemahan supaya tidak ada teks Inggris yang kepanjangan dan keluar dari layout. Ada satu judul yang perlu sedikit disesuaikan ukurannya, tetapi jenis font tetap sama seperti original.
-
-Sudah saya buat versi Inggris dari Company Profile Plant Bojonegoro.
-
-Yang dipertahankan:
-
-Font original di setiap slide
-Layout, warna, gambar, dan desain asli
-Nama brand/produk seperti KOBE, BonCabe, Selera, Cakar Naga
-Seluruh judul dan narasi utama diterjemahkan ke business English
-
-Download CP – English Version.pptx
-
-CP_English.pptx
-Presentation
-CP_English(2).pptx
-Presentation
-buatkan versi inggris
-
-Saya cek ulang file terbaru karena masih ada beberapa bagian yang ternyata masih berbahasa Indonesia, terutama bagian Vision & Mission dan Milestones. Saya akan ubah seluruh teks yang masih Indonesia ke Inggris sambil mempertahankan layout dan font asli.
-
-Sudah saya buat ulang versi Inggris yang lebih lengkap dari file terbaru. Bagian yang sebelumnya masih Indonesia seperti Vision & Mission, Milestones, Employee Demographics, serta Core Businesses sudah diperbaiki.
-
-Font dan gaya asli tetap dipertahankan semaksimal mungkin.
-
-Download CP English Final.pptx
-
-CP_English_Final.pptx
-Presentation
-Today 10:08 AM
-Pasted text(20260923-030745).txt
-Document
-masukkan materi visi misi dan core valeu di index dasboard karena selalu digunakan di awal dor sebelum membahas oee dll
-Material Variance Weekly Bojo 2026 (2).xlsx
-Spreadsheet
-Pasted text(20260923-031703).txt
-Document
-Pasted markdown (2).md
-File
-revisi kartu variance dibuat persis dari excel berikut dan input variance sesuai excel berikut setiap minggunya akan update
-Material Variance Weekly Bojo 2026 (2)(1).xlsx
-Spreadsheet
-sudah dicoba, saat upload file excel ini hanya terbaca week 37 karena hanya membaca data terbaru,
-better di buat setiap upload excel ini maka akan mengupdate semua data, data lama bisa di hapus diganti dengan data baru dari excel terbaru, karena formatnya sama, hanya datanya terupdate
-gabisa langsung upload semua week harus milih satu satu
-buat lebih bagus konfirmasi ini
-input-variance (2).html
-File
-kok hanya beberapa week saja yang ke upload. semua data ada di sheet data
-kok masih sama ya
-sudah bisa, tetapi di index hanya baca ini
-
-Benar, kasusnya sama seperti halaman riwayat tadi: index.html masih mengambil data Variance dalam satu request, sehingga yang masuk ke dropdown hanya batch awal dan akhirnya terlihat cuma Week 37–34.
-
-Saya sudah perbaiki index.html agar membaca tabel variance_weekly_detail bertahap per 1.000 row sampai seluruh data habis. Jadi kalau database sudah berisi 37 week, dropdown Variance di index sekarang akan menampilkan Week 37 sampai Week 1.
-
-Download index.html terbaru
-
-Setelah itu cukup replace index.html di GitHub → commit → tunggu Pages deploy → Ctrl + F5.
-
-Bagian lain seperti OEE, Tonase, Waste, Cost Material, Visi/Misi, dan Extruder tidak saya ubah.
-
 
 
 
@@ -913,6 +835,9 @@ body::after {
     display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
     margin-bottom:12px;
 }
+.variance-period-controls { display:flex; flex-direction:column; align-items:flex-end; gap:5px; }
+.variance-period-toggle { margin:0; }
+.variance-period-toggle .period-btn { min-width:72px; }
 .variance-head h3 { margin-bottom:3px; }
 .variance-source-note { color:#94a3b8; font-size:9px; line-height:1.35; }
 .variance-week-select {
@@ -972,6 +897,10 @@ body::after {
     .variance-filter-grid{grid-template-columns:1fr 1fr;}
     .variance-kpi-grid{grid-template-columns:1fr;}
     .variance-card{grid-column:1/-1;}
+    .variance-head{flex-direction:column;align-items:stretch;}
+    .variance-period-controls{align-items:stretch;}
+    .variance-period-toggle{width:max-content;max-width:100%;}
+    .variance-week-select{width:100%;}
 }
 
 
@@ -1296,11 +1225,17 @@ body::after {
             <div class="variance-head">
                 <div>
                     <h3>📊 Variance Material</h3>
-                    <div class="variance-source-note">Struktur mengikuti “Material Variance Weekly Bojo 2026”</div>
+                    <div class="variance-source-note">Weekly & Monthly dihitung dari “Scheduled start” pada Material Variance Weekly Bojo 2026</div>
                 </div>
-                <select class="variance-week-select" id="variance-week-select" onchange="onVarianceFilterChange('week')">
-                    <option value="">Memuat week...</option>
-                </select>
+                <div class="variance-period-controls">
+                    <div class="cost-period-toggle variance-period-toggle">
+                        <button type="button" class="period-btn active" id="btn-variance-weekly" onclick="switchVariancePeriod('weekly')">Mingguan</button>
+                        <button type="button" class="period-btn" id="btn-variance-monthly" onclick="switchVariancePeriod('monthly')">Bulanan</button>
+                    </div>
+                    <select class="variance-week-select" id="variance-period-select" onchange="onVariancePeriodSelectChange()">
+                        <option value="">Memuat periode...</option>
+                    </select>
+                </div>
             </div>
 
             <div class="variance-filter-grid">
@@ -1510,12 +1445,16 @@ let costCardPeriod = 'weekly';
 let oeeCardStats = { weekly: null, monthly: null };
 let oeeCardPeriod = 'weekly';
 
-// ── Variance Material — sumber Excel Weekly ──
-// Data disimpan pada grain: Week × Gedung × Material Group × Material × Line × Material Description.
+// ── Variance Material — satu sumber Excel untuk Weekly + Monthly ──
+// Data disimpan pada grain: Month × Week × Gedung × Material Group × Material × Line × Material Description.
+// Bulan berasal langsung dari Scheduled start, sehingga week yang melewati batas bulan tetap akurat.
 // KPI dihitung ulang dari total Target/Actual setelah filter, persis seperti calculated field Pivot Excel.
 let varianceExcelRows = [];
 let varianceWeeksList = [];
+let varianceMonthsList = [];
+let variancePeriod = 'weekly';
 let varianceSelectedWeekKey = null;
+let varianceSelectedMonthKey = null;
 const varianceFilters = { gedung:'Gedung 6', group:'', material:'', line:'' };
 
 // Item yang bernama seperti ini adalah PEMAKAIAN BAHAN, bukan waste,
@@ -1927,7 +1866,7 @@ function isoWeekToThursday(tahun, mingguKe) {
 }
 const NAMA_BULAN_ID = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 
-// ── Variance Material — Excel Weekly ──
+// ── Variance Material — Weekly + Monthly dari Scheduled start ──
 function varianceNum(v){ const n=Number(v); return Number.isFinite(n)?n:0; }
 function varianceMetric(rows){
     const targetCost = rows.reduce((s,r)=>s+varianceNum(r.target_cost),0);
@@ -1961,7 +1900,12 @@ function varianceSetOptions(id, values, selected, allLabel='Semua'){
     return valid;
 }
 function escapeHtml(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-function varianceRowsForWeek(){
+function varianceRowsForPeriod(){
+    if(variancePeriod==='monthly'){
+        if(!varianceSelectedMonthKey) return [];
+        const [tahun,bulan]=varianceSelectedMonthKey.split('-').map(Number);
+        return varianceExcelRows.filter(r=>Number(r.tahun)===tahun && Number(r.bulan)===bulan);
+    }
     if(!varianceSelectedWeekKey) return [];
     const [tahun,minggu]=varianceSelectedWeekKey.split('-').map(Number);
     return varianceExcelRows.filter(r=>Number(r.tahun)===tahun && Number(r.minggu_ke)===minggu);
@@ -1974,76 +1918,118 @@ function varianceApplyFilters(rows, skip=''){
         (skip==='line' || !varianceFilters.line || String(r.line||'').trim()===varianceFilters.line)
     );
 }
+function populateVariancePeriodSelect(){
+    const sel=document.getElementById('variance-period-select'); if(!sel)return;
+    if(variancePeriod==='monthly'){
+        if(!varianceMonthsList.length){
+            sel.innerHTML='<option value="">Upload ulang Excel untuk data bulanan</option>';
+            sel.disabled=true;
+            return;
+        }
+        sel.disabled=false;
+        if(!varianceSelectedMonthKey || !varianceMonthsList.some(m=>m.key===varianceSelectedMonthKey)) varianceSelectedMonthKey=varianceMonthsList[0].key;
+        sel.innerHTML=varianceMonthsList.map(m=>`<option value="${m.key}">${NAMA_BULAN_ID[m.bulan-1]} ${m.tahun}</option>`).join('');
+        sel.value=varianceSelectedMonthKey;
+    }else{
+        if(!varianceWeeksList.length){sel.innerHTML='<option value="">Belum ada data</option>';sel.disabled=true;return;}
+        sel.disabled=false;
+        if(!varianceSelectedWeekKey || !varianceWeeksList.some(w=>w.key===varianceSelectedWeekKey)) varianceSelectedWeekKey=varianceWeeksList[0].key;
+        sel.innerHTML=varianceWeeksList.map(w=>`<option value="${w.key}">Week ${w.minggu} / ${w.tahun}</option>`).join('');
+        sel.value=varianceSelectedWeekKey;
+    }
+}
 function rebuildVarianceFilterOptions(changed=''){
-    const weekRows=varianceRowsForWeek();
-    // Excel contoh aktif pada Gedung 6; pertahankan bila tersedia, kalau tidak fallback Semua.
-    if(changed==='week' && varianceFilters.gedung==='Gedung 6' && !varianceUnique(weekRows,'gedung').includes('Gedung 6')) varianceFilters.gedung='';
+    const periodRows=varianceRowsForPeriod();
+    if(changed==='period' && varianceFilters.gedung==='Gedung 6' && !varianceUnique(periodRows,'gedung').includes('Gedung 6')) varianceFilters.gedung='';
 
-    varianceFilters.gedung = varianceSetOptions('variance-gedung-select', varianceUnique(weekRows,'gedung'), varianceFilters.gedung, 'Semua Gedung');
-    const afterGedung=varianceApplyFilters(weekRows,'group').filter(r=>!varianceFilters.gedung || String(r.gedung||'').trim()===varianceFilters.gedung);
+    varianceFilters.gedung = varianceSetOptions('variance-gedung-select', varianceUnique(periodRows,'gedung'), varianceFilters.gedung, 'Semua Gedung');
+    const afterGedung=varianceApplyFilters(periodRows,'group').filter(r=>!varianceFilters.gedung || String(r.gedung||'').trim()===varianceFilters.gedung);
     varianceFilters.group = varianceSetOptions('variance-group-select', varianceUnique(afterGedung,'material_group'), varianceFilters.group, 'Semua Group');
-    const afterGroup=varianceApplyFilters(weekRows,'material').filter(r=>(!varianceFilters.gedung || String(r.gedung||'').trim()===varianceFilters.gedung) && (!varianceFilters.group || String(r.material_group||'').trim()===varianceFilters.group));
+    const afterGroup=varianceApplyFilters(periodRows,'material').filter(r=>(!varianceFilters.gedung || String(r.gedung||'').trim()===varianceFilters.gedung) && (!varianceFilters.group || String(r.material_group||'').trim()===varianceFilters.group));
     varianceFilters.material = varianceSetOptions('variance-material-select', varianceUnique(afterGroup,'short_text'), varianceFilters.material, 'Semua Material');
-    const afterMaterial=varianceApplyFilters(weekRows,'line').filter(r=>(!varianceFilters.gedung || String(r.gedung||'').trim()===varianceFilters.gedung) && (!varianceFilters.group || String(r.material_group||'').trim()===varianceFilters.group) && (!varianceFilters.material || String(r.short_text||'').trim()===varianceFilters.material));
+    const afterMaterial=varianceApplyFilters(periodRows,'line').filter(r=>(!varianceFilters.gedung || String(r.gedung||'').trim()===varianceFilters.gedung) && (!varianceFilters.group || String(r.material_group||'').trim()===varianceFilters.group) && (!varianceFilters.material || String(r.short_text||'').trim()===varianceFilters.material));
     varianceFilters.line = varianceSetOptions('variance-line-select', varianceUnique(afterMaterial,'line'), varianceFilters.line, 'Semua Line');
 }
 async function fetchAllVarianceWeeklyDetail() {
-    // Supabase/PostgREST biasanya membatasi jumlah row per response.
-    // Ambil bertahap supaya seluruh Week 1 s.d. week terbaru masuk ke dropdown index.
     const pageSize = 1000;
     const allRows = [];
     let from = 0;
-
     while (true) {
         const { data, error } = await db
             .from('variance_weekly_detail')
             .select('*')
             .order('id', { ascending: true })
             .range(from, from + pageSize - 1);
-
         if (error) return { data: null, error };
-
         const batch = data || [];
         allRows.push(...batch);
         if (batch.length < pageSize) break;
-
         from += pageSize;
-        // Guard agar loop tidak berjalan tanpa batas bila ada respons API yang aneh.
-        if (from >= 100000) {
-            return { data: null, error: new Error('Jumlah data variance melebihi batas pembacaan aman (100.000 row).') };
-        }
+        if (from >= 100000) return { data: null, error: new Error('Jumlah data variance melebihi batas pembacaan aman (100.000 row).') };
     }
-
     return { data: allRows, error: null };
 }
-
 async function loadVarianceCard() {
     const { data, error } = await fetchAllVarianceWeeklyDetail();
     if(error){
         console.warn('variance_weekly_detail belum tersedia:', error.message);
         varianceExcelRows=[];
-        const w=document.getElementById('variance-week-select'); if(w) w.innerHTML='<option value="">Setup tabel dulu</option>';
+        const p=document.getElementById('variance-period-select'); if(p) p.innerHTML='<option value="">Setup tabel dulu</option>';
         ['val-variance-value','val-variance-pct-value','val-variance-pct-qty'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='—';});
-        const b=document.getElementById('variance-group-body'); if(b)b.innerHTML='<tr><td colspan="4" style="text-align:center;color:#9ca3af;padding:8px;">Jalankan setup_variance_weekly_detail.sql lalu upload Excel.</td></tr>';
+        const b=document.getElementById('variance-group-body'); if(b)b.innerHTML='<tr><td colspan="4" style="text-align:center;color:#9ca3af;padding:8px;">Jalankan setup SQL variance lalu upload Excel.</td></tr>';
         return;
     }
     varianceExcelRows=data||[];
     lastLoadedData.varianceWeekly=varianceExcelRows;
-    const seen=new Map();
-    varianceExcelRows.forEach(r=>{const k=`${r.tahun}-${r.minggu_ke}`;if(!seen.has(k))seen.set(k,{key:k,tahun:Number(r.tahun),minggu:Number(r.minggu_ke)});});
-    varianceWeeksList=[...seen.values()].sort((a,b)=>(b.tahun-a.tahun)||(b.minggu-a.minggu));
-    const weekSel=document.getElementById('variance-week-select');
-    weekSel.innerHTML=varianceWeeksList.length?varianceWeeksList.map(w=>`<option value="${w.key}">Week ${w.minggu} / ${w.tahun}</option>`).join(''):'<option value="">Belum ada data</option>';
+
+    const weekSeen=new Map(),monthSeen=new Map();
+    varianceExcelRows.forEach(r=>{
+        const wk=`${r.tahun}-${r.minggu_ke}`;
+        if(!weekSeen.has(wk)) weekSeen.set(wk,{key:wk,tahun:Number(r.tahun),minggu:Number(r.minggu_ke)});
+        const b=Number(r.bulan);
+        if(Number.isInteger(b) && b>=1 && b<=12){
+            const mk=`${r.tahun}-${b}`;
+            if(!monthSeen.has(mk)) monthSeen.set(mk,{key:mk,tahun:Number(r.tahun),bulan:b});
+        }
+    });
+    varianceWeeksList=[...weekSeen.values()].sort((a,b)=>(b.tahun-a.tahun)||(b.minggu-a.minggu));
+    varianceMonthsList=[...monthSeen.values()].sort((a,b)=>(b.tahun-a.tahun)||(b.bulan-a.bulan));
+
     if(!varianceSelectedWeekKey || !varianceWeeksList.some(w=>w.key===varianceSelectedWeekKey)) varianceSelectedWeekKey=varianceWeeksList[0]?.key||null;
-    if(varianceSelectedWeekKey) weekSel.value=varianceSelectedWeekKey;
-    rebuildVarianceFilterOptions('week');
+    if(!varianceSelectedMonthKey || !varianceMonthsList.some(m=>m.key===varianceSelectedMonthKey)) varianceSelectedMonthKey=varianceMonthsList[0]?.key||null;
+
+    const monthBtn=document.getElementById('btn-variance-monthly');
+    if(monthBtn){
+        monthBtn.disabled=!varianceMonthsList.length;
+        monthBtn.title=varianceMonthsList.length?'':'Jalankan update_variance_monthly_support.sql lalu upload ulang Excel terbaru.';
+    }
+    if(variancePeriod==='monthly' && !varianceMonthsList.length) variancePeriod='weekly';
+    document.getElementById('btn-variance-weekly')?.classList.toggle('active',variancePeriod==='weekly');
+    document.getElementById('btn-variance-monthly')?.classList.toggle('active',variancePeriod==='monthly');
+    populateVariancePeriodSelect();
+    rebuildVarianceFilterOptions('period');
+    renderVarianceCard();
+}
+function switchVariancePeriod(period){
+    if(period==='monthly' && !varianceMonthsList.length) return;
+    variancePeriod=period;
+    document.getElementById('btn-variance-weekly')?.classList.toggle('active',period==='weekly');
+    document.getElementById('btn-variance-monthly')?.classList.toggle('active',period==='monthly');
+    varianceFilters.group=''; varianceFilters.material=''; varianceFilters.line='';
+    populateVariancePeriodSelect();
+    rebuildVarianceFilterOptions('period');
+    renderVarianceCard();
+}
+function onVariancePeriodSelectChange(){
+    const value=document.getElementById('variance-period-select').value;
+    if(variancePeriod==='monthly') varianceSelectedMonthKey=value;
+    else varianceSelectedWeekKey=value;
+    varianceFilters.group=''; varianceFilters.material=''; varianceFilters.line='';
+    rebuildVarianceFilterOptions('period');
     renderVarianceCard();
 }
 function onVarianceFilterChange(type){
-    if(type==='week'){
-        varianceSelectedWeekKey=document.getElementById('variance-week-select').value;
-        varianceFilters.group=''; varianceFilters.material=''; varianceFilters.line='';
-    } else if(type==='gedung'){
+    if(type==='gedung'){
         varianceFilters.gedung=document.getElementById('variance-gedung-select').value;
         varianceFilters.group=''; varianceFilters.material=''; varianceFilters.line='';
     } else if(type==='group'){
@@ -2057,7 +2043,7 @@ function onVarianceFilterChange(type){
     renderVarianceCard();
 }
 function renderVarianceCard(){
-    const base=varianceRowsForWeek();
+    const base=varianceRowsForPeriod();
     const rows=varianceApplyFilters(base);
     const m=varianceMetric(rows);
     setVarianceMetric(document.getElementById('val-variance-value'),rows.length?m.varianceValue:null,'money');
@@ -2077,8 +2063,9 @@ function renderVarianceCard(){
     if(varianceFilters.group)filterInfo.push(varianceFilters.group);
     if(varianceFilters.material)filterInfo.push(varianceFilters.material);
     if(varianceFilters.line)filterInfo.push(varianceFilters.line);
+    const periodLabel=variancePeriod==='monthly'?'Bulanan':'Mingguan';
     const info=document.getElementById('variance-filter-info');
-    if(info)info.innerHTML='<span class="variance-status-dot"></span>'+(filterInfo.length?escapeHtml(filterInfo.join(' · ')):'Semua data');
+    if(info)info.innerHTML='<span class="variance-status-dot"></span>'+periodLabel+(filterInfo.length?' · '+escapeHtml(filterInfo.join(' · ')):' · Semua data');
     const rowInfo=document.getElementById('variance-row-info'); if(rowInfo)rowInfo.textContent=`${rows.length} kelompok data`;
 }
 
@@ -2593,99 +2580,3 @@ init();
 </script>
 </body>
 </html>
-index.html
-HTML
-sudah bisa, kalau untuk melihat variance monthly dari data weekly tersebut apakah bisa
-
-Bisa, dan lebih baik variance monthly dihitung langsung dari data pada sheet Data yang sama, jadi tidak perlu upload file monthly terpisah.
-
-Yang penting, monthly jangan dihitung dengan menjumlahkan atau merata-ratakan persentase Weekly. Perhitungannya harus kembali ke data Target dan Actual:
-
-Variance Value bulanan = Σ Total Actual Costs − Σ Target Est. Cost
-% Variance Value bulanan = (Σ Actual Cost − Σ Target Cost) / Σ Target Cost
-% Variance Qty bulanan = (Σ Actual Qty − Σ Target Qty) / Σ Target Qty
-
-Saya sarankan kartu Variance Material di index.html dibuat seperti kartu OEE/Cost Material, dengan toggle:
-
-MINGGUAN | BULANAN
-
-Saat Mingguan dipilih:
-Week 37 / 2026
-
-Saat Bulanan dipilih:
-September 2026
-
-Filter yang sekarang tetap berfungsi untuk keduanya:
-Gedung · Material Group · Material · Line.
-
-Jadi contohnya:
-
-BULANAN — September 2026
-Variance Value: Rp xxx.xxx.xxx
-% Variance Value: x.xx%
-% Variance Qty: x.xx%
-
-Lalu breakdown:
-
-Material Group	Variance Value	% Var Value	% Var Qty
-Packaging Material	...	...	...
-Raw Material	...	...	...
-Semi Finishgoods	...	...	...
-Ada satu hal yang perlu diperbaiki di struktur data
-
-Sekarang database variance_weekly_detail terutama menyimpan tahun dan minggu_ke. Agar monthly benar-benar akurat, saat upload Excel sebaiknya kita juga simpan bulan berdasarkan Scheduled start dari setiap baris Excel.
-
-Ini penting karena satu week bisa melewati dua bulan. Misalnya sebagian data Week 35 masih Agustus dan sebagian sudah September. Kalau bulan hanya ditebak dari nomor week, hasil monthly bisa bergeser.
-
-Jadi alur terbaik menjadi:
-
-Excel terbaru → sheet Data → Scheduled start → Week + Month → database → Dashboard Weekly/Monthly
-
-Dengan begitu satu kali upload Excel tetap meng-update semua Week sekaligus, dan dashboard otomatis bisa menampilkan Weekly maupun Monthly dari sumber data yang sama.
-
-Saya sarankan kita pakai metode ini karena hasil Monthly akan tetap persis berdasarkan data asli Excel, bukan estimasi dari agregat Weekly.
-
-boleh
-
-Sudah. Sekarang Variance Material bisa dilihat Mingguan maupun Bulanan dari satu file Excel yang sama.
-
-Perubahannya:
-
-input-variance.html sekarang menyimpan bulan dari Scheduled start.
-index.html punya toggle Mingguan | Bulanan.
-Filter Gedung, Material Group, Material, Line tetap berfungsi di kedua mode.
-Monthly dihitung langsung dari total Target vs Actual pada bulan tersebut, bukan dari menjumlahkan persentase weekly.
-Jika satu week melewati dua bulan, datanya tetap masuk ke bulan yang benar berdasarkan tanggal asli.
-
-Urutan pemasangannya penting:
-
-Jalankan SQL ini sekali saja di Supabase SQL Editor:
-
-update_variance_monthly_support.sql
-Ganti halaman upload:
-
-input-variance.html
-Ganti dashboard utama:
-
-index.html
-Setelah deploy, upload ulang Excel Material Variance terbaru satu kali. Data lama belum memiliki informasi bulan, jadi re-upload diperlukan agar mode Bulanan aktif.
-
-Untuk instalasi baru, saya juga siapkan SQL lengkap versi baru:
-
-setup_variance_weekly_detail_v2.sql
-
-Setelah upload ulang, di kartu Variance Material nanti akan muncul:
-
-MINGGUAN | BULANAN
-
-dan pada mode bulanan dropdown akan berisi Januari 2026, Februari 2026, ... September 2026 sesuai data yang ada di sheet Data.
-
-update_variance_monthly_support.sql
-Code
-input-variance.html
-HTML
-index.html
-HTML
-setup_variance_weekly_detail_v2.sql
-Code
-Show less
