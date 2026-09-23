@@ -3,521 +3,68 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Input Cost Material - Bojonegoro Monitoring</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Input Variance Material - Bojonegoro Monitoring</title>
 <style>
-body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
-.topbar {
-    background:#1f2937; color:white; padding:15px;
-    display:flex; align-items:center;
-    position:fixed; top:0; left:0; width:100%; z-index:1000;
-    box-sizing:border-box;
-}
-.menu-btn { font-size:28px; cursor:pointer; margin-right:15px; }
-.sidebar {
-    height:100%; width:250px; position:fixed;
-    top:0; left:-250px; background:#111827;
-    transition:0.3s; padding-top:60px; z-index:999;
-}
-.sidebar a { display:block; color:white; padding:15px 20px; text-decoration:none; }
-.sidebar a:hover { background:#374151; }
-.sidebar a.active { background:#3b82f6; }
-.main { padding:80px 24px 40px 24px; max-width:640px; margin:0 auto; }
-
-.sec-title {
-    font-size:13px; font-weight:700; color:#374151;
-    text-transform:uppercase; letter-spacing:0.05em;
-    margin:0 0 12px;
-}
-
-.card-wide {
-    background:white; border-radius:12px; padding:24px;
-    box-shadow:0 1px 3px rgba(0,0,0,0.08);
-    border-top:4px solid #0d9488;
-    margin-bottom:16px;
-}
-
-.form-row { margin-bottom:16px; }
-.form-row label {
-    display:block; font-size:12px; font-weight:600; color:#6b7280;
-    text-transform:uppercase; letter-spacing:0.04em; margin-bottom:6px;
-}
-.form-row .hint { font-size:11px; color:#9ca3af; margin-top:4px; }
-.form-row input {
-    width:100%; box-sizing:border-box;
-    padding:10px 12px; border:1px solid #d1d5db; border-radius:8px;
-    font-size:14px; color:#1f2937;
-}
-.form-row input:focus {
-    outline:none; border-color:#0d9488; box-shadow:0 0 0 2px #ccfbf1;
-}
-.form-grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
-
-.btn-submit {
-    background:#0d9488; color:white; border:none;
-    padding:12px 20px; border-radius:8px; font-size:14px; font-weight:700;
-    cursor:pointer; width:100%;
-}
-.btn-submit:hover { background:#0f766e; }
-.btn-submit:disabled { background:#9ca3af; cursor:not-allowed; }
-
-.status-msg { margin-top:14px; font-size:13px; padding:10px 12px; border-radius:8px; display:none; }
-.status-msg.ok   { display:block; background:#f0fdf4; color:#16a34a; border:1px solid #bbf7d0; }
-.status-msg.err  { display:block; background:#fef2f2; color:#dc2626; border:1px solid #fecaca; }
-
-.preview { margin-top:6px; font-size:12px; color:#6b7280; }
-.preview b { color:#374151; }
-
-.riwayat-table { width:100%; border-collapse:collapse; font-size:12px; margin-top:12px; }
-.riwayat-table th {
-    background:#f9fafb; color:#6b7280; font-weight:600; font-size:10px;
-    padding:8px 10px; text-align:center; border-bottom:2px solid #e5e7eb;
-    text-transform:uppercase;
-}
-.riwayat-table td { padding:7px 10px; border-bottom:1px solid #f3f4f6; text-align:center; }
-.riwayat-table td:first-child { text-align:left; font-weight:600; }
-.riwayat-table tr:hover { background:#f9fafb; cursor:pointer; }
-
-/* Upload section */
-.upload-box {
-    border:2px dashed #99f6e4; border-radius:10px; padding:20px;
-    text-align:center; background:#f0fdfa; margin-bottom:14px;
-}
-.upload-box input[type=file] { font-size:13px; }
-.upload-box .hint { font-size:11px; color:#6b7280; margin-top:8px; }
-.form-row-inline { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
-.form-row-inline label { font-size:12px; font-weight:600; color:#6b7280; text-transform:uppercase; letter-spacing:0.04em; white-space:nowrap; }
-.form-row-inline input { padding:8px 10px; border:1px solid #d1d5db; border-radius:8px; font-size:13px; width:110px; }
-
-.preview-table { width:100%; border-collapse:collapse; font-size:12px; margin-top:14px; }
-.preview-table th {
-    background:#f9fafb; color:#6b7280; font-weight:600; font-size:10px;
-    padding:6px 8px; text-align:center; border-bottom:2px solid #e5e7eb; text-transform:uppercase;
-}
-.preview-table td { padding:5px 6px; border-bottom:1px solid #f3f4f6; text-align:center; }
-.preview-table td:first-child { text-align:left; font-weight:600; }
-.preview-table input {
-    width:100%; box-sizing:border-box; padding:5px 6px; border:1px solid #d1d5db;
-    border-radius:6px; font-size:12px; text-align:right;
-}
-.btn-secondary {
-    background:white; color:#0d9488; border:1px solid #0d9488;
-    padding:10px 16px; border-radius:8px; font-size:13px; font-weight:700; cursor:pointer;
-}
-.btn-secondary:hover { background:#f0fdfa; }
-.divider { border:none; border-top:1px solid #e5e7eb; margin:24px 0; }
+:root{--primary:#1268e8;--accent:#7c3aed;--pink:#db2777;--ink:#172033;--muted:#6b7a90;--line:#e5ebf3;--success:#16a34a;--danger:#dc2626;}
+*{box-sizing:border-box} body{margin:0;font-family:Arial,sans-serif;color:var(--ink);background:radial-gradient(circle at 8% 3%,rgba(18,104,232,.12),transparent 25%),radial-gradient(circle at 92% 5%,rgba(124,58,237,.09),transparent 25%),linear-gradient(145deg,#eef5ff,#f8fafc 48%,#f6f0ff);min-height:100vh}
+.topbar{position:fixed;top:0;left:0;right:0;height:70px;z-index:1000;display:flex;align-items:center;gap:14px;padding:0 26px;background:rgba(255,255,255,.86);backdrop-filter:blur(16px);border-bottom:1px solid #e6edf6;box-shadow:0 6px 24px rgba(38,70,113,.06)}
+.topbar h2{margin:0;font-size:18px}.topbar h2 small{display:block;margin-top:2px;color:#94a3b8;font-size:9px;letter-spacing:.08em;text-transform:uppercase}.menu-btn{width:39px;height:39px;display:grid;place-items:center;border:1px solid #dce7f4;border-radius:11px;background:#fff;color:#34516f;font-size:21px;cursor:pointer}
+.sidebar{height:100%;width:292px;position:fixed;top:0;left:-292px;z-index:1100;padding:92px 16px 28px;background:linear-gradient(180deg,#10284a,#111d34 48%,#0f172a);box-shadow:20px 0 54px rgba(11,30,56,.24);transition:left .25s;overflow-y:auto}.sidebar:before{content:'KOBE · BOJONEGORO';position:absolute;top:28px;left:24px;color:#fff;font-size:12px;font-weight:800;letter-spacing:.14em}.sidebar a{display:flex;align-items:center;min-height:46px;margin:4px 0;padding:11px 14px;border-radius:13px;color:#cad6e7;text-decoration:none;font-size:13px;font-weight:600}.sidebar a:hover{background:rgba(255,255,255,.08)}.sidebar a.active{background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff}
+.main{max-width:1050px;margin:0 auto;padding:96px 24px 42px}.hero{display:grid;grid-template-columns:1fr 280px;gap:24px;align-items:center;margin-bottom:18px;padding:28px 30px;border-radius:24px;color:#fff;background:linear-gradient(135deg,#0b63dc,#174fb6 55%,#7338d2);box-shadow:0 20px 48px rgba(25,73,157,.20)}.hero-kicker{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;opacity:.78}.hero h1{margin:8px 0 6px;font-size:31px}.hero p{margin:0;max-width:600px;font-size:12px;line-height:1.55;opacity:.78}.hero-note{padding:15px;border:1px solid rgba(255,255,255,.2);border-radius:17px;background:rgba(255,255,255,.11);font-size:11px;line-height:1.45}
+.card{padding:22px;margin-bottom:17px;border:1px solid rgba(226,233,243,.98);border-radius:21px;background:rgba(255,255,255,.94);box-shadow:0 14px 34px rgba(38,70,113,.08)}.sec-title{margin:0 0 12px;font-size:11px;font-weight:850;color:#46576e;letter-spacing:.07em;text-transform:uppercase}.upload-box{padding:22px;border:2px dashed #d9c7f8;border-radius:15px;text-align:center;background:linear-gradient(180deg,#faf7ff,#f7fbff)}.upload-box input{font-size:12px}.hint{margin-top:8px;color:#8290a4;font-size:10px;line-height:1.5}.file-info{margin-top:10px;color:#5e6c80;font-size:10px;font-weight:700}
+.control-row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end;margin-top:14px}.field label{display:block;margin:0 0 5px;color:#7c899b;font-size:9px;font-weight:850;text-transform:uppercase;letter-spacing:.05em}.field select{width:100%;min-height:39px;padding:8px 10px;border:1px solid #dfe6ef;border-radius:11px;background:#fff;color:#334155;font-size:12px}.btn{min-height:39px;padding:9px 14px;border-radius:11px;border:0;cursor:pointer;font-size:11px;font-weight:800}.btn-parse{background:#eef4ff;color:#185ab8;border:1px solid #d5e4fb}.btn-save{width:100%;margin-top:14px;background:linear-gradient(135deg,#db2777,#7c3aed);color:#fff;box-shadow:0 9px 20px rgba(219,39,119,.18)}.btn:disabled{opacity:.5;cursor:not-allowed}
+.preview-head{display:grid;grid-template-columns:1.35fr 1fr 1fr;gap:9px;margin-top:16px}.metric{padding:12px;border:1px solid #edf0f5;border-radius:13px;background:#fbfcff}.metric span{display:block;color:#8c98aa;font-size:8px;font-weight:850;text-transform:uppercase}.metric b{display:block;margin-top:5px;font-size:18px}.metric b.over{color:var(--danger)}.metric b.saving{color:var(--success)}
+.tbl-wrap{overflow:auto;margin-top:13px;border:1px solid #e7ecf3;border-radius:14px;background:#fff}.tbl{width:100%;border-collapse:collapse;font-size:10px}.tbl th{padding:9px 8px;background:#f7f9fc;color:#718096;font-size:8px;text-transform:uppercase;white-space:nowrap}.tbl td{padding:8px;border-top:1px solid #f0f3f7;text-align:right}.tbl th:first-child,.tbl td:first-child{text-align:left}.tbl td.over{color:var(--danger);font-weight:800}.tbl td.saving{color:var(--success);font-weight:800}.status{display:none;margin-top:12px;padding:10px 12px;border-radius:10px;font-size:11px}.status.ok{display:block;background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0}.status.err{display:block;background:#fef2f2;color:#b91c1c;border:1px solid #fecaca}.history-table{width:100%;border-collapse:collapse;font-size:10px}.history-table th,.history-table td{padding:8px;border-bottom:1px solid #eef2f6;text-align:right}.history-table th:first-child,.history-table td:first-child{text-align:left}.history-table th{color:#7c899b;font-size:8px;text-transform:uppercase}.history-empty{text-align:center!important;color:#9ca3af;padding:16px!important}
+@media(max-width:760px){.main{padding:84px 12px 28px}.hero{grid-template-columns:1fr;padding:22px}.control-row{grid-template-columns:1fr}.preview-head{grid-template-columns:1fr}.hero h1{font-size:27px}}
 </style>
 </head>
 <body>
-
 <div class="sidebar" id="sidebar">
-    <a href="index.html">Dashboard Utama</a>
-    <a href="oee.html">OEE</a>
-    <a href="tonase.html">Tonase</a>
-    <a href="waste.html">Waste</a>
-    <a href="cost-material.html">Cost Material</a>
-    <a href="input-cost-material.html" class="active">Input Cost Material</a>
-    <a href="#">Downtime</a>
-    <a href="#">Variant</a>
-    <a href="#">Cost Saving</a>
-    <a href="#">CI Projects</a>
-    <a href="settings.html" style="margin-top:20px; border-top:1px solid #374151;">⚙️ Settings</a>
+<a href="index.html">Dashboard Utama</a><a href="oee.html">OEE</a><a href="tonase.html">Tonase</a><a href="waste.html">Waste</a><a href="cost-material.html">Cost Material</a><a href="input-cost-material.html">Input Cost Material</a><a href="input-variance.html" class="active">📊 Input Variance</a><a href="improvement-monitoring.html">Improvement Monitoring</a><a href="smartway.html">🛠️ Smart Way</a><a href="settings.html">⚙️ Settings</a>
 </div>
-
-<div class="topbar">
-    <span class="menu-btn" onclick="toggleMenu()">☰</span>
-    <h2 style="margin:0;">Input Cost Material per Week</h2>
-</div>
-
+<div class="topbar"><span class="menu-btn" onclick="toggleMenu()">☰</span><h2>Input Variance Material<small>Weekly Excel · Factory Bojonegoro</small></h2></div>
 <div class="main">
+<section class="hero"><div><div class="hero-kicker">Material Variance Weekly</div><h1>Upload Excel Mingguan</h1><p>Gunakan file <b>Material Variance Weekly Bojo 2026</b> dengan struktur sheet Data, Order Type, dan DB. Sistem membaca seluruh periode di workbook dan menjadikan file terbaru sebagai sumber data variance utama.</p></div><div class="hero-note"><b>Workflow full replace</b><br>1. Upload workbook terbaru<br>2. Sistem membaca semua week<br>3. Preview week mana pun untuk pengecekan<br>4. Simpan — database disinkronkan penuh dengan Excel terbaru</div></section>
 
-    <div class="sec-title">📤 Upload File Excel (Simulasi Ratio COGM)</div>
-    <div class="card-wide">
-        <div class="upload-box">
-            <input type="file" id="file-excel" accept=".xlsx,.xls">
-            <div class="hint">Upload file "Monitoring COST Material Bojo Per Week.xlsx" — data langsung dibaca dari sheet "Simulasi Ratio COGM", nggak perlu ketik manual satu-satu.</div>
-        </div>
+<div class="card"><div class="sec-title">📤 Upload Source Excel</div><div class="upload-box"><input type="file" id="file-excel" accept=".xlsx,.xls"><div class="hint">Format harus mengikuti workbook contoh. Semua baris pada sheet <b>Data</b> akan dibaca. Week dihitung dari <b>Scheduled start</b> sehingga tidak bergantung pada kalkulasi formula Excel di browser.</div><div class="file-info" id="file-info"></div></div><div class="control-row"><div class="field"><label>Week untuk preview</label><select id="week-select" disabled><option>Upload & baca file dulu</option></select></div><button class="btn btn-parse" id="btn-parse">Baca Semua Data</button></div><div class="status" id="parse-status"></div></div>
 
-        <div class="form-row-inline">
-            <label>Tahun data</label>
-            <input type="number" id="upload-tahun">
-            <span class="hint" id="upload-file-info"></span>
-        </div>
+<div class="card" id="preview-card" style="display:none"><div class="sec-title">📊 Preview — Sama dengan Pivot Excel</div><div id="preview-caption" class="hint" style="margin-top:0"></div><div class="preview-head"><div class="metric"><span>Variance Value</span><b id="pv-value">—</b></div><div class="metric"><span>% Variance Value</span><b id="pv-pct-value">—</b></div><div class="metric"><span>% Variance Qty</span><b id="pv-pct-qty">—</b></div></div><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Material Group</th><th>Variance Value</th><th>% Var Value</th><th>% Var Qty</th></tr></thead><tbody id="preview-group-body"></tbody></table></div><div class="hint" id="preview-detail"></div><button class="btn btn-save" id="btn-save">💾 Sinkronkan Semua Data ke Database</button><div class="status" id="save-status"></div></div>
 
-        <button type="button" class="btn-secondary" id="btn-parse">📄 Baca File & Tampilkan Preview</button>
-
-        <div id="preview-wrap" style="display:none;">
-            <table class="preview-table">
-                <thead>
-                    <tr>
-                        <th>Week</th><th>Tonase (ton)</th><th>Packaging (Rp)</th><th>Raw Material (Rp)</th><th>SFG (Rp)</th><th>Target/Ton (Rp)</th>
-                    </tr>
-                </thead>
-                <tbody id="tbl-preview"></tbody>
-            </table>
-            <div style="margin-top:16px;">
-                <button type="button" class="btn-submit" id="btn-save-all">💾 Simpan Semua ke Database</button>
-            </div>
-            <div class="status-msg" id="upload-status-msg"></div>
-        </div>
-    </div>
-
-    <hr class="divider">
-
-    <div class="sec-title">✏️ Input Manual (satu minggu / koreksi)</div>
-    <div class="card-wide">
-        <form id="form-cost">
-            <div class="form-row form-grid-2">
-                <div>
-                    <label>Tahun</label>
-                    <input type="number" id="in-tahun" required>
-                </div>
-                <div>
-                    <label>Week Ke-</label>
-                    <input type="number" id="in-minggu" required placeholder="cth: 27">
-                </div>
-            </div>
-
-            <div class="form-row">
-                <label>Tonase Produksi (ton)</label>
-                <input type="number" step="any" id="in-tonase" required>
-            </div>
-
-            <div class="form-row">
-                <label>Packaging Material — Total Cost (Rp)</label>
-                <input type="number" step="any" id="in-packaging" required>
-            </div>
-
-            <div class="form-row">
-                <label>Raw Material — Total Cost (Rp)</label>
-                <input type="number" step="any" id="in-raw" required>
-            </div>
-
-            <div class="form-row">
-                <label>SFG — Total Cost (Rp)</label>
-                <input type="number" step="any" id="in-sfg" required>
-            </div>
-
-            <div class="form-row">
-                <label>Target Cost / Ton (Rp)</label>
-                <input type="number" step="any" id="in-target" value="28000" required>
-                <div class="hint">Default Rp 28.000/ton, ubah kalau target minggu ini berbeda.</div>
-            </div>
-
-            <div class="preview" id="preview"></div>
-
-            <div style="margin-top:18px;">
-                <button type="submit" class="btn-submit" id="btn-submit">Simpan Data</button>
-            </div>
-
-            <div class="status-msg" id="status-msg"></div>
-        </form>
-    </div>
-
-    <div class="sec-title">🕘 Riwayat Terakhir <span style="color:#9ca3af; font-weight:400; text-transform:none;">(klik baris untuk edit)</span></div>
-    <div class="card-wide">
-        <table class="riwayat-table">
-            <thead>
-                <tr>
-                    <th>Week</th><th>Tonase</th><th>Packaging</th><th>Raw Material</th><th>SFG</th><th>Total/Ton</th>
-                </tr>
-            </thead>
-            <tbody id="tbl-riwayat">
-                <tr><td colspan="6" style="text-align:center; color:#9ca3af; padding:16px;">Memuat...</td></tr>
-            </tbody>
-        </table>
-    </div>
-
+<div class="card"><div class="sec-title">🕘 Riwayat Import Weekly</div><table class="history-table"><thead><tr><th>Week</th><th>Kelompok Data</th><th>Variance Value</th><th>Upload</th></tr></thead><tbody id="history-body"><tr><td colspan="4" class="history-empty">Memuat...</td></tr></tbody></table></div>
 </div>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
-const SUPABASE_URL = 'https://bmnhtxalfsfaefacgtpm.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_VItBKenz-q2sYz7MsibODA_nYtLXv9Q';
-const { createClient } = supabase;
-const db = createClient(SUPABASE_URL, SUPABASE_KEY);
-
-function toggleMenu() {
-    const s = document.getElementById('sidebar');
-    s.style.left = s.style.left === '0px' ? '-250px' : '0px';
-}
-
-function fmtRupiah(v) {
-    if (v === null || v === undefined || isNaN(v)) return '—';
-    return 'Rp ' + Math.round(v).toLocaleString('id-ID');
-}
-
-const fields = ['in-tahun','in-minggu','in-tonase','in-packaging','in-raw','in-sfg','in-target'];
-
-function updatePreview() {
-    const tonase = parseFloat(document.getElementById('in-tonase').value) || 0;
-    const pkg    = parseFloat(document.getElementById('in-packaging').value) || 0;
-    const raw    = parseFloat(document.getElementById('in-raw').value) || 0;
-    const sfg    = parseFloat(document.getElementById('in-sfg').value) || 0;
-    const target = parseFloat(document.getElementById('in-target').value) || 0;
-
-    const totalValue = pkg + raw + sfg;
-    const totalRatio = tonase ? totalValue / tonase : 0;
-    const status = totalRatio > 0 && target > 0
-        ? (totalRatio <= target ? ' — <b style="color:#16a34a">di bawah target ✓</b>' : ' — <b style="color:#dc2626">di atas target ✗</b>')
-        : '';
-
-    document.getElementById('preview').innerHTML = tonase
-        ? `Total Cost: <b>${fmtRupiah(totalValue)}</b> &nbsp;|&nbsp; Ratio: <b>${fmtRupiah(totalRatio)}/ton</b>${status}`
-        : '';
-}
-fields.forEach(id => document.getElementById(id).addEventListener('input', updatePreview));
-
-let editingId = null;
-let parsedRows = []; // hasil parse excel, sebelum disimpan
-
-// Cari baris (array) di sheet yang salah satu sel awalnya (kolom A/B/C) cocok regex label
-function findRowByLabel(aoa, regex) {
-    for (const row of aoa) {
-        if (!row) continue;
-        for (let i = 0; i < 3; i++) {
-            const cell = row[i];
-            if (typeof cell === 'string' && regex.test(cell)) return row;
-        }
-    }
-    return null;
-}
-
-// Coba tebak tahun dari sheet "Data" (kolom "Scheduled start")
-function guessYearFromWorkbook(wb) {
-    const dataSheetName = wb.SheetNames.find(n => /^data$/i.test(n));
-    if (!dataSheetName) return null;
-    const rows = XLSX.utils.sheet_to_json(wb.Sheets[dataSheetName], { header: 1, defval: null, range: 0 });
-    for (let i = 1; i < Math.min(rows.length, 20); i++) {
-        const row = rows[i];
-        if (!row) continue;
-        for (const cell of row) {
-            if (cell instanceof Date && !isNaN(cell)) return cell.getFullYear();
-        }
-    }
-    return null;
-}
-
-function parseCostMaterialSheet(wb) {
-    const sheetName = wb.SheetNames.find(n => /ratio\s*cogm/i.test(n)) || wb.SheetNames[0];
-    const ws = wb.Sheets[sheetName];
-    const aoa = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
-
-    // Baris header minggu: sel-sel berisi teks "Week 24", "Week 25", dst — kolomnya
-    // yang sama dipakai sebagai kolom Value untuk baris Tonase/Packaging/Raw Material/SFG.
-    let weekCols = [];
-    for (const row of aoa) {
-        if (!row) continue;
-        row.forEach((cell, colIdx) => {
-            if (typeof cell === 'string') {
-                const m = cell.match(/week\s*(\d+)/i);
-                if (m) weekCols.push({ minggu_ke: parseInt(m[1]), col: colIdx });
-            }
-        });
-        if (weekCols.length) break;
-    }
-    if (!weekCols.length) throw new Error('Tidak menemukan baris "Week ..." di sheet "' + sheetName + '"');
-
-    const tonaseRow = findRowByLabel(aoa, /tonase/i);
-    const pkgRow    = findRowByLabel(aoa, /packaging material/i);
-    const rawRow    = findRowByLabel(aoa, /raw material/i);
-    const sfgRow    = findRowByLabel(aoa, /^sfg$/i);
-    const targetRow = findRowByLabel(aoa, /target cost/i);
-
-    if (!tonaseRow || !pkgRow || !rawRow || !sfgRow) {
-        throw new Error('Struktur sheet "' + sheetName + '" tidak sesuai (baris Tonase/Packaging/Raw Material/SFG tidak ketemu)');
-    }
-
-    // Target cost/ton biasanya cuma satu nilai (di kolom Value minggu pertama)
-    const targetVal = targetRow ? (targetRow.find(v => typeof v === 'number') || 28000) : 28000;
-
-    return weekCols.map(w => ({
-        minggu_ke: w.minggu_ke,
-        tonase: Number(tonaseRow[w.col]) || 0,
-        packaging_value: Number(pkgRow[w.col]) || 0,
-        raw_material_value: Number(rawRow[w.col]) || 0,
-        sfg_value: Number(sfgRow[w.col]) || 0,
-        target_cost_per_ton: Number(targetVal) || 28000,
-    }));
-}
-
-document.getElementById('file-excel').addEventListener('change', () => {
-    const f = document.getElementById('file-excel').files[0];
-    document.getElementById('upload-file-info').textContent = f ? f.name : '';
-});
-
-document.getElementById('btn-parse').addEventListener('click', async () => {
-    const fileInput = document.getElementById('file-excel');
-    const file = fileInput.files[0];
-    const statusEl = document.getElementById('upload-status-msg');
-    if (!file) {
-        alert('Pilih file Excel dulu.');
-        return;
-    }
-    try {
-        const buf = await file.arrayBuffer();
-        const wb = XLSX.read(buf, { type: 'array', cellDates: true });
-
-        let tahunInput = parseInt(document.getElementById('upload-tahun').value);
-        if (!tahunInput) {
-            tahunInput = guessYearFromWorkbook(wb) || new Date().getFullYear();
-            document.getElementById('upload-tahun').value = tahunInput;
-        }
-
-        parsedRows = parseCostMaterialSheet(wb).map(r => ({ ...r, tahun: tahunInput }));
-        renderPreview();
-        document.getElementById('preview-wrap').style.display = 'block';
-        statusEl.className = 'status-msg';
-    } catch (err) {
-        statusEl.className = 'status-msg err';
-        statusEl.textContent = 'Gagal membaca file: ' + err.message;
-    }
-});
-
-function renderPreview() {
-    const tbody = document.getElementById('tbl-preview');
-    tbody.innerHTML = '';
-    parsedRows.forEach((r, idx) => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>Week ${r.minggu_ke}</td>
-            <td><input type="number" step="any" data-idx="${idx}" data-field="tonase" value="${r.tonase}"></td>
-            <td><input type="number" step="any" data-idx="${idx}" data-field="packaging_value" value="${r.packaging_value}"></td>
-            <td><input type="number" step="any" data-idx="${idx}" data-field="raw_material_value" value="${r.raw_material_value}"></td>
-            <td><input type="number" step="any" data-idx="${idx}" data-field="sfg_value" value="${r.sfg_value}"></td>
-            <td><input type="number" step="any" data-idx="${idx}" data-field="target_cost_per_ton" value="${r.target_cost_per_ton}"></td>
-        `;
-        tbody.appendChild(tr);
-    });
-    tbody.querySelectorAll('input').forEach(inp => {
-        inp.addEventListener('input', () => {
-            const idx = parseInt(inp.dataset.idx);
-            parsedRows[idx][inp.dataset.field] = parseFloat(inp.value) || 0;
-        });
-    });
-}
-
-document.getElementById('btn-save-all').addEventListener('click', async () => {
-    const btn = document.getElementById('btn-save-all');
-    const statusEl = document.getElementById('upload-status-msg');
-    const tahun = parseInt(document.getElementById('upload-tahun').value) || new Date().getFullYear();
-    btn.disabled = true;
-    btn.textContent = 'Menyimpan...';
-
-    const payloads = parsedRows.map(r => ({ ...r, tahun }));
-    const { error } = await db
-        .from('cost_material_weekly')
-        .upsert(payloads, { onConflict: 'tahun,minggu_ke' });
-
-    btn.disabled = false;
-    btn.textContent = '💾 Simpan Semua ke Database';
-
-    if (error) {
-        statusEl.className = 'status-msg err';
-        statusEl.textContent = 'Gagal menyimpan: ' + error.message;
-    } else {
-        statusEl.className = 'status-msg ok';
-        statusEl.textContent = `${payloads.length} minggu data berhasil disimpan (Week ${payloads.map(p => p.minggu_ke).join(', ')}).`;
-        loadRiwayat();
-    }
-});
-
-document.getElementById('form-cost').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const btn = document.getElementById('btn-submit');
-    const statusEl = document.getElementById('status-msg');
-    btn.disabled = true;
-    btn.textContent = 'Menyimpan...';
-    statusEl.className = 'status-msg';
-
-    const payload = {
-        tahun: parseInt(document.getElementById('in-tahun').value),
-        minggu_ke: parseInt(document.getElementById('in-minggu').value),
-        tonase: parseFloat(document.getElementById('in-tonase').value) || 0,
-        packaging_value: parseFloat(document.getElementById('in-packaging').value) || 0,
-        raw_material_value: parseFloat(document.getElementById('in-raw').value) || 0,
-        sfg_value: parseFloat(document.getElementById('in-sfg').value) || 0,
-        target_cost_per_ton: parseFloat(document.getElementById('in-target').value) || 28000,
-    };
-
-    // upsert berdasarkan (tahun, minggu_ke) — kalau sudah ada, datanya diupdate
-    const { error } = await db
-        .from('cost_material_weekly')
-        .upsert(payload, { onConflict: 'tahun,minggu_ke' });
-
-    btn.disabled = false;
-    btn.textContent = 'Simpan Data';
-
-    if (error) {
-        statusEl.className = 'status-msg err';
-        statusEl.textContent = 'Gagal menyimpan: ' + error.message;
-    } else {
-        statusEl.className = 'status-msg ok';
-        statusEl.textContent = `Data Week ${payload.minggu_ke}/${payload.tahun} berhasil disimpan.`;
-        editingId = null;
-        loadRiwayat();
-    }
-});
-
-async function loadRiwayat() {
-    const { data: rows } = await db
-        .from('cost_material_weekly')
-        .select('*')
-        .order('tahun', { ascending: false })
-        .order('minggu_ke', { ascending: false })
-        .limit(10);
-
-    const tbody = document.getElementById('tbl-riwayat');
-    if (!rows || rows.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#9ca3af; padding:16px;">Belum ada data</td></tr>';
-        return;
-    }
-
-    tbody.innerHTML = '';
-    rows.forEach(r => {
-        const totalValue = (r.packaging_value || 0) + (r.raw_material_value || 0) + (r.sfg_value || 0);
-        const totalRatio = r.tonase ? totalValue / r.tonase : 0;
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>Week ${r.minggu_ke} / ${r.tahun}</td>
-            <td>${(r.tonase || 0).toLocaleString('id-ID')}</td>
-            <td>${fmtRupiah(r.packaging_value)}</td>
-            <td>${fmtRupiah(r.raw_material_value)}</td>
-            <td>${fmtRupiah(r.sfg_value)}</td>
-            <td>${fmtRupiah(totalRatio)}</td>
-        `;
-        tr.addEventListener('click', () => fillForm(r));
-        tbody.appendChild(tr);
-    });
-}
-
-function fillForm(r) {
-    document.getElementById('in-tahun').value = r.tahun;
-    document.getElementById('in-minggu').value = r.minggu_ke;
-    document.getElementById('in-tonase').value = r.tonase;
-    document.getElementById('in-packaging').value = r.packaging_value;
-    document.getElementById('in-raw').value = r.raw_material_value;
-    document.getElementById('in-sfg').value = r.sfg_value;
-    document.getElementById('in-target').value = r.target_cost_per_ton;
-    editingId = r.id;
-    updatePreview();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-// Default: tahun sekarang & minggu ISO sekarang
-function isoWeek(date) {
-    const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-    const dayNum = d.getUTCDay() || 7;
-    d.setUTCDate(d.getUTCDate() + 4 - dayNum);
-    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-    return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
-}
-const today = new Date();
-document.getElementById('in-tahun').value = today.getFullYear();
-document.getElementById('in-minggu').value = isoWeek(today);
-document.getElementById('upload-tahun').value = today.getFullYear();
-
-loadRiwayat();
+const SUPABASE_URL='https://bmnhtxalfsfaefacgtpm.supabase.co';
+const SUPABASE_KEY='sb_publishable_VItBKenz-q2sYz7MsibODA_nYtLXv9Q';
+const {createClient}=supabase; const db=createClient(SUPABASE_URL,SUPABASE_KEY);
+let workbookRows=[]; let weekList=[]; let sourceFile='';
+function toggleMenu(){const s=document.getElementById('sidebar');s.style.left=s.style.left==='0px'?`-${s.offsetWidth}px`:'0px';}
+function norm(v){return String(v??'').trim();} function num(v){const n=Number(v);return Number.isFinite(n)?n:0;}
+function fmtRp(v){const n=Math.round(Number(v)||0);return(n<0?'-Rp '+Math.abs(n).toLocaleString('id-ID'):'Rp '+n.toLocaleString('id-ID'));}
+function fmtPct(v){return v===null||v===undefined?'—':(Number(v)*100).toFixed(2)+'%';}
+function metric(rows){const tq=rows.reduce((s,r)=>s+r.target_qty,0),aq=rows.reduce((s,r)=>s+r.actual_qty,0),tc=rows.reduce((s,r)=>s+r.target_cost,0),ac=rows.reduce((s,r)=>s+r.actual_cost,0),vv=ac-tc;return{tq,aq,tc,ac,vv,pv:tc!==0?vv/tc:null,pq:tq!==0?(aq-tq)/tq:null};}
+function excelWeekNum(d){const jan1=new Date(d.getFullYear(),0,1);const day=Math.floor((new Date(d.getFullYear(),d.getMonth(),d.getDate())-jan1)/86400000);return Math.floor((day+jan1.getDay())/7)+1;}
+function parseDate(v){if(v instanceof Date&&!isNaN(v))return v;if(typeof v==='number'){const p=XLSX.SSF.parse_date_code(v);if(p)return new Date(p.y,p.m-1,p.d);}const d=new Date(v);return isNaN(d)?null:d;}
+function aoaSheet(wb,name){const actual=wb.SheetNames.find(n=>n.trim().toLowerCase()===name.toLowerCase());if(!actual)throw new Error(`Sheet "${name}" tidak ditemukan.`);return XLSX.utils.sheet_to_json(wb.Sheets[actual],{header:1,raw:true,defval:null,cellDates:true});}
+function headerMap(aoa,required){let idx=-1;for(let r=0;r<Math.min(20,aoa.length);r++){const vals=(aoa[r]||[]).map(x=>norm(x).toLowerCase());if(required.every(k=>vals.includes(k.toLowerCase()))){idx=r;break;}}if(idx<0)throw new Error('Header sheet Data tidak sesuai workbook contoh.');const h=(aoa[idx]||[]).map(norm);const col=(...names)=>h.findIndex(x=>names.some(n=>x.toLowerCase()===n.toLowerCase()));return{idx,col};}
+function mapOrderType(wb){const a=aoaSheet(wb,'Order Type'),mOrder=new Map(),mGroup=new Map();for(let i=1;i<a.length;i++){if(a[i]?.[0])mOrder.set(norm(a[i][0]),norm(a[i][2]));if(a[i]?.[6])mGroup.set(norm(a[i][6]),norm(a[i][7]));}return{mOrder,mGroup};}
+function mapDb(wb){const a=aoaSheet(wb,'DB'),m=new Map();for(let i=1;i<a.length;i++)if(a[i]?.[0])m.set(norm(a[i][0]),norm(a[i][1]));return m;}
+function parseWorkbook(wb){const data=aoaSheet(wb,'Data'),{mOrder,mGroup}=mapOrderType(wb),lineMap=mapDb(wb);const {idx,col}=headerMap(data,['Scheduled start','Short Text','Target Est. Qty','Total Actual Qty','Total Actual Costs']);
+ const cDate=col('Scheduled start'),cWeek=col('Week'),cOrderType=col('Order Type'),cGed=col('Gedung'),cMD=col('Material Description'),cOrigin=col('Origin'),cShort=col('Short Text'),cMG=col('Material Group'),cTQ=col('Target Est. Qty'),cAQ=col('Total Actual Qty'),cTC=col('Target Est. Cost'),cAC=col('Total Actual Costs'),cDesc=col('Description'),cLine=col('Line'),cMP=col('Moving Price');
+ if([cDate,cShort,cTQ,cAQ,cAC].some(x=>x<0))throw new Error('Kolom wajib pada sheet Data tidak lengkap.'); const agg=new Map();
+ for(let i=idx+1;i<data.length;i++){const r=data[i]||[];const dt=parseDate(r[cDate]);if(!dt)continue;const year=dt.getFullYear();const week=excelWeekNum(dt);const orderType=cOrderType>=0?norm(r[cOrderType]):'';const ged=(cGed>=0?norm(r[cGed]):'')||mOrder.get(orderType)||'';const origin=cOrigin>=0?norm(r[cOrigin]):'';const mg=(cMG>=0?norm(r[cMG]):'')||mGroup.get(origin.charAt(0))||'';const short=norm(r[cShort]);if(!short)continue;const desc=cDesc>=0?norm(r[cDesc]):'';const line=(cLine>=0?norm(r[cLine]):'')||lineMap.get(desc)||desc;const md=cMD>=0?norm(r[cMD]):'';const tq=num(r[cTQ]),aq=num(r[cAQ]),ac=num(r[cAC]);let tc=cTC>=0?num(r[cTC]):0;if(!tc){let mp=cMP>=0?num(r[cMP]):0;if(!mp&&aq)mp=ac/aq;tc=mp*tq;}const key=[year,week,ged,mg,short,line,md].join('|');if(!agg.has(key))agg.set(key,{tahun:year,minggu_ke:week,gedung:ged,material_group:mg,short_text:short,line,material_description:md,target_qty:0,actual_qty:0,target_cost:0,actual_cost:0,row_count:0});const a=agg.get(key);a.target_qty+=tq;a.actual_qty+=aq;a.target_cost+=tc;a.actual_cost+=ac;a.row_count++;}
+ workbookRows=[...agg.values()];if(!workbookRows.length)throw new Error('Tidak ada baris variance yang berhasil dibaca.');const seen=new Map();workbookRows.forEach(r=>{const k=`${r.tahun}-${r.minggu_ke}`;if(!seen.has(k))seen.set(k,{key:k,tahun:r.tahun,week:r.minggu_ke});});weekList=[...seen.values()].sort((a,b)=>(b.tahun-a.tahun)||(b.week-a.week));}
+function classMetric(el,v){el.className=v>0?'over':v<0?'saving':'';}
+function renderPreview(){const key=document.getElementById('week-select').value;if(!key)return;const [y,w]=key.split('-').map(Number);const rows=workbookRows.filter(r=>r.tahun===y&&r.minggu_ke===w);const m=metric(rows);const ev=document.getElementById('pv-value'),epv=document.getElementById('pv-pct-value'),epq=document.getElementById('pv-pct-qty');ev.textContent=fmtRp(m.vv);epv.textContent=fmtPct(m.pv);epq.textContent=fmtPct(m.pq);classMetric(ev,m.vv);classMetric(epv,m.pv||0);classMetric(epq,m.pq||0);document.getElementById('preview-caption').textContent=`Week ${w} / ${y} · ${rows.length} kelompok data · source ${sourceFile}`;
+ const groups=[...new Set(rows.map(r=>r.material_group).filter(Boolean))].sort();document.getElementById('preview-group-body').innerHTML=groups.map(g=>{const x=metric(rows.filter(r=>r.material_group===g));const c=x.vv>0?'over':x.vv<0?'saving':'';return`<tr><td>${g}</td><td class="${c}">${fmtRp(x.vv)}</td><td class="${x.pv>0?'over':x.pv<0?'saving':''}">${fmtPct(x.pv)}</td><td class="${x.pq>0?'over':x.pq<0?'saving':''}">${fmtPct(x.pq)}</td></tr>`;}).join('');document.getElementById('preview-detail').textContent='Perhitungan mengikuti calculated field Excel: Variance Value = Total Actual Costs − Target Est. Cost; persentase dihitung setelah total Target/Actual sesuai filter.';document.getElementById('preview-card').style.display='block';}
+document.getElementById('file-excel').addEventListener('change',()=>{const f=document.getElementById('file-excel').files[0];document.getElementById('file-info').textContent=f?f.name:'';});
+document.getElementById('btn-parse').addEventListener('click',async()=>{const f=document.getElementById('file-excel').files[0],st=document.getElementById('parse-status');if(!f){alert('Pilih file Excel dulu.');return;}try{st.className='status';const wb=XLSX.read(await f.arrayBuffer(),{type:'array',cellDates:true});sourceFile=f.name;parseWorkbook(wb);const sel=document.getElementById('week-select');sel.innerHTML=weekList.map(x=>`<option value="${x.key}">Week ${x.week} / ${x.tahun}</option>`).join('');sel.disabled=false;sel.value=weekList[0].key;renderPreview();st.className='status ok';const minW=weekList.length?weekList[weekList.length-1].week:'—',maxW=weekList.length?weekList[0].week:'—';st.textContent=`File terbaca lengkap: ${weekList.length} week (Week ${minW}–${maxW}), ${workbookRows.length.toLocaleString('id-ID')} kelompok data. Dropdown hanya untuk preview; tombol simpan akan menyinkronkan SEMUA week.`;}catch(e){st.className='status err';st.textContent='Gagal membaca file: '+e.message;}});
+document.getElementById('week-select').addEventListener('change',renderPreview);
+document.getElementById('btn-save').addEventListener('click',async()=>{const st=document.getElementById('save-status'),btn=document.getElementById('btn-save');if(!workbookRows.length){alert('Baca file Excel terlebih dahulu.');return;}const totalWeeks=weekList.length;const first=weekList[weekList.length-1],last=weekList[0];const ok=confirm(`Sinkronkan seluruh data variance dari ${sourceFile}?\n\n${totalWeeks} week akan diimpor (Week ${first?.week ?? '—'}–${last?.week ?? '—'}).\nData lama yang tidak ada di Excel terbaru akan dihapus.`);if(!ok)return;const batchStamp=new Date().toISOString();const rows=workbookRows.map(r=>({...r,source_file:sourceFile,uploaded_at:batchStamp}));btn.disabled=true;btn.textContent='Menyinkronkan semua data...';try{for(let i=0;i<rows.length;i+=500){btn.textContent=`Menyimpan ${Math.min(i+500,rows.length).toLocaleString('id-ID')} / ${rows.length.toLocaleString('id-ID')}...`;const res=await db.from('variance_weekly_detail').upsert(rows.slice(i,i+500),{onConflict:'tahun,minggu_ke,gedung,material_group,short_text,line,material_description'});if(res.error)throw res.error;}const del=await db.from('variance_weekly_detail').delete().lt('uploaded_at',batchStamp);if(del.error)throw del.error;st.className='status ok';st.textContent=`Sinkronisasi selesai. ${rows.length.toLocaleString('id-ID')} kelompok data dari ${totalWeeks} week berhasil dimuat dari ${sourceFile}. Data lama yang tidak ada pada workbook terbaru sudah dihapus.`;await loadHistory();}catch(e){st.className='status err';st.textContent='Sinkronisasi gagal: '+e.message+' — data lama belum dihapus sebelum seluruh batch baru berhasil masuk, sehingga risiko kehilangan data diminimalkan.';}finally{btn.disabled=false;btn.textContent='💾 Sinkronkan Semua Data ke Database';}});
+async function loadHistory(){const b=document.getElementById('history-body');const res=await db.from('variance_weekly_detail').select('tahun,minggu_ke,target_cost,actual_cost,uploaded_at').order('tahun',{ascending:false}).order('minggu_ke',{ascending:false}).limit(12000);if(res.error){b.innerHTML='<tr><td colspan="4" class="history-empty">Tabel belum tersedia</td></tr>';return;}const map={};(res.data||[]).forEach(r=>{const k=`${r.tahun}-${r.minggu_ke}`;if(!map[k])map[k]={tahun:r.tahun,week:r.minggu_ke,count:0,tc:0,ac:0,up:r.uploaded_at};map[k].count++;map[k].tc+=num(r.target_cost);map[k].ac+=num(r.actual_cost);if(r.uploaded_at&&(!map[k].up||r.uploaded_at>map[k].up))map[k].up=r.uploaded_at;});const arr=Object.values(map).sort((a,b)=>(b.tahun-a.tahun)||(b.week-a.week)).slice(0,10);b.innerHTML=arr.length?arr.map(x=>`<tr><td>Week ${x.week} / ${x.tahun}</td><td>${x.count}</td><td class="${x.ac-x.tc>0?'over':'saving'}">${fmtRp(x.ac-x.tc)}</td><td>${x.up?new Date(x.up).toLocaleString('id-ID'):'—'}</td></tr>`).join(''):'<tr><td colspan="4" class="history-empty">Belum ada data</td></tr>';}
+loadHistory();
 </script>
 </body>
 </html>
