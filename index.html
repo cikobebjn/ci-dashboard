@@ -1,3 +1,81 @@
+Tue, Sep 15 at 8:46 AM
+Pasted text(1).txt
+Document
+buat tampilan lebih modern
+Pasted text(2).txt
+Document
+lihat dashboard presensi berikut, modern
+Monday 2:00 PM
+CP.pptx
+Presentation
+buatkan versi inggris
+
+Saya akan buat versi Inggris dari file CP.pptx dengan desain, layout, font, dan ukuran teks tetap mengikuti versi original—yang diubah hanya bahasanya.
+
+Saya pertahankan font asli di setiap slide (Poppins, Century Gothic, Arial, dan lainnya sesuai file sumber), termasuk ukuran, warna, dan layout. Nama produk/brand seperti Kobe, BonCabe, Selera, Cakar Naga tetap sebagai nama resmi; judul dan narasi saya ubah ke bahasa Inggris.
+
+Saya sedang cek hasil terjemahan supaya tidak ada teks Inggris yang kepanjangan dan keluar dari layout. Ada satu judul yang perlu sedikit disesuaikan ukurannya, tetapi jenis font tetap sama seperti original.
+
+Sudah saya buat versi Inggris dari Company Profile Plant Bojonegoro.
+
+Yang dipertahankan:
+
+Font original di setiap slide
+Layout, warna, gambar, dan desain asli
+Nama brand/produk seperti KOBE, BonCabe, Selera, Cakar Naga
+Seluruh judul dan narasi utama diterjemahkan ke business English
+
+Download CP – English Version.pptx
+
+CP_English.pptx
+Presentation
+CP_English(2).pptx
+Presentation
+buatkan versi inggris
+
+Saya cek ulang file terbaru karena masih ada beberapa bagian yang ternyata masih berbahasa Indonesia, terutama bagian Vision & Mission dan Milestones. Saya akan ubah seluruh teks yang masih Indonesia ke Inggris sambil mempertahankan layout dan font asli.
+
+Sudah saya buat ulang versi Inggris yang lebih lengkap dari file terbaru. Bagian yang sebelumnya masih Indonesia seperti Vision & Mission, Milestones, Employee Demographics, serta Core Businesses sudah diperbaiki.
+
+Font dan gaya asli tetap dipertahankan semaksimal mungkin.
+
+Download CP English Final.pptx
+
+CP_English_Final.pptx
+Presentation
+Today 10:08 AM
+Pasted text(20260923-030745).txt
+Document
+masukkan materi visi misi dan core valeu di index dasboard karena selalu digunakan di awal dor sebelum membahas oee dll
+Material Variance Weekly Bojo 2026 (2).xlsx
+Spreadsheet
+Pasted text(20260923-031703).txt
+Document
+Pasted markdown (2).md
+File
+revisi kartu variance dibuat persis dari excel berikut dan input variance sesuai excel berikut setiap minggunya akan update
+Material Variance Weekly Bojo 2026 (2)(1).xlsx
+Spreadsheet
+sudah dicoba, saat upload file excel ini hanya terbaca week 37 karena hanya membaca data terbaru,
+better di buat setiap upload excel ini maka akan mengupdate semua data, data lama bisa di hapus diganti dengan data baru dari excel terbaru, karena formatnya sama, hanya datanya terupdate
+gabisa langsung upload semua week harus milih satu satu
+buat lebih bagus konfirmasi ini
+input-variance (2).html
+File
+kok hanya beberapa week saja yang ke upload. semua data ada di sheet data
+kok masih sama ya
+sudah bisa, tetapi di index hanya baca ini
+
+Benar, kasusnya sama seperti halaman riwayat tadi: index.html masih mengambil data Variance dalam satu request, sehingga yang masuk ke dropdown hanya batch awal dan akhirnya terlihat cuma Week 37–34.
+
+Saya sudah perbaiki index.html agar membaca tabel variance_weekly_detail bertahap per 1.000 row sampai seluruh data habis. Jadi kalau database sudah berisi 37 week, dropdown Variance di index sekarang akan menampilkan Week 37 sampai Week 1.
+
+Download index.html terbaru
+
+Setelah itu cukup replace index.html di GitHub → commit → tunggu Pages deploy → Ctrl + F5.
+
+Bagian lain seperti OEE, Tonase, Waste, Cost Material, Visi/Misi, dan Extruder tidak saya ubah.
+
 
 
 
@@ -2515,3 +2593,99 @@ init();
 </script>
 </body>
 </html>
+index.html
+HTML
+sudah bisa, kalau untuk melihat variance monthly dari data weekly tersebut apakah bisa
+
+Bisa, dan lebih baik variance monthly dihitung langsung dari data pada sheet Data yang sama, jadi tidak perlu upload file monthly terpisah.
+
+Yang penting, monthly jangan dihitung dengan menjumlahkan atau merata-ratakan persentase Weekly. Perhitungannya harus kembali ke data Target dan Actual:
+
+Variance Value bulanan = Σ Total Actual Costs − Σ Target Est. Cost
+% Variance Value bulanan = (Σ Actual Cost − Σ Target Cost) / Σ Target Cost
+% Variance Qty bulanan = (Σ Actual Qty − Σ Target Qty) / Σ Target Qty
+
+Saya sarankan kartu Variance Material di index.html dibuat seperti kartu OEE/Cost Material, dengan toggle:
+
+MINGGUAN | BULANAN
+
+Saat Mingguan dipilih:
+Week 37 / 2026
+
+Saat Bulanan dipilih:
+September 2026
+
+Filter yang sekarang tetap berfungsi untuk keduanya:
+Gedung · Material Group · Material · Line.
+
+Jadi contohnya:
+
+BULANAN — September 2026
+Variance Value: Rp xxx.xxx.xxx
+% Variance Value: x.xx%
+% Variance Qty: x.xx%
+
+Lalu breakdown:
+
+Material Group	Variance Value	% Var Value	% Var Qty
+Packaging Material	...	...	...
+Raw Material	...	...	...
+Semi Finishgoods	...	...	...
+Ada satu hal yang perlu diperbaiki di struktur data
+
+Sekarang database variance_weekly_detail terutama menyimpan tahun dan minggu_ke. Agar monthly benar-benar akurat, saat upload Excel sebaiknya kita juga simpan bulan berdasarkan Scheduled start dari setiap baris Excel.
+
+Ini penting karena satu week bisa melewati dua bulan. Misalnya sebagian data Week 35 masih Agustus dan sebagian sudah September. Kalau bulan hanya ditebak dari nomor week, hasil monthly bisa bergeser.
+
+Jadi alur terbaik menjadi:
+
+Excel terbaru → sheet Data → Scheduled start → Week + Month → database → Dashboard Weekly/Monthly
+
+Dengan begitu satu kali upload Excel tetap meng-update semua Week sekaligus, dan dashboard otomatis bisa menampilkan Weekly maupun Monthly dari sumber data yang sama.
+
+Saya sarankan kita pakai metode ini karena hasil Monthly akan tetap persis berdasarkan data asli Excel, bukan estimasi dari agregat Weekly.
+
+boleh
+
+Sudah. Sekarang Variance Material bisa dilihat Mingguan maupun Bulanan dari satu file Excel yang sama.
+
+Perubahannya:
+
+input-variance.html sekarang menyimpan bulan dari Scheduled start.
+index.html punya toggle Mingguan | Bulanan.
+Filter Gedung, Material Group, Material, Line tetap berfungsi di kedua mode.
+Monthly dihitung langsung dari total Target vs Actual pada bulan tersebut, bukan dari menjumlahkan persentase weekly.
+Jika satu week melewati dua bulan, datanya tetap masuk ke bulan yang benar berdasarkan tanggal asli.
+
+Urutan pemasangannya penting:
+
+Jalankan SQL ini sekali saja di Supabase SQL Editor:
+
+update_variance_monthly_support.sql
+Ganti halaman upload:
+
+input-variance.html
+Ganti dashboard utama:
+
+index.html
+Setelah deploy, upload ulang Excel Material Variance terbaru satu kali. Data lama belum memiliki informasi bulan, jadi re-upload diperlukan agar mode Bulanan aktif.
+
+Untuk instalasi baru, saya juga siapkan SQL lengkap versi baru:
+
+setup_variance_weekly_detail_v2.sql
+
+Setelah upload ulang, di kartu Variance Material nanti akan muncul:
+
+MINGGUAN | BULANAN
+
+dan pada mode bulanan dropdown akan berisi Januari 2026, Februari 2026, ... September 2026 sesuai data yang ada di sheet Data.
+
+update_variance_monthly_support.sql
+Code
+input-variance.html
+HTML
+index.html
+HTML
+setup_variance_weekly_detail_v2.sql
+Code
+Show less
