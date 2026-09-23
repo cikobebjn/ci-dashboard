@@ -1,6 +1,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -832,12 +833,177 @@ body::after {
 .variance-mini-stat.over b { color:#dc2626; }
 .variance-mini-stat.saving b { color:#16a34a; }
 
+
+
+/* ===== DOR Opening: Vision, Mission & Core Values ===== */
+.dor-opening {
+    margin: 0 0 22px;
+    padding: 24px;
+    border: 1px solid rgba(220,229,242,.98);
+    border-radius: 24px;
+    background: rgba(255,255,255,.94);
+    box-shadow: 0 16px 38px rgba(38,70,113,.08);
+    backdrop-filter: blur(16px);
+}
+.dor-opening-head {
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:18px;
+    margin-bottom:18px;
+}
+.dor-opening-kicker {
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:7px;
+    color:#d71920;
+    font-size:10px;
+    font-weight:850;
+    letter-spacing:.10em;
+    text-transform:uppercase;
+}
+.dor-opening-kicker::before {
+    content:'';
+    width:8px;height:8px;border-radius:50%;
+    background:#d71920;
+    box-shadow:0 0 0 5px rgba(215,25,32,.09);
+}
+.dor-opening h2 {
+    margin:0;
+    color:#14224a;
+    font-size:22px;
+    line-height:1.15;
+    letter-spacing:-.025em;
+}
+.dor-opening-sub {
+    max-width:470px;
+    margin:0;
+    color:#7b8799;
+    font-size:11px;
+    line-height:1.55;
+    text-align:right;
+}
+.dor-values-grid {
+    display:grid;
+    grid-template-columns:minmax(0,.95fr) minmax(0,1.25fr);
+    gap:18px;
+    align-items:stretch;
+}
+.dor-vm-stack {
+    display:grid;
+    grid-template-rows:1fr 1fr;
+    gap:14px;
+}
+.dor-vm-card,
+.dor-core-card {
+    position:relative;
+    overflow:hidden;
+    border:1px solid #e4eaf3;
+    border-radius:20px;
+    background:linear-gradient(180deg,#ffffff 0%,#fbfcff 100%);
+}
+.dor-vm-card { padding:0 20px 18px; }
+.dor-card-band {
+    display:flex;
+    align-items:center;
+    gap:10px;
+    width:calc(100% - 18px);
+    min-height:50px;
+    margin:0 0 15px -20px;
+    padding:0 20px;
+    border-bottom-right-radius:24px;
+    color:#fff;
+    font-size:15px;
+    font-weight:850;
+    letter-spacing:-.01em;
+}
+.dor-card-band.blue { background:linear-gradient(135deg,#142c78,#0d1f5c); }
+.dor-card-band.red { background:linear-gradient(135deg,#ee1c25,#c60e16); }
+.dor-band-icon {
+    width:30px;height:30px;
+    display:grid;place-items:center;
+    border-radius:50%;
+    background:rgba(255,255,255,.16);
+    border:1px solid rgba(255,255,255,.34);
+    font-size:15px;
+}
+.dor-vm-text {
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:82px;
+    margin:0;
+    padding:0 10px;
+    color:#16214a;
+    text-align:center;
+    font-size:20px;
+    font-weight:760;
+    line-height:1.35;
+    letter-spacing:-.02em;
+}
+.dor-core-card { padding:0 16px 16px; }
+.dor-core-list {
+    display:grid;
+    gap:9px;
+}
+.dor-core-item {
+    display:grid;
+    grid-template-columns:38px minmax(0,1fr);
+    align-items:center;
+    gap:10px;
+    min-height:54px;
+    padding:8px 12px;
+    border:1px solid #e6e9ef;
+    border-radius:15px;
+    background:#fff;
+    box-shadow:0 5px 13px rgba(32,55,98,.035);
+}
+.dor-core-check {
+    width:34px;height:34px;
+    display:grid;place-items:center;
+    border-radius:50%;
+    background:linear-gradient(135deg,#ef2c34,#cf1018);
+    color:#fff;
+    font-size:18px;
+    font-weight:900;
+    box-shadow:0 6px 13px rgba(215,25,32,.18);
+}
+.dor-core-name {
+    color:#17224a;
+    font-size:14px;
+    font-weight:800;
+    line-height:1.2;
+}
+.dor-core-id {
+    display:block;
+    margin-top:2px;
+    color:#7b8799;
+    font-size:11px;
+    font-weight:650;
+}
+@media (max-width:900px) {
+    .dor-opening-head { align-items:flex-start; flex-direction:column; gap:7px; }
+    .dor-opening-sub { max-width:none; text-align:left; }
+    .dor-values-grid { grid-template-columns:1fr; }
+    .dor-vm-stack { grid-template-columns:1fr 1fr; grid-template-rows:auto; }
+}
+@media (max-width:640px) {
+    .dor-opening { padding:17px; border-radius:20px; }
+    .dor-opening h2 { font-size:19px; }
+    .dor-vm-stack { grid-template-columns:1fr; }
+    .dor-vm-text { min-height:70px; font-size:17px; }
+    .dor-card-band { min-height:46px; font-size:14px; }
+    .dor-core-name { font-size:13px; }
+}
+
 </style>
 </head>
 <body>
 
 <div class="sidebar" id="sidebar">
     <a href="index.html" class="active">Dashboard Utama</a>
+    <a href="#dor-opening">Visi, Misi & Core Values</a>
     <a href="oee.html">OEE</a>
     <a href="tonase.html">Tonase</a>
     <a href="waste.html">Waste</a>
@@ -875,6 +1041,42 @@ body::after {
                 <span class="hero-mini-chip">Cost</span>
                 <span class="hero-mini-chip">Extruder</span>
             </div>
+        </div>
+    </section>
+
+
+    <section class="dor-opening" id="dor-opening" aria-label="DOR opening vision mission and core values">
+        <div class="dor-opening-head">
+            <div>
+                <div class="dor-opening-kicker">Daily Operational Review Opening</div>
+                <h2>Visi, Misi & Core Values</h2>
+            </div>
+            <p class="dor-opening-sub">Pengingat arah dan nilai bersama sebelum pembahasan performa operasional harian.</p>
+        </div>
+
+        <div class="dor-values-grid">
+            <div class="dor-vm-stack">
+                <article class="dor-vm-card">
+                    <div class="dor-card-band blue"><span class="dor-band-icon">◎</span><span>Company Vision</span></div>
+                    <p class="dor-vm-text">Menjadi Perusahaan Makanan Terkemuka di Indonesia yang Kuat dan Kompeten</p>
+                </article>
+
+                <article class="dor-vm-card">
+                    <div class="dor-card-band red"><span class="dor-band-icon">◎</span><span>Company Mission</span></div>
+                    <p class="dor-vm-text">Menghadirkan Produk-Produk Makanan yang Berkualitas untuk Konsumennya</p>
+                </article>
+            </div>
+
+            <article class="dor-core-card">
+                <div class="dor-card-band red"><span class="dor-band-icon">◎</span><span>Core Values</span></div>
+                <div class="dor-core-list">
+                    <div class="dor-core-item"><span class="dor-core-check">✓</span><div><span class="dor-core-name">Safety &amp; Hygiene</span><span class="dor-core-id">Keselamatan &amp; Kebersihan</span></div></div>
+                    <div class="dor-core-item"><span class="dor-core-check">✓</span><div><span class="dor-core-name">Leadership</span><span class="dor-core-id">Kepemimpinan</span></div></div>
+                    <div class="dor-core-item"><span class="dor-core-check">✓</span><div><span class="dor-core-name">Collaborative Performance</span><span class="dor-core-id">Kinerja Kolaboratif</span></div></div>
+                    <div class="dor-core-item"><span class="dor-core-check">✓</span><div><span class="dor-core-name">Diversity Awareness</span><span class="dor-core-id">Keberagaman</span></div></div>
+                    <div class="dor-core-item"><span class="dor-core-check">✓</span><div><span class="dor-core-name">Passion</span><span class="dor-core-id">Antusias</span></div></div>
+                </div>
+            </article>
         </div>
     </section>
 
