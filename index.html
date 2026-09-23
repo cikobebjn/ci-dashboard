@@ -847,17 +847,56 @@ body::after {
 }
 .variance-filter-grid {
     display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:7px; margin:8px 0 12px;
+    position:relative; z-index:80; overflow:visible;
 }
 .variance-filter-field span {
     display:block; margin:0 0 4px 2px; color:#9a7b8f; font-size:8px; font-weight:850;
     text-transform:uppercase; letter-spacing:.06em;
 }
-.variance-filter-field select {
-    width:100%; min-height:32px; padding:5px 7px;
-    border:1px solid #eadfe7; border-radius:9px; background:#fff;
-    color:#536177; font-size:9px; outline:none;
+.variance-filter-field { position:relative; min-width:0; z-index:1; overflow:visible; }
+.variance-filter-field:focus-within { z-index:140; }
+.variance-multi { position:relative; width:100%; overflow:visible; }
+.variance-multi.open { z-index:160; }
+.variance-multi-btn {
+    width:100%; min-height:36px; display:flex; align-items:center; justify-content:space-between; gap:8px;
+    padding:7px 10px; border:1px solid #eadfe7; border-radius:10px; background:#fff;
+    color:#536177; font-size:9px; text-align:left; cursor:pointer; outline:none;
+    transition:border-color .18s ease, box-shadow .18s ease, background .18s ease;
 }
-.variance-kpi-grid { display:grid; grid-template-columns:1.35fr 1fr 1fr; gap:8px; }
+.variance-multi-btn:hover,.variance-multi.open .variance-multi-btn { border-color:#d7b7cb; background:#fffafd; }
+.variance-multi.open .variance-multi-btn { box-shadow:0 0 0 3px rgba(219,39,119,.07); }
+.variance-multi-label { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:650; }
+.variance-multi-caret { flex:0 0 auto; color:#7d8aa0; font-size:10px; transition:transform .18s ease; }
+.variance-multi.open .variance-multi-caret { transform:rotate(180deg); }
+.variance-multi-menu {
+    display:none; position:absolute; z-index:9999; top:calc(100% + 6px); left:0; width:max(100%,240px);
+    max-width:360px; padding:7px; border:1px solid #e8dce4; border-radius:12px; background:#fff;
+    box-shadow:0 20px 44px rgba(67,38,58,.22);
+    isolation:isolate;
+}
+.variance-multi.open .variance-multi-menu { display:block; }
+.variance-multi-menu-head {
+    display:flex; align-items:center; justify-content:space-between; gap:8px; padding:4px 5px 7px;
+    border-bottom:1px solid #f2eaf0; margin-bottom:4px;
+}
+.variance-multi-menu-head b { color:#7a536d; font-size:8px; text-transform:uppercase; letter-spacing:.05em; }
+.variance-multi-clear { border:0; background:transparent; color:#c0266d; font-size:8px; font-weight:800; cursor:pointer; padding:3px 4px; }
+.variance-multi-options { max-height:220px; overflow:auto; padding:2px; }
+.variance-multi-option {
+    display:flex; align-items:flex-start; gap:7px; padding:7px 7px; border-radius:8px; cursor:pointer;
+    color:#48576c; font-size:9px; line-height:1.3;
+}
+.variance-multi-option:hover { background:#fff4fa; }
+.variance-multi-option input { margin:1px 0 0; accent-color:#db2777; cursor:pointer; }
+.variance-multi-option span { min-width:0; overflow-wrap:anywhere; }
+.variance-multi-empty { padding:10px 8px; color:#9ca3af; font-size:8px; text-align:center; }
+.variance-multi-count {
+    display:none; flex:0 0 auto; min-width:17px; height:17px; padding:0 5px; align-items:center; justify-content:center;
+    border-radius:999px; background:#fce7f3; color:#be185d; font-size:8px; font-weight:850;
+}
+.variance-multi-btn.has-selection .variance-multi-count { display:inline-flex; }
+@media(max-width:900px){ .variance-multi-menu{width:100%;max-width:none;} }
+.variance-kpi-grid { display:grid; grid-template-columns:1.35fr 1fr 1fr; gap:8px; position:relative; z-index:2; }
 .variance-kpi-box {
     min-width:0; padding:10px 11px; border:1px solid #edf0f5; border-radius:12px;
     background:linear-gradient(180deg,#fff,#fbfcff);
@@ -1282,10 +1321,10 @@ body::after {
             </div>
 
             <div class="variance-filter-grid">
-                <label class="variance-filter-field"><span>Gedung</span><select id="variance-gedung-select" onchange="onVarianceFilterChange('gedung')"></select></label>
-                <label class="variance-filter-field"><span>Material Group</span><select id="variance-group-select" onchange="onVarianceFilterChange('group')"></select></label>
-                <label class="variance-filter-field"><span>Material</span><select id="variance-material-select" onchange="onVarianceFilterChange('material')"></select></label>
-                <label class="variance-filter-field"><span>Line</span><select id="variance-line-select" onchange="onVarianceFilterChange('line')"></select></label>
+                <div class="variance-filter-field"><span>Gedung</span><div class="variance-multi" id="variance-gedung-multi"></div></div>
+                <div class="variance-filter-field"><span>Material Group</span><div class="variance-multi" id="variance-group-multi"></div></div>
+                <div class="variance-filter-field"><span>Material</span><div class="variance-multi" id="variance-material-multi"></div></div>
+                <div class="variance-filter-field"><span>Line</span><div class="variance-multi" id="variance-line-multi"></div></div>
             </div>
 
             <div class="variance-kpi-grid">
@@ -1518,7 +1557,7 @@ let varianceSelectedWeekKey = null;
 let varianceSelectedMonthKey = null;
 let variancePriorityShowAll = false;
 let variancePriorityExpanded = '';
-const varianceFilters = { gedung:'Gedung 6', group:'', material:'', line:'' };
+const varianceFilters = { gedung:['Gedung 6'], group:[], material:[], line:[] };
 
 // Item yang bernama seperti ini adalah PEMAKAIAN BAHAN, bukan waste,
 // jadi tidak boleh ikut dijumlah ke total waste kartu proses.
@@ -1954,13 +1993,78 @@ function setVarianceMetric(el,value,type='money'){
 function varianceUnique(rows,key){
     return [...new Set(rows.map(r=>(r[key]??'').toString().trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'id'));
 }
-function varianceSetOptions(id, values, selected, allLabel='Semua'){
-    const el=document.getElementById(id); if(!el) return '';
-    const safe=values.filter(Boolean);
-    const valid=selected && safe.includes(selected) ? selected : '';
-    el.innerHTML=`<option value="">${allLabel}</option>`+safe.map(v=>`<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join('');
-    el.value=valid;
+function varianceFilterValues(key){
+    const v=varianceFilters[key];
+    return Array.isArray(v) ? v : (v ? [v] : []);
+}
+function varianceMatchSelected(rowValue, selected){
+    if(!selected || !selected.length) return true;
+    return selected.includes(String(rowValue||'').trim());
+}
+function varianceMultiSummary(selected, allLabel){
+    if(!selected.length) return allLabel;
+    if(selected.length===1) return selected[0];
+    if(selected.length===2) return selected[0]+' + 1 lainnya';
+    return selected.length+' dipilih';
+}
+function varianceRenderMulti(id, key, values, selected, allLabel='Semua'){
+    const root=document.getElementById(id); if(!root) return [];
+    const safe=[...new Set(values.filter(Boolean))];
+    const valid=(Array.isArray(selected)?selected:[]).filter(v=>safe.includes(v));
+    const label=varianceMultiSummary(valid,allLabel);
+    const options=safe.length ? safe.map(v=>{
+        const enc=encodeURIComponent(v);
+        const checked=valid.includes(v)?' checked':'';
+        return `<label class="variance-multi-option"><input type="checkbox" class="variance-multi-check" data-key="${key}" data-value="${enc}"${checked} onchange="onVarianceMultiOptionChange(this)"><span>${escapeHtml(v)}</span></label>`;
+    }).join('') : '<div class="variance-multi-empty">Tidak ada pilihan pada filter ini</div>';
+    root.innerHTML=`<button type="button" class="variance-multi-btn ${valid.length?'has-selection':''}" onclick="toggleVarianceMulti('${id}',event)" aria-expanded="false"><span class="variance-multi-label">${escapeHtml(label)}</span><span class="variance-multi-count">${valid.length}</span><span class="variance-multi-caret">▼</span></button><div class="variance-multi-menu"><div class="variance-multi-menu-head"><b>Pilih beberapa</b><button type="button" class="variance-multi-clear" onclick="clearVarianceMulti('${key}',event)">${valid.length?'Hapus pilihan':'Semua aktif'}</button></div><div class="variance-multi-options">${options}</div></div>`;
     return valid;
+}
+function toggleVarianceMulti(id,event){
+    event?.stopPropagation();
+    const target=document.getElementById(id); if(!target)return;
+    const willOpen=!target.classList.contains('open');
+    document.querySelectorAll('.variance-multi.open').forEach(el=>{el.classList.remove('open');el.querySelector('.variance-multi-btn')?.setAttribute('aria-expanded','false');});
+    document.querySelectorAll('.variance-filter-field').forEach(el=>el.style.zIndex='1');
+    if(willOpen){
+        target.classList.add('open');
+        target.querySelector('.variance-multi-btn')?.setAttribute('aria-expanded','true');
+        const field=target.closest('.variance-filter-field');
+        if(field) field.style.zIndex='180';
+    }
+}
+function closeVarianceMultiMenus(){
+    document.querySelectorAll('.variance-multi.open').forEach(el=>{el.classList.remove('open');el.querySelector('.variance-multi-btn')?.setAttribute('aria-expanded','false');});
+    document.querySelectorAll('.variance-filter-field').forEach(el=>el.style.zIndex='1');
+}
+document.addEventListener('click',e=>{ if(!e.target.closest('.variance-multi')) closeVarianceMultiMenus(); });
+function clearVarianceMulti(key,event){
+    event?.stopPropagation();
+    varianceFilters[key]=[];
+    variancePriorityExpanded='';
+    rebuildVarianceFilterOptions(key);
+    renderVarianceCard();
+}
+function onVarianceMultiOptionChange(input){
+    const key=input.dataset.key;
+    const value=decodeURIComponent(input.dataset.value||'');
+    let selected=varianceFilterValues(key).slice();
+    if(input.checked){ if(!selected.includes(value)) selected.push(value); }
+    else selected=selected.filter(v=>v!==value);
+    varianceFilters[key]=selected;
+    variancePriorityExpanded='';
+    rebuildVarianceFilterOptions(key);
+    renderVarianceCard();
+    // Keep the current menu open after re-render for convenient multi-selection.
+    const idMap={gedung:'variance-gedung-multi',group:'variance-group-multi',material:'variance-material-multi',line:'variance-line-multi'};
+    const root=document.getElementById(idMap[key]);
+    if(root){
+        document.querySelectorAll('.variance-filter-field').forEach(el=>el.style.zIndex='1');
+        root.classList.add('open');
+        root.querySelector('.variance-multi-btn')?.setAttribute('aria-expanded','true');
+        const field=root.closest('.variance-filter-field');
+        if(field) field.style.zIndex='180';
+    }
 }
 function escapeHtml(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function varianceRowsForPeriod(){
@@ -1974,11 +2078,12 @@ function varianceRowsForPeriod(){
     return varianceExcelRows.filter(r=>Number(r.tahun)===tahun && Number(r.minggu_ke)===minggu);
 }
 function varianceApplyFilters(rows, skip=''){
+    const gedung=varianceFilterValues('gedung'), group=varianceFilterValues('group'), material=varianceFilterValues('material'), line=varianceFilterValues('line');
     return rows.filter(r=>
-        (skip==='gedung' || !varianceFilters.gedung || String(r.gedung||'').trim()===varianceFilters.gedung) &&
-        (skip==='group' || !varianceFilters.group || String(r.material_group||'').trim()===varianceFilters.group) &&
-        (skip==='material' || !varianceFilters.material || String(r.short_text||'').trim()===varianceFilters.material) &&
-        (skip==='line' || !varianceFilters.line || String(r.line||'').trim()===varianceFilters.line)
+        (skip==='gedung' || varianceMatchSelected(r.gedung,gedung)) &&
+        (skip==='group' || varianceMatchSelected(r.material_group,group)) &&
+        (skip==='material' || varianceMatchSelected(r.short_text,material)) &&
+        (skip==='line' || varianceMatchSelected(r.line,line))
     );
 }
 function populateVariancePeriodSelect(){
@@ -2003,15 +2108,25 @@ function populateVariancePeriodSelect(){
 }
 function rebuildVarianceFilterOptions(changed=''){
     const periodRows=varianceRowsForPeriod();
-    if(changed==='period' && varianceFilters.gedung==='Gedung 6' && !varianceUnique(periodRows,'gedung').includes('Gedung 6')) varianceFilters.gedung='';
+    const gedungValues=varianceUnique(periodRows,'gedung');
+    // Preserve Gedung 6 default only if it exists; otherwise fall back to Semua Gedung.
+    varianceFilters.gedung=varianceFilterValues('gedung').filter(v=>gedungValues.includes(v));
+    varianceFilters.gedung=varianceRenderMulti('variance-gedung-multi','gedung',gedungValues,varianceFilters.gedung,'Semua Gedung');
 
-    varianceFilters.gedung = varianceSetOptions('variance-gedung-select', varianceUnique(periodRows,'gedung'), varianceFilters.gedung, 'Semua Gedung');
-    const afterGedung=varianceApplyFilters(periodRows,'group').filter(r=>!varianceFilters.gedung || String(r.gedung||'').trim()===varianceFilters.gedung);
-    varianceFilters.group = varianceSetOptions('variance-group-select', varianceUnique(afterGedung,'material_group'), varianceFilters.group, 'Semua Group');
-    const afterGroup=varianceApplyFilters(periodRows,'material').filter(r=>(!varianceFilters.gedung || String(r.gedung||'').trim()===varianceFilters.gedung) && (!varianceFilters.group || String(r.material_group||'').trim()===varianceFilters.group));
-    varianceFilters.material = varianceSetOptions('variance-material-select', varianceUnique(afterGroup,'short_text'), varianceFilters.material, 'Semua Material');
-    const afterMaterial=varianceApplyFilters(periodRows,'line').filter(r=>(!varianceFilters.gedung || String(r.gedung||'').trim()===varianceFilters.gedung) && (!varianceFilters.group || String(r.material_group||'').trim()===varianceFilters.group) && (!varianceFilters.material || String(r.short_text||'').trim()===varianceFilters.material));
-    varianceFilters.line = varianceSetOptions('variance-line-select', varianceUnique(afterMaterial,'line'), varianceFilters.line, 'Semua Line');
+    const afterGedung=periodRows.filter(r=>varianceMatchSelected(r.gedung,varianceFilters.gedung));
+    const groupValues=varianceUnique(afterGedung,'material_group');
+    varianceFilters.group=varianceFilterValues('group').filter(v=>groupValues.includes(v));
+    varianceFilters.group=varianceRenderMulti('variance-group-multi','group',groupValues,varianceFilters.group,'Semua Group');
+
+    const afterGroup=afterGedung.filter(r=>varianceMatchSelected(r.material_group,varianceFilters.group));
+    const materialValues=varianceUnique(afterGroup,'short_text');
+    varianceFilters.material=varianceFilterValues('material').filter(v=>materialValues.includes(v));
+    varianceFilters.material=varianceRenderMulti('variance-material-multi','material',materialValues,varianceFilters.material,'Semua Material');
+
+    const afterMaterial=afterGroup.filter(r=>varianceMatchSelected(r.short_text,varianceFilters.material));
+    const lineValues=varianceUnique(afterMaterial,'line');
+    varianceFilters.line=varianceFilterValues('line').filter(v=>lineValues.includes(v));
+    varianceFilters.line=varianceRenderMulti('variance-line-multi','line',lineValues,varianceFilters.line,'Semua Line');
 }
 async function fetchAllVarianceWeeklyDetail() {
     const pageSize = 1000;
@@ -2078,7 +2193,7 @@ function switchVariancePeriod(period){
     variancePeriod=period;
     document.getElementById('btn-variance-weekly')?.classList.toggle('active',period==='weekly');
     document.getElementById('btn-variance-monthly')?.classList.toggle('active',period==='monthly');
-    varianceFilters.group=''; varianceFilters.material=''; varianceFilters.line='';
+    varianceFilters.group=[]; varianceFilters.material=[]; varianceFilters.line=[];
     variancePriorityExpanded='';
     populateVariancePeriodSelect();
     rebuildVarianceFilterOptions('period');
@@ -2088,24 +2203,9 @@ function onVariancePeriodSelectChange(){
     const value=document.getElementById('variance-period-select').value;
     if(variancePeriod==='monthly') varianceSelectedMonthKey=value;
     else varianceSelectedWeekKey=value;
-    varianceFilters.group=''; varianceFilters.material=''; varianceFilters.line='';
+    varianceFilters.group=[]; varianceFilters.material=[]; varianceFilters.line=[];
     variancePriorityExpanded='';
     rebuildVarianceFilterOptions('period');
-    renderVarianceCard();
-}
-function onVarianceFilterChange(type){
-    if(type==='gedung'){
-        varianceFilters.gedung=document.getElementById('variance-gedung-select').value;
-        varianceFilters.group=''; varianceFilters.material=''; varianceFilters.line='';
-    } else if(type==='group'){
-        varianceFilters.group=document.getElementById('variance-group-select').value;
-        varianceFilters.material=''; varianceFilters.line='';
-    } else if(type==='material'){
-        varianceFilters.material=document.getElementById('variance-material-select').value;
-        varianceFilters.line='';
-    } else if(type==='line') varianceFilters.line=document.getElementById('variance-line-select').value;
-    variancePriorityExpanded='';
-    rebuildVarianceFilterOptions(type);
     renderVarianceCard();
 }
 
@@ -2135,7 +2235,7 @@ function renderVarianceMaterialPriority(rows){
     const items=varianceAggregate(rows,'short_text').sort((a,b)=>b.metric.varianceValue-a.metric.varianceValue);
     const totalOver=items.filter(x=>x.metric.varianceValue>0).reduce((s,x)=>s+x.metric.varianceValue,0);
     let candidates;
-    if(varianceFilters.material){
+    if(varianceFilterValues('material').length){
         candidates=items;
     }else if(variancePriorityShowAll){
         candidates=items;
@@ -2146,7 +2246,7 @@ function renderVarianceMaterialPriority(rows){
     if(toggle){
         const overCount=items.filter(x=>x.metric.varianceValue>0).length;
         toggle.textContent=variancePriorityShowAll?'Tampilkan Top 10 Over':`Lihat Semua Item (${items.length})`;
-        toggle.style.display=(items.length<=10 || varianceFilters.material)?'none':'inline-block';
+        toggle.style.display=(items.length<=10 || varianceFilterValues('material').length)?'none':'inline-block';
         toggle.title=`${overCount} item memiliki variance positif`;
     }
     if(!candidates.length){
@@ -2182,7 +2282,7 @@ function renderVarianceMaterialPriority(rows){
     }
     const info=document.getElementById('variance-priority-info');
     if(info){
-        if(varianceFilters.material) info.innerHTML=`Fokus item: <strong>${escapeHtml(varianceFilters.material)}</strong>`;
+        if(varianceFilterValues('material').length) info.innerHTML=`Fokus item: <strong>${escapeHtml(varianceFilterValues('material').join(', '))}</strong>`;
         else if(variancePriorityShowAll) info.textContent='Semua item ditampilkan; merah = over variance, hijau = saving.';
         else info.textContent='Top 10 item over-variance terbesar — kandidat utama improvement.';
     }
@@ -2209,10 +2309,12 @@ function renderVarianceCard(){
     renderVarianceMaterialPriority(rows);
 
     const filterInfo=[];
-    if(varianceFilters.gedung)filterInfo.push(varianceFilters.gedung);
-    if(varianceFilters.group)filterInfo.push(varianceFilters.group);
-    if(varianceFilters.material)filterInfo.push(varianceFilters.material);
-    if(varianceFilters.line)filterInfo.push(varianceFilters.line);
+    const filterLabels=[['gedung','Gedung'],['group','Group'],['material','Material'],['line','Line']];
+    filterLabels.forEach(([key,label])=>{
+        const vals=varianceFilterValues(key);
+        if(vals.length===1) filterInfo.push(vals[0]);
+        else if(vals.length>1) filterInfo.push(`${label}: ${vals.length} dipilih`);
+    });
     const periodLabel=variancePeriod==='monthly'?'Bulanan':'Mingguan';
     const info=document.getElementById('variance-filter-info');
     if(info)info.innerHTML='<span class="variance-status-dot"></span>'+periodLabel+(filterInfo.length?' · '+escapeHtml(filterInfo.join(' · ')):' · Semua data');
