@@ -825,13 +825,77 @@ body::after {
 
 
 
-/* ===== Variance card v2: source Weekly and Monthly are independent ===== */
-.variance-summary-grid { display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-top:9px; }
-.variance-mini-stat { padding:8px 9px; border:1px solid #edf1f6; border-radius:10px; background:#fbfcff; }
-.variance-mini-stat span { display:block; color:#94a3b8; font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:.05em; }
-.variance-mini-stat b { display:block; margin-top:3px; font-size:11px; color:#334155; }
-.variance-mini-stat.over b { color:#dc2626; }
-.variance-mini-stat.saving b { color:#16a34a; }
+/* ===== Variance Material — Excel Weekly dashboard ===== */
+.variance-card {
+    grid-column: span 2;
+    --card-soft:#fdeaf4;
+    min-height: 340px;
+}
+.variance-card::after { width:150px; height:150px; right:-65px; bottom:-78px; opacity:.62; }
+.variance-head {
+    display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
+    margin-bottom:12px;
+}
+.variance-head h3 { margin-bottom:3px; }
+.variance-source-note { color:#94a3b8; font-size:9px; line-height:1.35; }
+.variance-week-select {
+    min-width:126px; min-height:34px; padding:6px 9px;
+    border:1px solid #ead8e5; border-radius:10px; background:#fff;
+    color:#6b3154; font-size:10px; font-weight:800; cursor:pointer;
+}
+.variance-filter-grid {
+    display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:7px; margin:8px 0 12px;
+}
+.variance-filter-field span {
+    display:block; margin:0 0 4px 2px; color:#9a7b8f; font-size:8px; font-weight:850;
+    text-transform:uppercase; letter-spacing:.06em;
+}
+.variance-filter-field select {
+    width:100%; min-height:32px; padding:5px 7px;
+    border:1px solid #eadfe7; border-radius:9px; background:#fff;
+    color:#536177; font-size:9px; outline:none;
+}
+.variance-kpi-grid { display:grid; grid-template-columns:1.35fr 1fr 1fr; gap:8px; }
+.variance-kpi-box {
+    min-width:0; padding:10px 11px; border:1px solid #edf0f5; border-radius:12px;
+    background:linear-gradient(180deg,#fff,#fbfcff);
+}
+.variance-kpi-label {
+    display:block; color:#8b96a7; font-size:8px; font-weight:850; text-transform:uppercase; letter-spacing:.06em;
+}
+.variance-kpi-value {
+    display:block; margin-top:4px; color:#1f2a44; font-size:16px; font-weight:850;
+    letter-spacing:-.02em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.variance-kpi-value.over { color:#dc2626; }
+.variance-kpi-value.saving { color:#16a34a; }
+.variance-kpi-value.pct { font-size:18px; }
+.variance-divider { height:1px; margin:11px 0 8px; background:#f0e9ee; }
+.variance-group-title {
+    margin-bottom:5px; color:#7c5c70; font-size:8px; font-weight:850; text-transform:uppercase; letter-spacing:.06em;
+}
+.variance-breakdown { width:100%; border-collapse:collapse; font-size:9px; }
+.variance-breakdown th {
+    padding:5px 4px; border-bottom:1px solid #eceff4; color:#9aa3b1; font-size:7px;
+    font-weight:850; text-transform:uppercase; text-align:right; white-space:nowrap;
+}
+.variance-breakdown th:first-child { text-align:left; }
+.variance-breakdown td { padding:6px 4px; border-bottom:1px solid #f2f4f7; text-align:right; color:#566477; }
+.variance-breakdown td:first-child { text-align:left; font-weight:750; color:#38465b; }
+.variance-breakdown tr:last-child td { border-bottom:0; }
+.variance-breakdown .over { color:#dc2626; font-weight:800; }
+.variance-breakdown .saving { color:#16a34a; font-weight:800; }
+.variance-footer {
+    display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:8px;
+    color:#9aa3b1; font-size:8px;
+}
+.variance-status-dot { width:6px; height:6px; border-radius:50%; background:#16a34a; display:inline-block; margin-right:5px; }
+@media (max-width:1100px){ .variance-card{grid-column:1/-1;} }
+@media (max-width:700px){
+    .variance-filter-grid{grid-template-columns:1fr 1fr;}
+    .variance-kpi-grid{grid-template-columns:1fr;}
+    .variance-card{grid-column:1/-1;}
+}
 
 
 
@@ -1151,24 +1215,49 @@ body::after {
             <span class="target-badge" id="cost-target-badge">Target: ≤ Rp 28.000/ton</span>
             <table class="waste-detail-table" id="cost-detail-table"><tbody></tbody></table>
         </div>
-
         <div class="card variance-card">
-            <h3>📊 Variance Material</h3>
-            <div class="cost-period-toggle">
-                <button type="button" class="period-btn active" id="btn-variance-weekly" onclick="switchVariancePeriod('weekly')">Mingguan</button>
-                <button type="button" class="period-btn" id="btn-variance-monthly" onclick="switchVariancePeriod('monthly')">Bulanan</button>
+            <div class="variance-head">
+                <div>
+                    <h3>📊 Variance Material</h3>
+                    <div class="variance-source-note">Struktur mengikuti “Material Variance Weekly Bojo 2026”</div>
+                </div>
+                <select class="variance-week-select" id="variance-week-select" onchange="onVarianceFilterChange('week')">
+                    <option value="">Memuat week...</option>
+                </select>
             </div>
-            <select class="variance-select" id="variance-week-select" onchange="onVarianceWeekChange()"></select>
-            <select class="variance-select" id="variance-month-select" style="display:none;" onchange="onVarianceMonthChange()"></select>
-            <div class="value loading" id="val-variance-total">...</div>
-            <div class="card-date" id="date-variance"></div>
-            <span class="target-badge">Net = Actual Cost − Target Cost</span>
-            <div class="variance-summary-grid">
-                <div class="variance-mini-stat over"><span>Over Budget</span><b id="val-variance-over">...</b></div>
-                <div class="variance-mini-stat saving"><span>Saving</span><b id="val-variance-saving">...</b></div>
+
+            <div class="variance-filter-grid">
+                <label class="variance-filter-field"><span>Gedung</span><select id="variance-gedung-select" onchange="onVarianceFilterChange('gedung')"></select></label>
+                <label class="variance-filter-field"><span>Material Group</span><select id="variance-group-select" onchange="onVarianceFilterChange('group')"></select></label>
+                <label class="variance-filter-field"><span>Material</span><select id="variance-material-select" onchange="onVarianceFilterChange('material')"></select></label>
+                <label class="variance-filter-field"><span>Line</span><select id="variance-line-select" onchange="onVarianceFilterChange('line')"></select></label>
             </div>
-            <div class="card-sub" id="sub-variance"></div>
-            <table class="waste-detail-table" id="variance-detail-table"><tbody></tbody></table>
+
+            <div class="variance-kpi-grid">
+                <div class="variance-kpi-box">
+                    <span class="variance-kpi-label">Variance Value</span>
+                    <strong class="variance-kpi-value" id="val-variance-value">...</strong>
+                </div>
+                <div class="variance-kpi-box">
+                    <span class="variance-kpi-label">% Variance Value</span>
+                    <strong class="variance-kpi-value pct" id="val-variance-pct-value">...</strong>
+                </div>
+                <div class="variance-kpi-box">
+                    <span class="variance-kpi-label">% Variance Qty</span>
+                    <strong class="variance-kpi-value pct" id="val-variance-pct-qty">...</strong>
+                </div>
+            </div>
+
+            <div class="variance-divider"></div>
+            <div class="variance-group-title">Material Group Breakdown</div>
+            <table class="variance-breakdown">
+                <thead><tr><th>Material Group</th><th>Variance Value</th><th>% Var Value</th><th>% Var Qty</th></tr></thead>
+                <tbody id="variance-group-body"><tr><td colspan="4" style="text-align:center;color:#9ca3af;">Memuat...</td></tr></tbody>
+            </table>
+            <div class="variance-footer">
+                <span id="variance-filter-info"><span class="variance-status-dot"></span>Weekly Excel</span>
+                <span id="variance-row-info"></span>
+            </div>
         </div>
 
     </div>
@@ -1344,16 +1433,13 @@ let costCardPeriod = 'weekly';
 let oeeCardStats = { weekly: null, monthly: null };
 let oeeCardPeriod = 'weekly';
 
-// ── Variance Material (kartu Ringkasan) ──
-// Weekly dan Monthly berasal dari dua workbook/tabel yang berbeda.
-// Monthly TIDAK lagi dihitung dari kumpulan ISO week.
-let varianceWeeklyRows = [];
-let varianceMonthlyRows = [];
+// ── Variance Material — sumber Excel Weekly ──
+// Data disimpan pada grain: Week × Gedung × Material Group × Material × Line × Material Description.
+// KPI dihitung ulang dari total Target/Actual setelah filter, persis seperti calculated field Pivot Excel.
+let varianceExcelRows = [];
 let varianceWeeksList = [];
-let varianceMonthsList = [];
-let variancePeriod = 'weekly';
 let varianceSelectedWeekKey = null;
-let varianceSelectedMonthKey = null;
+const varianceFilters = { gedung:'Gedung 6', group:'', material:'', line:'' };
 
 // Item yang bernama seperti ini adalah PEMAKAIAN BAHAN, bukan waste,
 // jadi tidak boleh ikut dijumlah ke total waste kartu proses.
@@ -1764,127 +1850,129 @@ function isoWeekToThursday(tahun, mingguKe) {
 }
 const NAMA_BULAN_ID = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 
-// ── Variance Material (kartu Ringkasan) ──
-// Tabel Supabase: variance_weekly (tahun, minggu_ke, short_text, variance_val,
-// pct_var_val, pct_var_qty). Diisi lewat menu Input Variance (upload file
-// "Variance_Week_XX.xlsx", sheet "Resume"). Data diambil sekali (independen
-// dari filter tanggal Ringkasan) lalu toggle Mingguan/Bulanan + pilihan
-// Week/Bulan cukup memfilter cache di sisi klien.
+// ── Variance Material — Excel Weekly ──
+function varianceNum(v){ const n=Number(v); return Number.isFinite(n)?n:0; }
+function varianceMetric(rows){
+    const targetCost = rows.reduce((s,r)=>s+varianceNum(r.target_cost),0);
+    const actualCost = rows.reduce((s,r)=>s+varianceNum(r.actual_cost),0);
+    const targetQty  = rows.reduce((s,r)=>s+varianceNum(r.target_qty),0);
+    const actualQty  = rows.reduce((s,r)=>s+varianceNum(r.actual_qty),0);
+    const varianceValue = actualCost-targetCost;
+    return {
+        targetCost, actualCost, targetQty, actualQty, varianceValue,
+        pctValue: targetCost!==0 ? varianceValue/targetCost : null,
+        pctQty: targetQty!==0 ? (actualQty-targetQty)/targetQty : null
+    };
+}
+function fmtVariancePct(v){ return v===null || v===undefined ? '—' : (v*100).toFixed(2)+'%'; }
+function setVarianceMetric(el,value,type='money'){
+    if(!el) return;
+    if(value===null || value===undefined || !Number.isFinite(Number(value))){ el.textContent='—'; el.className='variance-kpi-value'+(type==='pct'?' pct':''); return; }
+    const n=Number(value);
+    el.textContent = type==='pct' ? fmtVariancePct(n) : fmtRupiah(n);
+    el.className = 'variance-kpi-value' + (type==='pct'?' pct':'') + ' ' + (n>0?'over':n<0?'saving':'');
+}
+function varianceUnique(rows,key){
+    return [...new Set(rows.map(r=>(r[key]??'').toString().trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'id'));
+}
+function varianceSetOptions(id, values, selected, allLabel='Semua'){
+    const el=document.getElementById(id); if(!el) return '';
+    const safe=values.filter(Boolean);
+    const valid=selected && safe.includes(selected) ? selected : '';
+    el.innerHTML=`<option value="">${allLabel}</option>`+safe.map(v=>`<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join('');
+    el.value=valid;
+    return valid;
+}
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function varianceRowsForWeek(){
+    if(!varianceSelectedWeekKey) return [];
+    const [tahun,minggu]=varianceSelectedWeekKey.split('-').map(Number);
+    return varianceExcelRows.filter(r=>Number(r.tahun)===tahun && Number(r.minggu_ke)===minggu);
+}
+function varianceApplyFilters(rows, skip=''){
+    return rows.filter(r=>
+        (skip==='gedung' || !varianceFilters.gedung || String(r.gedung||'').trim()===varianceFilters.gedung) &&
+        (skip==='group' || !varianceFilters.group || String(r.material_group||'').trim()===varianceFilters.group) &&
+        (skip==='material' || !varianceFilters.material || String(r.short_text||'').trim()===varianceFilters.material) &&
+        (skip==='line' || !varianceFilters.line || String(r.line||'').trim()===varianceFilters.line)
+    );
+}
+function rebuildVarianceFilterOptions(changed=''){
+    const weekRows=varianceRowsForWeek();
+    // Excel contoh aktif pada Gedung 6; pertahankan bila tersedia, kalau tidak fallback Semua.
+    if(changed==='week' && varianceFilters.gedung==='Gedung 6' && !varianceUnique(weekRows,'gedung').includes('Gedung 6')) varianceFilters.gedung='';
+
+    varianceFilters.gedung = varianceSetOptions('variance-gedung-select', varianceUnique(weekRows,'gedung'), varianceFilters.gedung, 'Semua Gedung');
+    const afterGedung=varianceApplyFilters(weekRows,'group').filter(r=>!varianceFilters.gedung || String(r.gedung||'').trim()===varianceFilters.gedung);
+    varianceFilters.group = varianceSetOptions('variance-group-select', varianceUnique(afterGedung,'material_group'), varianceFilters.group, 'Semua Group');
+    const afterGroup=varianceApplyFilters(weekRows,'material').filter(r=>(!varianceFilters.gedung || String(r.gedung||'').trim()===varianceFilters.gedung) && (!varianceFilters.group || String(r.material_group||'').trim()===varianceFilters.group));
+    varianceFilters.material = varianceSetOptions('variance-material-select', varianceUnique(afterGroup,'short_text'), varianceFilters.material, 'Semua Material');
+    const afterMaterial=varianceApplyFilters(weekRows,'line').filter(r=>(!varianceFilters.gedung || String(r.gedung||'').trim()===varianceFilters.gedung) && (!varianceFilters.group || String(r.material_group||'').trim()===varianceFilters.group) && (!varianceFilters.material || String(r.short_text||'').trim()===varianceFilters.material));
+    varianceFilters.line = varianceSetOptions('variance-line-select', varianceUnique(afterMaterial,'line'), varianceFilters.line, 'Semua Line');
+}
 async function loadVarianceCard() {
-    const [weekRes, monthRes] = await Promise.all([
-        db.from('variance_weekly').select('*').limit(20000),
-        db.from('variance_monthly').select('*').limit(20000)
-    ]);
-
-    varianceWeeklyRows = weekRes.data || [];
-    varianceMonthlyRows = monthRes.error ? [] : (monthRes.data || []);
-    if (monthRes.error) console.warn('Variance monthly belum tersedia:', monthRes.error.message);
-
-    lastLoadedData.varianceWeekly = varianceWeeklyRows;
-    lastLoadedData.varianceMonthly = varianceMonthlyRows;
-
-    buildVarianceLists();
-    populateVarianceSelects();
-    renderVarianceCard();
-}
-
-function buildVarianceLists() {
-    const wSeen = new Set();
-    varianceWeeksList = [];
-    varianceWeeklyRows.forEach(r => {
-        const key = `${r.tahun}-${r.minggu_ke}`;
-        if (!wSeen.has(key)) { wSeen.add(key); varianceWeeksList.push({ tahun:Number(r.tahun), minggu_ke:Number(r.minggu_ke) }); }
-    });
-    varianceWeeksList.sort((a,b)=>(b.tahun-a.tahun)||(b.minggu_ke-a.minggu_ke));
-
-    const mSeen = new Set();
-    varianceMonthsList = [];
-    varianceMonthlyRows.forEach(r => {
-        const key = `${r.tahun}-${r.bulan}`;
-        if (!mSeen.has(key)) { mSeen.add(key); varianceMonthsList.push({ key, tahun:Number(r.tahun), bulan:Number(r.bulan) }); }
-    });
-    varianceMonthsList.sort((a,b)=>(b.tahun-a.tahun)||(b.bulan-a.bulan));
-}
-
-function populateVarianceSelects() {
+    const { data, error } = await db.from('variance_weekly_detail').select('*').order('tahun',{ascending:false}).order('minggu_ke',{ascending:false}).limit(25000);
+    if(error){
+        console.warn('variance_weekly_detail belum tersedia:', error.message);
+        varianceExcelRows=[];
+        const w=document.getElementById('variance-week-select'); if(w) w.innerHTML='<option value="">Setup tabel dulu</option>';
+        ['val-variance-value','val-variance-pct-value','val-variance-pct-qty'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='—';});
+        const b=document.getElementById('variance-group-body'); if(b)b.innerHTML='<tr><td colspan="4" style="text-align:center;color:#9ca3af;padding:8px;">Jalankan setup_variance_weekly_detail.sql lalu upload Excel.</td></tr>';
+        return;
+    }
+    varianceExcelRows=data||[];
+    lastLoadedData.varianceWeekly=varianceExcelRows;
+    const seen=new Map();
+    varianceExcelRows.forEach(r=>{const k=`${r.tahun}-${r.minggu_ke}`;if(!seen.has(k))seen.set(k,{key:k,tahun:Number(r.tahun),minggu:Number(r.minggu_ke)});});
+    varianceWeeksList=[...seen.values()].sort((a,b)=>(b.tahun-a.tahun)||(b.minggu-a.minggu));
     const weekSel=document.getElementById('variance-week-select');
-    const monthSel=document.getElementById('variance-month-select');
-
-    weekSel.innerHTML = varianceWeeksList.length
-        ? varianceWeeksList.map(w=>`<option value="${w.tahun}-${w.minggu_ke}">Week ${w.minggu_ke} - ${w.tahun}</option>`).join('')
-        : '<option value="">Belum ada data mingguan</option>';
-    if (varianceWeeksList.length) {
-        const valid=varianceSelectedWeekKey && varianceWeeksList.some(w=>`${w.tahun}-${w.minggu_ke}`===varianceSelectedWeekKey);
-        if(!valid) varianceSelectedWeekKey=`${varianceWeeksList[0].tahun}-${varianceWeeksList[0].minggu_ke}`;
-        weekSel.value=varianceSelectedWeekKey;
-    } else varianceSelectedWeekKey=null;
-
-    monthSel.innerHTML = varianceMonthsList.length
-        ? varianceMonthsList.map(m=>`<option value="${m.key}">${NAMA_BULAN_ID[m.bulan-1]} ${m.tahun}</option>`).join('')
-        : '<option value="">Belum ada data bulanan</option>';
-    if (varianceMonthsList.length) {
-        const valid=varianceSelectedMonthKey && varianceMonthsList.some(m=>m.key===varianceSelectedMonthKey);
-        if(!valid) varianceSelectedMonthKey=varianceMonthsList[0].key;
-        monthSel.value=varianceSelectedMonthKey;
-    } else varianceSelectedMonthKey=null;
-}
-
-function switchVariancePeriod(period) {
-    variancePeriod=period;
-    document.getElementById('btn-variance-weekly').classList.toggle('active',period==='weekly');
-    document.getElementById('btn-variance-monthly').classList.toggle('active',period==='monthly');
-    document.getElementById('variance-week-select').style.display=period==='weekly'?'block':'none';
-    document.getElementById('variance-month-select').style.display=period==='monthly'?'block':'none';
+    weekSel.innerHTML=varianceWeeksList.length?varianceWeeksList.map(w=>`<option value="${w.key}">Week ${w.minggu} / ${w.tahun}</option>`).join(''):'<option value="">Belum ada data</option>';
+    if(!varianceSelectedWeekKey || !varianceWeeksList.some(w=>w.key===varianceSelectedWeekKey)) varianceSelectedWeekKey=varianceWeeksList[0]?.key||null;
+    if(varianceSelectedWeekKey) weekSel.value=varianceSelectedWeekKey;
+    rebuildVarianceFilterOptions('week');
     renderVarianceCard();
 }
-function onVarianceWeekChange(){ varianceSelectedWeekKey=document.getElementById('variance-week-select').value; renderVarianceCard(); }
-function onVarianceMonthChange(){ varianceSelectedMonthKey=document.getElementById('variance-month-select').value; renderVarianceCard(); }
+function onVarianceFilterChange(type){
+    if(type==='week'){
+        varianceSelectedWeekKey=document.getElementById('variance-week-select').value;
+        varianceFilters.group=''; varianceFilters.material=''; varianceFilters.line='';
+    } else if(type==='gedung'){
+        varianceFilters.gedung=document.getElementById('variance-gedung-select').value;
+        varianceFilters.group=''; varianceFilters.material=''; varianceFilters.line='';
+    } else if(type==='group'){
+        varianceFilters.group=document.getElementById('variance-group-select').value;
+        varianceFilters.material=''; varianceFilters.line='';
+    } else if(type==='material'){
+        varianceFilters.material=document.getElementById('variance-material-select').value;
+        varianceFilters.line='';
+    } else if(type==='line') varianceFilters.line=document.getElementById('variance-line-select').value;
+    rebuildVarianceFilterOptions(type);
+    renderVarianceCard();
+}
+function renderVarianceCard(){
+    const base=varianceRowsForWeek();
+    const rows=varianceApplyFilters(base);
+    const m=varianceMetric(rows);
+    setVarianceMetric(document.getElementById('val-variance-value'),rows.length?m.varianceValue:null,'money');
+    setVarianceMetric(document.getElementById('val-variance-pct-value'),rows.length?m.pctValue:null,'pct');
+    setVarianceMetric(document.getElementById('val-variance-pct-qty'),rows.length?m.pctQty:null,'pct');
 
-function renderVarianceCard() {
-    const totalEl=document.getElementById('val-variance-total');
-    const dateEl=document.getElementById('date-variance');
-    const subEl=document.getElementById('sub-variance');
-    const overEl=document.getElementById('val-variance-over');
-    const savingEl=document.getElementById('val-variance-saving');
-    const tbody=document.querySelector('#variance-detail-table tbody');
+    const body=document.getElementById('variance-group-body');
+    const groups=varianceUnique(rows,'material_group');
+    body.innerHTML=groups.length?groups.map(g=>{
+        const gm=varianceMetric(rows.filter(r=>String(r.material_group||'').trim()===g));
+        const cls=gm.varianceValue>0?'over':gm.varianceValue<0?'saving':'';
+        return `<tr><td>${escapeHtml(g)}</td><td class="${cls}">${fmtRupiah(gm.varianceValue)}</td><td class="${gm.pctValue>0?'over':gm.pctValue<0?'saving':''}">${fmtVariancePct(gm.pctValue)}</td><td class="${gm.pctQty>0?'over':gm.pctQty<0?'saving':''}">${fmtVariancePct(gm.pctQty)}</td></tr>`;
+    }).join(''):'<tr><td colspan="4" style="text-align:center;color:#9ca3af;padding:8px;">Tidak ada data pada filter ini</td></tr>';
 
-    let rows=[], label='';
-    if(variancePeriod==='weekly'){
-        if(varianceSelectedWeekKey){
-            const [tahun,minggu]=varianceSelectedWeekKey.split('-').map(Number);
-            rows=varianceWeeklyRows.filter(r=>Number(r.tahun)===tahun && Number(r.minggu_ke)===minggu);
-            label=`Week ${minggu} - ${tahun}`;
-        }
-    } else if(varianceSelectedMonthKey){
-        const [tahun,bulan]=varianceSelectedMonthKey.split('-').map(Number);
-        rows=varianceMonthlyRows.filter(r=>Number(r.tahun)===tahun && Number(r.bulan)===bulan);
-        label=`${NAMA_BULAN_ID[bulan-1]} ${tahun}`;
-    }
-
-    if(!rows.length){
-        totalEl.textContent='—'; totalEl.className='value';
-        dateEl.textContent=variancePeriod==='monthly' && !varianceMonthsList.length ? 'Upload file Variance Monthly' : 'Belum ada data';
-        overEl.textContent='—'; savingEl.textContent='—'; subEl.textContent=''; tbody.innerHTML=''; return;
-    }
-
-    // Aman bila suatu periode pernah tersimpan lebih dari satu row untuk short_text yang sama.
-    const agg={};
-    rows.forEach(r=>{ const k=r.short_text||'(Tanpa nama)'; agg[k]=(agg[k]||0)+(Number(r.variance_val)||0); });
-    const aggRows=Object.entries(agg).map(([short_text,variance_val])=>({short_text,variance_val}));
-    const total=aggRows.reduce((s,r)=>s+r.variance_val,0);
-    const over=aggRows.filter(r=>r.variance_val>0).reduce((s,r)=>s+r.variance_val,0);
-    const saving=-aggRows.filter(r=>r.variance_val<0).reduce((s,r)=>s+r.variance_val,0);
-
-    totalEl.textContent=fmtRupiah(total);
-    totalEl.className='value '+(total>0?'low':'good');
-    dateEl.textContent=label;
-    overEl.textContent=fmtRupiah(over);
-    savingEl.textContent=fmtRupiah(saving);
-    subEl.textContent=`${aggRows.length} item material · sumber ${variancePeriod==='weekly'?'Weekly':'Monthly'} Excel`;
-
-    const top=aggRows.filter(r=>r.variance_val>0).sort((a,b)=>b.variance_val-a.variance_val).slice(0,6);
-    tbody.innerHTML=top.length ? top.map(r=>`<tr><td class="mesin-name">${r.short_text}</td><td class="waste-val over">${fmtRupiah(r.variance_val)}</td></tr>`).join('')
-        : '<tr><td colspan="2" style="text-align:center;color:#9ca3af;padding:8px;">Tidak ada item over budget</td></tr>';
+    const filterInfo=[];
+    if(varianceFilters.gedung)filterInfo.push(varianceFilters.gedung);
+    if(varianceFilters.group)filterInfo.push(varianceFilters.group);
+    if(varianceFilters.material)filterInfo.push(varianceFilters.material);
+    if(varianceFilters.line)filterInfo.push(varianceFilters.line);
+    const info=document.getElementById('variance-filter-info');
+    if(info)info.innerHTML='<span class="variance-status-dot"></span>'+(filterInfo.length?escapeHtml(filterInfo.join(' · ')):'Semua data');
+    const rowInfo=document.getElementById('variance-row-info'); if(rowInfo)rowInfo.textContent=`${rows.length} kelompok data`;
 }
 
 function renderWasteDetail(kategori, perMesin, batasMap, unit) {
@@ -2351,7 +2439,6 @@ function exportExcel() {
         tambahSheet('Waste Proses', lastLoadedData.wasteProses);
         tambahSheet('Cost Material Mingguan', lastLoadedData.costMaterial);
         tambahSheet('Variance Weekly', lastLoadedData.varianceWeekly);
-        tambahSheet('Variance Monthly', lastLoadedData.varianceMonthly);
         tambahSheet('Extruder Harian', lastLoadedData.extruderDaily);
         tambahSheet('Extruder Downtime', lastLoadedData.extruderDowntime);
 
