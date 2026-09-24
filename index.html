@@ -845,6 +845,46 @@ body::after {
     border:1px solid #ead8e5; border-radius:10px; background:#fff;
     color:#6b3154; font-size:10px; font-weight:800; cursor:pointer;
 }
+
+.variance-period-controls { position:relative; z-index:220; }
+.variance-period-picker { min-width:190px; position:relative; z-index:220; }
+.variance-period-picker .variance-multi-btn {
+    min-width:190px; min-height:36px; padding:7px 10px;
+    border-color:#ead8e5; color:#6b3154; font-size:10px; font-weight:800;
+}
+.variance-period-picker .variance-multi-menu {
+    left:auto; right:0; width:270px; max-width:300px; z-index:10050;
+}
+.variance-period-picker .variance-multi-options { max-height:285px; }
+.variance-period-picker .variance-multi-option { font-size:9px; }
+.variance-period-picker .variance-period-meta {
+    color:#a2929d; font-size:8px; font-weight:700;
+}
+.variance-period-picker .variance-period-reset {
+    border:0; background:transparent; color:#c0266d; font-size:8px; font-weight:800; cursor:pointer; padding:3px 4px;
+}
+.variance-comparison-section {
+    display:none; margin-top:10px; padding-top:10px; border-top:1px solid #f0e9ee;
+}
+.variance-comparison-head {
+    display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:6px;
+}
+.variance-comparison-title {
+    color:#7c5c70; font-size:8px; font-weight:850; text-transform:uppercase; letter-spacing:.06em;
+}
+.variance-comparison-note { color:#a2929d; font-size:7.5px; }
+.variance-comparison-wrap { overflow:auto; border:1px solid #edf0f4; border-radius:11px; background:#fff; }
+.variance-comparison-table { width:100%; border-collapse:collapse; min-width:630px; font-size:9px; }
+.variance-comparison-table th {
+    padding:7px 8px; background:#f8fafc; border-bottom:1px solid #e9edf2; color:#929dad;
+    font-size:7px; font-weight:850; text-transform:uppercase; text-align:right; white-space:nowrap;
+}
+.variance-comparison-table th:first-child { text-align:left; }
+.variance-comparison-table td { padding:7px 8px; border-bottom:1px solid #f1f3f6; color:#526075; text-align:right; }
+.variance-comparison-table td:first-child { text-align:left; font-weight:800; color:#39475b; white-space:nowrap; }
+.variance-comparison-table tr:last-child td { border-bottom:0; }
+.variance-comparison-table .over { color:#dc2626; font-weight:800; }
+.variance-comparison-table .saving { color:#16a34a; font-weight:800; }
 .variance-filter-grid {
     display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:7px; margin:8px 0 12px;
     position:relative; z-index:80; overflow:visible;
@@ -1334,9 +1374,7 @@ body::after {
                         <button type="button" class="period-btn active" id="btn-variance-weekly" onclick="switchVariancePeriod('weekly')">Mingguan</button>
                         <button type="button" class="period-btn" id="btn-variance-monthly" onclick="switchVariancePeriod('monthly')">Bulanan</button>
                     </div>
-                    <select class="variance-week-select" id="variance-period-select" onchange="onVariancePeriodSelectChange()">
-                        <option value="">Memuat periode...</option>
-                    </select>
+                    <div class="variance-multi variance-period-picker" id="variance-period-multi"></div>
                 </div>
             </div>
 
@@ -1359,6 +1397,19 @@ body::after {
                 <div class="variance-kpi-box">
                     <span class="variance-kpi-label">% Variance Qty</span>
                     <strong class="variance-kpi-value pct" id="val-variance-pct-qty">...</strong>
+                </div>
+            </div>
+
+            <div class="variance-comparison-section" id="variance-comparison-section">
+                <div class="variance-comparison-head">
+                    <div class="variance-comparison-title" id="variance-comparison-title">Perbandingan Periode</div>
+                    <div class="variance-comparison-note">Filter Gedung / Group / Material / Line diterapkan sama ke setiap periode.</div>
+                </div>
+                <div class="variance-comparison-wrap">
+                    <table class="variance-comparison-table">
+                        <thead><tr><th>Periode</th><th>Variance Value</th><th>% Var Value</th><th>% Var Qty</th><th>Kelompok Data</th></tr></thead>
+                        <tbody id="variance-comparison-body"></tbody>
+                    </table>
                 </div>
             </div>
 
@@ -1573,8 +1624,8 @@ let varianceExcelRows = [];
 let varianceWeeksList = [];
 let varianceMonthsList = [];
 let variancePeriod = 'weekly';
-let varianceSelectedWeekKey = null;
-let varianceSelectedMonthKey = null;
+let varianceSelectedWeekKeys = [];
+let varianceSelectedMonthKeys = [];
 let variancePriorityShowAll = false;
 let variancePriorityExpanded = '';
 const varianceFilters = { gedung:['Gedung 6'], group:[], material:[], line:[] };
@@ -2184,15 +2235,39 @@ function onVarianceMultiOptionChange(input){
     }
 }
 function escapeHtml(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-function varianceRowsForPeriod(){
-    if(variancePeriod==='monthly'){
-        if(!varianceSelectedMonthKey) return [];
-        const [tahun,bulan]=varianceSelectedMonthKey.split('-').map(Number);
-        return varianceExcelRows.filter(r=>Number(r.tahun)===tahun && Number(r.bulan)===bulan);
+function variancePeriodOptions(){
+    return variancePeriod==='monthly' ? varianceMonthsList : varianceWeeksList;
+}
+function varianceSelectedPeriodKeys(){
+    return variancePeriod==='monthly' ? varianceSelectedMonthKeys : varianceSelectedWeekKeys;
+}
+function setVarianceSelectedPeriodKeys(keys){
+    const clean=[...new Set((keys||[]).filter(Boolean))];
+    if(variancePeriod==='monthly') varianceSelectedMonthKeys=clean;
+    else varianceSelectedWeekKeys=clean;
+}
+function variancePeriodLabelByKey(key, period=variancePeriod){
+    if(period==='monthly'){
+        const item=varianceMonthsList.find(x=>x.key===key);
+        return item ? `${NAMA_BULAN_ID[item.bulan-1]} ${item.tahun}` : key;
     }
-    if(!varianceSelectedWeekKey) return [];
-    const [tahun,minggu]=varianceSelectedWeekKey.split('-').map(Number);
-    return varianceExcelRows.filter(r=>Number(r.tahun)===tahun && Number(r.minggu_ke)===minggu);
+    const item=varianceWeeksList.find(x=>x.key===key);
+    return item ? `Week ${item.minggu} / ${item.tahun}` : key;
+}
+function varianceRowsForSinglePeriod(key, period=variancePeriod){
+    if(!key) return [];
+    const [tahun,periode]=key.split('-').map(Number);
+    if(period==='monthly') return varianceExcelRows.filter(r=>Number(r.tahun)===tahun && Number(r.bulan)===periode);
+    return varianceExcelRows.filter(r=>Number(r.tahun)===tahun && Number(r.minggu_ke)===periode);
+}
+function varianceRowsForPeriod(){
+    const keys=varianceSelectedPeriodKeys();
+    if(!keys.length) return [];
+    const selected=new Set(keys);
+    if(variancePeriod==='monthly'){
+        return varianceExcelRows.filter(r=>selected.has(`${Number(r.tahun)}-${Number(r.bulan)}`));
+    }
+    return varianceExcelRows.filter(r=>selected.has(`${Number(r.tahun)}-${Number(r.minggu_ke)}`));
 }
 function varianceApplyFilters(rows, skip=''){
     const gedung=varianceFilterValues('gedung'), group=varianceFilterValues('group'), material=varianceFilterValues('material'), line=varianceFilterValues('line');
@@ -2203,25 +2278,62 @@ function varianceApplyFilters(rows, skip=''){
         (skip==='line' || varianceMatchSelected(r.line,line))
     );
 }
+function variancePeriodSummary(keys){
+    if(!keys.length) return 'Pilih periode';
+    if(keys.length===1) return variancePeriodLabelByKey(keys[0]);
+    if(keys.length===2) return variancePeriodLabelByKey(keys[0])+' + 1 lainnya';
+    return `${keys.length} periode dipilih`;
+}
 function populateVariancePeriodSelect(){
-    const sel=document.getElementById('variance-period-select'); if(!sel)return;
-    if(variancePeriod==='monthly'){
-        if(!varianceMonthsList.length){
-            sel.innerHTML='<option value="">Upload ulang Excel untuk data bulanan</option>';
-            sel.disabled=true;
-            return;
-        }
-        sel.disabled=false;
-        if(!varianceSelectedMonthKey || !varianceMonthsList.some(m=>m.key===varianceSelectedMonthKey)) varianceSelectedMonthKey=varianceMonthsList[0].key;
-        sel.innerHTML=varianceMonthsList.map(m=>`<option value="${m.key}">${NAMA_BULAN_ID[m.bulan-1]} ${m.tahun}</option>`).join('');
-        sel.value=varianceSelectedMonthKey;
-    }else{
-        if(!varianceWeeksList.length){sel.innerHTML='<option value="">Belum ada data</option>';sel.disabled=true;return;}
-        sel.disabled=false;
-        if(!varianceSelectedWeekKey || !varianceWeeksList.some(w=>w.key===varianceSelectedWeekKey)) varianceSelectedWeekKey=varianceWeeksList[0].key;
-        sel.innerHTML=varianceWeeksList.map(w=>`<option value="${w.key}">Week ${w.minggu} / ${w.tahun}</option>`).join('');
-        sel.value=varianceSelectedWeekKey;
+    const root=document.getElementById('variance-period-multi'); if(!root)return;
+    const options=variancePeriodOptions();
+    if(!options.length){
+        root.innerHTML='<button type="button" class="variance-multi-btn" disabled><span class="variance-multi-label">Belum ada data</span></button>';
+        return;
     }
+    const allowed=new Set(options.map(x=>x.key));
+    let selected=varianceSelectedPeriodKeys().filter(k=>allowed.has(k));
+    if(!selected.length) selected=[options[0].key];
+    setVarianceSelectedPeriodKeys(selected);
+    const optionHtml=options.map(item=>{
+        const checked=selected.includes(item.key)?' checked':'';
+        return `<label class="variance-multi-option"><input type="checkbox" class="variance-period-check" data-period-key="${item.key}"${checked} onchange="onVariancePeriodOptionChange(this)"><span>${escapeHtml(variancePeriodLabelByKey(item.key))}</span></label>`;
+    }).join('');
+    root.innerHTML=`<button type="button" class="variance-multi-btn has-selection" onclick="toggleVarianceMulti('variance-period-multi',event)" aria-expanded="false"><span class="variance-multi-label">${escapeHtml(variancePeriodSummary(selected))}</span><span class="variance-multi-count" style="display:inline-flex">${selected.length}</span><span class="variance-multi-caret">▼</span></button><div class="variance-multi-menu"><div class="variance-multi-menu-head"><div><b>Pilih periode pembanding</b><div class="variance-period-meta">${selected.length} dari ${options.length} dipilih</div></div><button type="button" class="variance-period-reset" onclick="resetVariancePeriodsToLatest(event)">Terbaru saja</button></div><div class="variance-multi-options">${optionHtml}</div></div>`;
+}
+function reopenVariancePeriodPicker(){
+    const root=document.getElementById('variance-period-multi');
+    if(!root)return;
+    root.classList.add('open');
+    root.querySelector('.variance-multi-btn')?.setAttribute('aria-expanded','true');
+}
+function onVariancePeriodOptionChange(input){
+    const key=input.dataset.periodKey;
+    let selected=varianceSelectedPeriodKeys().slice();
+    if(input.checked){ if(!selected.includes(key)) selected.push(key); }
+    else selected=selected.filter(k=>k!==key);
+    // Minimal satu periode harus tetap aktif agar KPI tidak ambigu/kosong.
+    if(!selected.length){ input.checked=true; return; }
+    // Urutkan mengikuti daftar periode (terbaru -> terlama), bukan urutan klik.
+    const order=variancePeriodOptions().map(x=>x.key);
+    selected=order.filter(k=>selected.includes(k));
+    setVarianceSelectedPeriodKeys(selected);
+    variancePriorityExpanded='';
+    populateVariancePeriodSelect();
+    rebuildVarianceFilterOptions('period');
+    renderVarianceCard();
+    reopenVariancePeriodPicker();
+}
+function resetVariancePeriodsToLatest(event){
+    event?.stopPropagation();
+    const latest=variancePeriodOptions()[0]?.key;
+    if(!latest)return;
+    setVarianceSelectedPeriodKeys([latest]);
+    variancePriorityExpanded='';
+    populateVariancePeriodSelect();
+    rebuildVarianceFilterOptions('period');
+    renderVarianceCard();
+    reopenVariancePeriodPicker();
 }
 function rebuildVarianceFilterOptions(changed=''){
     const periodRows=varianceRowsForPeriod();
@@ -2269,7 +2381,7 @@ async function loadVarianceCard() {
     if(error){
         console.warn('variance_weekly_detail belum tersedia:', error.message);
         varianceExcelRows=[];
-        const p=document.getElementById('variance-period-select'); if(p) p.innerHTML='<option value="">Setup tabel dulu</option>';
+        const p=document.getElementById('variance-period-multi'); if(p) p.innerHTML='<button type="button" class="variance-multi-btn" disabled><span class="variance-multi-label">Setup tabel dulu</span></button>';
         ['val-variance-value','val-variance-pct-value','val-variance-pct-qty'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='—';});
         const b=document.getElementById('variance-group-body'); if(b)b.innerHTML='<tr><td colspan="4" style="text-align:center;color:#9ca3af;padding:8px;">Jalankan setup SQL variance lalu upload Excel.</td></tr>';
         return;
@@ -2290,8 +2402,10 @@ async function loadVarianceCard() {
     varianceWeeksList=[...weekSeen.values()].sort((a,b)=>(b.tahun-a.tahun)||(b.minggu-a.minggu));
     varianceMonthsList=[...monthSeen.values()].sort((a,b)=>(b.tahun-a.tahun)||(b.bulan-a.bulan));
 
-    if(!varianceSelectedWeekKey || !varianceWeeksList.some(w=>w.key===varianceSelectedWeekKey)) varianceSelectedWeekKey=varianceWeeksList[0]?.key||null;
-    if(!varianceSelectedMonthKey || !varianceMonthsList.some(m=>m.key===varianceSelectedMonthKey)) varianceSelectedMonthKey=varianceMonthsList[0]?.key||null;
+    varianceSelectedWeekKeys=varianceSelectedWeekKeys.filter(k=>varianceWeeksList.some(w=>w.key===k));
+    varianceSelectedMonthKeys=varianceSelectedMonthKeys.filter(k=>varianceMonthsList.some(m=>m.key===k));
+    if(!varianceSelectedWeekKeys.length && varianceWeeksList.length) varianceSelectedWeekKeys=[varianceWeeksList[0].key];
+    if(!varianceSelectedMonthKeys.length && varianceMonthsList.length) varianceSelectedMonthKeys=[varianceMonthsList[0].key];
 
     const monthBtn=document.getElementById('btn-variance-monthly');
     if(monthBtn){
@@ -2316,16 +2430,6 @@ function switchVariancePeriod(period){
     rebuildVarianceFilterOptions('period');
     renderVarianceCard();
 }
-function onVariancePeriodSelectChange(){
-    const value=document.getElementById('variance-period-select').value;
-    if(variancePeriod==='monthly') varianceSelectedMonthKey=value;
-    else varianceSelectedWeekKey=value;
-    varianceFilters.group=[]; varianceFilters.material=[]; varianceFilters.line=[];
-    variancePriorityExpanded='';
-    rebuildVarianceFilterOptions('period');
-    renderVarianceCard();
-}
-
 function varianceAggregate(rows,key){
     const map=new Map();
     rows.forEach(r=>{
@@ -2407,6 +2511,23 @@ function renderVarianceMaterialPriority(rows){
     if(total) total.innerHTML=`Total Over: <strong>${fmtRupiah(totalOver)}</strong>`;
 }
 
+function renderVariancePeriodComparison(){
+    const section=document.getElementById('variance-comparison-section');
+    const body=document.getElementById('variance-comparison-body');
+    const title=document.getElementById('variance-comparison-title');
+    if(!section || !body) return;
+    const keys=varianceSelectedPeriodKeys();
+    if(keys.length<2){ section.style.display='none'; body.innerHTML=''; return; }
+    section.style.display='block';
+    if(title) title.textContent=(variancePeriod==='monthly'?'Perbandingan Monthly':'Perbandingan Weekly')+` (${keys.length})`;
+    body.innerHTML=keys.map(key=>{
+        const periodRows=varianceApplyFilters(varianceRowsForSinglePeriod(key));
+        const m=varianceMetric(periodRows);
+        const vvClass=varianceMetricClass(m.varianceValue);
+        return `<tr><td>${escapeHtml(variancePeriodLabelByKey(key))}</td><td class="${vvClass}">${periodRows.length?fmtRupiah(m.varianceValue):'—'}</td><td class="${varianceMetricClass(m.pctValue||0)}">${periodRows.length?fmtVariancePct(m.pctValue):'—'}</td><td class="${varianceMetricClass(m.pctQty||0)}">${periodRows.length?fmtVariancePct(m.pctQty):'—'}</td><td>${periodRows.length.toLocaleString('id-ID')}</td></tr>`;
+    }).join('');
+}
+
 function renderVarianceCard(){
     const base=varianceRowsForPeriod();
     const rows=varianceApplyFilters(base);
@@ -2414,6 +2535,7 @@ function renderVarianceCard(){
     setVarianceMetric(document.getElementById('val-variance-value'),rows.length?m.varianceValue:null,'money');
     setVarianceMetric(document.getElementById('val-variance-pct-value'),rows.length?m.pctValue:null,'pct');
     setVarianceMetric(document.getElementById('val-variance-pct-qty'),rows.length?m.pctQty:null,'pct');
+    renderVariancePeriodComparison();
 
     const body=document.getElementById('variance-group-body');
     const groups=varianceUnique(rows,'material_group');
@@ -2432,7 +2554,8 @@ function renderVarianceCard(){
         if(vals.length===1) filterInfo.push(vals[0]);
         else if(vals.length>1) filterInfo.push(`${label}: ${vals.length} dipilih`);
     });
-    const periodLabel=variancePeriod==='monthly'?'Bulanan':'Mingguan';
+    const selectedPeriodCount=varianceSelectedPeriodKeys().length;
+    const periodLabel=(variancePeriod==='monthly'?'Bulanan':'Mingguan')+(selectedPeriodCount>1?` · ${selectedPeriodCount} periode`:``);
     const info=document.getElementById('variance-filter-info');
     if(info)info.innerHTML='<span class="variance-status-dot"></span>'+periodLabel+(filterInfo.length?' · '+escapeHtml(filterInfo.join(' · ')):' · Semua data');
     const rowInfo=document.getElementById('variance-row-info'); if(rowInfo)rowInfo.textContent=`${rows.length} kelompok data`;
