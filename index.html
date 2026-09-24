@@ -880,7 +880,9 @@ body::after {
     border-bottom:1px solid #f2eaf0; margin-bottom:6px;
 }
 .variance-multi-menu-head b { color:#7a536d; font-size:8px; text-transform:uppercase; letter-spacing:.05em; }
-.variance-multi-clear { border:0; background:transparent; color:#c0266d; font-size:8px; font-weight:800; cursor:pointer; padding:3px 4px; }
+.variance-multi-clear { border:0; background:transparent; color:#c0266d; font-size:8px; font-weight:800; cursor:pointer; padding:3px 4px; white-space:nowrap; }
+.variance-multi-clear.search-action { color:#b4236a; }
+.variance-multi-clear:disabled { color:#aab2bf; cursor:default; }
 .variance-multi-search-wrap {
     position:sticky; top:0; z-index:5; margin:0 0 7px; padding:2px 2px 7px;
     background:#fff; border-bottom:1px solid #f2eaf0;
@@ -1167,7 +1169,7 @@ body::after {
 }
 
 </style>
-<!-- VARIANCE MULTISELECT SEARCH V2 -->
+<!-- VARIANCE MULTISELECT SEARCH V3 + SELECT VISIBLE RESULTS -->
 </head>
 <body>
 
@@ -2035,8 +2037,34 @@ function varianceRenderMulti(id, key, values, selected, allLabel='Semua'){
         const checked=valid.includes(v)?' checked':'';
         return `<label class="variance-multi-option"><input type="checkbox" class="variance-multi-check" data-key="${key}" data-value="${enc}"${checked} onchange="onVarianceMultiOptionChange(this)"><span>${escapeHtml(v)}</span></label>`;
     }).join('') : '<div class="variance-multi-empty">Tidak ada pilihan pada filter ini</div>';
-    root.innerHTML=`<button type="button" class="variance-multi-btn ${valid.length?'has-selection':''}" onclick="toggleVarianceMulti('${id}',event)" aria-expanded="false"><span class="variance-multi-label">${escapeHtml(label)}</span><span class="variance-multi-count">${valid.length}</span><span class="variance-multi-caret">▼</span></button><div class="variance-multi-menu"><div class="variance-multi-search-wrap"><span class="variance-multi-search-icon">🔎</span><input type="search" class="variance-multi-search" placeholder="Cari pilihan..." autocomplete="off" oninput="filterVarianceMultiOptions(this)" onclick="event.stopPropagation()" onkeydown="event.stopPropagation()"></div><div class="variance-multi-menu-head"><b>Pilih beberapa</b><button type="button" class="variance-multi-clear" onclick="clearVarianceMulti('${key}',event)">${valid.length?'Hapus pilihan':'Semua aktif'}</button></div><div class="variance-multi-options">${options}</div></div>`;
+    root.innerHTML=`<button type="button" class="variance-multi-btn ${valid.length?'has-selection':''}" onclick="toggleVarianceMulti('${id}',event)" aria-expanded="false"><span class="variance-multi-label">${escapeHtml(label)}</span><span class="variance-multi-count">${valid.length}</span><span class="variance-multi-caret">▼</span></button><div class="variance-multi-menu"><div class="variance-multi-search-wrap"><span class="variance-multi-search-icon">🔎</span><input type="search" class="variance-multi-search" placeholder="Cari pilihan..." autocomplete="off" oninput="filterVarianceMultiOptions(this)" onclick="event.stopPropagation()" onkeydown="event.stopPropagation()"></div><div class="variance-multi-menu-head"><b>Pilih beberapa</b><button type="button" class="variance-multi-clear" data-key="${key}" data-action="${valid.length?'clear-all':'none'}" onclick="handleVarianceMenuAction(this,event)" ${valid.length?'':'disabled'}>${valid.length?'Hapus pilihan':'Semua aktif'}</button></div><div class="variance-multi-options">${options}</div></div>`;
+    updateVarianceVisibleAction(root.querySelector('.variance-multi-menu'));
     return valid;
+}
+function updateVarianceVisibleAction(menu){
+    if(!menu) return;
+    const btn=menu.querySelector('.variance-multi-clear'); if(!btn) return;
+    const input=menu.querySelector('.variance-multi-search');
+    const q=(input?.value||'').trim();
+    const key=btn.dataset.key;
+    btn.classList.toggle('search-action',!!q);
+
+    // Saat ada keyword: tombol kanan mengontrol semua HASIL SEARCH yang sedang terlihat.
+    if(q){
+        const visible=[...menu.querySelectorAll('.variance-multi-option')].filter(row=>row.style.display!=='none');
+        const checks=visible.map(row=>row.querySelector('.variance-multi-check')).filter(Boolean);
+        const allChecked=checks.length>0 && checks.every(ch=>ch.checked);
+        btn.disabled=checks.length===0;
+        btn.dataset.action=allChecked?'clear-visible':'select-visible';
+        btn.textContent=checks.length ? (allChecked ? `Hapus centang (${checks.length})` : `Centang semua (${checks.length})`) : 'Tidak ada hasil';
+        return;
+    }
+
+    // Tanpa keyword: kembali ke fungsi sederhana semula.
+    const selectedCount=varianceFilterValues(key).length;
+    btn.disabled=selectedCount===0;
+    btn.dataset.action=selectedCount?'clear-all':'none';
+    btn.textContent=selectedCount?'Hapus pilihan':'Semua aktif';
 }
 function filterVarianceMultiOptions(input){
     const menu=input.closest('.variance-multi-menu'); if(!menu) return;
@@ -2060,6 +2088,49 @@ function filterVarianceMultiOptions(input){
         empty.style.display='block';
     } else if(empty){
         empty.style.display='none';
+    }
+    updateVarianceVisibleAction(menu);
+}
+function handleVarianceMenuAction(button,event){
+    event?.stopPropagation();
+    const action=button.dataset.action;
+    const key=button.dataset.key;
+    if(action==='clear-all'){
+        clearVarianceMulti(key,event);
+        return;
+    }
+    if(action!=='select-visible' && action!=='clear-visible') return;
+
+    const menu=button.closest('.variance-multi-menu');
+    if(!menu) return;
+    const searchValue=menu.querySelector('.variance-multi-search')?.value || '';
+    const visibleChecks=[...menu.querySelectorAll('.variance-multi-option')]
+        .filter(row=>row.style.display!=='none')
+        .map(row=>row.querySelector('.variance-multi-check'))
+        .filter(Boolean);
+    if(!visibleChecks.length) return;
+
+    const selected=new Set(varianceFilterValues(key));
+    const clearVisible=action==='clear-visible';
+    visibleChecks.forEach(ch=>{
+        const value=decodeURIComponent(ch.dataset.value||'');
+        if(clearVisible) selected.delete(value); else selected.add(value);
+    });
+    varianceFilters[key]=[...selected];
+    variancePriorityExpanded='';
+    rebuildVarianceFilterOptions(key);
+    renderVarianceCard();
+
+    // Buka kembali dropdown dan pertahankan keyword setelah rerender.
+    const idMap={gedung:'variance-gedung-multi',group:'variance-group-multi',material:'variance-material-multi',line:'variance-line-multi'};
+    const fresh=document.getElementById(idMap[key]);
+    if(fresh){
+        document.querySelectorAll('.variance-filter-field').forEach(el=>el.style.zIndex='1');
+        fresh.classList.add('open');
+        fresh.querySelector('.variance-multi-btn')?.setAttribute('aria-expanded','true');
+        const field=fresh.closest('.variance-filter-field'); if(field) field.style.zIndex='180';
+        const search=fresh.querySelector('.variance-multi-search');
+        if(search){ search.value=searchValue; filterVarianceMultiOptions(search); search.focus(); }
     }
 }
 function toggleVarianceMulti(id,event){
@@ -2090,6 +2161,8 @@ function clearVarianceMulti(key,event){
 function onVarianceMultiOptionChange(input){
     const key=input.dataset.key;
     const value=decodeURIComponent(input.dataset.value||'');
+    const currentRoot=input.closest('.variance-multi');
+    const searchValue=currentRoot?.querySelector('.variance-multi-search')?.value || '';
     let selected=varianceFilterValues(key).slice();
     if(input.checked){ if(!selected.includes(value)) selected.push(value); }
     else selected=selected.filter(v=>v!==value);
@@ -2097,7 +2170,7 @@ function onVarianceMultiOptionChange(input){
     variancePriorityExpanded='';
     rebuildVarianceFilterOptions(key);
     renderVarianceCard();
-    // Keep the current menu open after re-render for convenient multi-selection.
+    // Keep the current menu and search term after re-render for convenient multi-selection.
     const idMap={gedung:'variance-gedung-multi',group:'variance-group-multi',material:'variance-material-multi',line:'variance-line-multi'};
     const root=document.getElementById(idMap[key]);
     if(root){
@@ -2106,6 +2179,8 @@ function onVarianceMultiOptionChange(input){
         root.querySelector('.variance-multi-btn')?.setAttribute('aria-expanded','true');
         const field=root.closest('.variance-filter-field');
         if(field) field.style.zIndex='180';
+        const search=root.querySelector('.variance-multi-search');
+        if(search){ search.value=searchValue; filterVarianceMultiOptions(search); search.focus(); }
     }
 }
 function escapeHtml(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
