@@ -1660,7 +1660,7 @@ let varianceSelectedWeekKeys = [];
 let varianceSelectedMonthKeys = [];
 let variancePriorityShowAll = false;
 let variancePriorityExpanded = '';
-const varianceFilters = { gedung:['Gedung 6'], group:[], material:[], line:[] };
+const varianceFilters = { gedung:[], group:[], material:[], line:[] };
 
 // Item yang bernama seperti ini adalah PEMAKAIAN BAHAN, bukan waste,
 // jadi tidak boleh ikut dijumlah ke total waste kartu proses.
@@ -2370,7 +2370,7 @@ function resetVariancePeriodsToLatest(event){
 function rebuildVarianceFilterOptions(changed=''){
     const periodRows=varianceRowsForPeriod();
     const gedungValues=varianceUnique(periodRows,'gedung');
-    // Preserve Gedung 6 default only if it exists; otherwise fall back to Semua Gedung.
+    // Default dashboard tidak memilih gedung tertentu; kosong berarti Semua Gedung.
     varianceFilters.gedung=varianceFilterValues('gedung').filter(v=>gedungValues.includes(v));
     varianceFilters.gedung=varianceRenderMulti('variance-gedung-multi','gedung',gedungValues,varianceFilters.gedung,'Semua Gedung');
 
