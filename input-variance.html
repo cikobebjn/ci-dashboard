@@ -68,12 +68,16 @@ function mapDb(wb){const a=aoaSheet(wb,'DB'),m=new Map();for(let i=1;i<a.length;
 function parseWorkbook(wb){
  const data=aoaSheet(wb,'Data'),{mOrder,mGroup}=mapOrderType(wb),lineMap=mapDb(wb);
  const {idx,col}=headerMap(data,['Scheduled start','Short Text','Target Est. Qty','Total Actual Qty','Total Actual Costs']);
- const cDate=col('Scheduled start'),cOrderType=col('Order Type'),cGed=col('Gedung'),cMD=col('Material Description'),cOrigin=col('Origin'),cShort=col('Short Text'),cMG=col('Material Group'),cTQ=col('Target Est. Qty'),cAQ=col('Total Actual Qty'),cTC=col('Target Est. Cost'),cAC=col('Total Actual Costs'),cDesc=col('Description'),cLine=col('Line'),cMP=col('Moving Price');
+ const cDate=col('Scheduled start'),cWeek=col('Week'),cOrderType=col('Order Type'),cGed=col('Gedung'),cMD=col('Material Description'),cOrigin=col('Origin'),cShort=col('Short Text'),cMG=col('Material Group'),cTQ=col('Target Est. Qty'),cAQ=col('Total Actual Qty'),cTC=col('Target Est. Cost'),cAC=col('Total Actual Costs'),cDesc=col('Description'),cLine=col('Line'),cMP=col('Moving Price');
  if([cDate,cShort,cTQ,cAQ,cAC].some(x=>x<0))throw new Error('Kolom wajib pada sheet Data tidak lengkap.');
  const agg=new Map();
  for(let i=idx+1;i<data.length;i++){
    const r=data[i]||[]; const dt=parseDate(r[cDate]); if(!dt)continue;
-   const year=dt.getFullYear(), month=dt.getMonth()+1, week=excelWeekNum(dt);
+   const year=dt.getFullYear(), month=dt.getMonth()+1;
+   // Weekly harus mengikuti kolom Week pada Excel agar 1:1 dengan Pivot (WEEKNUM(...,1)).
+   // Jika cached formula Week tidak tersedia di browser, baru fallback dihitung dari Scheduled start.
+   const weekFromExcel=cWeek>=0?Number(r[cWeek]):NaN;
+   const week=Number.isFinite(weekFromExcel)&&weekFromExcel>0?Math.trunc(weekFromExcel):excelWeekNum(dt);
    const orderType=cOrderType>=0?norm(r[cOrderType]):'';
    const ged=(cGed>=0?norm(r[cGed]):'')||mOrder.get(orderType)||'';
    const origin=cOrigin>=0?norm(r[cOrigin]):'';
