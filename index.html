@@ -1208,6 +1208,38 @@ body::after {
     .dor-core-name { font-size:13px; }
 }
 
+
+/* ===== FIX: Period multi-select must float above Variance content ===== */
+.variance-card { overflow:hidden; }
+.variance-head {
+    position:relative !important;
+    z-index:1000 !important;
+    overflow:visible !important;
+}
+.variance-period-controls {
+    position:relative !important;
+    z-index:1100 !important;
+    overflow:visible !important;
+}
+.variance-period-picker {
+    position:relative !important;
+    z-index:1200 !important;
+    overflow:visible !important;
+}
+.variance-period-picker.open { z-index:1300 !important; }
+.variance-period-picker .variance-multi-menu {
+    z-index:20000 !important;
+}
+.variance-filter-grid { z-index:120 !important; }
+.variance-kpi-grid,
+.variance-comparison-section,
+.variance-material-section,
+.variance-divider,
+.variance-breakdown,
+.variance-footer {
+    position:relative;
+    z-index:2 !important;
+}
 </style>
 <!-- VARIANCE MULTISELECT SEARCH V3 + SELECT VISIBLE RESULTS -->
 </head>
