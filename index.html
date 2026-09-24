@@ -1,212 +1,3106 @@
+
+
+
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Input Variance Material - Bojonegoro Monitoring</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bojonegoro Monitoring</title>
 <style>
-:root{--primary:#1268e8;--accent:#7c3aed;--pink:#db2777;--ink:#172033;--muted:#6b7a90;--line:#e5ebf3;--success:#16a34a;--danger:#dc2626;}
-*{box-sizing:border-box} body{margin:0;font-family:Arial,sans-serif;color:var(--ink);background:radial-gradient(circle at 8% 3%,rgba(18,104,232,.12),transparent 25%),radial-gradient(circle at 92% 5%,rgba(124,58,237,.09),transparent 25%),linear-gradient(145deg,#eef5ff,#f8fafc 48%,#f6f0ff);min-height:100vh}
-.topbar{position:fixed;top:0;left:0;right:0;height:70px;z-index:1000;display:flex;align-items:center;gap:14px;padding:0 26px;background:rgba(255,255,255,.86);backdrop-filter:blur(16px);border-bottom:1px solid #e6edf6;box-shadow:0 6px 24px rgba(38,70,113,.06)}
-.topbar h2{margin:0;font-size:18px}.topbar h2 small{display:block;margin-top:2px;color:#94a3b8;font-size:9px;letter-spacing:.08em;text-transform:uppercase}.menu-btn{width:39px;height:39px;display:grid;place-items:center;border:1px solid #dce7f4;border-radius:11px;background:#fff;color:#34516f;font-size:21px;cursor:pointer}
-.sidebar{height:100%;width:292px;position:fixed;top:0;left:-292px;z-index:1100;padding:92px 16px 28px;background:linear-gradient(180deg,#10284a,#111d34 48%,#0f172a);box-shadow:20px 0 54px rgba(11,30,56,.24);transition:left .25s;overflow-y:auto}.sidebar:before{content:'KOBE · BOJONEGORO';position:absolute;top:28px;left:24px;color:#fff;font-size:12px;font-weight:800;letter-spacing:.14em}.sidebar a{display:flex;align-items:center;min-height:46px;margin:4px 0;padding:11px 14px;border-radius:13px;color:#cad6e7;text-decoration:none;font-size:13px;font-weight:600}.sidebar a:hover{background:rgba(255,255,255,.08)}.sidebar a.active{background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff}
-.main{max-width:1050px;margin:0 auto;padding:96px 24px 42px}.hero{display:grid;grid-template-columns:1fr 280px;gap:24px;align-items:center;margin-bottom:18px;padding:28px 30px;border-radius:24px;color:#fff;background:linear-gradient(135deg,#0b63dc,#174fb6 55%,#7338d2);box-shadow:0 20px 48px rgba(25,73,157,.20)}.hero-kicker{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;opacity:.78}.hero h1{margin:8px 0 6px;font-size:31px}.hero p{margin:0;max-width:600px;font-size:12px;line-height:1.55;opacity:.78}.hero-note{padding:15px;border:1px solid rgba(255,255,255,.2);border-radius:17px;background:rgba(255,255,255,.11);font-size:11px;line-height:1.45}
-.card{padding:22px;margin-bottom:17px;border:1px solid rgba(226,233,243,.98);border-radius:21px;background:rgba(255,255,255,.94);box-shadow:0 14px 34px rgba(38,70,113,.08)}.sec-title{margin:0 0 12px;font-size:11px;font-weight:850;color:#46576e;letter-spacing:.07em;text-transform:uppercase}.upload-box{padding:22px;border:2px dashed #d9c7f8;border-radius:15px;text-align:center;background:linear-gradient(180deg,#faf7ff,#f7fbff)}.upload-box input{font-size:12px}.hint{margin-top:8px;color:#8290a4;font-size:10px;line-height:1.5}.file-info{margin-top:10px;color:#5e6c80;font-size:10px;font-weight:700}
-.control-row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end;margin-top:14px}.field label{display:block;margin:0 0 5px;color:#7c899b;font-size:9px;font-weight:850;text-transform:uppercase;letter-spacing:.05em}.field select{width:100%;min-height:39px;padding:8px 10px;border:1px solid #dfe6ef;border-radius:11px;background:#fff;color:#334155;font-size:12px}.btn{min-height:39px;padding:9px 14px;border-radius:11px;border:0;cursor:pointer;font-size:11px;font-weight:800}.btn-parse{background:#eef4ff;color:#185ab8;border:1px solid #d5e4fb}.btn-save{width:100%;margin-top:14px;background:linear-gradient(135deg,#db2777,#7c3aed);color:#fff;box-shadow:0 9px 20px rgba(219,39,119,.18)}.btn:disabled{opacity:.5;cursor:not-allowed}.btn-read-all{width:100%;margin-top:14px;min-height:44px;font-size:12px}.replace-note{display:grid;gap:3px;margin-top:12px;padding:11px 13px;border:1px solid #dbeafe;border-radius:12px;background:#eff6ff;color:#31557f;font-size:10px;line-height:1.5}.replace-note b{color:#1559a7;font-size:10px;letter-spacing:.04em}.preview-selector{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:end;margin:2px 0 10px}.preview-badge{display:flex;align-items:center;justify-content:center;min-height:39px;padding:8px 12px;border:1px solid #bbf7d0;border-radius:11px;background:#f0fdf4;color:#15803d;font-size:10px;font-weight:800;white-space:nowrap}.save-warning{margin-top:8px;text-align:center;color:#7b8799;font-size:9px;line-height:1.45}@media(max-width:700px){.preview-selector{grid-template-columns:1fr}.preview-badge{white-space:normal}}
-.preview-head{display:grid;grid-template-columns:1.35fr 1fr 1fr;gap:9px;margin-top:16px}.metric{padding:12px;border:1px solid #edf0f5;border-radius:13px;background:#fbfcff}.metric span{display:block;color:#8c98aa;font-size:8px;font-weight:850;text-transform:uppercase}.metric b{display:block;margin-top:5px;font-size:18px}.metric b.over{color:var(--danger)}.metric b.saving{color:var(--success)}
-.tbl-wrap{overflow:auto;margin-top:13px;border:1px solid #e7ecf3;border-radius:14px;background:#fff}.tbl{width:100%;border-collapse:collapse;font-size:10px}.tbl th{padding:9px 8px;background:#f7f9fc;color:#718096;font-size:8px;text-transform:uppercase;white-space:nowrap}.tbl td{padding:8px;border-top:1px solid #f0f3f7;text-align:right}.tbl th:first-child,.tbl td:first-child{text-align:left}.tbl td.over{color:var(--danger);font-weight:800}.tbl td.saving{color:var(--success);font-weight:800}.status{display:none;margin-top:12px;padding:10px 12px;border-radius:10px;font-size:11px}.status.ok{display:block;background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0}.status.err{display:block;background:#fef2f2;color:#b91c1c;border:1px solid #fecaca}.history-table{width:100%;border-collapse:collapse;font-size:10px}.history-table th,.history-table td{padding:8px;border-bottom:1px solid #eef2f6;text-align:right}.history-table th:first-child,.history-table td:first-child{text-align:left}.history-table th{color:#7c899b;font-size:8px;text-transform:uppercase}.history-empty{text-align:center!important;color:#9ca3af;padding:16px!important}
-@media(max-width:760px){.main{padding:84px 12px 28px}.hero{grid-template-columns:1fr;padding:22px}.control-row{grid-template-columns:1fr}.preview-head{grid-template-columns:1fr}.hero h1{font-size:27px}}
+:root {
+    --bg: #f5f7fb;
+    --surface: rgba(255,255,255,.92);
+    --surface-solid: #ffffff;
+    --surface-soft: #f8fafc;
+    --text: #172033;
+    --muted: #7b8799;
+    --line: #e8edf4;
+    --primary: #4f46e5;
+    --primary-2: #6366f1;
+    --green: #16a34a;
+    --red: #dc2626;
+    --amber: #d97706;
+    --teal: #0f766e;
+    --pink: #db2777;
+    --cyan: #0891b2;
+    --orange: #ea580c;
+    --sidebar: #0f172a;
+    --shadow-sm: 0 2px 10px rgba(15,23,42,.05);
+    --shadow-md: 0 12px 30px rgba(15,23,42,.08);
+    --radius: 18px;
+}
 
-/* ===== Full-sync verification + custom confirmation ===== */
-.history-summary{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 10px;padding:10px 12px;border:1px solid #dbeafe;border-radius:12px;background:#f8fbff;color:#48627f;font-size:10px}.history-summary b{color:#1559a7}.history-scroll{max-height:440px;overflow:auto;border:1px solid #eef2f6;border-radius:12px}.history-scroll .history-table{margin:0}.sync-modal{position:fixed;inset:0;z-index:3000;display:none;align-items:center;justify-content:center;padding:22px;background:rgba(15,23,42,.55);backdrop-filter:blur(7px)}.sync-modal.open{display:flex}.sync-dialog{width:min(520px,100%);overflow:hidden;border:1px solid rgba(255,255,255,.8);border-radius:24px;background:#fff;box-shadow:0 28px 80px rgba(15,23,42,.28);animation:syncPop .18s ease-out}@keyframes syncPop{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}.sync-head{padding:22px 24px 18px;color:#fff;background:linear-gradient(135deg,#1268e8,#5639c8 62%,#7c3aed)}.sync-icon{width:42px;height:42px;display:grid;place-items:center;margin-bottom:12px;border:1px solid rgba(255,255,255,.28);border-radius:14px;background:rgba(255,255,255,.14);font-size:21px}.sync-head h3{margin:0;font-size:20px}.sync-head p{margin:6px 0 0;color:rgba(255,255,255,.78);font-size:11px;line-height:1.5}.sync-body{padding:20px 24px 22px}.sync-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}.sync-stat{padding:11px;border:1px solid #e8edf4;border-radius:13px;background:#f8fafc}.sync-stat span{display:block;color:#8a98ab;font-size:8px;font-weight:850;text-transform:uppercase;letter-spacing:.05em}.sync-stat b{display:block;margin-top:4px;color:#172033;font-size:14px}.sync-file{padding:11px 12px;border-radius:12px;background:#f8fafc;color:#53657b;font-size:10px;word-break:break-word}.sync-warning{margin-top:10px;padding:11px 12px;border:1px solid #fde68a;border-radius:12px;background:#fffbeb;color:#8a5b12;font-size:10px;line-height:1.5}.sync-check{display:flex;align-items:flex-start;gap:9px;margin-top:13px;color:#475569;font-size:10px;line-height:1.45}.sync-check input{margin-top:2px}.sync-actions{display:grid;grid-template-columns:1fr 1.35fr;gap:9px;margin-top:17px}.sync-cancel,.sync-confirm{min-height:42px;border-radius:12px;font-size:11px;font-weight:800;cursor:pointer}.sync-cancel{border:1px solid #dce4ef;background:#fff;color:#52647a}.sync-confirm{border:0;background:linear-gradient(135deg,#1268e8,#7c3aed);color:#fff;box-shadow:0 9px 20px rgba(18,104,232,.18)}.sync-confirm:disabled{opacity:.42;cursor:not-allowed;box-shadow:none}@media(max-width:600px){.sync-stats{grid-template-columns:1fr}.sync-actions{grid-template-columns:1fr}}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+    margin: 0;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background:
+        radial-gradient(circle at top left, rgba(99,102,241,.08), transparent 30%),
+        radial-gradient(circle at top right, rgba(14,165,233,.06), transparent 22%),
+        var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+}
+
+/* ===== Topbar ===== */
+.topbar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 68px;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 0 24px;
+    background: rgba(255,255,255,.82);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-bottom: 1px solid rgba(226,232,240,.9);
+    box-shadow: 0 4px 18px rgba(15,23,42,.04);
+}
+.topbar h2 {
+    margin: 0 !important;
+    font-size: 18px;
+    font-weight: 750;
+    letter-spacing: -.02em;
+    color: #111827;
+}
+.topbar h2::after {
+    content: 'Factory Performance Dashboard';
+    display: block;
+    margin-top: 2px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: #94a3b8;
+}
+.menu-btn {
+    width: 40px; height: 40px;
+    display: grid; place-items: center;
+    margin-right: 0;
+    border-radius: 12px;
+    font-size: 22px;
+    cursor: pointer;
+    color: #334155;
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    transition: .2s ease;
+}
+.menu-btn:hover { background:#eef2ff; color:var(--primary); transform:translateY(-1px); }
+
+/* ===== Sidebar ===== */
+.sidebar {
+    height: 100%;
+    width: 280px;
+    position: fixed;
+    top: 0; left: -280px;
+    z-index: 1100;
+    padding: 86px 14px 24px;
+    background: linear-gradient(180deg,#0f172a 0%,#111827 100%);
+    box-shadow: 18px 0 40px rgba(15,23,42,.18);
+    transition: left .28s cubic-bezier(.4,0,.2,1);
+    overflow-y: auto;
+}
+.sidebar::before {
+    content: 'BOJONEGORO';
+    position: absolute;
+    top: 24px; left: 22px;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: .16em;
+}
+.sidebar a {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    margin: 4px 0;
+    padding: 11px 14px;
+    border-radius: 12px;
+    color: #cbd5e1;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    transition: .18s ease;
+}
+.sidebar a:hover { background: rgba(255,255,255,.08); color:#fff; transform: translateX(2px); }
+.sidebar a.active {
+    background: linear-gradient(135deg,#4f46e5,#6366f1);
+    color:#fff;
+    box-shadow: 0 8px 20px rgba(79,70,229,.28);
+}
+
+.main {
+    max-width: 1540px;
+    margin: 0 auto;
+    padding: 92px 28px 40px;
+}
+
+/* ===== Filter ===== */
+.date-filter-bar {
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+    padding:14px 16px;
+    margin-bottom:22px;
+    background: var(--surface);
+    border:1px solid rgba(226,232,240,.9);
+    border-radius:16px;
+    box-shadow:var(--shadow-sm);
+    backdrop-filter: blur(12px);
+}
+.date-filter-bar label {
+    font-size:11px;
+    color:#64748b;
+    font-weight:750;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+}
+.date-filter-bar input[type=date], .variance-select {
+    border:1px solid #dbe3ee;
+    background:#fff;
+    color:#1e293b;
+    border-radius:10px;
+    transition:.2s ease;
+}
+.date-filter-bar input[type=date] { padding:8px 11px; font-size:13px; }
+.date-filter-bar input[type=date]:focus, .variance-select:focus {
+    outline:none;
+    border-color:#818cf8;
+    box-shadow:0 0 0 4px rgba(99,102,241,.10);
+}
+.date-filter-bar .sep { color:#cbd5e1; font-size:12px; }
+.btn-today, .btn-export {
+    min-height:36px;
+    padding:8px 13px;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:12px;
+    font-weight:750;
+    transition:.18s ease;
+}
+.btn-today {
+    border:1px solid #e2e8f0;
+    background:#f8fafc;
+    color:#475569;
+}
+.btn-today:hover { background:#eef2ff; color:#4338ca; border-color:#c7d2fe; transform:translateY(-1px); }
+.btn-export {
+    border:0;
+    color:#fff;
+    background:linear-gradient(135deg,#0f766e,#14b8a6);
+    box-shadow:0 7px 16px rgba(13,148,136,.20);
+    display:inline-flex; align-items:center; gap:6px;
+}
+.btn-export:hover { transform:translateY(-1px); box-shadow:0 10px 20px rgba(13,148,136,.26); }
+.btn-export:disabled { background:#94a3b8; box-shadow:none; cursor:not-allowed; transform:none; }
+.filter-info { font-size:11px; color:#94a3b8; margin-left:4px; }
+
+/* ===== Section title ===== */
+.sec-title {
+    margin:30px 0 13px;
+    display:flex;
+    align-items:center;
+    gap:9px;
+    flex-wrap:wrap;
+    font-size:12px;
+    font-weight:800;
+    color:#334155;
+    letter-spacing:.07em;
+    text-transform:uppercase;
+}
+.sec-title::before {
+    content:'';
+    width:4px;
+    height:16px;
+    border-radius:999px;
+    background:linear-gradient(180deg,#4f46e5,#8b5cf6);
+}
+
+/* ===== KPI cards ===== */
+.kpi-grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+    gap:16px;
+}
+.card, .card-wide {
+    background:var(--surface);
+    border:1px solid rgba(226,232,240,.9);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow-sm);
+    transition:transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+    overflow:hidden;
+    position:relative;
+}
+.card { padding:19px 20px; min-height:142px; }
+.card-wide { padding:20px 22px; margin-bottom:18px; }
+.card:hover, .card-wide:hover {
+    transform:translateY(-2px);
+    box-shadow:var(--shadow-md);
+    border-color:#dbe3ee;
+}
+.card::before, .card-wide::before {
+    content:'';
+    position:absolute;
+    top:0; left:0; right:0;
+    height:4px;
+    background:#dbe3ee;
+}
+.card.oee-card::before, .card-wide::before { background:linear-gradient(90deg,#4f46e5,#818cf8); }
+.card.tonase-card::before { background:linear-gradient(90deg,#059669,#34d399); }
+.card.waste-mini-card.kemasan::before { background:linear-gradient(90deg,#d97706,#f59e0b); }
+.card.waste-mini-card.sfg::before { background:linear-gradient(90deg,#7c3aed,#a78bfa); }
+.card.waste-mini-card.karton::before { background:linear-gradient(90deg,#dc2626,#fb7185); }
+.card.fryer-mini-card::before { background:linear-gradient(90deg,#0891b2,#22d3ee); }
+.card.proses-mini-card::before { background:linear-gradient(90deg,#d97706,#fb923c); }
+.card.cost-material-card::before { background:linear-gradient(90deg,#0f766e,#2dd4bf); }
+.card.variance-card::before { background:linear-gradient(90deg,#db2777,#f472b6); }
+.card.extruder-card::before { background:linear-gradient(90deg,#ea580c,#fb923c); }
+
+.card h3 {
+    margin:2px 0 10px;
+    font-size:11px;
+    color:#758196;
+    font-weight:800;
+    text-transform:uppercase;
+    letter-spacing:.07em;
+}
+.value {
+    font-size:34px;
+    font-weight:800;
+    color:#172033;
+    letter-spacing:-.035em;
+    line-height:1.05;
+}
+.value.loading { font-size:18px; color:#94a3b8; }
+.value.good { color:#16a34a; }
+.value.low { color:#dc2626; }
+.card-date { font-size:11px; color:#94a3b8; margin-top:7px; }
+.card-sub { font-size:11px; color:#64748b; margin-top:5px; }
+.card-sub.mtd { font-size:14px; color:#334155; }
+.card-sub.mtd b { font-size:16px; color:#0f766e; }
+.target-badge {
+    display:inline-flex;
+    align-items:center;
+    margin-top:8px;
+    padding:4px 8px;
+    border:1px solid #e2e8f0;
+    border-radius:999px;
+    background:#f8fafc;
+    color:#64748b;
+    font-size:10px;
+    font-weight:700;
+}
+.kpi-unit { margin-left:3px; color:#64748b; font-size:14px; font-weight:500; letter-spacing:0; }
+
+/* ===== Toggles ===== */
+.cost-period-toggle {
+    display:inline-flex;
+    gap:4px;
+    margin-bottom:11px;
+    padding:3px;
+    border-radius:10px;
+    background:#f1f5f9;
+}
+.cost-period-toggle .period-btn {
+    border:0;
+    border-radius:8px;
+    padding:6px 10px;
+    background:transparent;
+    color:#64748b;
+    cursor:pointer;
+    font-size:9px;
+    font-weight:800;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    transition:.18s ease;
+}
+.cost-period-toggle .period-btn:hover:not(.active) { background:#fff; color:#334155; }
+.cost-period-toggle .period-btn.active { color:#fff; background:#0f766e; box-shadow:0 4px 10px rgba(15,118,110,.16); }
+.oee-card .cost-period-toggle .period-btn.active { background:#4f46e5; }
+.variance-card .cost-period-toggle .period-btn.active { background:#db2777; }
+.variance-select { width:100%; margin-bottom:10px; padding:7px 9px; font-size:11px; cursor:pointer; }
+
+/* ===== Shift summary ===== */
+.shift-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:2px; }
+.shift-mini {
+    padding:16px 10px;
+    border:1px solid #edf1f6;
+    border-radius:14px;
+    text-align:center;
+    background:linear-gradient(180deg,#fff,#f8fafc);
+}
+.shift-mini-label { font-size:9px; color:#94a3b8; font-weight:800; text-transform:uppercase; letter-spacing:.08em; }
+.shift-mini-val { margin-top:5px; font-size:22px; font-weight:800; letter-spacing:-.02em; }
+.shift-mini-val.good { color:#16a34a; }
+.shift-mini-val.low { color:#dc2626; }
+.shift-mini-val.empty { color:#cbd5e1; font-size:15px; }
+
+/* ===== Tables ===== */
+.tbl-scroll { overflow:auto; border-radius:14px; }
+.line-table, .cost-table { width:100%; border-collapse:separate; border-spacing:0; font-size:12px; margin-top:4px; }
+.line-table th, .cost-table th {
+    padding:10px 12px;
+    background:#f8fafc;
+    color:#64748b;
+    border-bottom:1px solid #e6ebf2;
+    font-size:9px;
+    font-weight:800;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    text-align:center;
+    white-space:nowrap;
+}
+.line-table th:first-child, .cost-table th:first-child { text-align:left; border-top-left-radius:10px; }
+.line-table th:last-child, .cost-table th:last-child { border-top-right-radius:10px; }
+.line-table td, .cost-table td {
+    padding:10px 12px;
+    border-bottom:1px solid #f0f3f7;
+    background:#fff;
+}
+.line-table tbody tr:hover td, .cost-table tbody tr:hover td { background:#fafbff; }
+.line-table tr:last-child td, .cost-table tr:last-child td { border-bottom:none; }
+.line-table td.mesin-col, .cost-table td:first-child { font-weight:700; color:#334155; }
+.line-table td.val-col, .cost-table td { text-align:center; }
+.line-table td.val-col.good, .cost-table td.total-col.good { color:#16a34a; font-weight:800; }
+.line-table td.val-col.low, .cost-table td.total-col.low { color:#dc2626; font-weight:800; }
+.line-table td.val-col.empty { color:#cbd5e1; font-weight:400; }
+.cost-table td:first-child { text-align:left; }
+.cost-table td.total-col { font-weight:800; }
+
+.waste-detail-table { width:100%; border-collapse:collapse; font-size:11px; margin-top:12px; }
+.waste-detail-table td { padding:7px 3px; border-bottom:1px solid #f1f5f9; }
+.waste-detail-table tr:last-child td { border-bottom:none; }
+.waste-detail-table td.mesin-name { color:#64748b; }
+.waste-detail-table td.waste-val { text-align:right; font-weight:700; color:#334155; }
+.waste-detail-table td.waste-val.over {
+    color:#dc2626;
+    background:#fff1f2;
+    border-radius:7px;
+    padding-left:7px;
+    padding-right:7px;
+}
+
+.proses-pemakaian-info {
+    margin-top:10px;
+    padding:9px 10px;
+    border:1px solid #edf1f6;
+    border-radius:10px;
+    background:#f8fafc;
+    color:#334155;
+    font-size:11px;
+}
+.proses-pemakaian-info .label { color:#94a3b8; }
+.proses-pemakaian-info .val { font-weight:800; }
+
+/* split area (existing markup relies on this) */
+.split-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; align-items:start; margin-top:26px; }
+.split-grid.fryer-proses-grid { grid-template-columns:1fr 1fr; }
+
+/* ===== Scrollbar ===== */
+::-webkit-scrollbar { width:9px; height:9px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:#cbd5e1; border-radius:999px; border:2px solid transparent; background-clip:padding-box; }
+::-webkit-scrollbar-thumb:hover { background:#94a3b8; border:2px solid transparent; background-clip:padding-box; }
+
+/* ===== Mobile ===== */
+@media (max-width: 900px) {
+    .main { padding-left:18px; padding-right:18px; }
+    .split-grid, .split-grid.fryer-proses-grid { grid-template-columns:1fr; }
+}
+
+@media (max-width: 640px) {
+    .topbar { height:60px; padding:0 12px; }
+    .topbar h2 { font-size:15px; }
+    .topbar h2::after { font-size:8px; }
+    .menu-btn { width:36px; height:36px; font-size:20px; }
+    .sidebar { width:264px; left:-264px; }
+    .main { padding:74px 12px 28px; }
+
+    .date-filter-bar {
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        grid-template-areas:
+            "labeldari labelsampai"
+            "inputdari inputsampai"
+            "action action"
+            "export export"
+            "info info";
+        row-gap:7px;
+        column-gap:9px;
+        padding:13px;
+        border-radius:16px;
+    }
+    .date-filter-bar .sep { display:none; }
+    .fb-label-dari { grid-area:labeldari; }
+    .fb-label-sampai { grid-area:labelsampai; }
+    .fb-input-dari { grid-area:inputdari; }
+    .fb-input-sampai { grid-area:inputsampai; }
+    .date-filter-bar input[type=date] { width:100%; padding:9px; font-size:12px; }
+    .btn-today { grid-area:action; width:100%; }
+    .btn-export { grid-area:export; width:100%; justify-content:center; }
+    .filter-info { grid-area:info; text-align:center; margin:0; }
+
+    .sec-title { margin:24px 0 11px; font-size:11px; }
+    .kpi-grid { grid-template-columns:1fr !important; gap:12px; }
+    .card, .card-wide { border-radius:16px; }
+    .card { padding:17px 16px; min-height:auto; }
+    .card-wide { padding:16px 4px 16px 16px; }
+    .card-wide > .sec-title, .card-wide > *:not(table):not(.split-grid):not(.tbl-scroll) { padding-right:12px; }
+    .value { font-size:30px; }
+    .shift-grid { gap:8px; padding-right:12px; }
+    .shift-mini { padding:12px 5px; }
+    .shift-mini-val { font-size:18px; }
+
+    .tbl-scroll { overflow-x:auto; -webkit-overflow-scrolling:touch; margin-top:10px; }
+    .tbl-scroll .line-table, .tbl-scroll .cost-table { width:auto; min-width:100%; white-space:nowrap; font-size:11px; }
+    .tbl-scroll .line-table th, .tbl-scroll .line-table td, .tbl-scroll .cost-table th, .tbl-scroll .cost-table td { padding:9px 11px; }
+    .line-table td.mesin-col, .line-table th:first-child, .cost-table td:first-child, .cost-table th:first-child {
+        position:sticky; left:0; z-index:2; background:#fff;
+    }
+    .line-table th:first-child, .cost-table th:first-child { background:#f8fafc; z-index:3; }
+    .waste-detail-table { font-size:12px; }
+    .waste-detail-table td { padding:7px 3px; }
+}
+
+
+/* ============================================================
+   PRESENSI-INSPIRED PREMIUM UI V2
+   Visual-only overrides. Existing IDs, Supabase queries and KPI
+   calculations remain untouched.
+   ============================================================ */
+:root {
+    --primary: #1268e8;
+    --primary-dark: #0748ad;
+    --primary-soft: #eaf3ff;
+    --accent: #7c3aed;
+    --success: #16a065;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --ink: #152238;
+    --muted: #6b7a90;
+    --line: #e5ebf3;
+    --surface: rgba(255,255,255,.93);
+    --shadow-sm: 0 10px 28px rgba(26,63,114,.07);
+    --shadow-md: 0 18px 50px rgba(26,63,114,.13);
+    --radius: 22px;
+}
+
+body {
+    background:
+        radial-gradient(circle at 7% 4%, rgba(18,104,232,.14), transparent 25%),
+        radial-gradient(circle at 93% 7%, rgba(124,58,237,.11), transparent 26%),
+        linear-gradient(145deg,#eef5ff 0%,#f8fafc 44%,#f4f0ff 100%);
+    color: var(--ink);
+}
+body::before,
+body::after {
+    content:'';
+    position:fixed;
+    z-index:-1;
+    border-radius:50%;
+    pointer-events:none;
+}
+body::before {
+    width:270px;height:270px;left:-110px;bottom:8%;
+    background:rgba(18,104,232,.07);
+}
+body::after {
+    width:330px;height:330px;right:-145px;top:34%;
+    background:rgba(124,58,237,.06);
+}
+
+.topbar {
+    height:72px;
+    padding:0 28px;
+    background:rgba(255,255,255,.80);
+    border-bottom:1px solid rgba(229,235,243,.9);
+    box-shadow:0 7px 26px rgba(26,63,114,.05);
+}
+.topbar h2 { color:var(--ink); font-size:19px; }
+.topbar h2::after { content:'Factory Bojonegoro · Performance Monitoring'; color:#8b9ab0; }
+.menu-btn {
+    border:1px solid #dce7f4;
+    background:#fff;
+    color:#34516f;
+    box-shadow:0 7px 16px rgba(26,63,114,.06);
+}
+.menu-btn:hover { background:#edf5ff; color:var(--primary); border-color:#cfe1fb; }
+
+.sidebar {
+    width:292px;
+    left:-292px;
+    padding:92px 16px 28px;
+    background:linear-gradient(180deg,#10284a 0%,#111d34 48%,#0f172a 100%);
+    box-shadow:20px 0 54px rgba(11,30,56,.24);
+}
+.sidebar::before {
+    content:'KOBE · BOJONEGORO';
+    top:28px;left:24px;
+    font-size:12px;
+    letter-spacing:.14em;
+}
+.sidebar::after {
+    content:'Manufacturing Dashboard';
+    position:absolute;top:48px;left:24px;
+    color:#7f95b5;font-size:10px;font-weight:650;letter-spacing:.04em;
+}
+.sidebar a { min-height:46px; border-radius:13px; color:#cad6e7; }
+.sidebar a:hover { background:rgba(255,255,255,.08); }
+.sidebar a.active {
+    background:linear-gradient(135deg,var(--primary),var(--accent));
+    box-shadow:0 11px 24px rgba(18,104,232,.26);
+}
+
+.main { max-width:1520px; padding:94px 26px 44px; }
+
+/* Hero inspired by the Presensi DOR dashboard */
+.dashboard-hero {
+    position:relative;
+    overflow:hidden;
+    min-height:224px;
+    display:grid;
+    grid-template-columns:minmax(0,1fr) 300px;
+    align-items:center;
+    gap:28px;
+    margin-bottom:20px;
+    padding:36px 40px;
+    border:1px solid rgba(255,255,255,.42);
+    border-radius:28px;
+    color:#fff;
+    background:
+        linear-gradient(120deg,rgba(0,32,91,.18),rgba(61,16,135,.14)),
+        linear-gradient(135deg,#0b63dc 0%,#174fb6 50%,#7338d2 100%);
+    box-shadow:0 24px 60px rgba(25,73,157,.25);
+}
+.dashboard-hero::before,
+.dashboard-hero::after {
+    content:'';
+    position:absolute;
+    border-radius:50%;
+    border:1px solid rgba(255,255,255,.14);
+    pointer-events:none;
+}
+.dashboard-hero::before {
+    width:380px;height:380px;top:-220px;right:-50px;
+    box-shadow:0 0 0 44px rgba(255,255,255,.035),0 0 0 92px rgba(255,255,255,.022);
+}
+.dashboard-hero::after {
+    width:220px;height:220px;left:43%;bottom:-176px;
+    box-shadow:0 0 0 40px rgba(255,255,255,.025);
+}
+.hero-copy,.hero-panel { position:relative; z-index:1; }
+.hero-kicker {
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:15px;
+    padding:7px 12px;
+    border:1px solid rgba(255,255,255,.24);
+    border-radius:999px;
+    background:rgba(255,255,255,.12);
+    backdrop-filter:blur(10px);
+    font-size:11px;
+    font-weight:800;
+    letter-spacing:.10em;
+    text-transform:uppercase;
+}
+.hero-kicker::before {
+    content:'';
+    width:8px;height:8px;border-radius:50%;
+    background:#6df1ad;
+    box-shadow:0 0 0 5px rgba(109,241,173,.16);
+}
+.dashboard-hero h1 {
+    margin:0;
+    font-size:clamp(32px,4.5vw,54px);
+    line-height:1;
+    letter-spacing:-.045em;
+}
+.dashboard-hero p {
+    max-width:680px;
+    margin:12px 0 0;
+    color:rgba(255,255,255,.78);
+    font-size:14px;
+    line-height:1.6;
+}
+.hero-panel {
+    min-width:0;
+    padding:22px;
+    border:1px solid rgba(255,255,255,.22);
+    border-radius:22px;
+    background:rgba(255,255,255,.12);
+    backdrop-filter:blur(15px);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.14);
+}
+.hero-panel-label {
+    color:rgba(255,255,255,.70);
+    font-size:11px;
+    font-weight:800;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+}
+.hero-panel-value {
+    display:block;
+    margin:7px 0 5px;
+    font-size:25px;
+    font-weight:850;
+    letter-spacing:-.035em;
+}
+.hero-panel-note { color:rgba(255,255,255,.77); font-size:12px; line-height:1.5; }
+.hero-mini-row { display:flex; flex-wrap:wrap; gap:7px; margin-top:16px; }
+.hero-mini-chip {
+    padding:6px 9px;
+    border:1px solid rgba(255,255,255,.17);
+    border-radius:999px;
+    background:rgba(255,255,255,.10);
+    color:rgba(255,255,255,.88);
+    font-size:10px;
+    font-weight:750;
+}
+
+.date-filter-bar {
+    padding:15px 17px;
+    border:1px solid rgba(222,231,243,.98);
+    border-radius:18px;
+    background:rgba(255,255,255,.92);
+    box-shadow:0 14px 35px rgba(38,70,113,.07);
+    backdrop-filter:blur(16px);
+}
+.date-filter-bar label { color:#607188; }
+.date-filter-bar input[type=date],.variance-select {
+    min-height:40px;
+    border:1px solid #dce4ef;
+    border-radius:12px;
+    background:#fbfdff;
+}
+.date-filter-bar input[type=date]:focus,.variance-select:focus {
+    border-color:#61a2f8;
+    box-shadow:0 0 0 4px rgba(18,104,232,.11);
+}
+.btn-today,.btn-export { min-height:40px; border-radius:12px; padding:9px 14px; }
+.btn-today { background:#edf5ff; color:var(--primary-dark); border-color:#d5e6ff; }
+.btn-export {
+    background:linear-gradient(135deg,var(--primary),var(--accent));
+    box-shadow:0 10px 22px rgba(18,104,232,.22);
+}
+
+.sec-title {
+    margin:31px 0 14px;
+    color:#3f5068;
+    font-size:12px;
+    letter-spacing:.065em;
+}
+.sec-title::before {
+    width:8px;height:8px;border-radius:50%;
+    background:linear-gradient(135deg,var(--primary),var(--accent));
+    box-shadow:0 0 0 5px rgba(18,104,232,.09);
+}
+
+.kpi-grid { gap:15px; }
+.card,.card-wide {
+    border:1px solid rgba(226,233,243,.98);
+    border-radius:22px;
+    background:rgba(255,255,255,.91);
+    box-shadow:0 14px 34px rgba(38,70,113,.08);
+    backdrop-filter:blur(16px);
+}
+.card { min-height:154px; padding:21px 21px 19px; }
+.card-wide { padding:22px 24px; }
+.card:hover,.card-wide:hover {
+    transform:translateY(-3px);
+    border-color:#d8e4f3;
+    box-shadow:0 20px 48px rgba(29,70,126,.12);
+}
+.card::before,.card-wide::before { height:0; }
+.card::after {
+    content:'';
+    position:absolute;
+    width:96px;height:96px;
+    right:-38px;bottom:-44px;
+    border-radius:50%;
+    background:var(--card-soft,#edf5ff);
+    opacity:.95;
+    pointer-events:none;
+}
+.card.oee-card { --card-soft:#eaf3ff; }
+.card.tonase-card { --card-soft:#e9f9f1; }
+.card.waste-mini-card.kemasan { --card-soft:#fff5df; }
+.card.waste-mini-card.sfg { --card-soft:#f1eaff; }
+.card.waste-mini-card.karton { --card-soft:#ffebed; }
+.card.cost-material-card { --card-soft:#e5fbf7; }
+.card.variance-card { --card-soft:#fdeaf4; }
+.card.fryer-mini-card { --card-soft:#e5f8fc; }
+.card.proses-mini-card { --card-soft:#fff0e5; }
+.card.extruder-card { --card-soft:#fff0e5; }
+.card.extruder-downtime-card { --card-soft:#fff3e8; }
+.card > * { position:relative; z-index:1; }
+.card h3 {
+    margin:0 0 11px;
+    color:#6b7a90;
+    font-size:11px;
+    font-weight:780;
+    letter-spacing:.055em;
+}
+.value { font-size:36px; font-weight:850; color:var(--ink); }
+.value.good { color:var(--success); }
+.value.low { color:var(--danger); }
+.card-date { color:#8c9aae; }
+.target-badge {
+    padding:5px 9px;
+    border-color:#dfe8f3;
+    background:#f8fbff;
+    color:#627289;
+}
+
+.cost-period-toggle {
+    padding:3px;
+    border:1px solid #e6ecf4;
+    background:#f5f8fc;
+    border-radius:11px;
+}
+.cost-period-toggle .period-btn { min-height:29px; border-radius:8px; }
+.cost-period-toggle .period-btn.active {
+    background:linear-gradient(135deg,#0f8f82,#12b5a1);
+    box-shadow:0 5px 12px rgba(15,143,130,.18);
+}
+.oee-card .cost-period-toggle .period-btn.active {
+    background:linear-gradient(135deg,var(--primary),var(--accent));
+}
+.variance-card .cost-period-toggle .period-btn.active {
+    background:linear-gradient(135deg,#db2777,#8b5cf6);
+}
+
+.shift-mini {
+    min-height:96px;
+    display:grid;
+    align-content:center;
+    border:1px solid #e5edf6;
+    border-radius:17px;
+    background:linear-gradient(180deg,#fff,#f8fbff);
+    box-shadow:0 8px 18px rgba(37,75,126,.045);
+}
+.shift-mini-val { font-size:25px; }
+
+.tbl-scroll { border:1px solid #e8edf4; border-radius:16px; background:#fff; }
+.line-table,.cost-table { margin-top:0; }
+.line-table th,.cost-table th {
+    padding:12px 13px;
+    background:#f7f9fc;
+    color:#66758a;
+    border-bottom:1px solid #e4eaf2;
+}
+.line-table td,.cost-table td { padding:11px 13px; }
+.line-table tbody tr:hover td,.cost-table tbody tr:hover td { background:#f7fbff; }
+.waste-detail-table td { padding:8px 3px; }
+.waste-detail-table td.waste-val.over { border-radius:7px; background:#fff0f1; }
+
+/* Preserve split layout but make both panels breathe more */
+.split-grid { gap:22px !important; }
+
+@media (max-width:900px) {
+    .dashboard-hero { grid-template-columns:1fr; padding:31px 30px; }
+    .hero-panel { width:min(100%,420px); }
+}
+@media (max-width:640px) {
+    .main { padding:82px 10px 30px; }
+    .topbar { height:62px; padding:0 12px; }
+    .topbar h2 { font-size:15px; }
+    .topbar h2::after { font-size:8px; }
+    .dashboard-hero { min-height:auto; padding:27px 22px; margin-bottom:14px; border-radius:22px; }
+    .dashboard-hero h1 { font-size:36px; }
+    .dashboard-hero p { font-size:12px; }
+    .hero-panel { padding:17px; border-radius:18px; }
+    .hero-panel-value { font-size:22px; }
+    .date-filter-bar { border-radius:18px; }
+    .card,.card-wide { border-radius:20px; }
+    .card { padding:18px; }
+    .value { font-size:31px; }
+}
+
+
+
+/* ===== Variance Material — Excel Weekly dashboard ===== */
+.variance-card {
+    grid-column: span 4;
+    --card-soft:#fdeaf4;
+    min-height: 340px;
+}
+.variance-card::after { width:150px; height:150px; right:-65px; bottom:-78px; opacity:.62; }
+.variance-head {
+    display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
+    margin-bottom:12px;
+}
+.variance-period-controls { display:flex; flex-direction:column; align-items:flex-end; gap:5px; }
+.variance-period-toggle { margin:0; }
+.variance-period-toggle .period-btn { min-width:72px; }
+.variance-head h3 { margin-bottom:3px; }
+.variance-source-note { color:#94a3b8; font-size:9px; line-height:1.35; }
+.variance-week-select {
+    min-width:126px; min-height:34px; padding:6px 9px;
+    border:1px solid #ead8e5; border-radius:10px; background:#fff;
+    color:#6b3154; font-size:10px; font-weight:800; cursor:pointer;
+}
+
+.variance-period-controls { position:relative; z-index:220; }
+.variance-period-picker { min-width:190px; position:relative; z-index:220; }
+.variance-period-picker .variance-multi-btn {
+    min-width:190px; min-height:36px; padding:7px 10px;
+    border-color:#ead8e5; color:#6b3154; font-size:10px; font-weight:800;
+}
+.variance-period-picker .variance-multi-menu {
+    left:auto; right:0; width:270px; max-width:300px; z-index:10050;
+}
+.variance-period-picker .variance-multi-options { max-height:285px; }
+.variance-period-picker .variance-multi-option { font-size:9px; }
+.variance-period-picker .variance-period-meta {
+    color:#a2929d; font-size:8px; font-weight:700;
+}
+.variance-period-picker .variance-period-reset {
+    border:0; background:transparent; color:#c0266d; font-size:8px; font-weight:800; cursor:pointer; padding:3px 4px;
+}
+.variance-comparison-section {
+    display:none; margin-top:10px; padding-top:10px; border-top:1px solid #f0e9ee;
+}
+.variance-comparison-head {
+    display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:6px;
+}
+.variance-comparison-title {
+    color:#7c5c70; font-size:8px; font-weight:850; text-transform:uppercase; letter-spacing:.06em;
+}
+.variance-comparison-note { color:#a2929d; font-size:7.5px; }
+.variance-comparison-wrap { overflow:auto; border:1px solid #edf0f4; border-radius:11px; background:#fff; }
+.variance-comparison-table { width:100%; border-collapse:collapse; min-width:630px; font-size:9px; }
+.variance-comparison-table th {
+    padding:7px 8px; background:#f8fafc; border-bottom:1px solid #e9edf2; color:#929dad;
+    font-size:7px; font-weight:850; text-transform:uppercase; text-align:right; white-space:nowrap;
+}
+.variance-comparison-table th:first-child { text-align:left; }
+.variance-comparison-table td { padding:7px 8px; border-bottom:1px solid #f1f3f6; color:#526075; text-align:right; }
+.variance-comparison-table td:first-child { text-align:left; font-weight:800; color:#39475b; white-space:nowrap; }
+.variance-comparison-table tr:last-child td { border-bottom:0; }
+.variance-comparison-table .over { color:#dc2626; font-weight:800; }
+.variance-comparison-table .saving { color:#16a34a; font-weight:800; }
+.variance-filter-grid {
+    display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:7px; margin:8px 0 12px;
+    position:relative; z-index:80; overflow:visible;
+}
+.variance-filter-field span {
+    display:block; margin:0 0 4px 2px; color:#9a7b8f; font-size:8px; font-weight:850;
+    text-transform:uppercase; letter-spacing:.06em;
+}
+.variance-filter-field { position:relative; min-width:0; z-index:1; overflow:visible; }
+.variance-filter-field:focus-within { z-index:140; }
+.variance-multi { position:relative; width:100%; overflow:visible; }
+.variance-multi.open { z-index:160; }
+.variance-multi-btn {
+    width:100%; min-height:36px; display:flex; align-items:center; justify-content:space-between; gap:8px;
+    padding:7px 10px; border:1px solid #eadfe7; border-radius:10px; background:#fff;
+    color:#536177; font-size:9px; text-align:left; cursor:pointer; outline:none;
+    transition:border-color .18s ease, box-shadow .18s ease, background .18s ease;
+}
+.variance-multi-btn:hover,.variance-multi.open .variance-multi-btn { border-color:#d7b7cb; background:#fffafd; }
+.variance-multi.open .variance-multi-btn { box-shadow:0 0 0 3px rgba(219,39,119,.07); }
+.variance-multi-label { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:650; }
+.variance-multi-caret { flex:0 0 auto; color:#7d8aa0; font-size:10px; transition:transform .18s ease; }
+.variance-multi.open .variance-multi-caret { transform:rotate(180deg); }
+.variance-multi-menu {
+    display:none; position:absolute; z-index:9999; top:calc(100% + 6px); left:0; width:max(100%,240px);
+    max-width:360px; padding:7px; border:1px solid #e8dce4; border-radius:12px; background:#fff;
+    box-shadow:0 20px 44px rgba(67,38,58,.22);
+    isolation:isolate;
+}
+.variance-multi.open .variance-multi-menu { display:block; }
+.variance-multi-menu-head {
+    display:flex; align-items:center; justify-content:space-between; gap:8px; padding:4px 5px 7px;
+    border-bottom:1px solid #f2eaf0; margin-bottom:6px;
+}
+.variance-multi-menu-head b { color:#7a536d; font-size:8px; text-transform:uppercase; letter-spacing:.05em; }
+.variance-multi-clear { border:0; background:transparent; color:#c0266d; font-size:8px; font-weight:800; cursor:pointer; padding:3px 4px; white-space:nowrap; }
+.variance-multi-clear.search-action { color:#b4236a; }
+.variance-multi-clear:disabled { color:#aab2bf; cursor:default; }
+.variance-multi-search-wrap {
+    position:sticky; top:0; z-index:5; margin:0 0 7px; padding:2px 2px 7px;
+    background:#fff; border-bottom:1px solid #f2eaf0;
+}
+.variance-multi-search-icon {
+    position:absolute; left:12px; top:18px; transform:translateY(-50%); color:#9b718a; font-size:12px; pointer-events:none;
+}
+.variance-multi-search {
+    display:block !important; width:100%; height:36px; padding:8px 30px 8px 30px;
+    border:1px solid #dfc7d6; border-radius:10px; background:#fffafd; color:#39475b;
+    font-family:Arial,sans-serif; font-size:10px; outline:none;
+    box-shadow:0 2px 8px rgba(87,51,74,.05);
+    transition:border-color .16s ease, box-shadow .16s ease, background .16s ease;
+}
+.variance-multi-search::placeholder { color:#a4adba; }
+.variance-multi-search:focus { border-color:#d6a9c4; background:#fff; box-shadow:0 0 0 3px rgba(219,39,119,.07); }
+.variance-multi-search::-webkit-search-cancel-button { cursor:pointer; }
+.variance-multi-options { max-height:220px; overflow:auto; padding:2px; }
+.variance-multi-option {
+    display:flex; align-items:flex-start; gap:7px; padding:7px 7px; border-radius:8px; cursor:pointer;
+    color:#48576c; font-size:9px; line-height:1.3;
+}
+.variance-multi-option:hover { background:#fff4fa; }
+.variance-multi-option input { margin:1px 0 0; accent-color:#db2777; cursor:pointer; }
+.variance-multi-option span { min-width:0; overflow-wrap:anywhere; }
+.variance-multi-empty { padding:10px 8px; color:#9ca3af; font-size:8px; text-align:center; }
+.variance-multi-count {
+    display:none; flex:0 0 auto; min-width:17px; height:17px; padding:0 5px; align-items:center; justify-content:center;
+    border-radius:999px; background:#fce7f3; color:#be185d; font-size:8px; font-weight:850;
+}
+.variance-multi-btn.has-selection .variance-multi-count { display:inline-flex; }
+@media(max-width:900px){ .variance-multi-menu{width:100%;max-width:none;} }
+.variance-kpi-grid { display:grid; grid-template-columns:1.35fr 1fr 1fr; gap:8px; position:relative; z-index:2; }
+.variance-kpi-box {
+    min-width:0; padding:10px 11px; border:1px solid #edf0f5; border-radius:12px;
+    background:linear-gradient(180deg,#fff,#fbfcff);
+}
+.variance-kpi-label {
+    display:block; color:#8b96a7; font-size:8px; font-weight:850; text-transform:uppercase; letter-spacing:.06em;
+}
+.variance-kpi-value {
+    display:block; margin-top:4px; color:#1f2a44; font-size:16px; font-weight:850;
+    letter-spacing:-.02em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.variance-kpi-value.over { color:#dc2626; }
+.variance-kpi-value.saving { color:#16a34a; }
+.variance-kpi-value.pct { font-size:18px; }
+.variance-divider { height:1px; margin:11px 0 8px; background:#f0e9ee; }
+.variance-group-title {
+    margin-bottom:5px; color:#7c5c70; font-size:8px; font-weight:850; text-transform:uppercase; letter-spacing:.06em;
+}
+.variance-breakdown { width:100%; border-collapse:collapse; font-size:9px; }
+.variance-breakdown th {
+    padding:5px 4px; border-bottom:1px solid #eceff4; color:#9aa3b1; font-size:7px;
+    font-weight:850; text-transform:uppercase; text-align:right; white-space:nowrap;
+}
+.variance-breakdown th:first-child { text-align:left; }
+.variance-breakdown td { padding:6px 4px; border-bottom:1px solid #f2f4f7; text-align:right; color:#566477; }
+.variance-breakdown td:first-child { text-align:left; font-weight:750; color:#38465b; }
+.variance-breakdown tr:last-child td { border-bottom:0; }
+.variance-breakdown .over { color:#dc2626; font-weight:800; }
+.variance-breakdown .saving { color:#16a34a; font-weight:800; }
+.variance-footer {
+    display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:8px;
+    color:#9aa3b1; font-size:8px;
+}
+.variance-status-dot { width:6px; height:6px; border-radius:50%; background:#16a34a; display:inline-block; margin-right:5px; }
+
+.variance-material-section { margin-top:10px; padding-top:10px; border-top:1px solid #f0e9ee; }
+.variance-material-head { display:flex; align-items:flex-end; justify-content:space-between; gap:10px; margin-bottom:7px; }
+.variance-material-title { color:#7c5c70; font-size:8px; font-weight:850; text-transform:uppercase; letter-spacing:.06em; }
+.variance-material-hint { margin-top:3px; color:#a2929d; font-size:7.5px; line-height:1.35; }
+.variance-material-toggle { border:1px solid #eadfe7; border-radius:8px; padding:5px 8px; background:#fff; color:#7b4c68; font-size:8px; font-weight:800; cursor:pointer; }
+.variance-material-toggle:hover { background:#fff7fb; border-color:#e7c7db; }
+.variance-material-wrap { overflow:auto; max-height:420px; border:1px solid #edf0f4; border-radius:11px; background:#fff; }
+.variance-material-table { width:100%; border-collapse:collapse; min-width:820px; font-size:9.5px; }
+.variance-material-table th { position:sticky; top:0; z-index:2; padding:8px 8px; border-bottom:1px solid #e9edf2; background:#f8fafc; color:#929dad; font-size:7px; font-weight:850; text-transform:uppercase; text-align:right; white-space:nowrap; }
+.variance-material-table th:first-child { text-align:left; }
+.variance-material-table td { padding:8px 8px; border-bottom:1px solid #f1f3f6; color:#526075; text-align:right; vertical-align:middle; }
+.variance-material-table td:first-child { text-align:left; }
+.variance-material-table tr.material-row { cursor:pointer; transition:.15s ease; }
+.variance-material-table tr.material-row:hover td { background:#fff9fc; }
+.variance-material-table tr.material-row.open td { background:#fff7fb; }
+.variance-item-name { display:flex; align-items:flex-start; gap:6px; color:#344257; font-weight:800; line-height:1.3; }
+.variance-item-caret { flex:0 0 auto; width:16px; height:16px; display:grid; place-items:center; margin-top:-1px; border:1px solid #eadfe7; border-radius:5px; background:#fff; color:#9b637f; font-size:8px; }
+.variance-item-caret.open { transform:rotate(90deg); }
+.variance-material-table .over { color:#dc2626; font-weight:800; }
+.variance-material-table .saving { color:#16a34a; font-weight:800; }
+.variance-contrib { min-width:86px; }
+.variance-contrib-bar { height:4px; margin-top:3px; overflow:hidden; border-radius:999px; background:#f1f3f6; }
+.variance-contrib-bar > span { display:block; height:100%; border-radius:999px; background:linear-gradient(90deg,#ef4444,#db2777); }
+.variance-drill-row td { padding:0!important; background:#fbfcfe!important; }
+.variance-drill { padding:9px 10px 10px 27px; border-bottom:1px solid #eef1f5; }
+.variance-drill-label { margin-bottom:6px; color:#9a7b8f; font-size:7px; font-weight:850; text-transform:uppercase; letter-spacing:.06em; }
+.variance-line-block { margin:6px 0; border:1px solid #edf0f4; border-radius:9px; overflow:hidden; background:#fff; }
+.variance-line-head { display:grid; grid-template-columns:minmax(0,1fr) 145px 88px 88px; gap:6px; align-items:center; padding:6px 8px; background:#f8fafc; color:#526075; font-size:8px; }
+.variance-line-head b { color:#344257; }
+.variance-product-row { display:grid; grid-template-columns:minmax(0,1fr) 145px 88px 88px; gap:6px; align-items:center; padding:6px 8px 6px 22px; border-top:1px solid #f0f2f5; color:#68768a; font-size:7.5px; }
+.variance-line-head span:not(:first-child), .variance-product-row span:not(:first-child) { text-align:right; }
+.variance-product-row .over, .variance-line-head .over { color:#dc2626; font-weight:800; }
+.variance-product-row .saving, .variance-line-head .saving { color:#16a34a; font-weight:800; }
+.variance-priority-note { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:6px; color:#9aa3b1; font-size:7.5px; }
+.variance-priority-note strong { color:#7b526a; }
+@media (max-width:700px){
+    .variance-material-head{align-items:flex-start;flex-direction:column;}
+    .variance-material-toggle{width:100%;}
+    .variance-material-wrap{max-height:380px;}
+}
+
+@media (max-width:1400px){ .variance-card{grid-column:span 3;} }
+@media (max-width:1100px){ .variance-card{grid-column:1/-1;} }
+@media (max-width:700px){
+    .variance-filter-grid{grid-template-columns:1fr 1fr;}
+    .variance-kpi-grid{grid-template-columns:1fr;}
+    .variance-card{grid-column:1/-1;}
+    .variance-head{flex-direction:column;align-items:stretch;}
+    .variance-period-controls{align-items:stretch;}
+    .variance-period-toggle{width:max-content;max-width:100%;}
+    .variance-week-select{width:100%;}
+}
+
+
+
+/* ===== DOR Opening: Vision, Mission & Core Values ===== */
+.dor-opening {
+    margin: 0 0 22px;
+    padding: 24px;
+    border: 1px solid rgba(220,229,242,.98);
+    border-radius: 24px;
+    background: rgba(255,255,255,.94);
+    box-shadow: 0 16px 38px rgba(38,70,113,.08);
+    backdrop-filter: blur(16px);
+}
+.dor-opening-head {
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:18px;
+    margin-bottom:18px;
+}
+.dor-opening-kicker {
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:7px;
+    color:#d71920;
+    font-size:10px;
+    font-weight:850;
+    letter-spacing:.10em;
+    text-transform:uppercase;
+}
+.dor-opening-kicker::before {
+    content:'';
+    width:8px;height:8px;border-radius:50%;
+    background:#d71920;
+    box-shadow:0 0 0 5px rgba(215,25,32,.09);
+}
+.dor-opening h2 {
+    margin:0;
+    color:#14224a;
+    font-size:22px;
+    line-height:1.15;
+    letter-spacing:-.025em;
+}
+.dor-opening-sub {
+    max-width:470px;
+    margin:0;
+    color:#7b8799;
+    font-size:11px;
+    line-height:1.55;
+    text-align:right;
+}
+.dor-values-grid {
+    display:grid;
+    grid-template-columns:minmax(0,.95fr) minmax(0,1.25fr);
+    gap:18px;
+    align-items:stretch;
+}
+.dor-vm-stack {
+    display:grid;
+    grid-template-rows:1fr 1fr;
+    gap:14px;
+}
+.dor-vm-card,
+.dor-core-card {
+    position:relative;
+    overflow:hidden;
+    border:1px solid #e4eaf3;
+    border-radius:20px;
+    background:linear-gradient(180deg,#ffffff 0%,#fbfcff 100%);
+}
+.dor-vm-card { padding:0 20px 18px; }
+.dor-card-band {
+    display:flex;
+    align-items:center;
+    gap:10px;
+    width:calc(100% - 18px);
+    min-height:50px;
+    margin:0 0 15px -20px;
+    padding:0 20px;
+    border-bottom-right-radius:24px;
+    color:#fff;
+    font-size:15px;
+    font-weight:850;
+    letter-spacing:-.01em;
+}
+.dor-card-band.blue { background:linear-gradient(135deg,#142c78,#0d1f5c); }
+.dor-card-band.red { background:linear-gradient(135deg,#ee1c25,#c60e16); }
+.dor-band-icon {
+    width:30px;height:30px;
+    display:grid;place-items:center;
+    border-radius:50%;
+    background:rgba(255,255,255,.16);
+    border:1px solid rgba(255,255,255,.34);
+    font-size:15px;
+}
+.dor-vm-text {
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:82px;
+    margin:0;
+    padding:0 10px;
+    color:#16214a;
+    text-align:center;
+    font-size:20px;
+    font-weight:760;
+    line-height:1.35;
+    letter-spacing:-.02em;
+}
+.dor-core-card { padding:0 16px 16px; }
+.dor-core-list {
+    display:grid;
+    gap:9px;
+}
+.dor-core-item {
+    display:grid;
+    grid-template-columns:38px minmax(0,1fr);
+    align-items:center;
+    gap:10px;
+    min-height:54px;
+    padding:8px 12px;
+    border:1px solid #e6e9ef;
+    border-radius:15px;
+    background:#fff;
+    box-shadow:0 5px 13px rgba(32,55,98,.035);
+}
+.dor-core-check {
+    width:34px;height:34px;
+    display:grid;place-items:center;
+    border-radius:50%;
+    background:linear-gradient(135deg,#ef2c34,#cf1018);
+    color:#fff;
+    font-size:18px;
+    font-weight:900;
+    box-shadow:0 6px 13px rgba(215,25,32,.18);
+}
+.dor-core-name {
+    color:#17224a;
+    font-size:14px;
+    font-weight:800;
+    line-height:1.2;
+}
+.dor-core-id {
+    display:block;
+    margin-top:2px;
+    color:#7b8799;
+    font-size:11px;
+    font-weight:650;
+}
+@media (max-width:900px) {
+    .dor-opening-head { align-items:flex-start; flex-direction:column; gap:7px; }
+    .dor-opening-sub { max-width:none; text-align:left; }
+    .dor-values-grid { grid-template-columns:1fr; }
+    .dor-vm-stack { grid-template-columns:1fr 1fr; grid-template-rows:auto; }
+}
+@media (max-width:640px) {
+    .dor-opening { padding:17px; border-radius:20px; }
+    .dor-opening h2 { font-size:19px; }
+    .dor-vm-stack { grid-template-columns:1fr; }
+    .dor-vm-text { min-height:70px; font-size:17px; }
+    .dor-card-band { min-height:46px; font-size:14px; }
+    .dor-core-name { font-size:13px; }
+}
+
+
+/* ===== FIX: Period multi-select must float above Variance content ===== */
+.variance-card { overflow:hidden; }
+.variance-head {
+    position:relative !important;
+    z-index:1000 !important;
+    overflow:visible !important;
+}
+.variance-period-controls {
+    position:relative !important;
+    z-index:1100 !important;
+    overflow:visible !important;
+}
+.variance-period-picker {
+    position:relative !important;
+    z-index:1200 !important;
+    overflow:visible !important;
+}
+.variance-period-picker.open { z-index:1300 !important; }
+.variance-period-picker .variance-multi-menu {
+    z-index:20000 !important;
+}
+.variance-filter-grid { z-index:120 !important; }
+.variance-kpi-grid,
+.variance-comparison-section,
+.variance-material-section,
+.variance-divider,
+.variance-breakdown,
+.variance-footer {
+    position:relative;
+    z-index:2 !important;
+}
 </style>
+<!-- VARIANCE MULTISELECT SEARCH V3 + SELECT VISIBLE RESULTS -->
 </head>
 <body>
+
 <div class="sidebar" id="sidebar">
-<a href="index.html">Dashboard Utama</a><a href="oee.html">OEE</a><a href="tonase.html">Tonase</a><a href="waste.html">Waste</a><a href="cost-material.html">Cost Material</a><a href="input-cost-material.html">Input Cost Material</a><a href="input-variance.html" class="active">📊 Input Variance</a><a href="improvement-monitoring.html">Improvement Monitoring</a><a href="smartway.html">🛠️ Smart Way</a><a href="settings.html">⚙️ Settings</a>
+    <a href="index.html" class="active">Dashboard Utama</a>
+    <a href="#dor-opening">Visi, Misi & Core Values</a>
+    <a href="oee.html">OEE</a>
+    <a href="tonase.html">Tonase</a>
+    <a href="waste.html">Waste</a>
+    <a href="cost-material.html">Cost Material</a>
+    <a href="input-cost-material.html">Input Cost Material</a>
+    <a href="input-variance.html">📊 Input Variance</a>
+    <a href="improvement-monitoring.html">Improvement Monitoring</a>
+    <a href="smartway.html" style="margin-top:20px; border-top:1px solid #374151;">🛠️ Smart Way</a>
+    <a href="baopack.html">📦 Baopack</a>
+    <a href="chingfong.html">⚙️ ChingFong</a>
+    <a href="import-extruder.html">📤 Import Extruder</a>
+    <a href="settings.html">⚙️ Settings</a>
 </div>
-<div class="topbar"><span class="menu-btn" onclick="toggleMenu()">☰</span><h2>Input Variance Material<small>Weekly + Monthly · Factory Bojonegoro</small></h2></div>
+ 
+<div class="topbar">
+    <span class="menu-btn" onclick="toggleMenu()">☰</span>
+    <h2 style="margin:0;">Bojonegoro Monitoring</h2>
+</div>
+
 <div class="main">
-<section class="hero"><div><div class="hero-kicker">Material Variance Weekly</div><h1>Upload Excel Mingguan</h1><p>Gunakan file <b>Material Variance Weekly Bojo 2026</b> dengan struktur sheet Data, Order Type, dan DB. Sistem membaca seluruh periode di workbook dan menjadikan file terbaru sebagai sumber data variance utama untuk tampilan Weekly maupun Monthly.</p></div><div class="hero-note"><b>Workflow full replace</b><br>1. Upload workbook terbaru<br>2. Sistem membaca semua week & bulan<br>3. Preview week mana pun untuk pengecekan<br>4. Simpan — database disinkronkan penuh dengan Excel terbaru</div></section>
 
-<div class="card"><div class="sec-title">📤 Upload Source Excel</div><div class="upload-box"><input type="file" id="file-excel" accept=".xlsx,.xls"><div class="hint">Format harus mengikuti workbook contoh. Sistem akan membaca <b>seluruh baris pada sheet Data</b> dan seluruh week dan bulan yang tersedia. Week dan bulan dihitung dari <b>Scheduled start</b>, sehingga tidak bergantung pada formula Excel di browser.</div><div class="file-info" id="file-info"></div></div><button class="btn btn-parse btn-read-all" id="btn-parse">📖 Baca Seluruh Periode dari Excel</button><div class="status" id="parse-status"></div><div class="replace-note"><b>Mode sinkronisasi: FULL REPLACE</b><span>Saat disimpan, database variance lama akan disesuaikan agar sama dengan seluruh isi workbook Excel terbaru — bukan hanya week yang sedang dipreview.</span></div></div>
+    <section class="dashboard-hero" aria-label="Bojonegoro performance dashboard">
+        <div class="hero-copy">
+            <div class="hero-kicker">Manufacturing Excellence</div>
+            <h1>Bojonegoro Monitoring</h1>
+            <p>Dashboard terintegrasi untuk memantau performa pabrik, OEE, tonase, waste, material cost, variance, dan achievement proses dalam satu tampilan.</p>
+        </div>
+        <div class="hero-panel">
+            <span class="hero-panel-label">Dashboard Overview</span>
+            <strong class="hero-panel-value">Factory Performance</strong>
+            <div class="hero-panel-note">Gunakan rentang tanggal di bawah untuk melihat ringkasan operasional dan detail performa.</div>
+            <div class="hero-mini-row">
+                <span class="hero-mini-chip">OEE</span>
+                <span class="hero-mini-chip">Waste</span>
+                <span class="hero-mini-chip">Cost</span>
+                <span class="hero-mini-chip">Extruder</span>
+            </div>
+        </div>
+    </section>
 
-<div class="card" id="preview-card" style="display:none"><div class="sec-title">📊 Preview — Sama dengan Pivot Excel</div><div class="preview-selector"><div class="field"><label>Preview week saja — tidak memengaruhi data yang di-upload</label><select id="week-select"><option>—</option></select></div><div class="preview-badge" id="all-week-badge">Semua week & bulan akan disimpan</div></div><div id="preview-caption" class="hint" style="margin-top:8px"></div><div class="preview-head"><div class="metric"><span>Variance Value</span><b id="pv-value">—</b></div><div class="metric"><span>% Variance Value</span><b id="pv-pct-value">—</b></div><div class="metric"><span>% Variance Qty</span><b id="pv-pct-qty">—</b></div></div><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Material Group</th><th>Variance Value</th><th>% Var Value</th><th>% Var Qty</th></tr></thead><tbody id="preview-group-body"></tbody></table></div><div class="hint" id="preview-detail"></div><button class="btn btn-save" id="btn-save">🔄 REPLACE DATABASE DENGAN SEMUA DATA EXCEL</button><div class="save-warning">Tombol ini menyimpan <b>seluruh week dan bulan</b> dari workbook. Week yang dipilih di atas hanya untuk melihat preview.</div><div class="status" id="save-status"></div></div>
 
-<div class="card"><div class="sec-title">🕘 Riwayat Import Weekly</div><div class="history-summary" id="history-summary"><span>Memeriksa seluruh periode di database...</span><b>—</b></div><div class="history-scroll"><table class="history-table"><thead><tr><th>Week</th><th>Kelompok Data</th><th>Variance Value</th><th>Upload</th></tr></thead><tbody id="history-body"><tr><td colspan="4" class="history-empty">Memuat...</td></tr></tbody></table></div></div>
-</div>
-<div class="sync-modal" id="sync-modal" aria-hidden="true">
-  <div class="sync-dialog" role="dialog" aria-modal="true" aria-labelledby="sync-title">
-    <div class="sync-head"><div class="sync-icon">↻</div><h3 id="sync-title">Sinkronkan Semua Data Variance?</h3><p>Database akan dibuat sama dengan seluruh isi sheet Data pada workbook terbaru.</p></div>
-    <div class="sync-body">
-      <div class="sync-stats"><div class="sync-stat"><span>Week</span><b id="modal-weeks">—</b></div><div class="sync-stat"><span>Kelompok Data</span><b id="modal-rows">—</b></div><div class="sync-stat"><span>Rentang</span><b id="modal-range">—</b></div></div>
-      <div class="sync-file" id="modal-file">—</div>
-      <div class="sync-warning"><b>Full replace:</b> data variance lama akan dikosongkan, lalu seluruh data dari Excel ini dimasukkan kembali. Status sukses hanya muncul setelah jumlah week dan bulan di database terverifikasi sama dengan Excel.</div>
-      <label class="sync-check"><input type="checkbox" id="sync-ack"><span>Saya memahami bahwa workbook ini akan menjadi sumber data variance utama dan seluruh week dan bulan di dalamnya akan disinkronkan.</span></label>
-      <div class="sync-actions"><button type="button" class="sync-cancel" id="sync-cancel">Batal</button><button type="button" class="sync-confirm" id="sync-confirm" disabled>Ya, Sinkronkan Semua Data</button></div>
+    <section class="dor-opening" id="dor-opening" aria-label="DOR opening vision mission and core values">
+        <div class="dor-opening-head">
+            <div>
+                <div class="dor-opening-kicker">Daily Operational Review Opening</div>
+                <h2>Visi, Misi & Core Values</h2>
+            </div>
+            <p class="dor-opening-sub">Pengingat arah dan nilai bersama sebelum pembahasan performa operasional harian.</p>
+        </div>
+
+        <div class="dor-values-grid">
+            <div class="dor-vm-stack">
+                <article class="dor-vm-card">
+                    <div class="dor-card-band blue"><span class="dor-band-icon">◎</span><span>Company Vision</span></div>
+                    <p class="dor-vm-text">Menjadi Perusahaan Makanan Terkemuka di Indonesia yang Kuat dan Kompeten</p>
+                </article>
+
+                <article class="dor-vm-card">
+                    <div class="dor-card-band red"><span class="dor-band-icon">◎</span><span>Company Mission</span></div>
+                    <p class="dor-vm-text">Menghadirkan Produk-Produk Makanan yang Berkualitas untuk Konsumennya</p>
+                </article>
+            </div>
+
+            <article class="dor-core-card">
+                <div class="dor-card-band red"><span class="dor-band-icon">◎</span><span>Core Values</span></div>
+                <div class="dor-core-list">
+                    <div class="dor-core-item"><span class="dor-core-check">✓</span><div><span class="dor-core-name">Safety &amp; Hygiene</span><span class="dor-core-id">Keselamatan &amp; Kebersihan</span></div></div>
+                    <div class="dor-core-item"><span class="dor-core-check">✓</span><div><span class="dor-core-name">Leadership</span><span class="dor-core-id">Kepemimpinan</span></div></div>
+                    <div class="dor-core-item"><span class="dor-core-check">✓</span><div><span class="dor-core-name">Collaborative Performance</span><span class="dor-core-id">Kinerja Kolaboratif</span></div></div>
+                    <div class="dor-core-item"><span class="dor-core-check">✓</span><div><span class="dor-core-name">Diversity Awareness</span><span class="dor-core-id">Keberagaman</span></div></div>
+                    <div class="dor-core-item"><span class="dor-core-check">✓</span><div><span class="dor-core-name">Passion</span><span class="dor-core-id">Antusias</span></div></div>
+                </div>
+            </article>
+        </div>
+    </section>
+
+
+    <!-- Date Filter Bar (range: Dari - Sampai) + Export -->
+    <div class="date-filter-bar">
+        <label class="fb-label-dari">📅 Dari</label>
+        <input type="date" id="filter-date-start" class="fb-input-dari" onchange="gantiRentang()">
+        <span class="sep">—</span>
+        <label class="fb-label-sampai">Sampai</label>
+        <input type="date" id="filter-date-end" class="fb-input-sampai" onchange="gantiRentang()">
+        <button class="btn-today" onclick="keTanggalTerakhir()">⟳ Terbaru</button>
+        <button class="btn-export" id="btn-export" onclick="exportExcel()">⬇️ Export Excel</button>
+        <span class="filter-info" id="filter-info"></span>
     </div>
-  </div>
+
+    <div class="sec-title" style="margin-top:0;">Ringkasan KPI <span id="title-date-waste" style="color:#9ca3af; font-weight:400; text-transform:none;"></span></div>
+    <div class="kpi-grid" style="grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); margin-bottom:20px;">
+
+        <div class="card oee-card">
+            <h3>Daily OEE (rata-rata)</h3>
+            <div class="value loading" id="val-oee">...</div>
+            <div class="card-date" id="date-oee"></div>
+            <span class="target-badge">Target: ≥ 55%</span>
+            <div style="margin-top:12px; padding-top:10px; border-top:1px dashed #e5e7eb;">
+                <div class="cost-period-toggle">
+                    <button type="button" class="period-btn active" id="btn-oee-weekly" onclick="switchOeePeriod('weekly')">Mingguan</button>
+                    <button type="button" class="period-btn" id="btn-oee-monthly" onclick="switchOeePeriod('monthly')">Bulanan</button>
+                </div>
+                <div class="value loading" id="val-oee-period" style="font-size:22px;">...</div>
+                <div class="card-date" id="date-oee-period"></div>
+            </div>
+        </div>
+
+        <div class="card tonase-card">
+            <h3>📦 Tonase Produksi</h3>
+            <div class="value loading" id="val-tonase">...</div>
+            <div class="card-date" id="date-tonase"></div>
+            <div class="card-sub" id="sub-tonase"></div>
+            <div id="sub-tonase-mtd" class="card-sub mtd" style="margin-top:8px; padding-top:8px; border-top:1px dashed #e5e7eb;"></div>
+        </div>
+
+        <div class="card waste-mini-card kemasan">
+            <h3>🗑️ Waste Kemasan</h3>
+            <div class="value loading" id="wd-total-kemasan">...</div>
+            <div class="card-date" id="wd-batas-kemasan"></div>
+            <table class="waste-detail-table" id="wd-table-kemasan"><tbody></tbody></table>
+        </div>
+
+        <div class="card waste-mini-card sfg">
+            <h3>🗑️ Waste SFG</h3>
+            <div class="value loading" id="wd-total-sfg">...</div>
+            <div class="card-date" id="wd-batas-sfg"></div>
+            <table class="waste-detail-table" id="wd-table-sfg"><tbody></tbody></table>
+        </div>
+
+        <div class="card waste-mini-card karton">
+            <h3>🗑️ Waste Karton</h3>
+            <div class="value loading" id="wd-total-karton">...</div>
+            <div class="card-date" id="wd-batas-karton"></div>
+            <table class="waste-detail-table" id="wd-table-karton"><tbody></tbody></table>
+        </div>
+
+        <div class="card cost-material-card">
+            <h3>💰 Cost Material / Ton</h3>
+            <div class="cost-period-toggle">
+                <button type="button" class="period-btn active" id="btn-cost-weekly" onclick="switchCostPeriod('weekly')">Mingguan</button>
+                <button type="button" class="period-btn" id="btn-cost-monthly" onclick="switchCostPeriod('monthly')">Bulanan</button>
+            </div>
+            <div class="value loading" id="val-cost-total">...</div>
+            <div class="card-date" id="date-cost"></div>
+            <span class="target-badge" id="cost-target-badge">Target: ≤ Rp 28.000/ton</span>
+            <table class="waste-detail-table" id="cost-detail-table"><tbody></tbody></table>
+        </div>
+        <div class="card variance-card">
+            <div class="variance-head">
+                <div>
+                    <h3>📊 Variance Material</h3>
+                    <div class="variance-source-note">Weekly & Monthly dihitung dari “Scheduled start” pada Material Variance Weekly Bojo 2026</div>
+                </div>
+                <div class="variance-period-controls">
+                    <div class="cost-period-toggle variance-period-toggle">
+                        <button type="button" class="period-btn active" id="btn-variance-weekly" onclick="switchVariancePeriod('weekly')">Mingguan</button>
+                        <button type="button" class="period-btn" id="btn-variance-monthly" onclick="switchVariancePeriod('monthly')">Bulanan</button>
+                    </div>
+                    <div class="variance-multi variance-period-picker" id="variance-period-multi"></div>
+                </div>
+            </div>
+
+            <div class="variance-filter-grid">
+                <div class="variance-filter-field"><span>Gedung</span><div class="variance-multi" id="variance-gedung-multi"></div></div>
+                <div class="variance-filter-field"><span>Material Group</span><div class="variance-multi" id="variance-group-multi"></div></div>
+                <div class="variance-filter-field"><span>Material</span><div class="variance-multi" id="variance-material-multi"></div></div>
+                <div class="variance-filter-field"><span>Line</span><div class="variance-multi" id="variance-line-multi"></div></div>
+            </div>
+
+            <div class="variance-kpi-grid">
+                <div class="variance-kpi-box">
+                    <span class="variance-kpi-label">Variance Value</span>
+                    <strong class="variance-kpi-value" id="val-variance-value">...</strong>
+                </div>
+                <div class="variance-kpi-box">
+                    <span class="variance-kpi-label">% Variance Value</span>
+                    <strong class="variance-kpi-value pct" id="val-variance-pct-value">...</strong>
+                </div>
+                <div class="variance-kpi-box">
+                    <span class="variance-kpi-label">% Variance Qty</span>
+                    <strong class="variance-kpi-value pct" id="val-variance-pct-qty">...</strong>
+                </div>
+            </div>
+
+            <div class="variance-comparison-section" id="variance-comparison-section">
+                <div class="variance-comparison-head">
+                    <div class="variance-comparison-title" id="variance-comparison-title">Perbandingan Periode</div>
+                    <div class="variance-comparison-note">Filter Gedung / Group / Material / Line diterapkan sama ke setiap periode.</div>
+                </div>
+                <div class="variance-comparison-wrap">
+                    <table class="variance-comparison-table">
+                        <thead><tr><th>Periode</th><th>Variance Value</th><th>% Var Value</th><th>% Var Qty</th><th>Kelompok Data</th></tr></thead>
+                        <tbody id="variance-comparison-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="variance-divider"></div>
+            <div class="variance-group-title">Material Group Breakdown</div>
+            <table class="variance-breakdown">
+                <thead><tr><th>Material Group</th><th>Variance Value</th><th>% Var Value</th><th>% Var Qty</th></tr></thead>
+                <tbody id="variance-group-body"><tr><td colspan="4" style="text-align:center;color:#9ca3af;">Memuat...</td></tr></tbody>
+            </table>
+
+            <div class="variance-material-section">
+                <div class="variance-material-head">
+                    <div>
+                        <div class="variance-material-title">Material Priority for Improvement</div>
+                        <div class="variance-material-hint">Item material diurutkan dari over-variance terbesar. Klik item untuk drill-down Line → Produk/SKU.</div>
+                    </div>
+                    <button type="button" class="variance-material-toggle" id="variance-material-toggle" onclick="toggleVariancePriorityList()">Lihat Semua Item</button>
+                </div>
+                <div class="variance-material-wrap">
+                    <table class="variance-material-table">
+                        <thead><tr><th>Item Material</th><th>Variance Value</th><th>% Var Value</th><th>% Var Qty</th><th>Kontribusi Over</th></tr></thead>
+                        <tbody id="variance-material-body"><tr><td colspan="5" style="text-align:center;color:#9ca3af;padding:12px;">Memuat item material...</td></tr></tbody>
+                    </table>
+                </div>
+                <div class="variance-priority-note"><span id="variance-priority-info">Prioritas berdasarkan variance positif.</span><span id="variance-priority-total"></span></div>
+            </div>
+
+            <div class="variance-footer">
+                <span id="variance-filter-info"><span class="variance-status-dot"></span>Weekly Excel</span>
+                <span id="variance-row-info"></span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Shiftly OEE -->
+    <div class="sec-title">OEE Shiftly (rata-rata) <span id="title-date-shiftly" style="color:#9ca3af; font-weight:400; text-transform:none;"></span></div>
+    <div class="card-wide">
+        <div class="shift-grid">
+            <div class="shift-mini">
+                <div class="shift-mini-label">Shift 1</div>
+                <div class="shift-mini-val loading" id="val-shift1">...</div>
+            </div>
+            <div class="shift-mini">
+                <div class="shift-mini-label">Shift 2</div>
+                <div class="shift-mini-val loading" id="val-shift2">...</div>
+            </div>
+            <div class="shift-mini">
+                <div class="shift-mini-label">Shift 3</div>
+                <div class="shift-mini-val loading" id="val-shift3">...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- OEE per Mesin/Line -->
+    <div class="sec-title">OEE per Mesin / Line (rata-rata) <span id="title-date-line" style="color:#9ca3af; font-weight:400; text-transform:none;"></span></div>
+    <div class="card-wide">
+        <div class="tbl-scroll">
+        <table class="line-table">
+            <thead>
+                <tr>
+                    <th>Mesin / Line</th>
+                    <th>Shift 1</th>
+                    <th>Shift 2</th>
+                    <th>Shift 3</th>
+                    <th>Target</th>
+                </tr>
+            </thead>
+            <tbody id="tbl-line-body">
+                <tr><td colspan="5" style="text-align:center; color:#9ca3af; padding:20px;">Memuat data...</td></tr>
+            </tbody>
+        </table>
+        </div>
+    </div>
+
+    <!-- Waste Fryer & Waste Proses (side by side, equal width on desktop) -->
+    <div class="split-grid fryer-proses-grid">
+        <div>
+            <div class="sec-title" style="margin-top:0;">🔥 Waste Fryer <span id="title-date-fryer" style="color:#9ca3af; font-weight:400; text-transform:none;"></span></div>
+            <div class="kpi-grid" id="fryer-cards-container">
+                <div style="grid-column:1/-1; text-align:center; color:#9ca3af; padding:20px;">Memuat data...</div>
+            </div>
+        </div>
+        <div>
+            <div class="sec-title" style="margin-top:0;">⚙️ Waste Proses <span id="title-date-proses" style="color:#9ca3af; font-weight:400; text-transform:none;"></span></div>
+            <div class="kpi-grid" id="proses-cards-container">
+                <div style="grid-column:1/-1; text-align:center; color:#9ca3af; padding:20px;">Memuat data...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cost Material per Week -->
+    <div class="sec-title">💰 Cost Material per Week <span id="title-cost-week" style="color:#9ca3af; font-weight:400; text-transform:none;"></span></div>
+    <div class="card-wide">
+        <div class="tbl-scroll">
+        <table class="cost-table">
+            <thead>
+                <tr>
+                    <th>Week</th>
+                    <th>Tonase (ton)</th>
+                    <th>Packaging (Rp/ton)</th>
+                    <th>Raw Material (Rp/ton)</th>
+                    <th>SFG (Rp/ton)</th>
+                    <th>Total Cost/Ton</th>
+                    <th>Target</th>
+                </tr>
+            </thead>
+            <tbody id="tbl-cost-body">
+                <tr><td colspan="7" style="text-align:center; color:#9ca3af; padding:20px;">Memuat data...</td></tr>
+            </tbody>
+        </table>
+        </div>
+    </div>
+
+    <!-- Extruder Achievement -->
+    <div class="sec-title">🔧 Extruder <span id="title-date-extruder" style="color:#9ca3af; font-weight:400; text-transform:none;"></span></div>
+    <div class="kpi-grid" style="grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); margin-bottom:16px;">
+
+        <div class="card extruder-card">
+            <h3>Adukan</h3>
+            <div class="value loading" id="val-extruder-adukan">...</div>
+            <div class="card-sub" id="sub-extruder-adukan"></div>
+            <span class="target-badge">Target: 100%</span>
+        </div>
+
+        <div class="card extruder-card">
+            <h3>SFG Oven</h3>
+            <div class="value loading" id="val-extruder-sfg">...</div>
+            <div class="card-sub" id="sub-extruder-sfg"></div>
+            <span class="target-badge">Target: 100%</span>
+        </div>
+
+        <div class="card extruder-card extruder-downtime-card">
+            <h3>⏱️ Downtime Extruder</h3>
+            <div class="value loading" id="val-extruder-downtime">...</div>
+            <div class="card-date" id="date-extruder-downtime"></div>
+            <div class="card-sub" id="sub-extruder-downtime"></div>
+            <table class="waste-detail-table" id="extruder-downtime-detail-table"><tbody></tbody></table>
+        </div>
+
+    </div>
+
+    <div class="card-wide">
+        <div class="tbl-scroll">
+        <table class="line-table">
+            <thead>
+                <tr>
+                    <th>Shift</th>
+                    <th>Target Adukan</th>
+                    <th>Realisasi Adukan</th>
+                    <th>Adukan %</th>
+                    <th>Target SFG Oven</th>
+                    <th>Realisasi SFG Oven</th>
+                    <th>SFG Oven %</th>
+                </tr>
+            </thead>
+            <tbody id="tbl-extruder-shift-body">
+                <tr><td colspan="7" style="text-align:center; color:#9ca3af; padding:20px;">Memuat data...</td></tr>
+            </tbody>
+        </table>
+        </div>
+    </div>
+
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
-const SUPABASE_URL='https://bmnhtxalfsfaefacgtpm.supabase.co';
-const SUPABASE_KEY='sb_publishable_VItBKenz-q2sYz7MsibODA_nYtLXv9Q';
-const {createClient}=supabase; const db=createClient(SUPABASE_URL,SUPABASE_KEY);
-let workbookRows=[]; let weekList=[]; let monthList=[]; let sourceFile='';
-function toggleMenu(){const s=document.getElementById('sidebar');s.style.left=s.style.left==='0px'?`-${s.offsetWidth}px`:'0px';}
-function norm(v){return String(v??'').trim();} function num(v){const n=Number(v);return Number.isFinite(n)?n:0;}
-function fmtRp(v){const n=Math.round(Number(v)||0);return(n<0?'-Rp '+Math.abs(n).toLocaleString('id-ID'):'Rp '+n.toLocaleString('id-ID'));}
-function fmtPct(v){return v===null||v===undefined?'—':(Number(v)*100).toFixed(2)+'%';}
-function metric(rows){const tq=rows.reduce((s,r)=>s+r.target_qty,0),aq=rows.reduce((s,r)=>s+r.actual_qty,0),tc=rows.reduce((s,r)=>s+r.target_cost,0),ac=rows.reduce((s,r)=>s+r.actual_cost,0),vv=ac-tc;return{tq,aq,tc,ac,vv,pv:tc!==0?vv/tc:null,pq:tq!==0?(aq-tq)/tq:null};}
-function excelWeekNum(d){const jan1=new Date(d.getFullYear(),0,1);const day=Math.floor((new Date(d.getFullYear(),d.getMonth(),d.getDate())-jan1)/86400000);return Math.floor((day+jan1.getDay())/7)+1;}
-function parseDate(v){if(v instanceof Date&&!isNaN(v))return v;if(typeof v==='number'){const p=XLSX.SSF.parse_date_code(v);if(p)return new Date(p.y,p.m-1,p.d);}const d=new Date(v);return isNaN(d)?null:d;}
-function aoaSheet(wb,name){const actual=wb.SheetNames.find(n=>n.trim().toLowerCase()===name.toLowerCase());if(!actual)throw new Error(`Sheet "${name}" tidak ditemukan.`);return XLSX.utils.sheet_to_json(wb.Sheets[actual],{header:1,raw:true,defval:null,cellDates:true});}
-function headerMap(aoa,required){let idx=-1;for(let r=0;r<Math.min(20,aoa.length);r++){const vals=(aoa[r]||[]).map(x=>norm(x).toLowerCase());if(required.every(k=>vals.includes(k.toLowerCase()))){idx=r;break;}}if(idx<0)throw new Error('Header sheet Data tidak sesuai workbook contoh.');const h=(aoa[idx]||[]).map(norm);const col=(...names)=>h.findIndex(x=>names.some(n=>x.toLowerCase()===n.toLowerCase()));return{idx,col};}
-function mapOrderType(wb){const a=aoaSheet(wb,'Order Type'),mOrder=new Map(),mGroup=new Map();for(let i=1;i<a.length;i++){if(a[i]?.[0])mOrder.set(norm(a[i][0]),norm(a[i][2]));if(a[i]?.[6])mGroup.set(norm(a[i][6]),norm(a[i][7]));}return{mOrder,mGroup};}
-function mapDb(wb){const a=aoaSheet(wb,'DB'),m=new Map();for(let i=1;i<a.length;i++)if(a[i]?.[0])m.set(norm(a[i][0]),norm(a[i][1]));return m;}
-function parseWorkbook(wb){
- const data=aoaSheet(wb,'Data'),{mOrder,mGroup}=mapOrderType(wb),lineMap=mapDb(wb);
- const {idx,col}=headerMap(data,['Scheduled start','Short Text','Target Est. Qty','Total Actual Qty','Total Actual Costs']);
- const cDate=col('Scheduled start'),cWeek=col('Week'),cOrderType=col('Order Type'),cGed=col('Gedung'),cMD=col('Material Description'),cOrigin=col('Origin'),cShort=col('Short Text'),cMG=col('Material Group'),cTQ=col('Target Est. Qty'),cAQ=col('Total Actual Qty'),cTC=col('Target Est. Cost'),cAC=col('Total Actual Costs'),cDesc=col('Description'),cLine=col('Line'),cMP=col('Moving Price');
- if([cDate,cShort,cTQ,cAQ,cAC].some(x=>x<0))throw new Error('Kolom wajib pada sheet Data tidak lengkap.');
- const agg=new Map();
- for(let i=idx+1;i<data.length;i++){
-   const r=data[i]||[]; const dt=parseDate(r[cDate]); if(!dt)continue;
-   const year=dt.getFullYear(), month=dt.getMonth()+1;
-   // Weekly harus mengikuti kolom Week pada Excel agar 1:1 dengan Pivot (WEEKNUM(...,1)).
-   // Jika cached formula Week tidak tersedia di browser, baru fallback dihitung dari Scheduled start.
-   const weekFromExcel=cWeek>=0?Number(r[cWeek]):NaN;
-   const week=Number.isFinite(weekFromExcel)&&weekFromExcel>0?Math.trunc(weekFromExcel):excelWeekNum(dt);
-   const orderType=cOrderType>=0?norm(r[cOrderType]):'';
-   const ged=(cGed>=0?norm(r[cGed]):'')||mOrder.get(orderType)||'';
-   const origin=cOrigin>=0?norm(r[cOrigin]):'';
-   const mg=(cMG>=0?norm(r[cMG]):'')||mGroup.get(origin.charAt(0))||'';
-   const short=norm(r[cShort]); if(!short)continue;
-   const desc=cDesc>=0?norm(r[cDesc]):'';
-   const line=(cLine>=0?norm(r[cLine]):'')||lineMap.get(desc)||desc;
-   const md=cMD>=0?norm(r[cMD]):'';
-   const tq=num(r[cTQ]),aq=num(r[cAQ]),ac=num(r[cAC]);
-   let tc=cTC>=0?num(r[cTC]):0;
-   if(!tc){let mp=cMP>=0?num(r[cMP]):0;if(!mp&&aq)mp=ac/aq;tc=mp*tq;}
-   const key=[year,month,week,ged,mg,short,line,md].join('|');
-   if(!agg.has(key))agg.set(key,{tahun:year,bulan:month,minggu_ke:week,gedung:ged,material_group:mg,short_text:short,line,material_description:md,target_qty:0,actual_qty:0,target_cost:0,actual_cost:0,row_count:0});
-   const a=agg.get(key);a.target_qty+=tq;a.actual_qty+=aq;a.target_cost+=tc;a.actual_cost+=ac;a.row_count++;
- }
- workbookRows=[...agg.values()];
- if(!workbookRows.length)throw new Error('Tidak ada baris variance yang berhasil dibaca.');
- const seenWeeks=new Map(),seenMonths=new Map();
- workbookRows.forEach(r=>{
-   const wk=`${r.tahun}-${r.minggu_ke}`; if(!seenWeeks.has(wk))seenWeeks.set(wk,{key:wk,tahun:r.tahun,week:r.minggu_ke});
-   const mk=`${r.tahun}-${r.bulan}`; if(!seenMonths.has(mk))seenMonths.set(mk,{key:mk,tahun:r.tahun,bulan:r.bulan});
- });
- weekList=[...seenWeeks.values()].sort((a,b)=>(b.tahun-a.tahun)||(b.week-a.week));
- monthList=[...seenMonths.values()].sort((a,b)=>(b.tahun-a.tahun)||(b.bulan-a.bulan));
-}
-function classMetric(el,v){el.className=v>0?'over':v<0?'saving':'';}
-function renderPreview(){const key=document.getElementById('week-select').value;if(!key)return;const [y,w]=key.split('-').map(Number);const rows=workbookRows.filter(r=>r.tahun===y&&r.minggu_ke===w);const m=metric(rows);const ev=document.getElementById('pv-value'),epv=document.getElementById('pv-pct-value'),epq=document.getElementById('pv-pct-qty');ev.textContent=fmtRp(m.vv);epv.textContent=fmtPct(m.pv);epq.textContent=fmtPct(m.pq);classMetric(ev,m.vv);classMetric(epv,m.pv||0);classMetric(epq,m.pq||0);document.getElementById('preview-caption').textContent=`Week ${w} / ${y} · ${rows.length} kelompok data · source ${sourceFile}`;
- const groups=[...new Set(rows.map(r=>r.material_group).filter(Boolean))].sort();document.getElementById('preview-group-body').innerHTML=groups.map(g=>{const x=metric(rows.filter(r=>r.material_group===g));const c=x.vv>0?'over':x.vv<0?'saving':'';return`<tr><td>${g}</td><td class="${c}">${fmtRp(x.vv)}</td><td class="${x.pv>0?'over':x.pv<0?'saving':''}">${fmtPct(x.pv)}</td><td class="${x.pq>0?'over':x.pq<0?'saving':''}">${fmtPct(x.pq)}</td></tr>`;}).join('');document.getElementById('preview-detail').textContent='Perhitungan mengikuti calculated field Excel: Variance Value = Total Actual Costs − Target Est. Cost; persentase dihitung setelah total Target/Actual sesuai filter.';document.getElementById('preview-card').style.display='block';}
-document.getElementById('file-excel').addEventListener('change',()=>{const f=document.getElementById('file-excel').files[0];document.getElementById('file-info').textContent=f?f.name:'';});
-document.getElementById('btn-parse').addEventListener('click',async()=>{
- const f=document.getElementById('file-excel').files[0],st=document.getElementById('parse-status');
- if(!f){alert('Pilih file Excel dulu.');return;}
- try{
-   st.className='status';
-   const wb=XLSX.read(await f.arrayBuffer(),{type:'array',cellDates:true});
-   sourceFile=f.name;parseWorkbook(wb);
-   const sel=document.getElementById('week-select');
-   sel.innerHTML=weekList.map(x=>`<option value="${x.key}">Week ${x.week} / ${x.tahun}</option>`).join('');
-   sel.disabled=false;sel.value=weekList[0].key;renderPreview();
-   st.className='status ok';
-   const minW=weekList.length?weekList[weekList.length-1].week:'—',maxW=weekList.length?weekList[0].week:'—';
-   st.textContent=`Siap disinkronkan: ${weekList.length} week (Week ${minW}–${maxW}), ${monthList.length} bulan, ${workbookRows.length.toLocaleString('id-ID')} kelompok data. Monthly dihitung dari Scheduled start asli.`;
-   document.getElementById('all-week-badge').textContent=`${weekList.length} week · ${monthList.length} bulan akan disimpan`;
- }catch(e){st.className='status err';st.textContent='Gagal membaca file: '+e.message;}
-});
-document.getElementById('week-select').addEventListener('change',renderPreview);
-document.getElementById('btn-save').addEventListener('click',()=>{if(!workbookRows.length){alert('Baca file Excel terlebih dahulu.');return;}openSyncModal();});
-function openSyncModal(){const first=weekList[weekList.length-1],last=weekList[0];document.getElementById('modal-weeks').textContent=weekList.length+' week / '+monthList.length+' bulan';document.getElementById('modal-rows').textContent=workbookRows.length.toLocaleString('id-ID');document.getElementById('modal-range').textContent=`W${first?.week??'—'}–W${last?.week??'—'}`;document.getElementById('modal-file').textContent='File: '+sourceFile;const ack=document.getElementById('sync-ack');ack.checked=false;document.getElementById('sync-confirm').disabled=true;const m=document.getElementById('sync-modal');m.classList.add('open');m.setAttribute('aria-hidden','false');}
-function closeSyncModal(){const m=document.getElementById('sync-modal');m.classList.remove('open');m.setAttribute('aria-hidden','true');}
-document.getElementById('sync-ack').addEventListener('change',e=>{document.getElementById('sync-confirm').disabled=!e.target.checked;});
-document.getElementById('sync-cancel').addEventListener('click',closeSyncModal);
-document.getElementById('sync-modal').addEventListener('click',e=>{if(e.target.id==='sync-modal')closeSyncModal();});
-document.getElementById('sync-confirm').addEventListener('click',async()=>{closeSyncModal();await fullReplaceVariance();});
-async function verifyAllWeeks(){const expected=new Map();workbookRows.forEach(r=>{const k=`${r.tahun}-${r.minggu_ke}`;expected.set(k,(expected.get(k)||0)+1);});const checks=[];for(const w of weekList){const {count,error}=await db.from('variance_weekly_detail').select('id',{count:'exact',head:true}).eq('tahun',w.tahun).eq('minggu_ke',w.week);if(error)throw error;const k=`${w.tahun}-${w.week}`;checks.push({key:k,expected:expected.get(k)||0,actual:count||0});}return checks;}
-async function verifyAllMonths(){const expected=new Map();workbookRows.forEach(r=>{const k=`${r.tahun}-${r.bulan}`;expected.set(k,(expected.get(k)||0)+1);});const checks=[];for(const m of monthList){const {count,error}=await db.from('variance_weekly_detail').select('id',{count:'exact',head:true}).eq('tahun',m.tahun).eq('bulan',m.bulan);if(error)throw error;const k=`${m.tahun}-${m.bulan}`;checks.push({key:k,expected:expected.get(k)||0,actual:count||0});}return checks;}
-function renderHistoryFromWorkbook(stamp){const b=document.getElementById('history-body'),sum=document.getElementById('history-summary');const map={};workbookRows.forEach(r=>{const k=`${r.tahun}-${r.minggu_ke}`;if(!map[k])map[k]={tahun:r.tahun,week:r.minggu_ke,count:0,tc:0,ac:0,up:stamp};map[k].count++;map[k].tc+=num(r.target_cost);map[k].ac+=num(r.actual_cost);});const arr=Object.values(map).sort((a,b)=>(b.tahun-a.tahun)||(b.week-a.week));sum.innerHTML=`<span>Database telah diverifikasi terhadap workbook terbaru.</span><b>${arr.length}/${weekList.length} week · ${workbookRows.length.toLocaleString('id-ID')} kelompok</b>`;b.innerHTML=arr.map(x=>`<tr><td>Week ${x.week} / ${x.tahun}</td><td>${x.count}</td><td class="${x.ac-x.tc>0?'over':'saving'}">${fmtRp(x.ac-x.tc)}</td><td>${new Date(stamp).toLocaleString('id-ID')}</td></tr>`).join('');}
-async function fullReplaceVariance(){
- const st=document.getElementById('save-status'),btn=document.getElementById('btn-save');
- const totalWeeks=weekList.length,totalMonths=monthList.length,stamp=new Date().toISOString();
- const rows=workbookRows.map(r=>({...r,source_file:sourceFile,uploaded_at:stamp}));
- btn.disabled=true;st.className='status';st.textContent='';
- try{
-   btn.textContent='Mengosongkan data variance lama...';
-   const clear=await db.from('variance_weekly_detail').delete().gte('id',0);if(clear.error)throw clear.error;
-   for(let i=0;i<rows.length;i+=400){
-     btn.textContent=`Menyimpan ${Math.min(i+400,rows.length).toLocaleString('id-ID')} / ${rows.length.toLocaleString('id-ID')}...`;
-     const res=await db.from('variance_weekly_detail').insert(rows.slice(i,i+400));if(res.error)throw res.error;
-   }
-   btn.textContent=`Memverifikasi ${totalWeeks} week & ${totalMonths} bulan...`;
-   const [weekChecks,monthChecks]=await Promise.all([verifyAllWeeks(),verifyAllMonths()]);
-   const badWeeks=weekChecks.filter(x=>x.actual!==x.expected),badMonths=monthChecks.filter(x=>x.actual!==x.expected);
-   const totalActual=weekChecks.reduce((a,x)=>a+x.actual,0);
-   if(badWeeks.length){const miss=badWeeks.slice(0,8).map(x=>`${x.key}: ${x.actual}/${x.expected}`).join(', ');throw new Error(`Verifikasi week tidak cocok pada ${badWeeks.length} periode (${miss}${badWeeks.length>8?', ...':''}).`);}
-   if(badMonths.length){const miss=badMonths.slice(0,8).map(x=>`${x.key}: ${x.actual}/${x.expected}`).join(', ');throw new Error(`Verifikasi bulan tidak cocok pada ${badMonths.length} periode (${miss}${badMonths.length>8?', ...':''}).`);}
-   if(totalActual!==rows.length)throw new Error(`Jumlah data database ${totalActual.toLocaleString('id-ID')} tidak sama dengan Excel ${rows.length.toLocaleString('id-ID')}.`);
-   renderHistoryFromWorkbook(stamp);
-   st.className='status ok';
-   st.textContent=`Sinkronisasi & verifikasi selesai: ${totalActual.toLocaleString('id-ID')} kelompok data, ${weekChecks.length}/${totalWeeks} week dan ${monthChecks.length}/${totalMonths} bulan tersimpan lengkap dari ${sourceFile}.`;
- }catch(e){
-   st.className='status err';
-   const schemaHint=/bulan|column/i.test(String(e.message||''))?' Jalankan update_variance_monthly_support.sql di Supabase SQL Editor, lalu sinkronkan ulang workbook.':'';
-   st.textContent='Sinkronisasi belum terverifikasi: '+e.message+'.'+schemaHint+' Jika proses terhenti setelah pengosongan tabel, klik sinkronkan kembali menggunakan workbook yang sama.';
- }finally{btn.disabled=false;btn.textContent='🔄 REPLACE DATABASE DENGAN SEMUA DATA EXCEL';}
-}
-async function fetchAllVarianceHistory(){
-  const pageSize=1000;
-  let from=0;
-  let all=[];
-  while(true){
-    const {data,error}=await db
-      .from('variance_weekly_detail')
-      .select('id,tahun,minggu_ke,target_cost,actual_cost,uploaded_at')
-      .order('tahun',{ascending:false})
-      .order('minggu_ke',{ascending:false})
-      .order('id',{ascending:true})
-      .range(from,from+pageSize-1);
-    if(error) throw error;
-    const rows=data||[];
-    all.push(...rows);
-    if(rows.length<pageSize) break;
-    from+=pageSize;
-  }
-  return all;
+const SUPABASE_URL = 'https://bmnhtxalfsfaefacgtpm.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_VItBKenz-q2sYz7MsibODA_nYtLXv9Q';
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const OEE_TARGET = 55;
+let startDate = null;       // awal rentang tanggal (YYYY-MM-DD)
+let endDate = null;         // akhir rentang tanggal (YYYY-MM-DD)
+let lastAvailableDate = null; // tanggal terakhir yang ada datanya
+
+// Menyimpan data mentah hasil query terakhir, dipakai oleh tombol Export Excel.
+// Satu key = satu kategori = nantinya jadi satu sheet.
+let lastLoadedData = {
+    oeeDaily: [],
+    tonase: [],
+    oeeShiftly: [],
+    oeeLine: [],
+    wasteShiftly: [],
+    wasteFryer: [],
+    wasteProses: [],
+    costMaterial: [],
+    extruderDaily: [],
+    extruderDowntime: [],
+    varianceWeekly: [],
+    varianceMonthly: [],
+};
+
+// Ringkasan kartu Cost Material / Ton, dihitung ulang tiap kali data cost material
+// diambil. Dipakai oleh toggle Mingguan / Bulanan di kartu Ringkasan.
+let costCardStats = { weekly: null, monthly: null };
+let costCardPeriod = 'weekly';
+
+// ── OEE Weekly / Monthly (kartu Ringkasan) ──
+// Dihitung dari tabel oee_daily, independen dari filter tanggal Ringkasan.
+// Minggu berjalan dari Minggu (Sunday) s.d. Sabtu (Saturday).
+let oeeCardStats = { weekly: null, monthly: null };
+let oeeCardPeriod = 'weekly';
+
+// ── Variance Material — satu sumber Excel untuk Weekly + Monthly ──
+// Data disimpan pada grain: Month × Week × Gedung × Material Group × Material × Line × Material Description.
+// Bulan berasal langsung dari Scheduled start, sehingga week yang melewati batas bulan tetap akurat.
+// KPI dihitung ulang dari total Target/Actual setelah filter, persis seperti calculated field Pivot Excel.
+let varianceExcelRows = [];
+let varianceWeeksList = [];
+let varianceMonthsList = [];
+let variancePeriod = 'weekly';
+let varianceSelectedWeekKeys = [];
+let varianceSelectedMonthKeys = [];
+let variancePriorityShowAll = false;
+let variancePriorityExpanded = '';
+const varianceFilters = { gedung:['Gedung 6'], group:[], material:[], line:[] };
+
+// Item yang bernama seperti ini adalah PEMAKAIAN BAHAN, bukan waste,
+// jadi tidak boleh ikut dijumlah ke total waste kartu proses.
+const PEMAKAIAN_REGEX = /pemakaian/i;
+
+const MESIN_BATAS_DEFAULT = {
+    BOATO:   { kemasan:5,     sfg:0.3,  karton:1 },
+    LINE_1A: { kemasan:5.328, sfg:3,    karton:2 },
+    LINE_1B: { kemasan:3.66,  sfg:3,    karton:2 },
+    LINE_2:  { kemasan:3.05,  sfg:3,    karton:2 },
+    LINE_4:  { kemasan:6.766, sfg:0.15, karton:2 },
+    LINE_5A: { kemasan:3.816,  sfg:0.5,  karton:1 },
+    LINE_5B: { kemasan:0.3675, sfg:0.02, karton:0 },
+    LINE_6:  { kemasan:2.556,  sfg:4,    karton:1 },
+    LINE_7:  { kemasan:7.52,  sfg:1,    karton:2 },
+};
+
+function toggleMenu() {
+    const s = document.getElementById('sidebar');
+    s.style.left = s.style.left === '0px' ? `-${s.offsetWidth}px` : '0px';
 }
 
-async function loadHistory(){
-  const b=document.getElementById('history-body');
-  b.innerHTML='<tr><td colspan="4" class="history-empty">Memuat seluruh week...</td></tr>';
-  try{
-    const rows=await fetchAllVarianceHistory();
-    const map={};
-    rows.forEach(r=>{
-      const k=`${r.tahun}-${r.minggu_ke}`;
-      if(!map[k]) map[k]={tahun:r.tahun,week:r.minggu_ke,count:0,tc:0,ac:0,up:r.uploaded_at};
-      map[k].count++;
-      map[k].tc+=num(r.target_cost);
-      map[k].ac+=num(r.actual_cost);
-      if(r.uploaded_at&&(!map[k].up||r.uploaded_at>map[k].up)) map[k].up=r.uploaded_at;
-    });
-    const arr=Object.values(map).sort((a,b)=>(b.tahun-a.tahun)||(b.week-a.week));
-    const sum=document.getElementById('history-summary');
-    if(sum) sum.innerHTML=arr.length?`<span>Periode yang terbaca dari database.</span><b>${arr.length} week · ${rows.length.toLocaleString('id-ID')} kelompok</b>`:'<span>Belum ada data variance.</span><b>0 week</b>';
-    b.innerHTML=arr.length?arr.map(x=>`<tr><td>Week ${x.week} / ${x.tahun}</td><td>${x.count}</td><td class="${x.ac-x.tc>0?'over':'saving'}">${fmtRp(x.ac-x.tc)}</td><td>${x.up?new Date(x.up).toLocaleString('id-ID'):'—'}</td></tr>`).join(''):'<tr><td colspan="4" class="history-empty">Belum ada data</td></tr>';
-  }catch(e){
-    console.error('Gagal membaca seluruh riwayat variance:',e);
-    b.innerHTML='<tr><td colspan="4" class="history-empty">Gagal membaca riwayat: '+e.message+'</td></tr>';
-  }
+function fmtDate(d) {
+    if (!d) return '';
+    try {
+        return new Date(d + 'T00:00:00').toLocaleDateString('id-ID', {
+            day: '2-digit', month: 'short', year: 'numeric'
+        });
+    } catch { return d; }
 }
-loadHistory();
+
+// Label rentang: "12 Jul 2026" kalau satu hari, "12 Jul - 18 Jul 2026" kalau rentang.
+function fmtRange(a, b) {
+    if (!a && !b) return '';
+    if (!b || a === b) return fmtDate(a);
+    return `${fmtDate(a)} — ${fmtDate(b)}`;
+}
+
+function daysBetween(a, b) {
+    if (!a || !b) return 1;
+    const d1 = new Date(a + 'T00:00:00');
+    const d2 = new Date(b + 'T00:00:00');
+    return Math.max(1, Math.round((d2 - d1) / 86400000) + 1);
+}
+
+function fmtRupiah(v) {
+    if (v === null || v === undefined) return '—';
+    return 'Rp ' + Math.round(v).toLocaleString('id-ID');
+}
+
+// ── Helper minggu Minggu–Sabtu (Sunday–Saturday) ──
+// Mengembalikan { start, end } (YYYY-MM-DD) untuk minggu yang memuat tanggal d,
+// dengan awal minggu = hari Minggu dan akhir minggu = hari Sabtu.
+function sundayWeekRange(d) {
+    const date = new Date(d + 'T00:00:00');
+    const dow = date.getDay(); // 0 = Minggu ... 6 = Sabtu
+    const sun = new Date(date);
+    sun.setDate(date.getDate() - dow);
+    const sat = new Date(sun);
+    sat.setDate(sun.getDate() + 6);
+    // PENTING: jangan pakai toISOString() di sini — itu mengonversi ke UTC,
+    // sehingga di zona waktu UTC+ (mis. WIB/WITA) tanggal bisa mundur satu
+    // hari (mis. Minggu 23 Agu jadi tampil 22 Agu). Format manual dari
+    // komponen tanggal LOKAL supaya tanggalnya tidak bergeser.
+    const toISO = x => {
+        const yyyy = x.getFullYear();
+        const mm = String(x.getMonth() + 1).padStart(2, '0');
+        const dd = String(x.getDate()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`;
+    };
+    return { start: toISO(sun), end: toISO(sat) };
+}
+
+// Dipanggil saat salah satu input tanggal (Dari / Sampai) berubah.
+function gantiRentang() {
+    let s = document.getElementById('filter-date-start').value;
+    let e = document.getElementById('filter-date-end').value;
+
+    if (!s && !e) return; // belum ada apa-apa dipilih
+    if (s && !e) e = s;
+    if (e && !s) s = e;
+    if (s > e) { const tmp = s; s = e; e = tmp; }
+
+    startDate = s; endDate = e;
+    document.getElementById('filter-date-start').value = s;
+    document.getElementById('filter-date-end').value = e;
+
+    const info = document.getElementById('filter-info');
+    if (s === e && s === lastAvailableDate) {
+        info.textContent = '(data terbaru)';
+    } else if (s === e) {
+        info.textContent = '';
+    } else {
+        info.textContent = `(rentang ${daysBetween(s, e)} hari)`;
+    }
+
+    loadData(startDate, endDate);
+}
+
+function keTanggalTerakhir() {
+    if (lastAvailableDate) {
+        document.getElementById('filter-date-start').value = lastAvailableDate;
+        document.getElementById('filter-date-end').value = lastAvailableDate;
+        gantiRentang();
+    }
+}
+
+// Menghitung rata-rata OEE (berbobot volume produksi jika memungkinkan,
+// fallback ke rata-rata sederhana) dari sekumpulan baris oee_daily.
+function hitungRataOee(rows) {
+    if (!rows || rows.length === 0) return null;
+    const hasPcsSemua = rows.every(r =>
+        r.target_pcs !== null && r.target_pcs !== undefined && r.target_pcs > 0);
+    if (hasPcsSemua) {
+        const totalOutput = rows.reduce((s, r) => s + (r.output_pcs || 0), 0);
+        const totalTarget = rows.reduce((s, r) => s + (r.target_pcs || 0), 0);
+        return totalTarget > 0 ? (totalOutput / totalTarget) * 100 : 0;
+    }
+    return rows.reduce((s, r) => s + (r.oee || 0), 0) / rows.length;
+}
+
+// Mengambil & menghitung ringkasan OEE Weekly (minggu Minggu–Sabtu yang memuat
+// tanggal terakhir data) dan Monthly (bulan kalender berjalan dari data terakhir),
+// independen dari filter tanggal Ringkasan.
+async function loadOeeCard() {
+    if (!lastAvailableDate) {
+        oeeCardStats = { weekly: null, monthly: null };
+        renderOeeCard(oeeCardPeriod);
+        return;
+    }
+
+    // ── Weekly: Minggu (Sunday) s.d. Sabtu (Saturday) yang memuat tanggal terakhir ──
+    const { start: weekStart, end: weekEndFull } = sundayWeekRange(lastAvailableDate);
+    const weekEnd = weekEndFull > lastAvailableDate ? lastAvailableDate : weekEndFull;
+
+    const { data: weekRows } = await db
+        .from('oee_daily')
+        .select('*')
+        .gte('tanggal', weekStart)
+        .lte('tanggal', weekEnd);
+
+    const weekAvg = hitungRataOee(weekRows);
+    oeeCardStats.weekly = {
+        avg: weekAvg,
+        label: fmtRange(weekStart, weekEnd),
+    };
+
+    // ── Monthly: tgl 1 bulan berjalan s.d. tanggal terakhir data ──
+    const [y, m] = lastAvailableDate.split('-');
+    const monthStart = `${y}-${m}-01`;
+
+    const { data: monthRows } = await db
+        .from('oee_daily')
+        .select('*')
+        .gte('tanggal', monthStart)
+        .lte('tanggal', lastAvailableDate);
+
+    const monthAvg = hitungRataOee(monthRows);
+    oeeCardStats.monthly = {
+        avg: monthAvg,
+        label: fmtRange(monthStart, lastAvailableDate),
+    };
+
+    renderOeeCard(oeeCardPeriod);
+}
+
+function renderOeeCard(period) {
+    const stats = oeeCardStats[period];
+    const el   = document.getElementById('val-oee-period');
+    const dateEl = document.getElementById('date-oee-period');
+
+    if (!stats || stats.avg === null || stats.avg === undefined) {
+        el.textContent = '—'; el.className = 'value';
+        dateEl.textContent = 'Belum ada data';
+        return;
+    }
+
+    el.textContent = stats.avg.toFixed(2) + '%';
+    el.className = 'value ' + (stats.avg >= OEE_TARGET ? 'good' : 'low');
+    dateEl.textContent = stats.label;
+}
+
+// Dipanggil dari tombol toggle Mingguan / Bulanan di kartu Daily OEE.
+function switchOeePeriod(period) {
+    oeeCardPeriod = period;
+    document.getElementById('btn-oee-weekly').classList.toggle('active', period === 'weekly');
+    document.getElementById('btn-oee-monthly').classList.toggle('active', period === 'monthly');
+    renderOeeCard(period);
+}
+
+async function loadData(sDate, eDate) {
+
+    // ── Daily OEE — rata-rata dalam rentang tanggal ──
+    const { data: oeeRows } = await db
+        .from('oee_daily')
+        .select('*')
+        .gte('tanggal', sDate)
+        .lte('tanggal', eDate)
+        .order('tanggal', { ascending: true });
+
+    lastLoadedData.oeeDaily = oeeRows || [];
+
+    const oeeEl   = document.getElementById('val-oee');
+    const oeeDate = document.getElementById('date-oee');
+    if (oeeRows && oeeRows.length > 0) {
+        const avg = hitungRataOee(oeeRows);
+        oeeEl.textContent = avg.toFixed(2) + '%';
+        oeeEl.className   = 'value ' + (avg >= OEE_TARGET ? 'good' : 'low');
+        oeeDate.textContent = fmtRange(sDate, eDate);
+    } else {
+        oeeEl.textContent = '—'; oeeEl.className = 'value';
+        oeeDate.textContent = 'Tidak ada data';
+    }
+
+    // ── Tonase — total dalam rentang tanggal ──
+    const { data: tonRows } = await db
+        .from('tonase_harian')
+        .select('*')
+        .gte('tanggal', sDate)
+        .lte('tanggal', eDate)
+        .order('tanggal', { ascending: true });
+
+    lastLoadedData.tonase = tonRows || [];
+
+    const tonEl   = document.getElementById('val-tonase');
+    const tonDate = document.getElementById('date-tonase');
+    const tonSub  = document.getElementById('sub-tonase');
+
+    if (tonRows && tonRows.length > 0) {
+        const total = tonRows.reduce((s, r) => s + (r.tonase || 0), 0);
+        tonEl.innerHTML = total.toFixed(2) + '<span class="kpi-unit"> ton</span>';
+        tonEl.className = 'value';
+        tonDate.textContent = fmtRange(sDate, eDate);
+        tonSub.textContent  = sDate === eDate ? '' : `${tonRows.length} hari data`;
+    } else {
+        tonEl.textContent = '-'; tonEl.className = 'value';
+        tonDate.textContent = 'Tidak ada data'; tonSub.textContent = '';
+    }
+
+    // ── Tonase bulan berjalan: tgl 1 bulan ini s.d. tanggal data terakhir ──
+    const tonMtdEl = document.getElementById('sub-tonase-mtd');
+    const { data: lastTonRow } = await db
+        .from('tonase_harian')
+        .select('tanggal')
+        .order('tanggal', { ascending: false })
+        .limit(1)
+        .single();
+
+    if (lastTonRow && lastTonRow.tanggal) {
+        const lastTonDate = lastTonRow.tanggal;
+        const [y, m] = lastTonDate.split('-');
+        const monthStart = `${y}-${m}-01`;
+        const { data: mtdRows } = await db
+            .from('tonase_harian')
+            .select('tonase')
+            .gte('tanggal', monthStart)
+            .lte('tanggal', lastTonDate);
+        const mtdTotal = (mtdRows || []).reduce((s, r) => s + (r.tonase || 0), 0);
+        tonMtdEl.innerHTML = `📅 Total 1 ${fmtDate(monthStart).split(' ').slice(1).join(' ')} s.d. ${fmtDate(lastTonDate)}<br><span style="font-size:22px; font-weight:700; color:#1f2937;">${mtdTotal.toFixed(2)}<span style="font-size:14px; font-weight:400; color:#6b7280;"> ton</span></span>`;
+    } else {
+        tonMtdEl.textContent = '';
+    }
+
+    // ── OEE Shiftly — rata-rata per shift dalam rentang ──
+    const { data: shiftRows } = await db
+        .from('oee_shiftly')
+        .select('*')
+        .gte('tanggal', sDate)
+        .lte('tanggal', eDate);
+
+    lastLoadedData.oeeShiftly = shiftRows || [];
+
+    if (shiftRows && shiftRows.length > 0) {
+        const bucket = { 'SHIFT 1': [], 'SHIFT 2': [], 'SHIFT 3': [] };
+        shiftRows.forEach(r => { if (bucket[r.shift]) bucket[r.shift].push(r.oee || 0); });
+        const avgOf = arr => arr.length ? arr.reduce((s, v) => s + v, 0) / arr.length : null;
+        setShiftMini('val-shift1', avgOf(bucket['SHIFT 1']));
+        setShiftMini('val-shift2', avgOf(bucket['SHIFT 2']));
+        setShiftMini('val-shift3', avgOf(bucket['SHIFT 3']));
+        document.getElementById('title-date-shiftly').textContent = '— ' + fmtRange(sDate, eDate);
+    } else {
+        ['val-shift1','val-shift2','val-shift3'].forEach(id => setShiftMini(id, null));
+        document.getElementById('title-date-shiftly').textContent = '— Tidak ada data';
+    }
+
+    // ── OEE per Line — rata-rata per mesin/shift dalam rentang ──
+    try {
+        const { data: lineRows } = await db
+            .from('oee_shiftly_line')
+            .select('*')
+            .gte('tanggal', sDate)
+            .lte('tanggal', eDate)
+            .limit(5000);
+
+        lastLoadedData.oeeLine = lineRows || [];
+
+        const tbody = document.getElementById('tbl-line-body');
+
+        if (lineRows && lineRows.length > 0) {
+            document.getElementById('title-date-line').textContent = '— ' + fmtRange(sDate, eDate);
+            const mesinMap = {};
+            lineRows.forEach(r => {
+                if (!mesinMap[r.mesin]) mesinMap[r.mesin] = { mesin: r.mesin, target: r.target, shift1: [], shift2: [], shift3: [] };
+                mesinMap[r.mesin][`shift${r.shift}`].push(r.oee);
+                mesinMap[r.mesin].target = r.target;
+            });
+            const avgOf = arr => arr.length ? arr.reduce((s, v) => s + (v || 0), 0) / arr.length : null;
+            tbody.innerHTML = '';
+            Object.values(mesinMap).forEach(m => {
+                const s1 = avgOf(m.shift1), s2 = avgOf(m.shift2), s3 = avgOf(m.shift3);
+                const vals = [s1, s2, s3].filter(v => v !== null && v !== undefined);
+                const adaYangOver = vals.some(v => v < m.target);
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="mesin-col" style="${adaYangOver ? 'color:#dc2626;' : 'color:#374151;'}">${m.mesin}</td>
+                    ${lineValCell(s1, m.target)}
+                    ${lineValCell(s2, m.target)}
+                    ${lineValCell(s3, m.target)}
+                    <td style="text-align:center; color:#6b7280; font-size:11px;">${m.target}%</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } else {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#9ca3af; padding:20px;">Belum ada data per line</td></tr>';
+        }
+    } catch(e) {
+        document.getElementById('tbl-line-body').innerHTML =
+            '<tr><td colspan="5" style="text-align:center; color:#9ca3af; padding:20px;">Belum ada data per line</td></tr>';
+    }
+
+    // ── Waste — jumlah dalam rentang tanggal ──
+    const { data: wasteRows } = await db
+        .from('waste_shiftly')
+        .select('*')
+        .gte('tanggal', sDate)
+        .lte('tanggal', eDate)
+        .limit(5000);
+    const { data: batasRows } = await db.from('waste_batas').select('*');
+
+    lastLoadedData.wasteShiftly = wasteRows || [];
+
+    if (wasteRows && wasteRows.length > 0) {
+        document.getElementById('title-date-waste').textContent = '— ' + fmtRange(sDate, eDate);
+
+        const perMesin = {};
+        wasteRows.forEach(r => {
+            if (!perMesin[r.mesin_id]) perMesin[r.mesin_id] = { nama: r.mesin_nama, kemasan: 0, sfg: 0, karton: 0 };
+            perMesin[r.mesin_id].kemasan += r.waste_kemasan || 0;
+            perMesin[r.mesin_id].sfg     += r.waste_sfg || 0;
+            perMesin[r.mesin_id].karton  += r.waste_karton || 0;
+        });
+
+        const nHari = daysBetween(sDate, eDate);
+        const batasMap = {};
+        (batasRows || []).forEach(b => {
+            batasMap[b.mesin_id] = {
+                kemasan: (b.batas_kemasan || 0) * 3 * nHari,
+                sfg:     (b.batas_sfg || 0) * 3 * nHari,
+                karton:  (b.batas_karton || 0) * 3 * nHari,
+            };
+        });
+        // Pastikan SEMUA mesin yang dikenal (bukan cuma yang melapor waste di rentang ini) punya target,
+        // supaya total batas tidak berkurang saat ada mesin yang waste-nya 0 / tidak reporting.
+        Object.keys(MESIN_BATAS_DEFAULT).forEach(mid => {
+            if (!batasMap[mid] || (batasMap[mid].kemasan === 0 && batasMap[mid].sfg === 0 && batasMap[mid].karton === 0)) {
+                const def = MESIN_BATAS_DEFAULT[mid];
+                batasMap[mid] = { kemasan: def.kemasan * 3 * nHari, sfg: def.sfg * 3 * nHari, karton: def.karton * 3 * nHari };
+            }
+        });
+
+        renderWasteDetail('kemasan', perMesin, batasMap, 'Kg');
+        renderWasteDetail('sfg',     perMesin, batasMap, 'Kg');
+        renderWasteDetail('karton',  perMesin, batasMap, 'Pcs');
+    } else {
+        document.getElementById('title-date-waste').textContent = '— Tidak ada data';
+        ['kemasan','sfg','karton'].forEach(k => {
+            const el = document.getElementById(`wd-total-${k}`);
+            el.textContent = '—'; el.className = 'value';
+            document.getElementById(`wd-batas-${k}`).textContent = 'Belum ada data';
+            document.querySelector(`#wd-table-${k} tbody`).innerHTML = '';
+        });
+    }
+
+    // ── Waste Fryer ──
+    await loadWasteFryer(sDate, eDate);
+
+    // ── Waste Proses ──
+    await loadWasteProses(sDate, eDate);
+
+    // ── Cost Material per Week ──
+    await loadCostMaterial();
+
+    // ── Extruder ──
+    await loadExtruder(sDate, eDate);
+
+    // ── Downtime Extruder ──
+    await loadExtruderDowntime(sDate, eDate);
+}
+
+// ── ISO week helpers (dipakai untuk mengelompokkan minggu ke bulan kalender) ──
+// Mengembalikan tanggal Kamis dari suatu ISO week (Kamis dipakai sebagai acuan
+// standar ISO 8601 untuk menentukan bulan/tahun "pemilik" minggu tsb).
+function isoWeekToThursday(tahun, mingguKe) {
+    const simple = new Date(Date.UTC(tahun, 0, 1 + (mingguKe - 1) * 7));
+    const dow = simple.getUTCDay() || 7;
+    simple.setUTCDate(simple.getUTCDate() - dow + 4); // geser ke hari Kamis di minggu yg sama
+    return simple;
+}
+const NAMA_BULAN_ID = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+
+// ── Variance Material — Weekly + Monthly dari Scheduled start ──
+function varianceNum(v){ const n=Number(v); return Number.isFinite(n)?n:0; }
+function varianceMetric(rows){
+    const targetCost = rows.reduce((s,r)=>s+varianceNum(r.target_cost),0);
+    const actualCost = rows.reduce((s,r)=>s+varianceNum(r.actual_cost),0);
+    const targetQty  = rows.reduce((s,r)=>s+varianceNum(r.target_qty),0);
+    const actualQty  = rows.reduce((s,r)=>s+varianceNum(r.actual_qty),0);
+    const varianceValue = actualCost-targetCost;
+    return {
+        targetCost, actualCost, targetQty, actualQty, varianceValue,
+        pctValue: targetCost!==0 ? varianceValue/targetCost : null,
+        pctQty: targetQty!==0 ? (actualQty-targetQty)/targetQty : null
+    };
+}
+function fmtVariancePct(v){ return v===null || v===undefined ? '—' : (v*100).toFixed(2)+'%'; }
+function setVarianceMetric(el,value,type='money'){
+    if(!el) return;
+    if(value===null || value===undefined || !Number.isFinite(Number(value))){ el.textContent='—'; el.className='variance-kpi-value'+(type==='pct'?' pct':''); return; }
+    const n=Number(value);
+    el.textContent = type==='pct' ? fmtVariancePct(n) : fmtRupiah(n);
+    el.className = 'variance-kpi-value' + (type==='pct'?' pct':'') + ' ' + (n>0?'over':n<0?'saving':'');
+}
+function varianceUnique(rows,key){
+    return [...new Set(rows.map(r=>(r[key]??'').toString().trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'id'));
+}
+function varianceFilterValues(key){
+    const v=varianceFilters[key];
+    return Array.isArray(v) ? v : (v ? [v] : []);
+}
+function varianceMatchSelected(rowValue, selected){
+    if(!selected || !selected.length) return true;
+    return selected.includes(String(rowValue||'').trim());
+}
+function varianceMultiSummary(selected, allLabel){
+    if(!selected.length) return allLabel;
+    if(selected.length===1) return selected[0];
+    if(selected.length===2) return selected[0]+' + 1 lainnya';
+    return selected.length+' dipilih';
+}
+function varianceRenderMulti(id, key, values, selected, allLabel='Semua'){
+    const root=document.getElementById(id); if(!root) return [];
+    const safe=[...new Set(values.filter(Boolean))];
+    const valid=(Array.isArray(selected)?selected:[]).filter(v=>safe.includes(v));
+    const label=varianceMultiSummary(valid,allLabel);
+    const options=safe.length ? safe.map(v=>{
+        const enc=encodeURIComponent(v);
+        const checked=valid.includes(v)?' checked':'';
+        return `<label class="variance-multi-option"><input type="checkbox" class="variance-multi-check" data-key="${key}" data-value="${enc}"${checked} onchange="onVarianceMultiOptionChange(this)"><span>${escapeHtml(v)}</span></label>`;
+    }).join('') : '<div class="variance-multi-empty">Tidak ada pilihan pada filter ini</div>';
+    root.innerHTML=`<button type="button" class="variance-multi-btn ${valid.length?'has-selection':''}" onclick="toggleVarianceMulti('${id}',event)" aria-expanded="false"><span class="variance-multi-label">${escapeHtml(label)}</span><span class="variance-multi-count">${valid.length}</span><span class="variance-multi-caret">▼</span></button><div class="variance-multi-menu"><div class="variance-multi-search-wrap"><span class="variance-multi-search-icon">🔎</span><input type="search" class="variance-multi-search" placeholder="Cari pilihan..." autocomplete="off" oninput="filterVarianceMultiOptions(this)" onclick="event.stopPropagation()" onkeydown="event.stopPropagation()"></div><div class="variance-multi-menu-head"><b>Pilih beberapa</b><button type="button" class="variance-multi-clear" data-key="${key}" data-action="${valid.length?'clear-all':'none'}" onclick="handleVarianceMenuAction(this,event)" ${valid.length?'':'disabled'}>${valid.length?'Hapus pilihan':'Semua aktif'}</button></div><div class="variance-multi-options">${options}</div></div>`;
+    updateVarianceVisibleAction(root.querySelector('.variance-multi-menu'));
+    return valid;
+}
+function updateVarianceVisibleAction(menu){
+    if(!menu) return;
+    const btn=menu.querySelector('.variance-multi-clear'); if(!btn) return;
+    const input=menu.querySelector('.variance-multi-search');
+    const q=(input?.value||'').trim();
+    const key=btn.dataset.key;
+    btn.classList.toggle('search-action',!!q);
+
+    // Saat ada keyword: tombol kanan mengontrol semua HASIL SEARCH yang sedang terlihat.
+    if(q){
+        const visible=[...menu.querySelectorAll('.variance-multi-option')].filter(row=>row.style.display!=='none');
+        const checks=visible.map(row=>row.querySelector('.variance-multi-check')).filter(Boolean);
+        const allChecked=checks.length>0 && checks.every(ch=>ch.checked);
+        btn.disabled=checks.length===0;
+        btn.dataset.action=allChecked?'clear-visible':'select-visible';
+        btn.textContent=checks.length ? (allChecked ? `Hapus centang (${checks.length})` : `Centang semua (${checks.length})`) : 'Tidak ada hasil';
+        return;
+    }
+
+    // Tanpa keyword: kembali ke fungsi sederhana semula.
+    const selectedCount=varianceFilterValues(key).length;
+    btn.disabled=selectedCount===0;
+    btn.dataset.action=selectedCount?'clear-all':'none';
+    btn.textContent=selectedCount?'Hapus pilihan':'Semua aktif';
+}
+function filterVarianceMultiOptions(input){
+    const menu=input.closest('.variance-multi-menu'); if(!menu) return;
+    const q=(input.value||'').trim().toLocaleLowerCase('id');
+    const rows=[...menu.querySelectorAll('.variance-multi-option')];
+    let visible=0;
+    rows.forEach(row=>{
+        const txt=(row.textContent||'').toLocaleLowerCase('id');
+        const show=!q || txt.includes(q);
+        row.style.display=show?'flex':'none';
+        if(show) visible++;
+    });
+    let empty=menu.querySelector('.variance-multi-search-empty');
+    if(!visible && rows.length){
+        if(!empty){
+            empty=document.createElement('div');
+            empty.className='variance-multi-empty variance-multi-search-empty';
+            empty.textContent='Pilihan tidak ditemukan';
+            menu.querySelector('.variance-multi-options')?.appendChild(empty);
+        }
+        empty.style.display='block';
+    } else if(empty){
+        empty.style.display='none';
+    }
+    updateVarianceVisibleAction(menu);
+}
+function handleVarianceMenuAction(button,event){
+    event?.stopPropagation();
+    const action=button.dataset.action;
+    const key=button.dataset.key;
+    if(action==='clear-all'){
+        clearVarianceMulti(key,event);
+        return;
+    }
+    if(action!=='select-visible' && action!=='clear-visible') return;
+
+    const menu=button.closest('.variance-multi-menu');
+    if(!menu) return;
+    const searchValue=menu.querySelector('.variance-multi-search')?.value || '';
+    const visibleChecks=[...menu.querySelectorAll('.variance-multi-option')]
+        .filter(row=>row.style.display!=='none')
+        .map(row=>row.querySelector('.variance-multi-check'))
+        .filter(Boolean);
+    if(!visibleChecks.length) return;
+
+    const selected=new Set(varianceFilterValues(key));
+    const clearVisible=action==='clear-visible';
+    visibleChecks.forEach(ch=>{
+        const value=decodeURIComponent(ch.dataset.value||'');
+        if(clearVisible) selected.delete(value); else selected.add(value);
+    });
+    varianceFilters[key]=[...selected];
+    variancePriorityExpanded='';
+    rebuildVarianceFilterOptions(key);
+    renderVarianceCard();
+
+    // Buka kembali dropdown dan pertahankan keyword setelah rerender.
+    const idMap={gedung:'variance-gedung-multi',group:'variance-group-multi',material:'variance-material-multi',line:'variance-line-multi'};
+    const fresh=document.getElementById(idMap[key]);
+    if(fresh){
+        document.querySelectorAll('.variance-filter-field').forEach(el=>el.style.zIndex='1');
+        fresh.classList.add('open');
+        fresh.querySelector('.variance-multi-btn')?.setAttribute('aria-expanded','true');
+        const field=fresh.closest('.variance-filter-field'); if(field) field.style.zIndex='180';
+        const search=fresh.querySelector('.variance-multi-search');
+        if(search){ search.value=searchValue; filterVarianceMultiOptions(search); search.focus(); }
+    }
+}
+function toggleVarianceMulti(id,event){
+    event?.stopPropagation();
+    const target=document.getElementById(id); if(!target)return;
+    const willOpen=!target.classList.contains('open');
+    document.querySelectorAll('.variance-multi.open').forEach(el=>{el.classList.remove('open');el.querySelector('.variance-multi-btn')?.setAttribute('aria-expanded','false');});
+    document.querySelectorAll('.variance-filter-field').forEach(el=>el.style.zIndex='1');
+    if(willOpen){
+        target.classList.add('open');
+        target.querySelector('.variance-multi-btn')?.setAttribute('aria-expanded','true');
+        const field=target.closest('.variance-filter-field');
+        if(field) field.style.zIndex='180';
+    }
+}
+function closeVarianceMultiMenus(){
+    document.querySelectorAll('.variance-multi.open').forEach(el=>{el.classList.remove('open');el.querySelector('.variance-multi-btn')?.setAttribute('aria-expanded','false');});
+    document.querySelectorAll('.variance-filter-field').forEach(el=>el.style.zIndex='1');
+}
+document.addEventListener('click',e=>{ if(!e.target.closest('.variance-multi')) closeVarianceMultiMenus(); });
+function clearVarianceMulti(key,event){
+    event?.stopPropagation();
+    varianceFilters[key]=[];
+    variancePriorityExpanded='';
+    rebuildVarianceFilterOptions(key);
+    renderVarianceCard();
+}
+function onVarianceMultiOptionChange(input){
+    const key=input.dataset.key;
+    const value=decodeURIComponent(input.dataset.value||'');
+    const currentRoot=input.closest('.variance-multi');
+    const searchValue=currentRoot?.querySelector('.variance-multi-search')?.value || '';
+    let selected=varianceFilterValues(key).slice();
+    if(input.checked){ if(!selected.includes(value)) selected.push(value); }
+    else selected=selected.filter(v=>v!==value);
+    varianceFilters[key]=selected;
+    variancePriorityExpanded='';
+    rebuildVarianceFilterOptions(key);
+    renderVarianceCard();
+    // Keep the current menu and search term after re-render for convenient multi-selection.
+    const idMap={gedung:'variance-gedung-multi',group:'variance-group-multi',material:'variance-material-multi',line:'variance-line-multi'};
+    const root=document.getElementById(idMap[key]);
+    if(root){
+        document.querySelectorAll('.variance-filter-field').forEach(el=>el.style.zIndex='1');
+        root.classList.add('open');
+        root.querySelector('.variance-multi-btn')?.setAttribute('aria-expanded','true');
+        const field=root.closest('.variance-filter-field');
+        if(field) field.style.zIndex='180';
+        const search=root.querySelector('.variance-multi-search');
+        if(search){ search.value=searchValue; filterVarianceMultiOptions(search); search.focus(); }
+    }
+}
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function variancePeriodOptions(){
+    return variancePeriod==='monthly' ? varianceMonthsList : varianceWeeksList;
+}
+function varianceSelectedPeriodKeys(){
+    return variancePeriod==='monthly' ? varianceSelectedMonthKeys : varianceSelectedWeekKeys;
+}
+function setVarianceSelectedPeriodKeys(keys){
+    const clean=[...new Set((keys||[]).filter(Boolean))];
+    if(variancePeriod==='monthly') varianceSelectedMonthKeys=clean;
+    else varianceSelectedWeekKeys=clean;
+}
+function variancePeriodLabelByKey(key, period=variancePeriod){
+    if(period==='monthly'){
+        const item=varianceMonthsList.find(x=>x.key===key);
+        return item ? `${NAMA_BULAN_ID[item.bulan-1]} ${item.tahun}` : key;
+    }
+    const item=varianceWeeksList.find(x=>x.key===key);
+    return item ? `Week ${item.minggu} / ${item.tahun}` : key;
+}
+function varianceRowsForSinglePeriod(key, period=variancePeriod){
+    if(!key) return [];
+    const [tahun,periode]=key.split('-').map(Number);
+    if(period==='monthly') return varianceExcelRows.filter(r=>Number(r.tahun)===tahun && Number(r.bulan)===periode);
+    return varianceExcelRows.filter(r=>Number(r.tahun)===tahun && Number(r.minggu_ke)===periode);
+}
+function varianceRowsForPeriod(){
+    const keys=varianceSelectedPeriodKeys();
+    if(!keys.length) return [];
+    const selected=new Set(keys);
+    if(variancePeriod==='monthly'){
+        return varianceExcelRows.filter(r=>selected.has(`${Number(r.tahun)}-${Number(r.bulan)}`));
+    }
+    return varianceExcelRows.filter(r=>selected.has(`${Number(r.tahun)}-${Number(r.minggu_ke)}`));
+}
+function varianceApplyFilters(rows, skip=''){
+    const gedung=varianceFilterValues('gedung'), group=varianceFilterValues('group'), material=varianceFilterValues('material'), line=varianceFilterValues('line');
+    return rows.filter(r=>
+        (skip==='gedung' || varianceMatchSelected(r.gedung,gedung)) &&
+        (skip==='group' || varianceMatchSelected(r.material_group,group)) &&
+        (skip==='material' || varianceMatchSelected(r.short_text,material)) &&
+        (skip==='line' || varianceMatchSelected(r.line,line))
+    );
+}
+function variancePeriodSummary(keys){
+    if(!keys.length) return 'Pilih periode';
+    if(keys.length===1) return variancePeriodLabelByKey(keys[0]);
+    if(keys.length===2) return variancePeriodLabelByKey(keys[0])+' + 1 lainnya';
+    return `${keys.length} periode dipilih`;
+}
+function populateVariancePeriodSelect(){
+    const root=document.getElementById('variance-period-multi'); if(!root)return;
+    const options=variancePeriodOptions();
+    if(!options.length){
+        root.innerHTML='<button type="button" class="variance-multi-btn" disabled><span class="variance-multi-label">Belum ada data</span></button>';
+        return;
+    }
+    const allowed=new Set(options.map(x=>x.key));
+    let selected=varianceSelectedPeriodKeys().filter(k=>allowed.has(k));
+    if(!selected.length) selected=[options[0].key];
+    setVarianceSelectedPeriodKeys(selected);
+    const optionHtml=options.map(item=>{
+        const checked=selected.includes(item.key)?' checked':'';
+        return `<label class="variance-multi-option"><input type="checkbox" class="variance-period-check" data-period-key="${item.key}"${checked} onchange="onVariancePeriodOptionChange(this)"><span>${escapeHtml(variancePeriodLabelByKey(item.key))}</span></label>`;
+    }).join('');
+    root.innerHTML=`<button type="button" class="variance-multi-btn has-selection" onclick="toggleVarianceMulti('variance-period-multi',event)" aria-expanded="false"><span class="variance-multi-label">${escapeHtml(variancePeriodSummary(selected))}</span><span class="variance-multi-count" style="display:inline-flex">${selected.length}</span><span class="variance-multi-caret">▼</span></button><div class="variance-multi-menu"><div class="variance-multi-menu-head"><div><b>Pilih periode pembanding</b><div class="variance-period-meta">${selected.length} dari ${options.length} dipilih</div></div><button type="button" class="variance-period-reset" onclick="resetVariancePeriodsToLatest(event)">Terbaru saja</button></div><div class="variance-multi-options">${optionHtml}</div></div>`;
+}
+function reopenVariancePeriodPicker(){
+    const root=document.getElementById('variance-period-multi');
+    if(!root)return;
+    root.classList.add('open');
+    root.querySelector('.variance-multi-btn')?.setAttribute('aria-expanded','true');
+}
+function onVariancePeriodOptionChange(input){
+    const key=input.dataset.periodKey;
+    let selected=varianceSelectedPeriodKeys().slice();
+    if(input.checked){ if(!selected.includes(key)) selected.push(key); }
+    else selected=selected.filter(k=>k!==key);
+    // Minimal satu periode harus tetap aktif agar KPI tidak ambigu/kosong.
+    if(!selected.length){ input.checked=true; return; }
+    // Urutkan mengikuti daftar periode (terbaru -> terlama), bukan urutan klik.
+    const order=variancePeriodOptions().map(x=>x.key);
+    selected=order.filter(k=>selected.includes(k));
+    setVarianceSelectedPeriodKeys(selected);
+    variancePriorityExpanded='';
+    populateVariancePeriodSelect();
+    rebuildVarianceFilterOptions('period');
+    renderVarianceCard();
+    reopenVariancePeriodPicker();
+}
+function resetVariancePeriodsToLatest(event){
+    event?.stopPropagation();
+    const latest=variancePeriodOptions()[0]?.key;
+    if(!latest)return;
+    setVarianceSelectedPeriodKeys([latest]);
+    variancePriorityExpanded='';
+    populateVariancePeriodSelect();
+    rebuildVarianceFilterOptions('period');
+    renderVarianceCard();
+    reopenVariancePeriodPicker();
+}
+function rebuildVarianceFilterOptions(changed=''){
+    const periodRows=varianceRowsForPeriod();
+    const gedungValues=varianceUnique(periodRows,'gedung');
+    // Preserve Gedung 6 default only if it exists; otherwise fall back to Semua Gedung.
+    varianceFilters.gedung=varianceFilterValues('gedung').filter(v=>gedungValues.includes(v));
+    varianceFilters.gedung=varianceRenderMulti('variance-gedung-multi','gedung',gedungValues,varianceFilters.gedung,'Semua Gedung');
+
+    const afterGedung=periodRows.filter(r=>varianceMatchSelected(r.gedung,varianceFilters.gedung));
+    const groupValues=varianceUnique(afterGedung,'material_group');
+    varianceFilters.group=varianceFilterValues('group').filter(v=>groupValues.includes(v));
+    varianceFilters.group=varianceRenderMulti('variance-group-multi','group',groupValues,varianceFilters.group,'Semua Group');
+
+    const afterGroup=afterGedung.filter(r=>varianceMatchSelected(r.material_group,varianceFilters.group));
+    const materialValues=varianceUnique(afterGroup,'short_text');
+    varianceFilters.material=varianceFilterValues('material').filter(v=>materialValues.includes(v));
+    varianceFilters.material=varianceRenderMulti('variance-material-multi','material',materialValues,varianceFilters.material,'Semua Material');
+
+    const afterMaterial=afterGroup.filter(r=>varianceMatchSelected(r.short_text,varianceFilters.material));
+    const lineValues=varianceUnique(afterMaterial,'line');
+    varianceFilters.line=varianceFilterValues('line').filter(v=>lineValues.includes(v));
+    varianceFilters.line=varianceRenderMulti('variance-line-multi','line',lineValues,varianceFilters.line,'Semua Line');
+}
+async function fetchAllVarianceWeeklyDetail() {
+    const pageSize = 1000;
+    const allRows = [];
+    let from = 0;
+    while (true) {
+        const { data, error } = await db
+            .from('variance_weekly_detail')
+            .select('*')
+            .order('id', { ascending: true })
+            .range(from, from + pageSize - 1);
+        if (error) return { data: null, error };
+        const batch = data || [];
+        allRows.push(...batch);
+        if (batch.length < pageSize) break;
+        from += pageSize;
+        if (from >= 100000) return { data: null, error: new Error('Jumlah data variance melebihi batas pembacaan aman (100.000 row).') };
+    }
+    return { data: allRows, error: null };
+}
+async function loadVarianceCard() {
+    const { data, error } = await fetchAllVarianceWeeklyDetail();
+    if(error){
+        console.warn('variance_weekly_detail belum tersedia:', error.message);
+        varianceExcelRows=[];
+        const p=document.getElementById('variance-period-multi'); if(p) p.innerHTML='<button type="button" class="variance-multi-btn" disabled><span class="variance-multi-label">Setup tabel dulu</span></button>';
+        ['val-variance-value','val-variance-pct-value','val-variance-pct-qty'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='—';});
+        const b=document.getElementById('variance-group-body'); if(b)b.innerHTML='<tr><td colspan="4" style="text-align:center;color:#9ca3af;padding:8px;">Jalankan setup SQL variance lalu upload Excel.</td></tr>';
+        return;
+    }
+    varianceExcelRows=data||[];
+    lastLoadedData.varianceWeekly=varianceExcelRows;
+
+    const weekSeen=new Map(),monthSeen=new Map();
+    varianceExcelRows.forEach(r=>{
+        const wk=`${r.tahun}-${r.minggu_ke}`;
+        if(!weekSeen.has(wk)) weekSeen.set(wk,{key:wk,tahun:Number(r.tahun),minggu:Number(r.minggu_ke)});
+        const b=Number(r.bulan);
+        if(Number.isInteger(b) && b>=1 && b<=12){
+            const mk=`${r.tahun}-${b}`;
+            if(!monthSeen.has(mk)) monthSeen.set(mk,{key:mk,tahun:Number(r.tahun),bulan:b});
+        }
+    });
+    varianceWeeksList=[...weekSeen.values()].sort((a,b)=>(b.tahun-a.tahun)||(b.minggu-a.minggu));
+    varianceMonthsList=[...monthSeen.values()].sort((a,b)=>(b.tahun-a.tahun)||(b.bulan-a.bulan));
+
+    varianceSelectedWeekKeys=varianceSelectedWeekKeys.filter(k=>varianceWeeksList.some(w=>w.key===k));
+    varianceSelectedMonthKeys=varianceSelectedMonthKeys.filter(k=>varianceMonthsList.some(m=>m.key===k));
+    if(!varianceSelectedWeekKeys.length && varianceWeeksList.length) varianceSelectedWeekKeys=[varianceWeeksList[0].key];
+    if(!varianceSelectedMonthKeys.length && varianceMonthsList.length) varianceSelectedMonthKeys=[varianceMonthsList[0].key];
+
+    const monthBtn=document.getElementById('btn-variance-monthly');
+    if(monthBtn){
+        monthBtn.disabled=!varianceMonthsList.length;
+        monthBtn.title=varianceMonthsList.length?'':'Jalankan update_variance_monthly_support.sql lalu upload ulang Excel terbaru.';
+    }
+    if(variancePeriod==='monthly' && !varianceMonthsList.length) variancePeriod='weekly';
+    document.getElementById('btn-variance-weekly')?.classList.toggle('active',variancePeriod==='weekly');
+    document.getElementById('btn-variance-monthly')?.classList.toggle('active',variancePeriod==='monthly');
+    populateVariancePeriodSelect();
+    rebuildVarianceFilterOptions('period');
+    renderVarianceCard();
+}
+function switchVariancePeriod(period){
+    if(period==='monthly' && !varianceMonthsList.length) return;
+    variancePeriod=period;
+    document.getElementById('btn-variance-weekly')?.classList.toggle('active',period==='weekly');
+    document.getElementById('btn-variance-monthly')?.classList.toggle('active',period==='monthly');
+    varianceFilters.group=[]; varianceFilters.material=[]; varianceFilters.line=[];
+    variancePriorityExpanded='';
+    populateVariancePeriodSelect();
+    rebuildVarianceFilterOptions('period');
+    renderVarianceCard();
+}
+function varianceAggregate(rows,key){
+    const map=new Map();
+    rows.forEach(r=>{
+        const name=String(r[key]||'').trim()||'(Tanpa nama)';
+        if(!map.has(name)) map.set(name,[]);
+        map.get(name).push(r);
+    });
+    return [...map.entries()].map(([name,itemRows])=>({name,rows:itemRows,metric:varianceMetric(itemRows)}));
+}
+function varianceMetricClass(v){ return v>0?'over':v<0?'saving':''; }
+function varianceContributionPct(v,totalOver){ return v>0 && totalOver>0 ? (v/totalOver*100) : 0; }
+function toggleVariancePriorityList(){
+    variancePriorityShowAll=!variancePriorityShowAll;
+    renderVarianceCard();
+}
+function toggleVarianceMaterialDetail(encodedName){
+    const name=decodeURIComponent(encodedName);
+    variancePriorityExpanded=variancePriorityExpanded===name?'':name;
+    renderVarianceCard();
+}
+function renderVarianceMaterialPriority(rows){
+    const body=document.getElementById('variance-material-body');
+    if(!body) return;
+    const items=varianceAggregate(rows,'short_text').sort((a,b)=>b.metric.varianceValue-a.metric.varianceValue);
+    const totalOver=items.filter(x=>x.metric.varianceValue>0).reduce((s,x)=>s+x.metric.varianceValue,0);
+    let candidates;
+    if(varianceFilterValues('material').length){
+        candidates=items;
+    }else if(variancePriorityShowAll){
+        candidates=items;
+    }else{
+        candidates=items.filter(x=>x.metric.varianceValue>0).slice(0,10);
+    }
+    const toggle=document.getElementById('variance-material-toggle');
+    if(toggle){
+        const overCount=items.filter(x=>x.metric.varianceValue>0).length;
+        toggle.textContent=variancePriorityShowAll?'Tampilkan Top 10 Over':`Lihat Semua Item (${items.length})`;
+        toggle.style.display=(items.length<=10 || varianceFilterValues('material').length)?'none':'inline-block';
+        toggle.title=`${overCount} item memiliki variance positif`;
+    }
+    if(!candidates.length){
+        body.innerHTML='<tr><td colspan="5" style="text-align:center;color:#9ca3af;padding:12px;">Tidak ada item material pada filter ini</td></tr>';
+    }else{
+        body.innerHTML=candidates.map(item=>{
+            const im=item.metric, cls=varianceMetricClass(im.varianceValue);
+            const contribution=varianceContributionPct(im.varianceValue,totalOver);
+            const open=variancePriorityExpanded===item.name;
+            const encoded=encodeURIComponent(item.name);
+            let html=`<tr class="material-row ${open?'open':''}" onclick="toggleVarianceMaterialDetail('${encoded}')">
+                <td><div class="variance-item-name"><span class="variance-item-caret ${open?'open':''}">▶</span><span>${escapeHtml(item.name)}</span></div></td>
+                <td class="${cls}">${fmtRupiah(im.varianceValue)}</td>
+                <td class="${varianceMetricClass(im.pctValue||0)}">${fmtVariancePct(im.pctValue)}</td>
+                <td class="${varianceMetricClass(im.pctQty||0)}">${fmtVariancePct(im.pctQty)}</td>
+                <td class="variance-contrib">${contribution.toFixed(1)}%<div class="variance-contrib-bar"><span style="width:${Math.min(100,Math.max(0,contribution)).toFixed(1)}%"></span></div></td>
+            </tr>`;
+            if(open){
+                const lines=varianceAggregate(item.rows,'line').sort((a,b)=>b.metric.varianceValue-a.metric.varianceValue);
+                const detail=lines.map(line=>{
+                    const lm=line.metric, lc=varianceMetricClass(lm.varianceValue);
+                    const products=varianceAggregate(line.rows,'material_description').sort((a,b)=>b.metric.varianceValue-a.metric.varianceValue);
+                    const productHtml=products.map(prod=>{
+                        const pm=prod.metric, pc=varianceMetricClass(pm.varianceValue);
+                        return `<div class="variance-product-row"><span>↳ ${escapeHtml(prod.name)}</span><span class="${pc}">${fmtRupiah(pm.varianceValue)}</span><span class="${varianceMetricClass(pm.pctValue||0)}">${fmtVariancePct(pm.pctValue)}</span><span class="${varianceMetricClass(pm.pctQty||0)}">${fmtVariancePct(pm.pctQty)}</span></div>`;
+                    }).join('');
+                    return `<div class="variance-line-block"><div class="variance-line-head"><span><b>${escapeHtml(line.name)}</b></span><span class="${lc}">${fmtRupiah(lm.varianceValue)}</span><span class="${varianceMetricClass(lm.pctValue||0)}">${fmtVariancePct(lm.pctValue)}</span><span class="${varianceMetricClass(lm.pctQty||0)}">${fmtVariancePct(lm.pctQty)}</span></div>${productHtml}</div>`;
+                }).join('');
+                html+=`<tr class="variance-drill-row"><td colspan="5"><div class="variance-drill"><div class="variance-drill-label">Drill-down Line → Produk/SKU</div>${detail||'<div style="color:#9ca3af;font-size:8px;">Tidak ada detail line.</div>'}</div></td></tr>`;
+            }
+            return html;
+        }).join('');
+    }
+    const info=document.getElementById('variance-priority-info');
+    if(info){
+        if(varianceFilterValues('material').length) info.innerHTML=`Fokus item: <strong>${escapeHtml(varianceFilterValues('material').join(', '))}</strong>`;
+        else if(variancePriorityShowAll) info.textContent='Semua item ditampilkan; merah = over variance, hijau = saving.';
+        else info.textContent='Top 10 item over-variance terbesar — kandidat utama improvement.';
+    }
+    const total=document.getElementById('variance-priority-total');
+    if(total) total.innerHTML=`Total Over: <strong>${fmtRupiah(totalOver)}</strong>`;
+}
+
+function renderVariancePeriodComparison(){
+    const section=document.getElementById('variance-comparison-section');
+    const body=document.getElementById('variance-comparison-body');
+    const title=document.getElementById('variance-comparison-title');
+    if(!section || !body) return;
+    const keys=varianceSelectedPeriodKeys();
+    if(keys.length<2){ section.style.display='none'; body.innerHTML=''; return; }
+    section.style.display='block';
+    if(title) title.textContent=(variancePeriod==='monthly'?'Perbandingan Monthly':'Perbandingan Weekly')+` (${keys.length})`;
+    body.innerHTML=keys.map(key=>{
+        const periodRows=varianceApplyFilters(varianceRowsForSinglePeriod(key));
+        const m=varianceMetric(periodRows);
+        const vvClass=varianceMetricClass(m.varianceValue);
+        return `<tr><td>${escapeHtml(variancePeriodLabelByKey(key))}</td><td class="${vvClass}">${periodRows.length?fmtRupiah(m.varianceValue):'—'}</td><td class="${varianceMetricClass(m.pctValue||0)}">${periodRows.length?fmtVariancePct(m.pctValue):'—'}</td><td class="${varianceMetricClass(m.pctQty||0)}">${periodRows.length?fmtVariancePct(m.pctQty):'—'}</td><td>${periodRows.length.toLocaleString('id-ID')}</td></tr>`;
+    }).join('');
+}
+
+function renderVarianceCard(){
+    const base=varianceRowsForPeriod();
+    const rows=varianceApplyFilters(base);
+    const m=varianceMetric(rows);
+    setVarianceMetric(document.getElementById('val-variance-value'),rows.length?m.varianceValue:null,'money');
+    setVarianceMetric(document.getElementById('val-variance-pct-value'),rows.length?m.pctValue:null,'pct');
+    setVarianceMetric(document.getElementById('val-variance-pct-qty'),rows.length?m.pctQty:null,'pct');
+    renderVariancePeriodComparison();
+
+    const body=document.getElementById('variance-group-body');
+    const groups=varianceUnique(rows,'material_group');
+    body.innerHTML=groups.length?groups.map(g=>{
+        const gm=varianceMetric(rows.filter(r=>String(r.material_group||'').trim()===g));
+        const cls=gm.varianceValue>0?'over':gm.varianceValue<0?'saving':'';
+        return `<tr><td>${escapeHtml(g)}</td><td class="${cls}">${fmtRupiah(gm.varianceValue)}</td><td class="${gm.pctValue>0?'over':gm.pctValue<0?'saving':''}">${fmtVariancePct(gm.pctValue)}</td><td class="${gm.pctQty>0?'over':gm.pctQty<0?'saving':''}">${fmtVariancePct(gm.pctQty)}</td></tr>`;
+    }).join(''):'<tr><td colspan="4" style="text-align:center;color:#9ca3af;padding:8px;">Tidak ada data pada filter ini</td></tr>';
+
+    renderVarianceMaterialPriority(rows);
+
+    const filterInfo=[];
+    const filterLabels=[['gedung','Gedung'],['group','Group'],['material','Material'],['line','Line']];
+    filterLabels.forEach(([key,label])=>{
+        const vals=varianceFilterValues(key);
+        if(vals.length===1) filterInfo.push(vals[0]);
+        else if(vals.length>1) filterInfo.push(`${label}: ${vals.length} dipilih`);
+    });
+    const selectedPeriodCount=varianceSelectedPeriodKeys().length;
+    const periodLabel=(variancePeriod==='monthly'?'Bulanan':'Mingguan')+(selectedPeriodCount>1?` · ${selectedPeriodCount} periode`:``);
+    const info=document.getElementById('variance-filter-info');
+    if(info)info.innerHTML='<span class="variance-status-dot"></span>'+periodLabel+(filterInfo.length?' · '+escapeHtml(filterInfo.join(' · ')):' · Semua data');
+    const rowInfo=document.getElementById('variance-row-info'); if(rowInfo)rowInfo.textContent=`${rows.length} kelompok data`;
+}
+
+function renderWasteDetail(kategori, perMesin, batasMap, unit) {
+    const tbody   = document.querySelector(`#wd-table-${kategori} tbody`);
+    const totalEl = document.getElementById(`wd-total-${kategori}`);
+    const batasEl = document.getElementById(`wd-batas-${kategori}`);
+
+    const rows = Object.entries(perMesin)
+        .map(([id, d]) => ({ id, nama: d.nama, val: d[kategori] || 0, batas: (batasMap[id] && batasMap[id][kategori]) || 0 }))
+        .sort((a, b) => b.val - a.val);
+
+    const grandTotal = rows.reduce((s, r) => s + r.val, 0);
+    const grandBatas = Object.values(batasMap).reduce((s, b) => s + (b[kategori] || 0), 0);
+
+    totalEl.innerHTML = grandTotal.toFixed(2) + `<span class="kpi-unit"> ${unit}</span>`;
+    totalEl.className = 'value ' + (grandTotal > grandBatas ? 'low' : 'good');
+    batasEl.textContent = `Batas: ${grandBatas.toFixed(2)} ${unit}`;
+
+    tbody.innerHTML = '';
+    rows.forEach(r => {
+        const isOver = r.val > r.batas && r.batas > 0;
+        const tr = document.createElement('tr');
+        const namaShort = r.nama.replace('LINE ', 'L').replace(' - FILLING', '').replace(' BOOSTAR', '');
+        tr.innerHTML = `
+            <td class="mesin-name" style="${isOver ? 'color:#dc2626;font-weight:600;' : ''}">${namaShort}</td>
+            <td class="waste-val ${isOver ? 'over' : ''}">${r.val.toFixed(2)}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+async function loadWasteFryer(sDate, eDate) {
+    const { data: fryerRows } = await db
+        .from('waste_fryer_shiftly')
+        .select('*')
+        .gte('tanggal', sDate)
+        .lte('tanggal', eDate)
+        .limit(5000);
+
+    lastLoadedData.wasteFryer = fryerRows || [];
+
+    const container  = document.getElementById('fryer-cards-container');
+    const titleDate  = document.getElementById('title-date-fryer');
+
+    if (!fryerRows || fryerRows.length === 0) {
+        container.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#9ca3af; padding:20px;">Belum ada data waste fryer</div>';
+        titleDate.textContent = '— Tidak ada data';
+        return;
+    }
+
+    titleDate.textContent = '— ' + fmtRange(sDate, eDate);
+
+    // Group per fryer_id, jumlahkan tiap item lintas shift & tanggal dalam rentang
+    const byFryer = {};
+    fryerRows.forEach(r => {
+        if (!byFryer[r.fryer_id]) byFryer[r.fryer_id] = { nama: r.fryer_nama, items: {} };
+        byFryer[r.fryer_id].items[r.item_nama] = (byFryer[r.fryer_id].items[r.item_nama] || 0) + (r.nilai || 0);
+    });
+
+    container.innerHTML = '';
+    Object.values(byFryer).forEach(f => {
+        const items = Object.entries(f.items).sort((a, b) => b[1] - a[1]);
+        const total = items.reduce((s, [, v]) => s + v, 0);
+        const namaTampil = f.nama.replace(/WASTE FRYER ELVA\s*/i, '');
+
+        const card = document.createElement('div');
+        card.className = 'card fryer-mini-card';
+        card.innerHTML = `
+            <h3>🔥 ${namaTampil}</h3>
+            <div class="value">${total.toFixed(2)}<span class="kpi-unit"> Kg</span></div>
+            <table class="waste-detail-table"><tbody>
+                ${items.map(([nama, val]) => `
+                    <tr><td class="mesin-name">${nama}</td><td class="waste-val">${val.toFixed(2)}</td></tr>
+                `).join('')}
+            </tbody></table>
+        `;
+        container.appendChild(card);
+    });
+}
+
+async function loadWasteProses(sDate, eDate) {
+    const { data: prosesRows } = await db
+        .from('waste_proses_shiftly')
+        .select('*')
+        .gte('tanggal', sDate)
+        .lte('tanggal', eDate)
+        .limit(5000);
+
+    lastLoadedData.wasteProses = prosesRows || [];
+
+    const container = document.getElementById('proses-cards-container');
+    const titleDate = document.getElementById('title-date-proses');
+
+    if (!prosesRows || prosesRows.length === 0) {
+        container.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#9ca3af; padding:20px;">Belum ada data waste proses</div>';
+        titleDate.textContent = '— Tidak ada data';
+        return;
+    }
+
+    titleDate.textContent = '— ' + fmtRange(sDate, eDate);
+
+    // Group per proses_id, jumlahkan tiap item lintas shift & tanggal dalam rentang
+    const byProses = {};
+    prosesRows.forEach(r => {
+        if (!byProses[r.proses_id]) byProses[r.proses_id] = { nama: r.proses_nama, items: {} };
+        byProses[r.proses_id].items[r.item_nama] = (byProses[r.proses_id].items[r.item_nama] || 0) + (r.nilai || 0);
+    });
+
+    container.innerHTML = '';
+    Object.values(byProses).forEach(p => {
+        const allItems = Object.entries(p.items).sort((a, b) => b[1] - a[1]);
+
+        // Pisahkan item "Pemakaian ..." (bahan baku, bukan waste) dari item waste asli,
+        // supaya angka total kartu cuma mencerminkan waste, bukan pemakaian bahan.
+        const pemakaianItems = allItems.filter(([nama]) => PEMAKAIAN_REGEX.test(nama));
+        const wasteItems     = allItems.filter(([nama]) => !PEMAKAIAN_REGEX.test(nama));
+        const totalWaste     = wasteItems.reduce((s, [, v]) => s + v, 0);
+
+        const card = document.createElement('div');
+        card.className = 'card proses-mini-card';
+        card.innerHTML = `
+            <h3>⚙️ ${p.nama}</h3>
+            <div class="value">${totalWaste.toFixed(2)}<span class="kpi-unit"> Kg</span></div>
+            ${pemakaianItems.length ? `
+            <div class="proses-pemakaian-info">
+                ${pemakaianItems.map(([nama, val]) => `<span class="label">${nama}:</span> <span class="val">${val.toFixed(2)} Kg</span>`).join('<br>')}
+            </div>` : ''}
+            <table class="waste-detail-table"><tbody>
+                ${wasteItems.map(([nama, val]) => `
+                    <tr><td class="mesin-name">${nama}</td><td class="waste-val">${val.toFixed(2)}</td></tr>
+                `).join('')}
+            </tbody></table>
+        `;
+        container.appendChild(card);
+    });
+}
+
+// Menghitung ringkasan (ratio Rp/ton) dari sekumpulan baris cost_material_weekly.
+function hitungRatioCost(rows) {
+    const totalPkg = rows.reduce((s, r) => s + (r.packaging_value || 0), 0);
+    const totalRaw = rows.reduce((s, r) => s + (r.raw_material_value || 0), 0);
+    const totalSfg = rows.reduce((s, r) => s + (r.sfg_value || 0), 0);
+    const totalTon = rows.reduce((s, r) => s + (r.tonase || 0), 0);
+    const target   = rows.length ? (rows[rows.length - 1].target_cost_per_ton || 28000) : 28000;
+    return {
+        pkgRatio: totalTon ? totalPkg / totalTon : 0,
+        rawRatio: totalTon ? totalRaw / totalTon : 0,
+        sfgRatio: totalTon ? totalSfg / totalTon : 0,
+        totalRatio: totalTon ? (totalPkg + totalRaw + totalSfg) / totalTon : 0,
+        target,
+    };
+}
+
+// Menampilkan salah satu ringkasan (weekly/monthly) yang sudah dihitung ke kartu Ringkasan.
+function renderCostCard(period) {
+    const stats = costCardStats[period];
+    const totalEl     = document.getElementById('val-cost-total');
+    const dateEl       = document.getElementById('date-cost');
+    const badgeEl      = document.getElementById('cost-target-badge');
+    const detailTbody  = document.querySelector('#cost-detail-table tbody');
+
+    if (!stats) {
+        totalEl.textContent = '—'; totalEl.className = 'value';
+        dateEl.textContent = 'Belum ada data';
+        badgeEl.textContent = 'Target: ≤ Rp 28.000/ton';
+        detailTbody.innerHTML = '';
+        return;
+    }
+
+    totalEl.innerHTML = Math.round(stats.totalRatio).toLocaleString('id-ID') + '<span class="kpi-unit"> /ton</span>';
+    totalEl.className = 'value ' + (stats.totalRatio <= stats.target ? 'good' : 'low');
+    dateEl.textContent = stats.label;
+    badgeEl.textContent = `Target: ≤ Rp ${Math.round(stats.target).toLocaleString('id-ID')}/ton`;
+
+    detailTbody.innerHTML = `
+        <tr><td class="mesin-name">Packaging Material</td><td class="waste-val">${fmtRupiah(stats.pkgRatio)}</td></tr>
+        <tr><td class="mesin-name">Raw Material</td><td class="waste-val">${fmtRupiah(stats.rawRatio)}</td></tr>
+        <tr><td class="mesin-name">SFG</td><td class="waste-val">${fmtRupiah(stats.sfgRatio)}</td></tr>
+    `;
+}
+
+// Dipanggil dari tombol toggle Mingguan / Bulanan di kartu Ringkasan.
+function switchCostPeriod(period) {
+    costCardPeriod = period;
+    document.getElementById('btn-cost-weekly').classList.toggle('active', period === 'weekly');
+    document.getElementById('btn-cost-monthly').classList.toggle('active', period === 'monthly');
+    renderCostCard(period);
+}
+
+// ── Cost Material per Week (Simulasi Ratio COGM) ──
+// Ratio (Rp/ton) dihitung di sisi klien: value / tonase, sesuai rumus di file Excel-nya.
+// Tabel ini per-minggu dan tidak terikat pada filter tanggal harian.
+// Diambil lebih dari 8 minggu (limit 15) supaya cukup data untuk menghitung
+// agregat bulan berjalan (kartu Ringkasan → toggle Bulanan) tanpa mengubah
+// tabel tren mingguan di bawah, yang tetap menampilkan 8 minggu terakhir.
+async function loadCostMaterial() {
+    const { data: rowsRaw } = await db
+        .from('cost_material_weekly')
+        .select('*')
+        .order('tahun', { ascending: false })
+        .order('minggu_ke', { ascending: false })
+        .limit(15);
+
+    const rowsDesc = rowsRaw || [];
+    const rows = rowsDesc.slice(0, 8); // 8 minggu terakhir untuk tabel tren
+
+    lastLoadedData.costMaterial = rows;
+
+    const tbody       = document.getElementById('tbl-cost-body');
+    const titleWeek    = document.getElementById('title-cost-week');
+
+    if (rowsDesc.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#9ca3af; padding:20px;">Belum ada data cost material</td></tr>';
+        titleWeek.textContent = '';
+        costCardStats = { weekly: null, monthly: null };
+        renderCostCard(costCardPeriod);
+        return;
+    }
+
+    // ── Ringkasan Mingguan: data minggu terbaru saja ──
+    const latest = rowsDesc[0];
+    const weeklyStat = hitungRatioCost([latest]);
+    weeklyStat.label = `Week ${latest.minggu_ke} - ${latest.tahun}`;
+    costCardStats.weekly = weeklyStat;
+
+    // ── Ringkasan Bulanan: semua minggu (dari 15 yg diambil) yang jatuh di bulan
+    //    kalender yang sama dengan minggu terbaru (ditentukan lewat hari Kamis
+    //    tiap ISO week, sesuai standar ISO 8601) ──
+    const latestThu = isoWeekToThursday(latest.tahun, latest.minggu_ke);
+    const latestMonthKey = `${latestThu.getUTCFullYear()}-${latestThu.getUTCMonth()}`;
+    const monthRows = rowsDesc.filter(r => {
+        const thu = isoWeekToThursday(r.tahun, r.minggu_ke);
+        return `${thu.getUTCFullYear()}-${thu.getUTCMonth()}` === latestMonthKey;
+    });
+    const monthlyStat = hitungRatioCost(monthRows);
+    monthlyStat.label = `${NAMA_BULAN_ID[latestThu.getUTCMonth()]} ${latestThu.getUTCFullYear()} (${monthRows.length} minggu)`;
+    costCardStats.monthly = monthlyStat;
+
+    renderCostCard(costCardPeriod);
+
+    titleWeek.textContent = `— Week ${rows[rows.length - 1].minggu_ke} s.d. Week ${latest.minggu_ke} / ${latest.tahun}`;
+
+    // Tabel tren mingguan, urut dari minggu terlama ke terbaru (kiri ke kanan waktu berjalan)
+    const rowsAsc = [...rows].reverse();
+    tbody.innerHTML = '';
+    rowsAsc.forEach(r => {
+        const pkgRatio = r.tonase ? (r.packaging_value || 0) / r.tonase : 0;
+        const rawRatio = r.tonase ? (r.raw_material_value || 0) / r.tonase : 0;
+        const sfgRatio = r.tonase ? (r.sfg_value || 0) / r.tonase : 0;
+        const totalValue = (r.packaging_value || 0) + (r.raw_material_value || 0) + (r.sfg_value || 0);
+        const totalRatio = r.tonase ? totalValue / r.tonase : 0;
+        const rTarget = r.target_cost_per_ton || 28000;
+        const isOver = totalRatio > rTarget;
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>Week ${r.minggu_ke} / ${r.tahun}</td>
+            <td>${(r.tonase || 0).toLocaleString('id-ID')}</td>
+            <td>${fmtRupiah(pkgRatio)}</td>
+            <td>${fmtRupiah(rawRatio)}</td>
+            <td>${fmtRupiah(sfgRatio)}</td>
+            <td class="total-col ${isOver ? 'low' : 'good'}">${fmtRupiah(totalRatio)}</td>
+            <td style="color:#6b7280; font-size:11px;">${fmtRupiah(rTarget)}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+// ── Extruder ──
+// Tabel Supabase: extruder_daily (tanggal, shift, target_adukan, realisasi_adukan,
+// target_sfg_oven, realisasi_sfg_oven). Diisi/diganti lewat halaman Import Extruder.
+function extruderPctCell(pct) {
+    if (pct === null || pct === undefined) return '<td class="val-col empty">—</td>';
+    return `<td class="val-col ${pct >= 100 ? 'good' : 'low'}">${pct.toFixed(1)}%</td>`;
+}
+
+function setExtruderKpi(id, subId, realisasi, target) {
+    const el = document.getElementById(id);
+    const subEl = document.getElementById(subId);
+    if (!target) {
+        el.textContent = '—'; el.className = 'value';
+        subEl.textContent = '';
+        return;
+    }
+    const pct = realisasi / target * 100;
+    el.textContent = pct.toFixed(1) + '%';
+    el.className = 'value ' + (pct >= 100 ? 'good' : 'low');
+    subEl.textContent = `${Math.round(realisasi).toLocaleString('id-ID')} / ${Math.round(target).toLocaleString('id-ID')}`;
+}
+
+function formatDowntimeMinutes(totalMinutes) {
+    const mins = Math.max(0, Math.round(Number(totalMinutes) || 0));
+    const hours = Math.floor(mins / 60);
+    const rest = mins % 60;
+    if (hours === 0) return `${rest} min`;
+    return rest ? `${hours}j ${rest}m` : `${hours}j`;
+}
+
+async function loadExtruderDowntime(sDate, eDate) {
+    const valueEl = document.getElementById('val-extruder-downtime');
+    const dateEl = document.getElementById('date-extruder-downtime');
+    const subEl = document.getElementById('sub-extruder-downtime');
+    const detailBody = document.querySelector('#extruder-downtime-detail-table tbody');
+
+    try {
+        const { data: rows, error } = await db
+            .from('extruder_downtime')
+            .select('*')
+            .gte('tanggal', sDate)
+            .lte('tanggal', eDate)
+            .order('tanggal', { ascending: true })
+            .limit(5000);
+
+        if (error) throw error;
+        lastLoadedData.extruderDowntime = rows || [];
+
+        if (!rows || rows.length === 0) {
+            valueEl.textContent = '—';
+            valueEl.className = 'value';
+            dateEl.textContent = 'Tidak ada data downtime';
+            subEl.textContent = '';
+            detailBody.innerHTML = '';
+            return;
+        }
+
+        const totalMin = rows.reduce((s, r) => s + (Number(r.durasi_min) || 0), 0);
+        const avgMin = totalMin / rows.length;
+        const machineMap = {};
+        const descMap = {};
+
+        rows.forEach(r => {
+            const mesin = (r.mesin || 'Tanpa Mesin').trim();
+            machineMap[mesin] = (machineMap[mesin] || 0) + (Number(r.durasi_min) || 0);
+            const desc = (r.dt_description || '').trim();
+            if (desc) descMap[desc] = (descMap[desc] || 0) + 1;
+        });
+
+        const topCause = Object.entries(descMap).sort((a, b) => b[1] - a[1])[0];
+        valueEl.textContent = formatDowntimeMinutes(totalMin);
+        valueEl.className = 'value';
+        dateEl.textContent = fmtRange(sDate, eDate);
+        subEl.textContent = `${rows.length} kejadian · rata-rata ${Math.round(avgMin)} menit/kejadian` +
+            (topCause ? ` · terbanyak: ${topCause[0]}` : '');
+
+        detailBody.innerHTML = Object.entries(machineMap)
+            .sort((a, b) => b[1] - a[1])
+            .map(([mesin, min]) => `
+                <tr>
+                    <td class="mesin-name">${mesin}</td>
+                    <td class="waste-val">${formatDowntimeMinutes(min)}</td>
+                </tr>`)
+            .join('');
+    } catch (err) {
+        console.warn('Downtime Extruder belum tersedia:', err);
+        lastLoadedData.extruderDowntime = [];
+        valueEl.textContent = '—';
+        valueEl.className = 'value';
+        dateEl.textContent = 'Tabel downtime belum tersedia';
+        subEl.textContent = 'Jalankan setup_extruder_downtime.sql lalu import ulang file Extruder.';
+        detailBody.innerHTML = '';
+    }
+}
+
+async function loadExtruder(sDate, eDate) {
+    const { data: rows } = await db
+        .from('extruder_daily')
+        .select('*')
+        .gte('tanggal', sDate)
+        .lte('tanggal', eDate)
+        .limit(5000);
+
+    lastLoadedData.extruderDaily = rows || [];
+
+    const titleDate = document.getElementById('title-date-extruder');
+    const shiftBody = document.getElementById('tbl-extruder-shift-body');
+
+    if (!rows || rows.length === 0) {
+        titleDate.textContent = '— Tidak ada data';
+        setExtruderKpi('val-extruder-adukan', 'sub-extruder-adukan', 0, 0);
+        setExtruderKpi('val-extruder-sfg', 'sub-extruder-sfg', 0, 0);
+        shiftBody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#9ca3af; padding:20px;">Belum ada data. Import lewat menu Import Extruder.</td></tr>';
+        return;
+    }
+
+    titleDate.textContent = '— ' + fmtRange(sDate, eDate);
+
+    const totalTargetAdukan = rows.reduce((s, r) => s + (r.target_adukan || 0), 0);
+    const totalRealAdukan   = rows.reduce((s, r) => s + (r.realisasi_adukan || 0), 0);
+    const totalTargetSfg    = rows.reduce((s, r) => s + (r.target_sfg_oven || 0), 0);
+    const totalRealSfg      = rows.reduce((s, r) => s + (r.realisasi_sfg_oven || 0), 0);
+
+    setExtruderKpi('val-extruder-adukan', 'sub-extruder-adukan', totalRealAdukan, totalTargetAdukan);
+    setExtruderKpi('val-extruder-sfg', 'sub-extruder-sfg', totalRealSfg, totalTargetSfg);
+
+    // Tabel achievement per shift — agregat dalam rentang
+    const shiftMap = {};
+    rows.forEach(r => {
+        shiftMap[r.shift] = shiftMap[r.shift] || { adukanT: 0, adukanR: 0, sfgT: 0, sfgR: 0 };
+        shiftMap[r.shift].adukanT += r.target_adukan || 0;
+        shiftMap[r.shift].adukanR += r.realisasi_adukan || 0;
+        shiftMap[r.shift].sfgT    += r.target_sfg_oven || 0;
+        shiftMap[r.shift].sfgR    += r.realisasi_sfg_oven || 0;
+    });
+
+    shiftBody.innerHTML = '';
+    [1, 2, 3].forEach(sh => {
+        const d = shiftMap[sh];
+        const adukanPct = d && d.adukanT ? (d.adukanR / d.adukanT * 100) : null;
+        const sfgPct    = d && d.sfgT    ? (d.sfgR / d.sfgT * 100) : null;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td class="mesin-col">Shift ${sh}</td>
+            <td style="text-align:center;">${d ? Math.round(d.adukanT) : '—'}</td>
+            <td style="text-align:center;">${d ? Math.round(d.adukanR) : '—'}</td>
+            ${extruderPctCell(adukanPct)}
+            <td style="text-align:center;">${d ? Math.round(d.sfgT) : '—'}</td>
+            <td style="text-align:center;">${d ? Math.round(d.sfgR) : '—'}</td>
+            ${extruderPctCell(sfgPct)}
+        `;
+        shiftBody.appendChild(tr);
+    });
+}
+
+function setShiftMini(id, val) {
+    const el = document.getElementById(id);
+    if (val === null || val === undefined) {
+        el.textContent = '—'; el.className = 'shift-mini-val empty'; return;
+    }
+    el.textContent = val.toFixed(2) + '%';
+    el.className = 'shift-mini-val ' + (val >= OEE_TARGET ? 'good' : 'low');
+}
+
+function lineValCell(val, target) {
+    if (val === null || val === undefined) return '<td class="val-col empty">—</td>';
+    return `<td class="val-col ${val >= target ? 'good' : 'low'}">${val.toFixed(2)}%</td>`;
+}
+
+// ── Export Excel: setiap kategori jadi satu sheet, sesuai rentang tanggal aktif ──
+function exportExcel() {
+    const btn = document.getElementById('btn-export');
+    const originalLabel = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '⏳ Menyiapkan...';
+
+    try {
+        const wb = XLSX.utils.book_new();
+        let sheetCount = 0;
+
+        function tambahSheet(namaSheet, rows) {
+            if (!rows || rows.length === 0) return;
+            const ws = XLSX.utils.json_to_sheet(rows);
+            // Batasi nama sheet maksimal 31 karakter (limit Excel)
+            const safeName = namaSheet.substring(0, 31);
+            XLSX.utils.book_append_sheet(wb, ws, safeName);
+            sheetCount++;
+        }
+
+        tambahSheet('OEE Harian', lastLoadedData.oeeDaily);
+        tambahSheet('OEE Shiftly', lastLoadedData.oeeShiftly);
+        tambahSheet('OEE per Line', lastLoadedData.oeeLine);
+        tambahSheet('Tonase', lastLoadedData.tonase);
+        tambahSheet('Waste Shiftly', lastLoadedData.wasteShiftly);
+        tambahSheet('Waste Fryer', lastLoadedData.wasteFryer);
+        tambahSheet('Waste Proses', lastLoadedData.wasteProses);
+        tambahSheet('Cost Material Mingguan', lastLoadedData.costMaterial);
+        tambahSheet('Variance Weekly', lastLoadedData.varianceWeekly);
+        tambahSheet('Extruder Harian', lastLoadedData.extruderDaily);
+        tambahSheet('Extruder Downtime', lastLoadedData.extruderDowntime);
+
+        if (sheetCount === 0) {
+            alert('Belum ada data untuk diexport pada rentang tanggal ini.');
+            return;
+        }
+
+        const labelTanggal = (startDate === endDate) ? startDate : `${startDate}_sd_${endDate}`;
+        const namaFile = `Bojonegoro_Monitoring_${labelTanggal || 'export'}.xlsx`;
+        XLSX.writeFile(wb, namaFile);
+    } catch (err) {
+        console.error('Export Excel gagal:', err);
+        alert('Export gagal. Coba lagi atau hubungi admin.');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalLabel;
+    }
+}
+
+// ── Init: cari tanggal terakhir dari waste_shiftly, set date picker (satu hari), lalu load ──
+async function init() {
+    const { data: lastWaste } = await db
+        .from('waste_shiftly')
+        .select('tanggal')
+        .order('tanggal', { ascending: false })
+        .limit(1)
+        .single();
+
+    if (lastWaste) {
+        lastAvailableDate = lastWaste.tanggal;
+        startDate = lastAvailableDate;
+        endDate = lastAvailableDate;
+        document.getElementById('filter-date-start').value = lastAvailableDate;
+        document.getElementById('filter-date-end').value = lastAvailableDate;
+        document.getElementById('filter-info').textContent = '(data terbaru)';
+    }
+
+    loadData(startDate, endDate);
+    loadVarianceCard();
+    loadOeeCard();
+}
+
+init();
 </script>
 </body>
 </html>
