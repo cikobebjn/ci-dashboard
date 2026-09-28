@@ -878,6 +878,99 @@ body::after {
 .summary-kpi-grid .waste-detail-table td { padding:6px 2px; }
 .summary-kpi-grid .cost-period-toggle .period-btn { padding:6px 8px; font-size:8px; }
 
+/* ===== Tonase Produksi — cleaner KPI hierarchy ===== */
+.summary-kpi-grid .tonase-card {
+    display:flex;
+    flex-direction:column;
+    gap:0;
+}
+.tonase-card .tonase-primary {
+    padding-bottom:12px;
+}
+.tonase-card .tonase-eyebrow {
+    margin-bottom:5px;
+    color:#94a3b8;
+    font-size:8px;
+    font-weight:800;
+    letter-spacing:.07em;
+    text-transform:uppercase;
+}
+.tonase-card .value {
+    display:flex;
+    align-items:baseline;
+    gap:6px;
+    margin-top:1px;
+}
+.tonase-card .kpi-unit {
+    font-size:13px;
+    font-weight:650;
+    color:#718096;
+    letter-spacing:0;
+}
+.tonase-card .tonase-period-row {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+    margin-top:7px;
+}
+.tonase-card .card-date {
+    margin-top:0;
+    font-size:10px;
+}
+.tonase-card .card-sub {
+    margin-top:0;
+    font-size:8px;
+    font-weight:700;
+    color:#94a3b8;
+    white-space:nowrap;
+}
+.tonase-mtd-panel {
+    margin-top:auto;
+    padding:11px 12px 10px;
+    border:1px solid #e5ebf3;
+    border-radius:13px;
+    background:linear-gradient(145deg,#f8fbff,#f7fcfa);
+}
+.tonase-mtd-top {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+}
+.tonase-mtd-label {
+    color:#64748b;
+    font-size:8px;
+    font-weight:850;
+    letter-spacing:.07em;
+    text-transform:uppercase;
+}
+.tonase-mtd-period {
+    color:#94a3b8;
+    font-size:8px;
+    line-height:1.25;
+    text-align:right;
+}
+.tonase-mtd-value {
+    margin-top:7px;
+    color:#172033;
+    font-size:23px;
+    font-weight:850;
+    letter-spacing:-.03em;
+    line-height:1;
+}
+.tonase-mtd-value span {
+    margin-left:5px;
+    color:#718096;
+    font-size:11px;
+    font-weight:650;
+    letter-spacing:0;
+}
+@media (max-width:1280px){
+    .tonase-card .tonase-period-row{align-items:flex-start;flex-direction:column;gap:3px;}
+    .tonase-card .card-sub{white-space:normal;}
+}
+
 @media (max-width:1280px){
     .summary-kpi-grid { grid-template-columns:repeat(3,minmax(0,1fr)); }
 }
@@ -1622,10 +1715,15 @@ body::after {
 
         <div class="card tonase-card">
             <h3>📦 Tonase Produksi</h3>
-            <div class="value loading" id="val-tonase">...</div>
-            <div class="card-date" id="date-tonase"></div>
-            <div class="card-sub" id="sub-tonase"></div>
-            <div id="sub-tonase-mtd" class="card-sub mtd" style="margin-top:8px; padding-top:8px; border-top:1px dashed #e5e7eb;"></div>
+            <div class="tonase-primary">
+                <div class="tonase-eyebrow">Periode Terpilih</div>
+                <div class="value loading" id="val-tonase">...</div>
+                <div class="tonase-period-row">
+                    <div class="card-date" id="date-tonase"></div>
+                    <div class="card-sub" id="sub-tonase"></div>
+                </div>
+            </div>
+            <div id="sub-tonase-mtd" class="tonase-mtd-panel"></div>
         </div>
 
         <div class="card waste-mini-card kemasan">
@@ -2243,7 +2341,12 @@ async function loadData(sDate, eDate) {
             .gte('tanggal', monthStart)
             .lte('tanggal', lastTonDate);
         const mtdTotal = (mtdRows || []).reduce((s, r) => s + (r.tonase || 0), 0);
-        tonMtdEl.innerHTML = `📅 Total 1 ${fmtDate(monthStart).split(' ').slice(1).join(' ')} s.d. ${fmtDate(lastTonDate)}<br><span style="font-size:22px; font-weight:700; color:#1f2937;">${mtdTotal.toFixed(2)}<span style="font-size:14px; font-weight:400; color:#6b7280;"> ton</span></span>`;
+        tonMtdEl.innerHTML = `
+            <div class="tonase-mtd-top">
+                <span class="tonase-mtd-label">Month-to-Date</span>
+                <span class="tonase-mtd-period">${fmtDate(monthStart)} — ${fmtDate(lastTonDate)}</span>
+            </div>
+            <div class="tonase-mtd-value">${mtdTotal.toFixed(2)}<span>ton</span></div>`;
     } else {
         tonMtdEl.textContent = '';
     }
@@ -3176,32 +3279,14 @@ function downloadVarianceChart(){
         };
     }) : [];
 
-    const pageW=1600;
-    const marginX=60;
-    const contentW=1480;
-    const headerY=70;
+    // Export layout aligned to PowerPoint widescreen (16:9).
+    const pageW=2560;
+    const pageH=1440;
+    const marginX=90;
+    const contentW=pageW-(marginX*2);
+    const headerY=96;
     const hasActiveExportFilter=filterText!=='All Data';
-    const chartBoxY=hasActiveExportFilter ? 180 : 158;
-    const chartBoxH=isParetoExport ? 420 : 555;
-    const chartBottom=chartBoxY + chartBoxH;
     const showTop5=!isParetoExport && top5CardsData.length>0;
-
-    let top5TitleY=0;
-    let cardsStartY=0;
-    let top5GridBottom=0;
-    if(showTop5){
-        top5TitleY=chartBottom + 42;
-        cardsStartY=top5TitleY + 36;
-        const cols=Math.min(3,Math.max(1,top5CardsData.length));
-        const cardGap=16;
-        const cardW=(contentW - (cardGap*(cols-1)))/cols;
-        const cardH=256;
-        const rowsCount=Math.ceil(top5CardsData.length/cols);
-        top5GridBottom=cardsStartY + rowsCount*cardH + (rowsCount-1)*18;
-    }
-
-    const footerY=showTop5 ? top5GridBottom + 42 : (isParetoExport ? 875 : 805);
-    const pageH=Math.max(900, Math.ceil(footerY + 40));
 
     const exportCanvas=document.createElement('canvas');
     exportCanvas.width=pageW;
@@ -3219,92 +3304,127 @@ function downloadVarianceChart(){
     };
     const formatPctExport=(n)=>`${(Number(n)||0).toLocaleString('id-ID',{maximumFractionDigits:2})}%`;
 
-    // Header presentation-ready.
+    // ===== Header =====
     ctx.fillStyle='#172033';
-    ctx.font='700 36px Arial, sans-serif';
-    ctx.fillText(`${modeLabel} Variance Analysis – ${meta.label}`,70,headerY);
+    ctx.font='700 56px Arial, sans-serif';
+    ctx.fillText(`${modeLabel} Variance Analysis – ${meta.label}`,marginX,headerY);
 
     ctx.fillStyle='#64748b';
-    ctx.font='20px Arial, sans-serif';
-    ctx.fillText(`Period: ${periodText}`,70,112);
+    ctx.font='28px Arial, sans-serif';
+    ctx.fillText(`Period: ${periodText}`,marginX,150);
 
+    let chartBoxY=194;
     if(hasActiveExportFilter){
         ctx.fillStyle='#64748b';
-        ctx.font='18px Arial, sans-serif';
+        ctx.font='24px Arial, sans-serif';
         let filterLine=`Filters: ${filterText}`;
-        if(filterLine.length>145) filterLine=filterLine.slice(0,142)+'…';
-        ctx.fillText(filterLine,70,146);
+        if(filterLine.length>180) filterLine=filterLine.slice(0,177)+'…';
+        ctx.fillText(filterLine,marginX,190);
+        chartBoxY=224;
     }
 
-    // Chart area.
-    const boxX=60, boxY=chartBoxY, boxW=1480, boxH=chartBoxH;
+    // ===== Dynamic layout to fit 16:9 PPT slide =====
+    let chartBoxH=0;
+    let top5TitleY=0;
+    let cardsStartY=0;
+    let footerY=pageH-34;
+    let cardH=0, cardW=0, cols=0, rowsCount=0, cardGap=24, rowGap=22;
+
+    if(isParetoExport){
+        chartBoxH=640;
+        top5TitleY=chartBoxY + chartBoxH + 56;
+        cardsStartY=top5TitleY + 30;
+        footerY=pageH-34;
+    } else if(showTop5){
+        cols = top5CardsData.length<=2 ? top5CardsData.length : (top5CardsData.length===4 ? 2 : 3);
+        rowsCount = Math.ceil(top5CardsData.length/cols);
+        cardH = rowsCount===1 ? 340 : 255;
+        chartBoxH = rowsCount===1 ? 730 : 560;
+        top5TitleY = chartBoxY + chartBoxH + 54;
+        cardsStartY = top5TitleY + 36;
+        cardW = (contentW - (cardGap*(cols-1)))/cols;
+        footerY = cardsStartY + rowsCount*cardH + (rowsCount-1)*rowGap + 40;
+
+        // safety shrink when needed so everything stays inside 16:9 canvas
+        const overflow = footerY - (pageH-30);
+        if(overflow>0){
+            chartBoxH = Math.max(500, chartBoxH - overflow);
+            top5TitleY = chartBoxY + chartBoxH + 48;
+            cardsStartY = top5TitleY + 34;
+            footerY = cardsStartY + rowsCount*cardH + (rowsCount-1)*rowGap + 34;
+        }
+    } else {
+        chartBoxH = pageH - chartBoxY - 120;
+        footerY = pageH - 34;
+    }
+
+    // ===== Chart area =====
+    const boxX=marginX, boxY=chartBoxY, boxW=contentW, boxH=chartBoxH;
     ctx.fillStyle='#ffffff';
     ctx.strokeStyle='#e8edf4';
     ctx.lineWidth=2;
     ctx.beginPath();
-    ctx.roundRect(boxX,boxY,boxW,boxH,24);
+    ctx.roundRect(boxX,boxY,boxW,boxH,26);
     ctx.fill();
     ctx.stroke();
 
     const srcRatio=source.width/source.height;
-    const maxW=boxW-50, maxH=boxH-50;
+    const maxW=boxW-48, maxH=boxH-48;
     let dw=maxW, dh=dw/srcRatio;
     if(dh>maxH){ dh=maxH; dw=dh*srcRatio; }
     ctx.drawImage(source,boxX+(boxW-dw)/2,boxY+(boxH-dh)/2,dw,dh);
 
-    // Pareto export: include the numbered material/SKU mapping shown in dashboard.
+    // ===== Pareto footer list =====
     if(isParetoExport){
         const paretoItems=varianceParetoData();
-        const sectionY=632;
         ctx.fillStyle='#172033';
-        ctx.font='700 18px Arial, sans-serif';
-        ctx.fillText('Top 10 Material / SKU Contributors',70,sectionY);
+        ctx.font='700 30px Arial, sans-serif';
+        ctx.fillText('Top 10 Material / SKU Contributors',marginX,top5TitleY);
 
-        ctx.fillStyle='#94a3b8';
-        ctx.font='14px Arial, sans-serif';
-        ctx.fillText('Numbering corresponds to the Pareto chart above.',70,sectionY+24);
+        // Clean separation between the section title and the SKU list.
+        ctx.strokeStyle='#e8edf4';
+        ctx.lineWidth=2;
+        ctx.beginPath();
+        ctx.moveTo(marginX,top5TitleY+22);
+        ctx.lineTo(pageW-marginX,top5TitleY+22);
+        ctx.stroke();
 
-        const cols=[70,820];
-        const rowStart=sectionY+55;
-        const rowGap=30;
-        const maxTextWidth=650;
+        const colsX=[marginX, pageW/2 + 40];
+        const rowStart=top5TitleY+72;
+        const rowGapPx=62;
+        const maxTextWidth=(pageW/2)-150;
 
         paretoItems.slice(0,10).forEach((item,index)=>{
             const col=index<5?0:1;
             const row=index%5;
-            const x=cols[col];
-            const y=rowStart+(row*rowGap);
+            const x=colsX[col];
+            const y=rowStart+(row*rowGapPx);
 
             ctx.fillStyle='#fce7f3';
             ctx.beginPath();
-            ctx.roundRect(x,y-17,25,25,7);
+            ctx.roundRect(x,y-21,36,36,10);
             ctx.fill();
             ctx.fillStyle='#be185d';
-            ctx.font='700 12px Arial, sans-serif';
+            ctx.font='700 18px Arial, sans-serif';
             ctx.textAlign='center';
             ctx.textBaseline='middle';
-            ctx.fillText(String(index+1),x+12.5,y-4.5);
+            ctx.fillText(String(index+1),x+18,y-3);
 
             ctx.textAlign='left';
             ctx.textBaseline='alphabetic';
             ctx.fillStyle='#475569';
-            ctx.font='14px Arial, sans-serif';
-            ctx.fillText(drawFitText(item.label,maxTextWidth),x+36,y);
+            ctx.font='22px Arial, sans-serif';
+            ctx.fillText(drawFitText(item.label,maxTextWidth),x+54,y+4);
         });
     }
 
-    // Top 5 cards export for weekly/monthly comparison.
+    // ===== Top 5 cards =====
     if(showTop5){
         ctx.fillStyle='#172033';
-        ctx.font='700 22px Arial, sans-serif';
-        ctx.fillText(variancePeriod==='monthly' ? 'Top 5 Variance by Selected Month' : 'Top 5 Variance by Selected Week',70,top5TitleY);
+        ctx.font='700 34px Arial, sans-serif';
+        ctx.fillText(variancePeriod==='monthly' ? 'Top 5 Variance by Selected Month' : 'Top 5 Variance by Selected Week',marginX,top5TitleY);
 
-        const cols=Math.min(3,Math.max(1,top5CardsData.length));
-        const cardGap=16;
-        const cardW=(contentW - (cardGap*(cols-1)))/cols;
-        const cardH=256;
-        const cardHeaderH=40;
-        const rowGap=18;
+        const cardHeaderH=54;
 
         top5CardsData.forEach((card,index)=>{
             const col=index%cols;
@@ -3314,36 +3434,36 @@ function downloadVarianceChart(){
 
             // card shell
             ctx.fillStyle='#ffffff';
-            ctx.strokeStyle='#e3e8f0';
-            ctx.lineWidth=1.5;
+            ctx.strokeStyle='#dfe6ef';
+            ctx.lineWidth=2;
             ctx.beginPath();
-            ctx.roundRect(x,y,cardW,cardH,16);
+            ctx.roundRect(x,y,cardW,cardH,18);
             ctx.fill();
             ctx.stroke();
 
             // header
             ctx.fillStyle='#20336c';
             ctx.beginPath();
-            ctx.roundRect(x,y,cardW,cardHeaderH,16);
+            ctx.roundRect(x,y,cardW,cardHeaderH,18);
             ctx.fill();
-            ctx.fillRect(x,y+cardHeaderH-16,cardW,16);
+            ctx.fillRect(x,y+cardHeaderH-18,cardW,18);
 
             ctx.fillStyle='#ffffff';
-            ctx.font='700 15px Arial, sans-serif';
+            ctx.font='700 18px Arial, sans-serif';
             const headText = `${card.label} — Top 5 Variance`;
-            ctx.fillText(drawFitText(headText, cardW-130), x+14, y+25);
+            ctx.fillText(drawFitText(headText, cardW-150), x+18, y+33);
 
             const pillText=`${(card.count||0).toLocaleString('id-ID')} data`;
-            ctx.font='700 11px Arial, sans-serif';
-            const pillW=Math.max(58, ctx.measureText(pillText).width + 18);
-            const pillH=22;
-            const pillX=x+cardW-pillW-12;
-            const pillY=y+9;
+            ctx.font='700 13px Arial, sans-serif';
+            const pillW=Math.max(78, ctx.measureText(pillText).width + 22);
+            const pillH=28;
+            const pillX=x+cardW-pillW-14;
+            const pillY=y+12;
             ctx.fillStyle='rgba(255,255,255,.12)';
             ctx.strokeStyle='rgba(255,255,255,.18)';
             ctx.lineWidth=1;
             ctx.beginPath();
-            ctx.roundRect(pillX,pillY,pillW,pillH,11);
+            ctx.roundRect(pillX,pillY,pillW,pillH,14);
             ctx.fill();
             ctx.stroke();
             ctx.fillStyle='#ffffff';
@@ -3354,71 +3474,61 @@ function downloadVarianceChart(){
             ctx.textBaseline='alphabetic';
 
             if(card.items.length){
-                const listY=y+cardHeaderH+10;
-                const rowH=36;
+                const listY=y+cardHeaderH+12;
+                const availableRowsH=cardH-cardHeaderH-34;
+                const rowH=Math.floor(availableRowsH/5);
                 card.items.slice(0,5).forEach((item,rowIndex)=>{
                     const rowTop=listY + rowIndex*rowH;
                     if(rowIndex>0){
                         ctx.strokeStyle='#eef2f6';
                         ctx.lineWidth=1;
                         ctx.beginPath();
-                        ctx.moveTo(x+12,rowTop);
-                        ctx.lineTo(x+cardW-12,rowTop);
+                        ctx.moveTo(x+14,rowTop);
+                        ctx.lineTo(x+cardW-14,rowTop);
                         ctx.stroke();
                     }
 
-                    const badgeSize=20;
+                    const badgeSize=24;
                     ctx.fillStyle='#f7eef4';
                     ctx.beginPath();
-                    ctx.roundRect(x+12,rowTop+8,badgeSize,badgeSize,6);
+                    ctx.roundRect(x+14,rowTop+Math.max(10, (rowH-badgeSize)/2),badgeSize,badgeSize,7);
                     ctx.fill();
                     ctx.fillStyle='#b4236a';
-                    ctx.font='700 11px Arial, sans-serif';
+                    ctx.font='700 12px Arial, sans-serif';
                     ctx.textAlign='center';
                     ctx.textBaseline='middle';
-                    ctx.fillText(String(rowIndex+1),x+12+badgeSize/2,rowTop+18);
+                    ctx.fillText(String(rowIndex+1),x+14+badgeSize/2,rowTop+Math.max(10, (rowH-badgeSize)/2)+badgeSize/2);
 
                     ctx.textAlign='left';
                     ctx.textBaseline='alphabetic';
                     ctx.fillStyle='#334155';
-                    ctx.font='700 11.5px Arial, sans-serif';
-                    ctx.fillText(drawFitText(item.name, cardW-190), x+40, rowTop+20);
+                    ctx.font='700 12.5px Arial, sans-serif';
+                    ctx.fillText(drawFitText(item.name, cardW-210), x+48, rowTop+Math.min(rowH-10, 28));
 
                     ctx.fillStyle='#dc2626';
-                    ctx.font='700 11px Arial, sans-serif';
+                    ctx.font='700 12px Arial, sans-serif';
                     ctx.textAlign='right';
-                    ctx.fillText(formatPctExport(item.pct), x+cardW-86, rowTop+20);
+                    ctx.fillText(formatPctExport(item.pct), x+cardW-96, rowTop+Math.min(rowH-10, 28));
 
                     ctx.fillStyle='#64748b';
-                    ctx.font='700 11px Arial, sans-serif';
-                    ctx.fillText(fmtVarianceShort(item.value,'money'), x+cardW-16, rowTop+20);
+                    ctx.font='700 12px Arial, sans-serif';
+                    ctx.fillText(fmtVarianceShort(item.value,'money'), x+cardW-18, rowTop+Math.min(rowH-10, 28));
                     ctx.textAlign='left';
                 });
             } else {
                 ctx.fillStyle='#9ca3af';
-                ctx.font='14px Arial, sans-serif';
-                ctx.fillText('Tidak ada over-variance positif pada periode ini.', x+14, y+86);
+                ctx.font='16px Arial, sans-serif';
+                ctx.fillText('Tidak ada over-variance positif pada periode ini.', x+18, y+100);
             }
-
-            // footer note
-            ctx.strokeStyle='#eef2f6';
-            ctx.lineWidth=1;
-            ctx.beginPath();
-            ctx.moveTo(x, y+cardH-26);
-            ctx.lineTo(x+cardW, y+cardH-26);
-            ctx.stroke();
-            ctx.fillStyle='#98a2b3';
-            ctx.font='11px Arial, sans-serif';
-            ctx.fillText('Ranked by highest positive Variance Value', x+12, y+cardH-10);
         });
     }
 
-    // Clean corporate footer.
+    // Footer kept minimal for presentation export.
     ctx.textAlign='left';
     ctx.textBaseline='alphabetic';
     ctx.fillStyle='#94a3b8';
-    ctx.font='14px Arial, sans-serif';
-    ctx.fillText('Bojonegoro Monitoring · PT Kobe Boga Utama',70,footerY);
+    ctx.font='18px Arial, sans-serif';
+    ctx.fillText('Bojonegoro Monitoring · PT Kobe Boga Utama',marginX,Math.min(pageH-20, footerY));
 
     const periodPart=variancePeriod==='monthly'?'monthly':'weekly';
     const metricPart=(varianceChartMetric||'variance').replace(/[^a-z0-9_-]/gi,'');
