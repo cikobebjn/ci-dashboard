@@ -2266,8 +2266,7 @@ async function loadOeeCard() {
     }
 
     // ── Weekly: Minggu (Sunday) s.d. Sabtu (Saturday) yang memuat tanggal terakhir ──
-    const { start: weekStart, end: weekEndFull } = sundayWeekRange(lastAvailableDate);
-    const weekEnd = weekEndFull > lastAvailableDate ? lastAvailableDate : weekEndFull;
+    const { start: weekStart, end: weekEnd } = sundayWeekRange(lastAvailableDate);
 
     const { data: weekRows } = await db
         .from('oee_daily')
@@ -2558,14 +2557,33 @@ async function loadData(sDate, eDate) {
     await loadExtruderDowntime(sDate, eDate);
 }
 
-// ── ISO week helpers (dipakai untuk mengelompokkan minggu ke bulan kalender) ──
-// Mengembalikan tanggal Kamis dari suatu ISO week (Kamis dipakai sebagai acuan
-// standar ISO 8601 untuk menentukan bulan/tahun "pemilik" minggu tsb).
-function isoWeekToThursday(tahun, mingguKe) {
-    const simple = new Date(Date.UTC(tahun, 0, 1 + (mingguKe - 1) * 7));
-    const dow = simple.getUTCDay() || 7;
-    simple.setUTCDate(simple.getUTCDate() - dow + 4); // geser ke hari Kamis di minggu yg sama
-    return simple;
+// ── Helper nomor minggu Minggu–Sabtu (sesuai Excel WEEKNUM(...,1)) ──
+// Week 1 adalah minggu yang memuat 1 Januari dan dimulai pada hari Minggu.
+// Fungsi ini mengembalikan rentang Minggu–Sabtu untuk kombinasi tahun + nomor week.
+function sundayWeekRangeFromNumber(tahun, mingguKe) {
+    const jan1 = new Date(Number(tahun), 0, 1);
+    const week1Sunday = new Date(jan1);
+    week1Sunday.setDate(jan1.getDate() - jan1.getDay());
+    const start = new Date(week1Sunday);
+    start.setDate(week1Sunday.getDate() + (Number(mingguKe) - 1) * 7);
+    const end = new Date(start);
+    end.setDate(start.getDate() + 6);
+    const toISO = x => {
+        const yyyy = x.getFullYear();
+        const mm = String(x.getMonth() + 1).padStart(2, '0');
+        const dd = String(x.getDate()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`;
+    };
+    return { start: toISO(start), end: toISO(end) };
+}
+
+// Hari Kamis dipakai sebagai anchor bulan untuk agregasi Cost Material bulanan,
+// tetapi Thursday ini dihitung dari minggu Minggu–Sabtu, bukan ISO Monday–Sunday.
+function sundayWeekThursday(tahun, mingguKe) {
+    const { start } = sundayWeekRangeFromNumber(tahun, mingguKe);
+    const d = new Date(start + 'T00:00:00');
+    d.setDate(d.getDate() + 4);
+    return d;
 }
 const NAMA_BULAN_ID = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 
@@ -2789,7 +2807,9 @@ function variancePeriodLabelByKey(key, period=variancePeriod){
         return item ? `${NAMA_BULAN_ID[item.bulan-1]} ${item.tahun}` : key;
     }
     const item=varianceWeeksList.find(x=>x.key===key);
-    return item ? `Week ${item.minggu} / ${item.tahun}` : key;
+    if(!item) return key;
+    const wr=sundayWeekRangeFromNumber(item.tahun,item.minggu);
+    return `Week ${item.minggu} / ${item.tahun} · ${fmtDate(wr.start)} — ${fmtDate(wr.end)}`;
 }
 function varianceRowsForSinglePeriod(key, period=variancePeriod){
     if(!key) return [];
@@ -3018,7 +3038,7 @@ function varianceChartData(){
         return {
             key,
             label: variancePeriodLabelByKey(key),
-            shortLabel: variancePeriod==='monthly' ? variancePeriodLabelByKey(key).replace(/\s+20\d{2}$/,'') : variancePeriodLabelByKey(key).replace('Week ','W'),
+            shortLabel: variancePeriod==='monthly' ? variancePeriodLabelByKey(key).replace(/\s+20\d{2}$/,'') : (()=>{const w=varianceWeeksList.find(x=>x.key===key);return w?`W${w.minggu} / ${w.tahun}`:key;})(),
             rows,
             metric,
             value: Number.isFinite(Number(value)) ? Number(value) : 0,
@@ -4135,16 +4155,17 @@ async function loadCostMaterial() {
     // ── Ringkasan Mingguan: data minggu terbaru saja ──
     const latest = rowsDesc[0];
     const weeklyStat = hitungRatioCost([latest]);
-    weeklyStat.label = `Week ${latest.minggu_ke} - ${latest.tahun}`;
+    const latestWeekRange = sundayWeekRangeFromNumber(latest.tahun, latest.minggu_ke);
+    weeklyStat.label = `Week ${latest.minggu_ke} / ${latest.tahun} · ${fmtDate(latestWeekRange.start)} — ${fmtDate(latestWeekRange.end)}`;
     costCardStats.weekly = weeklyStat;
 
     // ── Ringkasan Bulanan: semua minggu (dari 15 yg diambil) yang jatuh di bulan
-    //    kalender yang sama dengan minggu terbaru (ditentukan lewat hari Kamis
-    //    tiap ISO week, sesuai standar ISO 8601) ──
-    const latestThu = isoWeekToThursday(latest.tahun, latest.minggu_ke);
+    //    kalender yang sama dengan minggu terbaru. Bulan pemilik week ditentukan
+    //    dari hari Kamis pada rentang Minggu–Sabtu (sesuai WEEKNUM(...,1)). ──
+    const latestThu = sundayWeekThursday(latest.tahun, latest.minggu_ke);
     const latestMonthKey = `${latestThu.getUTCFullYear()}-${latestThu.getUTCMonth()}`;
     const monthRows = rowsDesc.filter(r => {
-        const thu = isoWeekToThursday(r.tahun, r.minggu_ke);
+        const thu = sundayWeekThursday(r.tahun, r.minggu_ke);
         return `${thu.getUTCFullYear()}-${thu.getUTCMonth()}` === latestMonthKey;
     });
     const monthlyStat = hitungRatioCost(monthRows);
@@ -4169,7 +4190,7 @@ async function loadCostMaterial() {
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td>Week ${r.minggu_ke} / ${r.tahun}</td>
+            <td>Week ${r.minggu_ke} / ${r.tahun}<div style="margin-top:3px;color:#94a3b8;font-size:10px;font-weight:500;">${(()=>{const w=sundayWeekRangeFromNumber(r.tahun,r.minggu_ke);return `${fmtDate(w.start)} — ${fmtDate(w.end)}`;})()}</div></td>
             <td>${(r.tonase || 0).toLocaleString('id-ID')}</td>
             <td>${fmtRupiah(pkgRatio)}</td>
             <td>${fmtRupiah(rawRatio)}</td>
