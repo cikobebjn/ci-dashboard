@@ -1,6 +1,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -1240,12 +1241,59 @@ body::after {
     position:relative;
     z-index:2 !important;
 }
+
+
+/* ===== Sidebar internal hamburger close button ===== */
+.sidebar-toggle-btn {
+    position:absolute;
+    top:24px;
+    right:20px;
+    z-index:3;
+    width:42px;
+    height:42px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:5px;
+    padding:0;
+    border:1px solid rgba(255,255,255,.14);
+    border-radius:12px;
+    background:rgba(255,255,255,.08);
+    box-shadow:0 8px 20px rgba(0,0,0,.12);
+    cursor:pointer;
+    transition:background .18s ease, transform .18s ease, border-color .18s ease;
+}
+.sidebar-toggle-btn:hover {
+    background:rgba(255,255,255,.14);
+    border-color:rgba(255,255,255,.24);
+    transform:translateY(-1px);
+}
+.sidebar-toggle-btn span {
+    display:block;
+    width:20px;
+    height:2px;
+    border-radius:999px;
+    background:#fff;
+    pointer-events:none;
+}
+.sidebar-toggle-btn:focus-visible {
+    outline:2px solid rgba(255,255,255,.8);
+    outline-offset:2px;
+}
+@media(max-width:640px){
+    .sidebar-toggle-btn{top:22px;right:16px;width:38px;height:38px;}
+}
+
 </style>
 <!-- VARIANCE MULTISELECT SEARCH V3 + SELECT VISIBLE RESULTS -->
 </head>
 <body>
 
 <div class="sidebar" id="sidebar">
+    <button type="button" class="sidebar-toggle-btn" onclick="toggleMenu()" aria-label="Tutup sidebar" title="Tutup menu">
+        <span></span><span></span><span></span>
+    </button>
     <a href="index.html" class="active">Dashboard Utama</a>
     <a href="#dor-opening">Visi, Misi & Core Values</a>
     <a href="oee.html">OEE</a>
