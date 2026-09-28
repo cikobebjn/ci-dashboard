@@ -825,11 +825,43 @@ body::after {
 
 
 
+/* ===== Summary KPI layout: 6 cards on one row ===== */
+.summary-kpi-grid {
+    display:grid;
+    grid-template-columns:repeat(6,minmax(0,1fr));
+    gap:14px;
+    margin-bottom:18px;
+    align-items:stretch;
+}
+.summary-kpi-grid .card {
+    min-width:0;
+    height:100%;
+}
+.summary-kpi-grid .card h3 { font-size:10px; }
+.summary-kpi-grid .value { font-size:32px; }
+.summary-kpi-grid .waste-detail-table { font-size:9px; }
+.summary-kpi-grid .waste-detail-table td { padding:6px 2px; }
+.summary-kpi-grid .cost-period-toggle .period-btn { padding:6px 8px; font-size:8px; }
+
+@media (max-width:1280px){
+    .summary-kpi-grid { grid-template-columns:repeat(3,minmax(0,1fr)); }
+}
+@media (max-width:820px){
+    .summary-kpi-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media (max-width:560px){
+    .summary-kpi-grid { grid-template-columns:1fr; }
+}
+
 /* ===== Variance Material — Excel Weekly dashboard ===== */
 .variance-card {
-    grid-column: span 4;
     --card-soft:#fdeaf4;
-    min-height: 340px;
+    min-height:340px;
+}
+.variance-card-full {
+    width:100%;
+    margin-bottom:20px;
+    padding:22px 24px;
 }
 .variance-card::after { width:150px; height:150px; right:-65px; bottom:-78px; opacity:.62; }
 .variance-head {
@@ -886,6 +918,81 @@ body::after {
 .variance-comparison-table tr:last-child td { border-bottom:0; }
 .variance-comparison-table .over { color:#dc2626; font-weight:800; }
 .variance-comparison-table .saving { color:#16a34a; font-weight:800; }
+.variance-chart-section {
+    margin-top:14px; padding:16px; border:1px solid #e8edf4; border-radius:18px;
+    background:#fff; box-shadow:0 8px 24px rgba(26,63,114,.04);
+}
+.variance-chart-head { margin-bottom:12px; }
+.variance-chart-title-row { display:flex; align-items:flex-start; justify-content:space-between; gap:18px; }
+.variance-chart-title { color:#704e64; font-size:9px; font-weight:900; text-transform:uppercase; letter-spacing:.07em; }
+.variance-chart-note { max-width:760px; margin-top:4px; color:#94a0b2; font-size:8px; line-height:1.5; }
+.variance-chart-toolbar {
+    display:flex; align-items:flex-end; justify-content:space-between; gap:14px; margin-top:13px;
+    padding:9px 10px; border:1px solid #edf0f5; border-radius:13px; background:#fafbfc;
+}
+.variance-chart-controls { display:flex; flex-wrap:wrap; align-items:flex-end; gap:12px; }
+.variance-chart-control-group { display:flex; flex-direction:column; gap:4px; }
+.variance-chart-control-label { color:#9aa4b2; font-size:7px; font-weight:850; text-transform:uppercase; letter-spacing:.06em; }
+.variance-chart-metric, .variance-chart-type { display:flex; gap:3px; padding:3px; border:1px solid #e8edf3; border-radius:10px; background:#fff; }
+.variance-chart-btn {
+    min-height:30px; border:0; border-radius:8px; background:transparent; color:#6c7789;
+    font-size:8px; font-weight:850; padding:6px 10px; cursor:pointer; transition:.16s ease;
+}
+.variance-chart-btn:hover { background:#f7edf4; color:#9d356d; }
+.variance-chart-btn.active { background:linear-gradient(135deg,#db2777,#8b5cf6); color:#fff; box-shadow:0 5px 12px rgba(139,92,246,.17); }
+.variance-chart-download {
+    min-height:36px; display:inline-flex; align-items:center; justify-content:center; gap:7px;
+    border:1px solid rgba(18,104,232,.18); border-radius:10px;
+    background:linear-gradient(135deg,#15345f 0%,#1268e8 100%); color:#fff;
+    font-size:8px; font-weight:850; letter-spacing:.01em; padding:8px 13px; cursor:pointer;
+    box-shadow:0 7px 16px rgba(18,104,232,.16); transition:transform .16s ease, box-shadow .16s ease, filter .16s ease;
+}
+.variance-chart-download svg { width:13px; height:13px; flex:0 0 auto; stroke:currentColor; }
+.variance-chart-download:hover { transform:translateY(-1px); filter:brightness(1.04); box-shadow:0 10px 20px rgba(18,104,232,.22); }
+.variance-chart-download:active { transform:translateY(0); box-shadow:0 5px 12px rgba(18,104,232,.16); }
+.variance-chart-download:focus-visible { outline:3px solid rgba(18,104,232,.18); outline-offset:2px; }
+.variance-chart-wrap { position:relative; min-height:350px; border:1px solid #edf0f4; border-radius:14px; background:#fff; padding:10px; overflow:hidden; }
+.variance-chart-canvas { width:100%; height:330px; display:block; }
+.variance-chart-empty { min-height:300px; display:grid; place-items:center; color:#9ca3af; font-size:9px; }
+.variance-chart-legend { margin-top:9px; display:flex; align-items:center; flex-wrap:wrap; gap:7px 12px; color:#8793a4; font-size:7.5px; }
+.variance-chart-legend span { display:inline-flex; align-items:center; gap:5px; }
+.variance-chart-meta-pill { padding:4px 7px; border:1px solid #edf0f4; border-radius:999px; background:#f8fafc; color:#64748b; }
+.variance-chart-swatch { width:9px; height:9px; border-radius:999px; display:inline-block; }
+.variance-pareto-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:4px 14px; margin-top:8px; }
+.variance-pareto-item { display:flex; gap:7px; align-items:flex-start; min-width:0; color:#667085; font-size:7.5px; }
+.variance-pareto-item b { flex:0 0 18px; width:18px; height:18px; display:grid; place-items:center; border-radius:6px; background:#f8edf4; color:#b4236a; font-size:7px; }
+.variance-pareto-item span { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.variance-top5-section { margin-top:14px; }
+.variance-top5-head { display:flex; align-items:flex-end; justify-content:space-between; gap:12px; margin-bottom:8px; }
+.variance-top5-title { color:#704e64; font-size:9px; font-weight:900; text-transform:uppercase; letter-spacing:.07em; }
+.variance-top5-note { margin-top:3px; color:#94a0b2; font-size:7.5px; line-height:1.45; }
+.variance-top5-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
+.variance-top5-card { min-width:0; overflow:hidden; border:1px solid #e3e8f0; border-radius:13px; background:#fff; box-shadow:0 7px 18px rgba(26,63,114,.07); }
+.variance-top5-card-head { display:flex; align-items:center; justify-content:space-between; gap:8px; min-height:38px; padding:9px 12px; background:linear-gradient(135deg,#20336c 0%,#1e2a63 100%); color:#fff; }
+.variance-top5-card-head strong { min-width:0; font-size:8px; font-weight:900; letter-spacing:.04em; text-transform:uppercase; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.variance-top5-card-head span { flex:0 0 auto; padding:3px 6px; border:1px solid rgba(255,255,255,.18); border-radius:999px; background:rgba(255,255,255,.09); font-size:6.8px; font-weight:800; text-transform:uppercase; letter-spacing:.04em; }
+.variance-top5-list { padding:5px 10px 7px; }
+.variance-top5-row { display:grid; grid-template-columns:24px minmax(0,1fr) 66px 78px; gap:7px; align-items:center; min-height:38px; padding:6px 0; border-bottom:1px solid #f0f2f6; }
+.variance-top5-row:last-child { border-bottom:0; }
+.variance-top5-rank { width:21px; height:21px; display:grid; place-items:center; border-radius:7px; background:#f7eef4; color:#b4236a; font-size:7px; font-weight:900; }
+.variance-top5-material { min-width:0; color:#334155; font-size:7.7px; font-weight:800; line-height:1.28; overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+.variance-top5-pct { text-align:right; color:#dc2626; font-size:7.5px; font-weight:900; white-space:nowrap; }
+.variance-top5-value { text-align:right; color:#64748b; font-size:7.3px; font-weight:800; white-space:nowrap; }
+.variance-top5-empty { padding:18px 12px; text-align:center; color:#9ca3af; font-size:7.5px; }
+.variance-top5-footer { padding:7px 10px; border-top:1px solid #f0f2f6; background:#fafbfc; color:#98a2b3; font-size:6.8px; }
+@media (max-width:1200px){ .variance-top5-grid{grid-template-columns:repeat(2,minmax(0,1fr));} }
+@media (max-width:720px){ .variance-top5-grid{grid-template-columns:1fr;} .variance-top5-row{grid-template-columns:24px minmax(0,1fr) 62px 72px;} }
+@media (max-width:900px){
+    .variance-chart-title-row{flex-direction:column;}
+    .variance-chart-toolbar{align-items:stretch;flex-direction:column;}
+    .variance-chart-controls{gap:8px;}
+    .variance-chart-control-group{flex:1 1 100%;}
+    .variance-chart-metric,.variance-chart-type{width:100%;}
+    .variance-chart-btn{flex:1 1 auto;text-align:center;}
+    .variance-chart-download{width:100%;}
+    .variance-pareto-list{grid-template-columns:1fr;}
+}
+
 .variance-filter-grid {
     display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:7px; margin:8px 0 12px;
     position:relative; z-index:80; overflow:visible;
@@ -921,9 +1028,44 @@ body::after {
     border-bottom:1px solid #f2eaf0; margin-bottom:6px;
 }
 .variance-multi-menu-head b { color:#7a536d; font-size:8px; text-transform:uppercase; letter-spacing:.05em; }
-.variance-multi-clear { border:0; background:transparent; color:#c0266d; font-size:8px; font-weight:800; cursor:pointer; padding:3px 4px; white-space:nowrap; }
-.variance-multi-clear.search-action { color:#b4236a; }
-.variance-multi-clear:disabled { color:#aab2bf; cursor:default; }
+.variance-multi-clear {
+    min-height:28px;
+    padding:5px 10px;
+    border:1px solid #ead7e3;
+    border-radius:999px;
+    background:#fff8fc;
+    color:#a83a72;
+    font-size:8px;
+    font-weight:850;
+    line-height:1;
+    cursor:pointer;
+    white-space:nowrap;
+    box-shadow:0 2px 7px rgba(148,54,103,.06);
+    transition:background .16s ease,border-color .16s ease,box-shadow .16s ease,transform .16s ease;
+}
+.variance-multi-clear:hover:not(:disabled) {
+    background:#fff0f7;
+    border-color:#e5b9d1;
+    box-shadow:0 5px 12px rgba(148,54,103,.10);
+    transform:translateY(-1px);
+}
+.variance-multi-clear.search-action {
+    border-color:#e6a8c8;
+    background:linear-gradient(180deg,#fff8fc 0%,#fdebf5 100%);
+    color:#b31263;
+}
+.variance-multi-clear.search-action:hover:not(:disabled) {
+    background:linear-gradient(180deg,#fff3f9 0%,#fbddea 100%);
+    border-color:#d985b3;
+}
+.variance-multi-clear:disabled {
+    border-color:#edf0f4;
+    background:#f8fafc;
+    color:#aab2bf;
+    box-shadow:none;
+    cursor:default;
+    transform:none;
+}
 .variance-multi-search-wrap {
     position:sticky; top:0; z-index:5; margin:0 0 7px; padding:2px 2px 7px;
     background:#fff; border-bottom:1px solid #f2eaf0;
@@ -1033,12 +1175,12 @@ body::after {
     .variance-material-wrap{max-height:380px;}
 }
 
-@media (max-width:1400px){ .variance-card{grid-column:span 3;} }
-@media (max-width:1100px){ .variance-card{grid-column:1/-1;} }
+@media (max-width:1400px){ .variance-card-full{width:100%;} }
+@media (max-width:1100px){ .variance-card-full{width:100%;} }
 @media (max-width:700px){
     .variance-filter-grid{grid-template-columns:1fr 1fr;}
     .variance-kpi-grid{grid-template-columns:1fr;}
-    .variance-card{grid-column:1/-1;}
+    .variance-card-full{width:100%;}
     .variance-head{flex-direction:column;align-items:stretch;}
     .variance-period-controls{align-items:stretch;}
     .variance-period-toggle{width:max-content;max-width:100%;}
@@ -1386,7 +1528,7 @@ body::after {
     </div>
 
     <div class="sec-title" style="margin-top:0;">Ringkasan KPI <span id="title-date-waste" style="color:#9ca3af; font-weight:400; text-transform:none;"></span></div>
-    <div class="kpi-grid" style="grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); margin-bottom:20px;">
+    <div class="kpi-grid summary-kpi-grid">
 
         <div class="card oee-card">
             <h3>Daily OEE (rata-rata)</h3>
@@ -1443,7 +1585,9 @@ body::after {
             <span class="target-badge" id="cost-target-badge">Target: ≤ Rp 28.000/ton</span>
             <table class="waste-detail-table" id="cost-detail-table"><tbody></tbody></table>
         </div>
-        <div class="card variance-card">
+    </div>
+
+    <div class="card variance-card variance-card-full">
             <div class="variance-head">
                 <div>
                     <h3>📊 Variance Material</h3>
@@ -1493,6 +1637,56 @@ body::after {
                 </div>
             </div>
 
+            <div class="variance-chart-section" id="variance-chart-section">
+                <div class="variance-chart-head">
+                    <div class="variance-chart-title-row">
+                        <div>
+                            <div class="variance-chart-title">Grafik Variance</div>
+                            <div class="variance-chart-note">Grafik mengikuti seluruh filter Variance. Gunakan Bar untuk perbandingan periode, Line untuk tren, dan Pareto untuk menentukan material prioritas improvement.</div>
+                        </div>
+                        <button type="button" class="variance-chart-download" onclick="downloadVarianceChart()" title="Export chart as PNG for presentation">
+                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v11m0 0 4-4m-4 4-4-4M5 15v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            <span>Export PNG</span>
+                        </button>
+                    </div>
+                    <div class="variance-chart-toolbar">
+                        <div class="variance-chart-controls">
+                            <div class="variance-chart-control-group">
+                                <span class="variance-chart-control-label">Metrik</span>
+                                <div class="variance-chart-metric">
+                                    <button type="button" class="variance-chart-btn active" id="variance-chart-btn-value" onclick="switchVarianceChartMetric('varianceValue')">Variance Value</button>
+                                    <button type="button" class="variance-chart-btn" id="variance-chart-btn-pct-value" onclick="switchVarianceChartMetric('pctValue')">% Var Value</button>
+                                    <button type="button" class="variance-chart-btn" id="variance-chart-btn-pct-qty" onclick="switchVarianceChartMetric('pctQty')">% Var Qty</button>
+                                </div>
+                            </div>
+                            <div class="variance-chart-control-group">
+                                <span class="variance-chart-control-label">Tampilan</span>
+                                <div class="variance-chart-type">
+                                    <button type="button" class="variance-chart-btn active" id="variance-chart-type-bar" onclick="switchVarianceChartType('bar')">Bar</button>
+                                    <button type="button" class="variance-chart-btn" id="variance-chart-type-line" onclick="switchVarianceChartType('line')">Line Trend</button>
+                                    <button type="button" class="variance-chart-btn" id="variance-chart-type-pareto" onclick="switchVarianceChartType('pareto')">Pareto</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="variance-chart-wrap" id="variance-chart-wrap">
+                    <canvas id="variance-chart-canvas" class="variance-chart-canvas"></canvas>
+                </div>
+                <div class="variance-chart-legend" id="variance-chart-legend"></div>
+                <div class="variance-pareto-list" id="variance-pareto-list"></div>
+            </div>
+
+            <div class="variance-top5-section" id="variance-top5-section">
+                <div class="variance-top5-head">
+                    <div>
+                        <div class="variance-top5-title" id="variance-top5-title">Top 5 Variance per Week</div>
+                        <div class="variance-top5-note">Menampilkan lima material dengan over-variance value terbesar pada setiap periode terpilih. Seluruh filter Variance tetap diterapkan.</div>
+                    </div>
+                </div>
+                <div class="variance-top5-grid" id="variance-top5-grid"></div>
+            </div>
+
             <div class="variance-divider"></div>
             <div class="variance-group-title">Material Group Breakdown</div>
             <table class="variance-breakdown">
@@ -1522,8 +1716,6 @@ body::after {
                 <span id="variance-row-info"></span>
             </div>
         </div>
-
-    </div>
 
     <!-- Shiftly OEE -->
     <div class="sec-title">OEE Shiftly (rata-rata) <span id="title-date-shiftly" style="color:#9ca3af; font-weight:400; text-transform:none;"></span></div>
@@ -1709,6 +1901,9 @@ let varianceSelectedMonthKeys = [];
 let variancePriorityShowAll = false;
 let variancePriorityExpanded = '';
 const varianceFilters = { gedung:[], group:[], material:[], line:[] };
+let varianceChartMetric = 'varianceValue';
+let varianceChartType = 'bar';
+let varianceChartResizeTimer = null;
 
 // Item yang bernama seperti ini adalah PEMAKAIAN BAHAN, bukan waste,
 // jadi tidak boleh ikut dijumlah ke total waste kartu proses.
@@ -2168,7 +2363,7 @@ function varianceRenderMulti(id, key, values, selected, allLabel='Semua'){
         const checked=valid.includes(v)?' checked':'';
         return `<label class="variance-multi-option"><input type="checkbox" class="variance-multi-check" data-key="${key}" data-value="${enc}"${checked} onchange="onVarianceMultiOptionChange(this)"><span>${escapeHtml(v)}</span></label>`;
     }).join('') : '<div class="variance-multi-empty">Tidak ada pilihan pada filter ini</div>';
-    root.innerHTML=`<button type="button" class="variance-multi-btn ${valid.length?'has-selection':''}" onclick="toggleVarianceMulti('${id}',event)" aria-expanded="false"><span class="variance-multi-label">${escapeHtml(label)}</span><span class="variance-multi-count">${valid.length}</span><span class="variance-multi-caret">▼</span></button><div class="variance-multi-menu"><div class="variance-multi-search-wrap"><span class="variance-multi-search-icon">🔎</span><input type="search" class="variance-multi-search" placeholder="Cari pilihan..." autocomplete="off" oninput="filterVarianceMultiOptions(this)" onclick="event.stopPropagation()" onkeydown="event.stopPropagation()"></div><div class="variance-multi-menu-head"><b>Pilih beberapa</b><button type="button" class="variance-multi-clear" data-key="${key}" data-action="${valid.length?'clear-all':'none'}" onclick="handleVarianceMenuAction(this,event)" ${valid.length?'':'disabled'}>${valid.length?'Hapus pilihan':'Semua aktif'}</button></div><div class="variance-multi-options">${options}</div></div>`;
+    root.innerHTML=`<button type="button" class="variance-multi-btn ${valid.length?'has-selection':''}" onclick="toggleVarianceMulti('${id}',event)" aria-expanded="false"><span class="variance-multi-label">${escapeHtml(label)}</span>${valid.length ? `<span class="variance-multi-count">${valid.length}</span>` : ''}<span class="variance-multi-caret">▼</span></button><div class="variance-multi-menu"><div class="variance-multi-search-wrap"><span class="variance-multi-search-icon">🔎</span><input type="search" class="variance-multi-search" placeholder="Cari pilihan..." autocomplete="off" oninput="filterVarianceMultiOptions(this)" onclick="event.stopPropagation()" onkeydown="event.stopPropagation()"></div><div class="variance-multi-menu-head"><b>Pilih beberapa</b><button type="button" class="variance-multi-clear" data-key="${key}" data-action="${valid.length?'clear-all':'none'}" onclick="handleVarianceMenuAction(this,event)" ${valid.length?'':'disabled'}>${valid.length?'Hapus pilihan':'Semua aktif'}</button></div><div class="variance-multi-options">${options}</div></div>`;
     updateVarianceVisibleAction(root.querySelector('.variance-multi-menu'));
     return valid;
 }
@@ -2187,7 +2382,7 @@ function updateVarianceVisibleAction(menu){
         const allChecked=checks.length>0 && checks.every(ch=>ch.checked);
         btn.disabled=checks.length===0;
         btn.dataset.action=allChecked?'clear-visible':'select-visible';
-        btn.textContent=checks.length ? (allChecked ? `Hapus centang (${checks.length})` : `Centang semua (${checks.length})`) : 'Tidak ada hasil';
+        btn.textContent=checks.length ? (allChecked ? `✓ Hapus centang (${checks.length})` : `✓ Centang semua (${checks.length})`) : 'Tidak ada hasil';
         return;
     }
 
@@ -2520,6 +2715,484 @@ function varianceAggregate(rows,key){
     return [...map.entries()].map(([name,itemRows])=>({name,rows:itemRows,metric:varianceMetric(itemRows)}));
 }
 function varianceMetricClass(v){ return v>0?'over':v<0?'saving':''; }
+function fmtVarianceShort(v,type='money'){
+    const n=Number(v);
+    if(!Number.isFinite(n)) return '—';
+    if(type==='pct') return (n*100).toFixed(2)+'%';
+    const abs=Math.abs(n);
+    if(abs>=1000000000) return 'Rp '+(n/1000000000).toFixed(1).replace(/\.0$/,'')+' M';
+    if(abs>=1000000) return 'Rp '+(n/1000000).toFixed(1).replace(/\.0$/,'')+' Jt';
+    if(abs>=1000) return 'Rp '+(n/1000).toFixed(0)+' Rb';
+    return fmtRupiah(n);
+}
+function varianceChartMetricMeta(){
+    if(varianceChartMetric==='pctValue') return { key:'pctValue', label:'% Variance Value', type:'pct' };
+    if(varianceChartMetric==='pctQty') return { key:'pctQty', label:'% Variance Qty', type:'pct' };
+    return { key:'varianceValue', label:'Variance Value', type:'money' };
+}
+function switchVarianceChartMetric(metric){
+    varianceChartMetric=metric;
+    renderVarianceChart();
+}
+function switchVarianceChartType(type){
+    varianceChartType=type;
+    renderVarianceChart();
+}
+function syncVarianceChartButtons(){
+    document.getElementById('variance-chart-btn-value')?.classList.toggle('active', varianceChartMetric==='varianceValue');
+    document.getElementById('variance-chart-btn-pct-value')?.classList.toggle('active', varianceChartMetric==='pctValue');
+    document.getElementById('variance-chart-btn-pct-qty')?.classList.toggle('active', varianceChartMetric==='pctQty');
+    document.getElementById('variance-chart-type-bar')?.classList.toggle('active', varianceChartType==='bar');
+    document.getElementById('variance-chart-type-line')?.classList.toggle('active', varianceChartType==='line');
+    document.getElementById('variance-chart-type-pareto')?.classList.toggle('active', varianceChartType==='pareto');
+}
+function varianceChartData(){
+    const keys=varianceSelectedPeriodKeys();
+    const meta=varianceChartMetricMeta();
+    return keys.map(key=>{
+        const rows=varianceApplyFilters(varianceRowsForSinglePeriod(key));
+        const metric=varianceMetric(rows);
+        const value=metric[meta.key];
+        return {
+            key,
+            label: variancePeriodLabelByKey(key),
+            shortLabel: variancePeriod==='monthly' ? variancePeriodLabelByKey(key).replace(/\s+20\d{2}$/,'') : variancePeriodLabelByKey(key).replace('Week ','W'),
+            rows,
+            metric,
+            value: Number.isFinite(Number(value)) ? Number(value) : 0,
+            hasData: rows.length>0 && value!==null && value!==undefined,
+        };
+    });
+}
+function varianceRowsAcrossSelectedPeriods(){
+    const all=[];
+    varianceSelectedPeriodKeys().forEach(key=>{
+        varianceRowsForSinglePeriod(key).forEach(r=> all.push(r));
+    });
+    return varianceApplyFilters(all);
+}
+function varianceParetoData(){
+    const rows=varianceRowsAcrossSelectedPeriods();
+    const items=varianceAggregate(rows,'short_text')
+        .filter(item=> Number(item.metric.varianceValue)>0)
+        .sort((a,b)=>b.metric.varianceValue-a.metric.varianceValue)
+        .slice(0,10);
+    const total=items.reduce((s,item)=>s+Number(item.metric.varianceValue||0),0);
+    let cum=0;
+    return items.map((item,index)=>{
+        const value=Number(item.metric.varianceValue||0);
+        cum += value;
+        return {
+            no:index+1,
+            label: item.name,
+            value,
+            cumulative: total>0 ? (cum/total) : 0,
+        };
+    });
+}
+function ensureVarianceChartCanvas(wrap){
+    let cvs=wrap.querySelector('canvas');
+    if(!cvs){
+        wrap.innerHTML='';
+        cvs=document.createElement('canvas');
+        cvs.id='variance-chart-canvas';
+        cvs.className='variance-chart-canvas';
+        wrap.appendChild(cvs);
+    }
+    return cvs;
+}
+function setupVarianceCanvas(wrap){
+    const cvs=ensureVarianceChartCanvas(wrap);
+    const dpr=window.devicePixelRatio || 1;
+    const cssWidth=Math.max(360, wrap.clientWidth-20);
+    const cssHeight=330;
+    cvs.style.width=cssWidth+'px';
+    cvs.style.height=cssHeight+'px';
+    cvs.width=Math.round(cssWidth*dpr);
+    cvs.height=Math.round(cssHeight*dpr);
+    const ctx=cvs.getContext('2d');
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    ctx.fillStyle='#ffffff';
+    ctx.fillRect(0,0,cssWidth,cssHeight);
+    return { cvs, ctx, cssWidth, cssHeight };
+}
+function drawVarianceChartAxes(ctx, cssWidth, cssHeight, margin, min, max, type, rightAxis=false){
+    const plotW=cssWidth-margin.left-margin.right;
+    const plotH=cssHeight-margin.top-margin.bottom;
+    const range=max-min || 1;
+    const yFor=v=> margin.top + (max-v)/range*plotH;
+    const ticks=5;
+    ctx.font='11px Inter, sans-serif';
+    ctx.fillStyle='#8d99aa';
+    ctx.strokeStyle='#eef1f5';
+    ctx.lineWidth=1;
+    for(let i=0;i<=ticks;i++){
+        const value=max-((max-min)/ticks*i);
+        const y=margin.top + (plotH/ticks)*i;
+        ctx.beginPath(); ctx.moveTo(margin.left,y); ctx.lineTo(cssWidth-margin.right,y); ctx.stroke();
+        ctx.textAlign='right'; ctx.textBaseline='middle';
+        ctx.fillText(fmtVarianceShort(value,type), margin.left-12, y);
+        if(rightAxis){
+            const pct=100 - (100/ticks)*i;
+            ctx.textAlign='left';
+            ctx.fillText(pct.toFixed(0)+'%', cssWidth-margin.right+10, y);
+        }
+    }
+    if(min<=0 && max>=0){
+        const zeroY=yFor(0);
+        ctx.strokeStyle='#cfd7e3';
+        ctx.lineWidth=1.2;
+        ctx.beginPath(); ctx.moveTo(margin.left,zeroY); ctx.lineTo(cssWidth-margin.right,zeroY); ctx.stroke();
+    }
+    return { plotW, plotH, yFor };
+}
+function drawVarianceXAxisLabel(ctx,text,x,y,maxWidth){
+    ctx.textAlign='center';
+    ctx.textBaseline='top';
+    ctx.fillStyle='#64748b';
+    ctx.font='600 10px Inter, sans-serif';
+    let label=String(text||'');
+    while(label.length>4 && ctx.measureText(label).width>maxWidth) label=label.slice(0,-1);
+    if(label!==String(text||'')) label=label.slice(0,-1)+'…';
+    ctx.fillText(label,x,y);
+}
+function renderVarianceChartBar(ctx, cssWidth, cssHeight, data, meta){
+    const margin={top:24,right:26,bottom:56,left:76};
+    const values=data.map(d=>d.hasData?d.value:0);
+    let min=Math.min(0,...values), max=Math.max(0,...values);
+    if(min===max){
+        if(max===0){ max=1; min=-1; }
+        else { const pad=Math.abs(max)*0.35; max+=pad; min-=pad; }
+    } else {
+        const pad=(max-min)*0.14;
+        max+=pad; min-=pad;
+    }
+    const { plotW, yFor } = drawVarianceChartAxes(ctx, cssWidth, cssHeight, margin, min, max, meta.type);
+    const zeroY=yFor(0);
+    const band=plotW/Math.max(1,data.length);
+    const barW=Math.min(48, Math.max(16,band*0.50));
+    data.forEach((item,idx)=>{
+        const x=margin.left + band*idx + (band-barW)/2;
+        const y=yFor(item.value);
+        const top=Math.min(y,zeroY), height=Math.max(3,Math.abs(zeroY-y));
+        const positive=item.value>=0;
+        const grad=ctx.createLinearGradient(0,top,0,top+height);
+        if(positive){ grad.addColorStop(0,'#ef4444'); grad.addColorStop(1,'#fb7185'); }
+        else { grad.addColorStop(0,'#16a34a'); grad.addColorStop(1,'#4ade80'); }
+        ctx.fillStyle=grad;
+        const radius=Math.min(8,barW/3);
+        const bottom=top+height;
+        ctx.beginPath();
+        if(positive){
+            ctx.moveTo(x,bottom); ctx.lineTo(x,top+radius); ctx.quadraticCurveTo(x,top,x+radius,top);
+            ctx.lineTo(x+barW-radius,top); ctx.quadraticCurveTo(x+barW,top,x+barW,top+radius); ctx.lineTo(x+barW,bottom);
+        }else{
+            ctx.moveTo(x,top); ctx.lineTo(x,bottom-radius); ctx.quadraticCurveTo(x,bottom,x+radius,bottom);
+            ctx.lineTo(x+barW-radius,bottom); ctx.quadraticCurveTo(x+barW,bottom,x+barW,bottom-radius); ctx.lineTo(x+barW,top);
+        }
+        ctx.closePath(); ctx.fill();
+        ctx.textAlign='center';
+        ctx.textBaseline=positive?'bottom':'top';
+        ctx.fillStyle=positive?'#c81e1e':'#15803d';
+        ctx.font='700 10px Inter, sans-serif';
+        ctx.fillText(fmtVarianceShort(item.value,meta.type),x+barW/2,positive?top-7:bottom+7);
+        drawVarianceXAxisLabel(ctx,item.shortLabel,x+barW/2,cssHeight-margin.bottom+18,Math.max(52,band-8));
+    });
+}
+function renderVarianceChartLine(ctx, cssWidth, cssHeight, data, meta){
+    const margin={top:28,right:26,bottom:56,left:76};
+    const values=data.map(d=>d.hasData?d.value:0);
+    let min=Math.min(0,...values), max=Math.max(0,...values);
+    if(min===max){
+        if(max===0){ max=1; min=-1; }
+        else { const pad=Math.abs(max)*0.35; max+=pad; min-=pad; }
+    } else {
+        const pad=(max-min)*0.14;
+        max+=pad; min-=pad;
+    }
+    const { plotW, yFor } = drawVarianceChartAxes(ctx, cssWidth, cssHeight, margin, min, max, meta.type);
+    const band=plotW/Math.max(1,data.length);
+    const points=data.map((item,idx)=>({x:margin.left+band*idx+band/2,y:yFor(item.value),item}));
+    if(points.length>1){
+        const grad=ctx.createLinearGradient(margin.left,0,cssWidth-margin.right,0);
+        grad.addColorStop(0,'#7c3aed'); grad.addColorStop(1,'#ec4899');
+        ctx.strokeStyle=grad; ctx.lineWidth=3; ctx.lineJoin='round'; ctx.lineCap='round';
+        ctx.beginPath(); points.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y)); ctx.stroke();
+    }
+    points.forEach(p=>{
+        const positive=p.item.value>=0;
+        ctx.fillStyle=positive?'#ef4444':'#16a34a';
+        ctx.beginPath(); ctx.arc(p.x,p.y,5.5,0,Math.PI*2); ctx.fill();
+        ctx.strokeStyle='#fff'; ctx.lineWidth=2.5; ctx.stroke();
+        ctx.textAlign='center'; ctx.textBaseline=positive?'bottom':'top';
+        ctx.fillStyle=positive?'#c81e1e':'#15803d'; ctx.font='700 10px Inter, sans-serif';
+        ctx.fillText(fmtVarianceShort(p.item.value,meta.type),p.x,positive?p.y-9:p.y+9);
+        drawVarianceXAxisLabel(ctx,p.item.shortLabel,p.x,cssHeight-margin.bottom+18,Math.max(52,band-8));
+    });
+}
+function renderVarianceChartPareto(ctx, cssWidth, cssHeight, paretoData){
+    const margin={top:28,right:64,bottom:50,left:76};
+    const values=paretoData.map(d=>d.value);
+    let max=Math.max(1,...values)*1.16;
+    const { plotW, plotH, yFor } = drawVarianceChartAxes(ctx, cssWidth, cssHeight, margin, 0, max, 'money', true);
+    const band=plotW/Math.max(1,paretoData.length);
+    const barW=Math.min(46, Math.max(15,band*0.48));
+
+    // Garis referensi Pareto 80%
+    const y80=margin.top+(1-.8)*plotH;
+    ctx.save();
+    ctx.strokeStyle='#f59e0b'; ctx.lineWidth=1.2; ctx.setLineDash([5,5]);
+    ctx.beginPath(); ctx.moveTo(margin.left,y80); ctx.lineTo(cssWidth-margin.right,y80); ctx.stroke();
+    ctx.setLineDash([]); ctx.fillStyle='#b45309'; ctx.font='700 9px Inter, sans-serif';
+    ctx.textAlign='right'; ctx.textBaseline='bottom'; ctx.fillText('80%',cssWidth-margin.right-4,y80-3); ctx.restore();
+
+    paretoData.forEach((item,idx)=>{
+        const x=margin.left+band*idx+(band-barW)/2;
+        const y=yFor(item.value), bottom=margin.top+plotH;
+        const grad=ctx.createLinearGradient(0,y,0,bottom); grad.addColorStop(0,'#ef4444'); grad.addColorStop(1,'#fb7185');
+        ctx.fillStyle=grad;
+        ctx.beginPath(); ctx.roundRect(x,y,barW,Math.max(3,bottom-y),[8,8,0,0]); ctx.fill();
+        ctx.textAlign='center'; ctx.textBaseline='bottom'; ctx.fillStyle='#c81e1e'; ctx.font='700 10px Inter, sans-serif';
+        ctx.fillText(fmtVarianceShort(item.value,'money'),x+barW/2,y-7);
+        ctx.textBaseline='top'; ctx.fillStyle='#475569'; ctx.font='800 10px Inter, sans-serif';
+        ctx.fillText(String(item.no),x+barW/2,cssHeight-margin.bottom+18);
+    });
+
+    const points=paretoData.map((item,idx)=>({x:margin.left+band*idx+band/2,y:margin.top+(1-item.cumulative)*plotH,item}));
+    if(points.length){
+        ctx.strokeStyle='#7c3aed'; ctx.lineWidth=3; ctx.lineJoin='round'; ctx.lineCap='round';
+        ctx.beginPath(); points.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y)); ctx.stroke();
+        points.forEach(p=>{
+            ctx.fillStyle='#8b5cf6'; ctx.beginPath(); ctx.arc(p.x,p.y,4.5,0,Math.PI*2); ctx.fill();
+            ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.stroke();
+            ctx.fillStyle='#6d28d9'; ctx.font='700 9px Inter, sans-serif'; ctx.textAlign='center'; ctx.textBaseline='bottom';
+            ctx.fillText((p.item.cumulative*100).toFixed(0)+'%',p.x,p.y-7);
+        });
+    }
+}
+function varianceActiveFilterSummary(){
+    const parts=[];
+    [['gedung','Gedung'],['group','Group'],['material','Material'],['line','Line']].forEach(([key,label])=>{
+        const vals=varianceFilterValues(key);
+        if(vals.length===1) parts.push(label+': '+vals[0]);
+        else if(vals.length>1) parts.push(label+': '+vals.length+' dipilih');
+    });
+    return parts.length?parts.join(' · '):'Semua Gedung · Semua Group · Semua Material · Semua Line';
+}
+function renderVarianceChart(){
+    const wrap=document.getElementById('variance-chart-wrap');
+    const legend=document.getElementById('variance-chart-legend');
+    const paretoList=document.getElementById('variance-pareto-list');
+    if(!wrap) return;
+    syncVarianceChartButtons();
+    const meta=varianceChartMetricMeta();
+    const periodData=varianceChartData();
+    const paretoData=varianceParetoData();
+
+    if(varianceChartType==='pareto' && !paretoData.length){
+        wrap.innerHTML='<div class="variance-chart-empty">Belum ada item material over-variance untuk ditampilkan pada Pareto.</div>';
+        if(legend) legend.innerHTML='';
+        if(paretoList) paretoList.innerHTML='';
+        return;
+    }
+    if(varianceChartType!=='pareto' && (!periodData.length || periodData.every(d=>!d.hasData))){
+        wrap.innerHTML='<div class="variance-chart-empty">Belum ada data variance untuk ditampilkan pada grafik.</div>';
+        if(legend) legend.innerHTML='';
+        if(paretoList) paretoList.innerHTML='';
+        return;
+    }
+
+    const { ctx, cssWidth, cssHeight }=setupVarianceCanvas(wrap);
+    if(varianceChartType==='line') renderVarianceChartLine(ctx,cssWidth,cssHeight,periodData,meta);
+    else if(varianceChartType==='pareto') renderVarianceChartPareto(ctx,cssWidth,cssHeight,paretoData);
+    else renderVarianceChartBar(ctx,cssWidth,cssHeight,periodData,meta);
+
+    const typeLabel=varianceChartType==='line'?'Line Trend':(varianceChartType==='pareto'?'Pareto':'Bar Chart');
+    const periodLabel=(variancePeriod==='monthly'?'Bulanan':'Mingguan')+' · '+varianceSelectedPeriodKeys().length+' periode';
+    if(legend){
+        const visualLegend=varianceChartType==='pareto'
+            ? '<span><i class="variance-chart-swatch" style="background:#ef4444"></i>Variance Value</span><span><i class="variance-chart-swatch" style="background:#7c3aed"></i>Kumulatif kontribusi</span><span><i class="variance-chart-swatch" style="background:#f59e0b"></i>Batas 80%</span>'
+            : '<span><i class="variance-chart-swatch" style="background:#ef4444"></i>Over variance (+)</span><span><i class="variance-chart-swatch" style="background:#16a34a"></i>Saving (-)</span>';
+        legend.innerHTML=visualLegend+`<span class="variance-chart-meta-pill">${escapeHtml(typeLabel)}</span><span class="variance-chart-meta-pill">${escapeHtml(meta.label)}</span><span class="variance-chart-meta-pill">${escapeHtml(periodLabel)}</span>`;
+    }
+    if(paretoList){
+        paretoList.innerHTML=varianceChartType==='pareto'
+            ? paretoData.map(item=>`<div class="variance-pareto-item"><b>${item.no}</b><span title="${escapeHtml(item.label)}">${escapeHtml(item.label)}</span></div>`).join('')
+            : '';
+    }
+}
+function varianceExportPeriodLabel(){
+    const keys=varianceSelectedPeriodKeys();
+    if(!keys.length) return 'No period selected';
+    const parsed=keys.map(key=>{
+        const parts=String(key).split('-').map(Number);
+        return {year:parts[0], period:parts[1]};
+    }).filter(x=>Number.isFinite(x.year)&&Number.isFinite(x.period));
+    if(!parsed.length) return keys.map(k=>variancePeriodLabelByKey(k)).join(', ');
+
+    const years=[...new Set(parsed.map(x=>x.year))];
+    if(years.length===1){
+        const year=years[0];
+        const nums=[...new Set(parsed.map(x=>x.period))].sort((a,b)=>a-b);
+        const contiguous=nums.length>1 && nums.every((n,i)=>i===0 || n===nums[i-1]+1);
+        if(variancePeriod==='weekly'){
+            if(nums.length===1) return `Week ${nums[0]}, ${year}`;
+            if(contiguous) return `Week ${nums[0]}–${nums[nums.length-1]}, ${year}`;
+            return `Week ${nums.join(', ')}, ${year}`;
+        }
+        const monthNames=['January','February','March','April','May','June','July','August','September','October','November','December'];
+        if(nums.length===1) return `${monthNames[nums[0]-1]||nums[0]} ${year}`;
+        if(contiguous) return `${monthNames[nums[0]-1]||nums[0]}–${monthNames[nums[nums.length-1]-1]||nums[nums.length-1]} ${year}`;
+        return `${nums.map(n=>monthNames[n-1]||n).join(', ')} ${year}`;
+    }
+    return keys.map(k=>variancePeriodLabelByKey(k)).join(', ');
+}
+function varianceExportFilterLabel(){
+    const parts=[];
+    const gedung=varianceFilterValues('gedung');
+    const group=varianceFilterValues('group');
+    const material=varianceFilterValues('material');
+    const line=varianceFilterValues('line');
+
+    if(gedung.length===1) parts.push(`Building: ${gedung[0]}`);
+    else if(gedung.length>1) parts.push(`${gedung.length} Buildings Selected`);
+    if(group.length===1) parts.push(`Material Group: ${group[0]}`);
+    else if(group.length>1) parts.push(`${group.length} Material Groups Selected`);
+    if(material.length===1) parts.push(`Material: ${material[0]}`);
+    else if(material.length>1) parts.push(`${material.length} Materials Selected`);
+    if(line.length===1) parts.push(`Line: ${line[0]}`);
+    else if(line.length>1) parts.push(`${line.length} Lines Selected`);
+
+    return parts.length ? parts.join(' | ') : 'All Data';
+}
+function downloadVarianceChart(){
+    const source=document.getElementById('variance-chart-canvas');
+    if(!source){ alert('Grafik belum tersedia untuk di-download.'); return; }
+
+    const exportCanvas=document.createElement('canvas');
+    exportCanvas.width=1600;
+    exportCanvas.height=900;
+    const ctx=exportCanvas.getContext('2d');
+    ctx.fillStyle='#ffffff';
+    ctx.fillRect(0,0,1600,900);
+
+    const meta=varianceChartMetricMeta();
+    const modeLabel=variancePeriod==='monthly' ? 'Monthly' : 'Weekly';
+    const periodText=varianceExportPeriodLabel();
+    const filterText=varianceExportFilterLabel();
+
+    // Header presentation-ready.
+    ctx.fillStyle='#172033';
+    ctx.font='700 36px Arial, sans-serif';
+    ctx.fillText(`${modeLabel} Variance Analysis – ${meta.label}`,70,70);
+
+    ctx.fillStyle='#64748b';
+    ctx.font='20px Arial, sans-serif';
+    ctx.fillText(`Period: ${periodText}`,70,112);
+
+    ctx.fillStyle='#64748b';
+    ctx.font='18px Arial, sans-serif';
+    let filterLine=`Filters: ${filterText}`;
+    if(filterLine.length>145) filterLine=filterLine.slice(0,142)+'…';
+    ctx.fillText(filterLine,70,146);
+
+    // Chart area. Pareto uses a slightly shorter plot so the Top 10 material/SKU
+    // mapping can be exported on the same 16:9 image.
+    const isParetoExport=varianceChartType==='pareto';
+    const boxX=60, boxY=180, boxW=1480, boxH=isParetoExport?420:555;
+    ctx.fillStyle='#ffffff';
+    ctx.strokeStyle='#e8edf4';
+    ctx.lineWidth=2;
+    ctx.beginPath();
+    ctx.roundRect(boxX,boxY,boxW,boxH,24);
+    ctx.fill();
+    ctx.stroke();
+
+    const srcRatio=source.width/source.height;
+    const maxW=boxW-50, maxH=boxH-50;
+    let dw=maxW, dh=dw/srcRatio;
+    if(dh>maxH){ dh=maxH; dw=dh*srcRatio; }
+    ctx.drawImage(source,boxX+(boxW-dw)/2,boxY+(boxH-dh)/2,dw,dh);
+
+    let notesY=790;
+    let footerY=835;
+
+    // Pareto export: include the numbered material/SKU mapping shown in dashboard.
+    if(isParetoExport){
+        const paretoItems=varianceParetoData();
+        const sectionY=632;
+        ctx.fillStyle='#172033';
+        ctx.font='700 18px Arial, sans-serif';
+        ctx.fillText('Top 10 Material / SKU Contributors',70,sectionY);
+
+        ctx.fillStyle='#94a3b8';
+        ctx.font='14px Arial, sans-serif';
+        ctx.fillText('Numbering corresponds to the Pareto chart above.',70,sectionY+24);
+
+        const cols=[70,820];
+        const rowStart=sectionY+55;
+        const rowGap=30;
+        const maxTextWidth=650;
+
+        const fitText=(value,maxWidth)=>{
+            const raw=String(value||'');
+            if(ctx.measureText(raw).width<=maxWidth) return raw;
+            let out=raw;
+            while(out.length>1 && ctx.measureText(out+'…').width>maxWidth) out=out.slice(0,-1);
+            return out+'…';
+        };
+
+        paretoItems.slice(0,10).forEach((item,index)=>{
+            const col=index<5?0:1;
+            const row=index%5;
+            const x=cols[col];
+            const y=rowStart+(row*rowGap);
+
+            ctx.fillStyle='#fce7f3';
+            ctx.beginPath();
+            ctx.roundRect(x,y-17,25,25,7);
+            ctx.fill();
+            ctx.fillStyle='#be185d';
+            ctx.font='700 12px Arial, sans-serif';
+            ctx.textAlign='center';
+            ctx.textBaseline='middle';
+            ctx.fillText(String(index+1),x+12.5,y-4.5);
+
+            ctx.textAlign='left';
+            ctx.textBaseline='alphabetic';
+            ctx.fillStyle='#475569';
+            ctx.font='14px Arial, sans-serif';
+            ctx.fillText(fitText(item.label,maxTextWidth),x+36,y);
+        });
+
+        notesY=842;
+        footerY=875;
+    }
+
+    // Professional notes/footer.
+    ctx.textAlign='left';
+    ctx.textBaseline='alphabetic';
+    ctx.fillStyle='#64748b';
+    ctx.font='16px Arial, sans-serif';
+    ctx.fillText('Notes: Red = Over-Variance | Green = Cost Saving | Pareto = Top 10 Contributors',70,notesY);
+
+    ctx.fillStyle='#94a3b8';
+    ctx.font='14px Arial, sans-serif';
+    ctx.fillText('Bojonegoro Monitoring · PT Kobe Boga Utama',70,footerY);
+
+    const periodPart=variancePeriod==='monthly'?'monthly':'weekly';
+    const metricPart=(varianceChartMetric||'variance').replace(/[^a-z0-9_-]/gi,'');
+    const link=document.createElement('a');
+    link.href=exportCanvas.toDataURL('image/png');
+    link.download=`variance-${periodPart}-${varianceChartType}-${metricPart}-ppt.png`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+}
+window.addEventListener('resize',()=>{
+    clearTimeout(varianceChartResizeTimer);
+    varianceChartResizeTimer=setTimeout(()=>{ if(document.getElementById('variance-chart-section')) renderVarianceChart(); },120);
+});
 function varianceContributionPct(v,totalOver){ return v>0 && totalOver>0 ? (v/totalOver*100) : 0; }
 function toggleVariancePriorityList(){
     variancePriorityShowAll=!variancePriorityShowAll;
@@ -2583,12 +3256,50 @@ function renderVarianceMaterialPriority(rows){
     }
     const info=document.getElementById('variance-priority-info');
     if(info){
-        if(varianceFilterValues('material').length) info.innerHTML=`Fokus item: <strong>${escapeHtml(varianceFilterValues('material').join(', '))}</strong>`;
+        if(varianceFilterValues('material').length){
+            const count=varianceFilterValues('material').length;
+            info.textContent=`${count} material terpilih · Prioritas berdasarkan over-variance terbesar.`;
+        }
         else if(variancePriorityShowAll) info.textContent='Semua item ditampilkan; merah = over variance, hijau = saving.';
         else info.textContent='Top 10 item over-variance terbesar — kandidat utama improvement.';
     }
     const total=document.getElementById('variance-priority-total');
     if(total) total.innerHTML=`Total Over: <strong>${fmtRupiah(totalOver)}</strong>`;
+}
+
+function renderVarianceTop5Cards(){
+    const section=document.getElementById('variance-top5-section');
+    const grid=document.getElementById('variance-top5-grid');
+    const title=document.getElementById('variance-top5-title');
+    if(!section || !grid) return;
+    const keys=varianceSelectedPeriodKeys();
+    if(!keys.length){ section.style.display='none'; grid.innerHTML=''; return; }
+    section.style.display='block';
+    if(title) title.textContent=variancePeriod==='monthly' ? 'Top 5 Variance per Month' : 'Top 5 Variance per Week';
+
+    grid.innerHTML=keys.map(key=>{
+        const rows=varianceApplyFilters(varianceRowsForSinglePeriod(key));
+        const items=varianceAggregate(rows,'short_text')
+            .filter(item=>Number(item.metric.varianceValue)>0)
+            .sort((a,b)=>Number(b.metric.varianceValue)-Number(a.metric.varianceValue))
+            .slice(0,5);
+        const periodLabel=variancePeriodLabelByKey(key);
+        const shortHead=variancePeriod==='monthly' ? periodLabel : periodLabel.replace(' / ',' / ');
+        const list=items.length ? items.map((item,index)=>{
+            const m=item.metric;
+            return `<div class="variance-top5-row" title="${escapeHtml(item.name)}">
+                <span class="variance-top5-rank">${index+1}</span>
+                <span class="variance-top5-material">${escapeHtml(item.name)}</span>
+                <span class="variance-top5-pct">${fmtVariancePct(m.pctValue)}</span>
+                <span class="variance-top5-value">${fmtVarianceShort(m.varianceValue,'money')}</span>
+            </div>`;
+        }).join('') : '<div class="variance-top5-empty">Tidak ada over-variance positif pada periode dan filter ini.</div>';
+        return `<article class="variance-top5-card">
+            <div class="variance-top5-card-head"><strong>${escapeHtml(shortHead)} — Top 5 Variance</strong><span>${rows.length.toLocaleString('id-ID')} data</span></div>
+            <div class="variance-top5-list">${list}</div>
+            <div class="variance-top5-footer">Ranked by highest positive Variance Value · % = % Variance Value</div>
+        </article>`;
+    }).join('');
 }
 
 function renderVariancePeriodComparison(){
@@ -2616,6 +3327,8 @@ function renderVarianceCard(){
     setVarianceMetric(document.getElementById('val-variance-pct-value'),rows.length?m.pctValue:null,'pct');
     setVarianceMetric(document.getElementById('val-variance-pct-qty'),rows.length?m.pctQty:null,'pct');
     renderVariancePeriodComparison();
+    renderVarianceChart();
+    renderVarianceTop5Cards();
 
     const body=document.getElementById('variance-group-body');
     const groups=varianceUnique(rows,'material_group');
