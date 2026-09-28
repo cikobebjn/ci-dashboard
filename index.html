@@ -925,44 +925,84 @@ body::after {
     color:#94a3b8;
     white-space:nowrap;
 }
-.tonase-mtd-panel {
+.tonase-summary-stack {
     margin-top:auto;
-    padding:11px 12px 10px;
+    display:grid;
+    grid-template-columns:1fr;
+    gap:7px;
+}
+.tonase-summary-panel {
+    padding:9px 10px 8px;
     border:1px solid #e5ebf3;
-    border-radius:13px;
+    border-radius:12px;
     background:linear-gradient(145deg,#f8fbff,#f7fcfa);
 }
-.tonase-mtd-top {
+.tonase-summary-panel.weekly {
+    border-color:#dbeafe;
+    background:linear-gradient(145deg,#f5f9ff,#eef6ff);
+}
+.tonase-summary-panel.mtd {
+    border-color:#dff1e8;
+    background:linear-gradient(145deg,#f8fbff,#f4fbf7);
+}
+.tonase-summary-top {
     display:flex;
     align-items:center;
     justify-content:space-between;
     gap:8px;
 }
-.tonase-mtd-label {
+.tonase-summary-label {
     color:#64748b;
-    font-size:8px;
+    font-size:7.5px;
     font-weight:850;
     letter-spacing:.07em;
     text-transform:uppercase;
 }
-.tonase-mtd-period {
+.tonase-summary-panel.weekly .tonase-summary-label { color:#2563eb; }
+.tonase-summary-panel.mtd .tonase-summary-label { color:#059669; }
+.tonase-summary-period {
     color:#94a3b8;
-    font-size:8px;
-    line-height:1.25;
+    font-size:7.5px;
+    line-height:1.2;
     text-align:right;
+    white-space:nowrap;
 }
-.tonase-mtd-value {
-    margin-top:7px;
+.tonase-summary-panel.weekly .tonase-summary-label {
+    white-space:nowrap;
+    text-transform:none;
+    letter-spacing:.02em;
+    font-size:8px;
+}
+.tonase-weekly-badge {
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding:3px 6px;
+    border-radius:999px;
+    background:#e8f1ff;
+    color:#2563eb;
+    font-size:6.8px;
+    font-weight:800;
+    letter-spacing:.03em;
+    white-space:nowrap;
+}
+.tonase-summary-panel.weekly .tonase-summary-period {
+    margin-top:4px;
+    text-align:left;
+    font-size:7.2px;
+}
+.tonase-summary-value {
+    margin-top:5px;
     color:#172033;
-    font-size:23px;
+    font-size:19px;
     font-weight:850;
     letter-spacing:-.03em;
     line-height:1;
 }
-.tonase-mtd-value span {
-    margin-left:5px;
+.tonase-summary-value span {
+    margin-left:4px;
     color:#718096;
-    font-size:11px;
+    font-size:9px;
     font-weight:650;
     letter-spacing:0;
 }
@@ -1723,7 +1763,10 @@ body::after {
                     <div class="card-sub" id="sub-tonase"></div>
                 </div>
             </div>
-            <div id="sub-tonase-mtd" class="tonase-mtd-panel"></div>
+            <div class="tonase-summary-stack">
+                <div id="sub-tonase-weekly" class="tonase-summary-panel weekly"></div>
+                <div id="sub-tonase-mtd" class="tonase-summary-panel mtd"></div>
+            </div>
         </div>
 
         <div class="card waste-mini-card kemasan">
@@ -2322,7 +2365,8 @@ async function loadData(sDate, eDate) {
         tonDate.textContent = 'Tidak ada data'; tonSub.textContent = '';
     }
 
-    // ── Tonase bulan berjalan: tgl 1 bulan ini s.d. tanggal data terakhir ──
+    // ── Tonase weekly (Minggu–Sabtu) + Month-to-Date berdasarkan tanggal data terakhir ──
+    const tonWeeklyEl = document.getElementById('sub-tonase-weekly');
     const tonMtdEl = document.getElementById('sub-tonase-mtd');
     const { data: lastTonRow } = await db
         .from('tonase_harian')
@@ -2333,21 +2377,40 @@ async function loadData(sDate, eDate) {
 
     if (lastTonRow && lastTonRow.tanggal) {
         const lastTonDate = lastTonRow.tanggal;
+        const { start: weekStart, end: weekEnd } = sundayWeekRange(lastTonDate);
         const [y, m] = lastTonDate.split('-');
         const monthStart = `${y}-${m}-01`;
-        const { data: mtdRows } = await db
-            .from('tonase_harian')
-            .select('tonase')
-            .gte('tanggal', monthStart)
-            .lte('tanggal', lastTonDate);
+
+        const [{ data: weeklyRows }, { data: mtdRows }] = await Promise.all([
+            db.from('tonase_harian')
+                .select('tanggal, tonase')
+                .gte('tanggal', weekStart)
+                .lte('tanggal', weekEnd),
+            db.from('tonase_harian')
+                .select('tanggal, tonase')
+                .gte('tanggal', monthStart)
+                .lte('tanggal', lastTonDate)
+        ]);
+
+        const weeklyTotal = (weeklyRows || []).reduce((s, r) => s + (r.tonase || 0), 0);
         const mtdTotal = (mtdRows || []).reduce((s, r) => s + (r.tonase || 0), 0);
-        tonMtdEl.innerHTML = `
-            <div class="tonase-mtd-top">
-                <span class="tonase-mtd-label">Month-to-Date</span>
-                <span class="tonase-mtd-period">${fmtDate(monthStart)} — ${fmtDate(lastTonDate)}</span>
+
+        tonWeeklyEl.innerHTML = `
+            <div class="tonase-summary-top">
+                <span class="tonase-summary-label">Weekly Total</span>
+                <span class="tonase-weekly-badge">Sun–Sat</span>
             </div>
-            <div class="tonase-mtd-value">${mtdTotal.toFixed(2)}<span>ton</span></div>`;
+            <div class="tonase-summary-period">${fmtDate(weekStart)} — ${fmtDate(weekEnd)}</div>
+            <div class="tonase-summary-value">${weeklyTotal.toFixed(2)}<span>ton</span></div>`;
+
+        tonMtdEl.innerHTML = `
+            <div class="tonase-summary-top">
+                <span class="tonase-summary-label">Month-to-Date</span>
+                <span class="tonase-summary-period">${fmtDate(monthStart)} — ${fmtDate(lastTonDate)}</span>
+            </div>
+            <div class="tonase-summary-value">${mtdTotal.toFixed(2)}<span>ton</span></div>`;
     } else {
+        tonWeeklyEl.textContent = '';
         tonMtdEl.textContent = '';
     }
 
