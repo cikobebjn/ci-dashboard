@@ -64,7 +64,7 @@ button,select,input{font-family:Arial,sans-serif}
 .filter-box{display:flex;flex-direction:column;gap:4px}.filter-box label{color:#8a98aa;font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.06em}.filter-box select{min-width:145px;height:38px;padding:0 34px 0 11px;border:1px solid #e4e9f1;border-radius:11px;background:#fff;color:#334155;font-size:10px;font-weight:700;outline:none}.filter-box select:focus{border-color:#b9d3fa;box-shadow:0 0 0 3px rgba(18,104,232,.08)}.btn-reset-chart{height:38px;padding:0 13px;border:1px solid #e4e9f1;border-radius:11px;background:#fff;color:#64748b;font-size:10px;font-weight:800;cursor:pointer}.btn-reset-chart:hover{background:#f8fafc;color:#334155}
 .btn-export-tonase{height:38px;display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:0 14px;border:0;border-radius:11px;background:linear-gradient(135deg,#1268e8,#174fb6);color:#fff;font-size:10px;font-weight:800;cursor:pointer;box-shadow:0 8px 18px rgba(18,104,232,.20);transition:.18s ease}.btn-export-tonase:hover{transform:translateY(-1px);filter:brightness(1.04);box-shadow:0 11px 22px rgba(18,104,232,.25)}.btn-export-tonase:active{transform:translateY(0)}.btn-export-tonase svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .chart-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:12px}.chart-summary-box{padding:11px 13px;border:1px solid #edf1f6;border-radius:13px;background:#fafcff}.chart-summary-box span{display:block;color:#8a98aa;font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.05em}.chart-summary-box strong{display:block;margin-top:5px;color:#23324a;font-size:17px}.chart-summary-box small{margin-left:4px;color:#8a98aa;font-size:10px;font-weight:600}
-.chart-wrap{position:relative;height:360px;border:1px solid #edf1f6;border-radius:16px;background:linear-gradient(180deg,#fff,#fbfdff);padding:10px}.chart-wrap canvas{width:100%;height:100%;display:block}.chart-empty{height:100%;display:grid;place-items:center;color:#9aa6b6;font-size:12px}.chart-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:10px;color:#93a0b1;font-size:9px}.legend-dot{display:inline-block;width:9px;height:9px;margin-right:5px;border-radius:50%;background:linear-gradient(135deg,#1268e8,#7c3aed)}
+.chart-wrap{position:relative;height:360px;border:1px solid #edf1f6;border-radius:16px;background:linear-gradient(180deg,#fff,#fbfdff);padding:10px;overflow:hidden}.chart-wrap canvas{width:100%;height:100%;display:block;cursor:crosshair}.chart-empty{height:100%;display:grid;place-items:center;color:#9aa6b6;font-size:12px}.chart-tooltip{position:absolute;z-index:5;min-width:190px;max-width:250px;padding:11px 12px;border:1px solid rgba(210,219,232,.95);border-radius:12px;background:rgba(255,255,255,.97);box-shadow:0 14px 34px rgba(31,52,84,.16);backdrop-filter:blur(10px);pointer-events:none;opacity:0;transform:translateY(4px);transition:opacity .12s ease,transform .12s ease;color:#334155}.chart-tooltip.show{opacity:1;transform:translateY(0)}.chart-tooltip .tt-title{font-size:11px;font-weight:850;color:#1e293b;margin-bottom:5px}.chart-tooltip .tt-period{font-size:9px;color:#8a98aa;margin-bottom:8px}.chart-tooltip .tt-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-top:5px;margin-top:5px;border-top:1px solid #eef2f6;font-size:9px;color:#64748b}.chart-tooltip .tt-row strong{font-size:11px;color:#1268e8}.chart-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:10px;color:#93a0b1;font-size:9px}.legend-dot{display:inline-block;width:9px;height:9px;margin-right:5px;border-radius:50%;background:linear-gradient(135deg,#1268e8,#7c3aed)}
 
 .table-card{padding:0;overflow:hidden;margin-bottom:24px;border:1px solid rgba(222,231,243,.96);border-radius:20px;background:rgba(255,255,255,.94);box-shadow:var(--shadow)}.table-card h4{margin:0;padding:18px 20px;border-bottom:1px solid #edf1f6;color:#2e4059;background:rgba(250,252,255,.72);font-size:14px}.table-scroll{overflow-x:auto}table{width:100%;min-width:620px;border-collapse:separate;border-spacing:0;font-size:12px}th{padding:12px 15px;border-bottom:1px solid #dfe7f1;background:#f7f9fc;color:#708097;font-size:10px;font-weight:700;text-align:left;text-transform:uppercase;letter-spacing:.055em}td{padding:12px 15px;border-bottom:1px solid #eef2f7;color:#405168;background:rgba(255,255,255,.72)}tbody tr:hover td{background:#f9fbff}tbody tr:last-child td{border-bottom:0}td.ton-val{color:var(--ink);font-weight:700}
 
@@ -167,7 +167,7 @@ button,select,input{font-family:Arial,sans-serif}
             <div class="chart-summary-box"><span>Rata-rata / periode</span><strong id="chart-average">—</strong></div>
             <div class="chart-summary-box"><span>Periode tertinggi</span><strong id="chart-peak">—</strong></div>
         </div>
-        <div class="chart-wrap" id="chart-wrap"><canvas id="tonase-chart"></canvas></div>
+        <div class="chart-wrap" id="chart-wrap"><canvas id="tonase-chart"></canvas><div class="chart-tooltip" id="tonase-chart-tooltip"></div></div>
         <div class="chart-foot"><span><i class="legend-dot"></i>Tonase produksi</span><span id="chart-range-label"></span></div>
     </section>
 
@@ -196,6 +196,8 @@ let chartMode='weekly';
 let chartSeries={weekly:[],monthly:[]};
 let chartRange={weekly:{from:0,to:0},monthly:{from:0,to:0}};
 let chartResizeTimer=null;
+let chartHoverIndex=-1;
+let chartHitBars=[];
 const HARI=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
 const BULAN_ID=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 
@@ -289,16 +291,146 @@ function handleChartRangeChange(changed){const data=chartSeries[chartMode];if(!d
 function resetChartRange(){const n=chartSeries[chartMode].length;if(!n)return;const visible=chartMode==='weekly'?Math.min(8,n):Math.min(6,n);chartRange[chartMode]={from:Math.max(0,n-visible),to:n-1};populateChartSelectors();renderTonaseChart()}
 function selectedChartSeries(){const data=chartSeries[chartMode];if(!data.length)return[];const r=chartRange[chartMode];return data.slice(Math.max(0,r.from),Math.min(data.length-1,r.to)+1)}
 
-function renderTonaseChart(){
-    const wrap=document.getElementById('chart-wrap');let canvas=document.getElementById('tonase-chart');const data=selectedChartSeries();
-    if(!data.length){wrap.innerHTML='<div class="chart-empty">Belum ada data untuk grafik tonase.</div>';updateChartSummary([]);return}
-    if(!canvas){wrap.innerHTML='<canvas id="tonase-chart"></canvas>';canvas=document.getElementById('tonase-chart')}
-    const dpr=window.devicePixelRatio||1,cssW=Math.max(320,wrap.clientWidth-20),cssH=Math.max(250,wrap.clientHeight-20);canvas.style.width=cssW+'px';canvas.style.height=cssH+'px';canvas.width=Math.round(cssW*dpr);canvas.height=Math.round(cssH*dpr);const ctx=canvas.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,cssW,cssH);
-    const margin={top:28,right:18,bottom:64,left:68},plotW=cssW-margin.left-margin.right,plotH=cssH-margin.top-margin.bottom;const maxVal=Math.max(...data.map(d=>d.value),1);const yMax=maxVal*1.18;const yFor=v=>margin.top+(1-v/yMax)*plotH;
-    ctx.strokeStyle='#e9eef5';ctx.lineWidth=1;ctx.fillStyle='#8492a6';ctx.font='11px Arial, sans-serif';ctx.textBaseline='middle';ctx.textAlign='right';for(let i=0;i<=5;i++){const value=yMax-(yMax/5*i),y=margin.top+plotH/5*i;ctx.beginPath();ctx.moveTo(margin.left,y);ctx.lineTo(cssW-margin.right,y);ctx.stroke();ctx.fillText(`${value.toLocaleString('id-ID',{maximumFractionDigits:1})} t`,margin.left-10,y)}
-    const band=plotW/data.length,barW=Math.min(58,band*.48);data.forEach((item,i)=>{const x=margin.left+i*band+(band-barW)/2,y=yFor(item.value),bottom=margin.top+plotH,h=bottom-y;const grad=ctx.createLinearGradient(0,y,0,bottom);grad.addColorStop(0,'#1268e8');grad.addColorStop(1,'#7c3aed');ctx.fillStyle=grad;ctx.beginPath();ctx.roundRect(x,y,barW,Math.max(3,h),10);ctx.fill();ctx.fillStyle='#174fb6';ctx.font='700 11px Arial, sans-serif';ctx.textAlign='center';ctx.textBaseline='bottom';ctx.fillText(`${item.value.toLocaleString('id-ID',{maximumFractionDigits:1})} t`,x+barW/2,y-7);ctx.fillStyle='#60718a';ctx.font='700 10px Arial, sans-serif';ctx.textBaseline='top';ctx.fillText(item.label,x+barW/2,bottom+16);if(chartMode==='weekly'){ctx.fillStyle='#9aa6b6';ctx.font='9px Arial, sans-serif';ctx.fillText(item.detail,x+barW/2,bottom+32)}});
-    ctx.strokeStyle='#cfd8e6';ctx.beginPath();ctx.moveTo(margin.left,margin.top+plotH);ctx.lineTo(cssW-margin.right,margin.top+plotH);ctx.stroke();updateChartSummary(data)
+function bindTonaseChartInteraction(canvas){
+    if(!canvas || canvas.dataset.tonaseBound==='1') return;
+    canvas.dataset.tonaseBound='1';
+    const wrap=document.getElementById('chart-wrap');
+    const tooltip=document.getElementById('tonase-chart-tooltip');
+
+    const hideTooltip=()=>{
+        chartHoverIndex=-1;
+        tooltip?.classList.remove('show');
+        if(currentData) renderTonaseChart();
+    };
+
+    canvas.addEventListener('mouseleave',hideTooltip);
+    canvas.addEventListener('mousemove',e=>{
+        const rect=canvas.getBoundingClientRect();
+        const x=e.clientX-rect.left;
+        const y=e.clientY-rect.top;
+        if(!chartHitBars.length){ tooltip?.classList.remove('show'); return; }
+
+        let hit=-1;
+        let nearestDist=Infinity;
+        chartHitBars.forEach((b,i)=>{
+            const withinBand=x>=b.bandLeft && x<=b.bandRight && y>=b.plotTop && y<=b.plotBottom+44;
+            if(withinBand){
+                const d=Math.abs(x-b.centerX);
+                if(d<nearestDist){nearestDist=d;hit=i;}
+            }
+        });
+        if(hit<0){
+            tooltip?.classList.remove('show');
+            if(chartHoverIndex!==-1){chartHoverIndex=-1;renderTonaseChart();}
+            return;
+        }
+
+        if(chartHoverIndex!==hit){chartHoverIndex=hit;renderTonaseChart();}
+        const bar=chartHitBars[hit];
+        if(!bar || !tooltip) return;
+        const item=bar.item;
+        const title=item.label;
+        const period=chartMode==='weekly' ? item.detail : item.detail;
+        tooltip.innerHTML=`
+            <div class="tt-title">${title}</div>
+            <div class="tt-period">${period}</div>
+            <div class="tt-row"><span>Tonase</span><strong>${fmtTon(item.value)} ton</strong></div>
+            <div class="tt-row"><span>Hari produksi</span><strong>${item.count||0} hari</strong></div>`;
+        const tw=tooltip.offsetWidth||210, th=tooltip.offsetHeight||90;
+        let left=x+16, top=y-th-10;
+        if(left+tw>wrap.clientWidth-8) left=x-tw-16;
+        if(top<8) top=y+16;
+        tooltip.style.left=Math.max(8,left)+'px';
+        tooltip.style.top=Math.max(8,top)+'px';
+        tooltip.classList.add('show');
+    });
 }
+
+function renderTonaseChart(){
+    const wrap=document.getElementById('chart-wrap');
+    let canvas=document.getElementById('tonase-chart');
+    const data=selectedChartSeries();
+    if(!data.length){
+        wrap.innerHTML='<div class="chart-empty">Belum ada data untuk grafik tonase.</div>';
+        chartHitBars=[];
+        chartHoverIndex=-1;
+        updateChartSummary([]);
+        return;
+    }
+    if(!canvas){
+        wrap.innerHTML='<canvas id="tonase-chart"></canvas><div class="chart-tooltip" id="tonase-chart-tooltip"></div>';
+        canvas=document.getElementById('tonase-chart');
+    } else if(!document.getElementById('tonase-chart-tooltip')){
+        wrap.insertAdjacentHTML('beforeend','<div class="chart-tooltip" id="tonase-chart-tooltip"></div>');
+    }
+    bindTonaseChartInteraction(canvas);
+
+    const dpr=window.devicePixelRatio||1;
+    const cssW=Math.max(320,wrap.clientWidth-20),cssH=Math.max(250,wrap.clientHeight-20);
+    canvas.style.width=cssW+'px';canvas.style.height=cssH+'px';
+    canvas.width=Math.round(cssW*dpr);canvas.height=Math.round(cssH*dpr);
+    const ctx=canvas.getContext('2d');
+    ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,cssW,cssH);
+
+    const margin={top:34,right:18,bottom:60,left:68};
+    const plotW=cssW-margin.left-margin.right,plotH=cssH-margin.top-margin.bottom;
+    const maxVal=Math.max(...data.map(d=>d.value),1),yMax=maxVal*1.18;
+    const yFor=v=>margin.top+(1-v/yMax)*plotH;
+
+    ctx.strokeStyle='#e9eef5';ctx.lineWidth=1;ctx.fillStyle='#8492a6';ctx.font='11px Arial, sans-serif';ctx.textBaseline='middle';ctx.textAlign='right';
+    for(let i=0;i<=5;i++){
+        const value=yMax-(yMax/5*i),y=margin.top+plotH/5*i;
+        ctx.beginPath();ctx.moveTo(margin.left,y);ctx.lineTo(cssW-margin.right,y);ctx.stroke();
+        ctx.fillText(`${value.toLocaleString('id-ID',{maximumFractionDigits:1})} t`,margin.left-10,y);
+    }
+
+    const band=plotW/data.length;
+    const barW=Math.max(8,Math.min(52,band*.5));
+    const maxLabels=Math.max(5,Math.floor(plotW/72));
+    const labelStep=Math.max(1,Math.ceil(data.length/maxLabels));
+    const showAllValues=data.length<=14;
+    chartHitBars=[];
+
+    data.forEach((item,i)=>{
+        const x=margin.left+i*band+(band-barW)/2;
+        const y=yFor(item.value),bottom=margin.top+plotH,h=bottom-y;
+        const hovered=i===chartHoverIndex;
+        const grad=ctx.createLinearGradient(0,y,0,bottom);
+        grad.addColorStop(0,hovered?'#0f5ed7':'#1268e8');
+        grad.addColorStop(1,hovered?'#5b21b6':'#7c3aed');
+        ctx.fillStyle=grad;
+        ctx.beginPath();ctx.roundRect(x,y,barW,Math.max(3,h),Math.min(10,barW/2));ctx.fill();
+        if(hovered){
+            ctx.strokeStyle='rgba(18,104,232,.22)';ctx.lineWidth=6;
+            ctx.beginPath();ctx.roundRect(x-3,y-3,barW+6,Math.max(9,h+6),Math.min(12,(barW+6)/2));ctx.stroke();
+        }
+
+        if(showAllValues || hovered){
+            ctx.fillStyle='#174fb6';ctx.font=hovered?'800 12px Arial, sans-serif':'700 10px Arial, sans-serif';ctx.textAlign='center';ctx.textBaseline='bottom';
+            ctx.fillText(`${item.value.toLocaleString('id-ID',{maximumFractionDigits:1})} t`,x+barW/2,y-7);
+        }
+
+        const showLabel=(i%labelStep===0)||i===data.length-1||hovered;
+        if(showLabel){
+            ctx.fillStyle=hovered?'#1e293b':'#60718a';ctx.font=hovered?'800 10px Arial, sans-serif':'700 10px Arial, sans-serif';ctx.textAlign='center';ctx.textBaseline='top';
+            const shortLabel=chartMode==='weekly' ? item.label.replace(/\s*\/\s*/,' / ') : item.label;
+            ctx.fillText(shortLabel,x+barW/2,bottom+17);
+        }
+
+        chartHitBars.push({
+            item,index:i,x,y,w:barW,h,centerX:x+barW/2,
+            bandLeft:margin.left+i*band,
+            bandRight:margin.left+(i+1)*band,
+            plotTop:margin.top,
+            plotBottom:bottom
+        });
+    });
+
+    ctx.strokeStyle='#cfd8e6';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(margin.left,margin.top+plotH);ctx.lineTo(cssW-margin.right,margin.top+plotH);ctx.stroke();
+    updateChartSummary(data);
+}
+
 function updateChartSummary(data){
     const total=data.reduce((s,d)=>s+d.value,0),avg=data.length?total/data.length:0,peak=data.length?data.reduce((a,b)=>a.value>b.value?a:b):null;
     document.getElementById('chart-total').innerHTML=data.length?`${fmtTon(total)}<small> ton</small>`:'—';document.getElementById('chart-average').innerHTML=data.length?`${fmtTon(avg)}<small> ton</small>`:'—';document.getElementById('chart-peak').innerHTML=peak?`${peak.label}<small> · ${fmtTon(peak.value)} ton</small>`:'—';
