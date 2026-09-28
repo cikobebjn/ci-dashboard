@@ -1,10 +1,12 @@
 
 
+
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Waste - Bojonegoro</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Waste Produksi | Bojonegoro Monitoring</title>
 <style>
 :root {
   --primary:#1268e8;
@@ -95,16 +97,63 @@ body::after{width:320px;height:320px;right:-130px;top:32%;background:rgba(124,58
 .input-row{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px;align-items:flex-end}.inp-group{display:flex;flex-direction:column;gap:4px}.inp-group label{font-size:12px;color:#6b7280;font-weight:600}.inp-group input[type=date],.inp-group select{padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;color:#1f2937;background:white;min-width:140px}.waste-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}.waste-table th{background:#f9fafb;color:#6b7280;font-weight:600;font-size:11px;padding:10px 12px;text-align:left;border-bottom:2px solid #e5e7eb;text-transform:uppercase;letter-spacing:.04em}.waste-table td{padding:8px 10px;border-bottom:1px solid #f3f4f6}.mesin-name{font-weight:600;color:#374151;font-size:13px}.mesin-sub{font-size:11px;color:#9ca3af}.inp-waste{width:90px;padding:6px 8px;border:1px solid #d1d5db;border-radius:6px;font-size:13px;text-align:right;color:#1f2937}.batas-badge{font-size:11px;color:#9ca3af;display:block;margin-top:2px;text-align:right}.btn-row{display:flex;gap:12px;align-items:center;margin-top:20px;flex-wrap:wrap}.btn-simpan{background:#f59e0b;color:white;border:none;padding:11px 24px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600}.btn-reset{background:white;color:#6b7280;border:1px solid #d1d5db;padding:11px 20px;border-radius:8px;cursor:pointer;font-size:14px}
 @media(max-width:900px){.main{width:min(100% - 24px,1380px)}.main::before{min-height:150px;font-size:34px;padding:28px}.kpi-grid{grid-template-columns:1fr}.table-card{overflow-x:auto}.riwayat-table{min-width:900px}}
 @media(max-width:600px){.topbar{height:58px;padding:0 14px}.topbar h2{font-size:16px}.main{padding-top:74px;width:min(100% - 20px,1380px)}.main::before{min-height:120px;border-radius:22px;font-size:28px;padding:24px 20px}.input-card,.table-card{border-radius:20px;padding:18px 14px}.sec-title{font-size:12px}.kpi-card{border-radius:18px}.kpi-val{font-size:30px}.table-card>div:first-child{align-items:stretch!important}.table-card>div:first-child>div{margin-left:0!important}.table-card button{width:100%}}
+
+
+/* ===== UNIFIED BOJONEGORO DASHBOARD UI ===== */
+.topbar{
+  height:72px;padding:0 28px;gap:14px;
+  color:var(--ink);background:rgba(255,255,255,.82);
+  border-bottom:1px solid rgba(229,235,243,.9);
+  box-shadow:0 7px 26px rgba(26,63,114,.05);backdrop-filter:blur(15px)
+}
+.topbar h2{margin:0!important;color:var(--ink);font-size:19px;line-height:1.05;letter-spacing:-.02em}
+.topbar h2::after{content:'Factory Bojonegoro · Performance Monitoring';display:block;margin-top:5px;color:#8b9ab0;font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.menu-btn{width:40px;height:40px;display:grid;place-items:center;margin-right:0;border:1px solid #dce7f4;border-radius:12px;background:#fff;color:#34516f;box-shadow:0 7px 16px rgba(26,63,114,.06);font-size:22px;cursor:pointer;transition:.2s ease}
+.menu-btn:hover{background:#edf5ff;color:var(--primary);border-color:#cfe1fb;transform:translateY(-1px)}
+.sidebar{width:292px;left:-292px;padding:92px 16px 28px;background:linear-gradient(180deg,#10284a 0%,#111d34 48%,#0f172a 100%);box-shadow:20px 0 54px rgba(11,30,56,.24);transition:left .28s cubic-bezier(.4,0,.2,1)}
+.sidebar::before{content:'KOBE · BOJONEGORO';top:28px;left:24px;font-size:12px;letter-spacing:.14em}
+.sidebar::after{content:'Manufacturing Dashboard';position:absolute;top:48px;left:24px;color:#7f95b5;font-size:10px;font-weight:650;letter-spacing:.04em}
+.sidebar a{min-height:46px;border-radius:13px;color:#cad6e7}
+.sidebar a:hover{background:rgba(255,255,255,.08)}
+.sidebar a.active{background:linear-gradient(135deg,var(--primary),var(--accent));box-shadow:0 11px 24px rgba(18,104,232,.26)}
+.sidebar-toggle-btn{position:absolute;top:22px;right:18px;width:40px;height:40px;display:grid;place-content:center;gap:4px;border:1px solid rgba(255,255,255,.12);border-radius:12px;background:rgba(255,255,255,.07);cursor:pointer}
+.sidebar-toggle-btn span{display:block;width:17px;height:2px;border-radius:999px;background:#dce7f5}
+.sidebar-toggle-btn:hover{background:rgba(255,255,255,.12)}
+.main{max-width:1520px;width:auto;margin:0 auto;padding:94px 26px 44px}
+.main::before{display:none!important}
+.page-hero{position:relative;overflow:hidden;min-height:210px;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:28px;margin-bottom:22px;padding:30px 34px;border:1px solid rgba(255,255,255,.40);border-radius:28px;color:#fff;background:linear-gradient(120deg,rgba(0,32,91,.12),rgba(61,16,135,.16)),linear-gradient(135deg,#0b63dc 0%,#174fb6 52%,#7338d2 100%);box-shadow:0 24px 60px rgba(25,73,157,.24)}
+.page-hero::before{content:'';position:absolute;width:330px;height:330px;right:-80px;top:-190px;border:1px solid rgba(255,255,255,.15);border-radius:50%;box-shadow:0 0 0 42px rgba(255,255,255,.035),0 0 0 86px rgba(255,255,255,.024)}
+.hero-copy,.hero-stat{position:relative;z-index:1}.hero-kicker{display:inline-flex;align-items:center;gap:8px;margin-bottom:13px;padding:7px 11px;border:1px solid rgba(255,255,255,.22);border-radius:999px;background:rgba(255,255,255,.10);font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase}.hero-kicker::before{content:'';width:8px;height:8px;border-radius:50%;background:#6df1ad;box-shadow:0 0 0 5px rgba(109,241,173,.16)}
+.page-hero h1{margin:0;font-size:clamp(31px,4vw,46px);line-height:1;letter-spacing:-.035em}.page-hero p{max-width:690px;margin:10px 0 0;color:rgba(255,255,255,.78);font-size:14px;line-height:1.55}.hero-stat{min-width:220px;padding:20px;border:1px solid rgba(255,255,255,.22);border-radius:20px;background:rgba(255,255,255,.12);backdrop-filter:blur(12px);box-shadow:inset 0 1px 0 rgba(255,255,255,.14)}.hero-stat span{display:block;color:rgba(255,255,255,.72);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}.hero-stat strong{display:block;margin-top:5px;font-size:27px;line-height:1.05}.hero-stat small{display:block;margin-top:7px;color:rgba(255,255,255,.75);font-size:11px}
+.sec-title{margin:27px 2px 12px;font-size:12px}.sec-title::before{content:'';width:4px;height:18px;border-radius:999px;background:linear-gradient(180deg,var(--primary),var(--accent))}
+.kpi-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.kpi-card{border-radius:20px;min-height:146px;padding:21px}.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--kpi-accent,#1268e8)}.kpi-card.kemasan{--kpi-accent:#f59e0b}.kpi-card.sfg{--kpi-accent:#7c3aed}.kpi-card.karton{--kpi-accent:#ef4444}
+.input-card,.table-card{border-radius:22px}.input-card{padding:22px}.table-card{padding:22px}
+#import-warning.show{display:block!important}
+
+/* ===== Waste trend chart ===== */
+.chart-card{margin-bottom:24px;padding:22px;border:1px solid rgba(222,231,243,.96);border-radius:22px;background:rgba(255,255,255,.94);box-shadow:var(--shadow);backdrop-filter:blur(14px)}
+.chart-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:14px}.chart-title h3{margin:0;color:#24334a;font-size:18px;letter-spacing:-.015em}.chart-title p{margin:5px 0 0;color:#91a0b3;font-size:11px;line-height:1.45}.chart-controls{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:flex-end;gap:8px}.period-toggle,.metric-toggle{display:inline-flex;padding:4px;border:1px solid #e4e9f1;border-radius:13px;background:#f7f9fc}.period-toggle button,.metric-toggle button{min-height:34px;padding:7px 13px;border:0;border-radius:9px;background:transparent;color:#64748b;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;cursor:pointer}.period-toggle button.active,.metric-toggle button.active{color:#fff;background:linear-gradient(135deg,#1268e8,#7c3aed);box-shadow:0 7px 16px rgba(18,104,232,.18)}
+.filter-box{display:flex;flex-direction:column;gap:4px}.filter-box label{color:#8a98aa;font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.06em}.filter-box select{min-width:125px;height:38px;padding:0 34px 0 11px;border:1px solid #e4e9f1;border-radius:11px;background:#fff;color:#334155;font-size:10px;font-weight:700;outline:none}.filter-box select:focus{border-color:#b9d3fa;box-shadow:0 0 0 3px rgba(18,104,232,.08)}.btn-reset-chart{height:38px;padding:0 13px;border:1px solid #e4e9f1;border-radius:11px;background:#fff;color:#64748b;font-size:10px;font-weight:800;cursor:pointer}.btn-reset-chart:hover{background:#f8fafc;color:#334155}
+.chart-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:12px}.chart-summary-box{padding:11px 13px;border:1px solid #edf1f6;border-radius:13px;background:#fafcff}.chart-summary-box span{display:block;color:#8a98aa;font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.05em}.chart-summary-box strong{display:block;margin-top:5px;color:#23324a;font-size:17px}.chart-summary-box small{margin-left:4px;color:#8a98aa;font-size:10px;font-weight:600}
+.chart-wrap{position:relative;height:360px;border:1px solid #edf1f6;border-radius:16px;background:linear-gradient(180deg,#fff,#fbfdff);padding:10px;overflow:hidden}.chart-wrap canvas{width:100%;height:100%;display:block;cursor:crosshair}.chart-empty{height:100%;display:grid;place-items:center;color:#9aa6b6;font-size:12px}.chart-tooltip{position:absolute;z-index:5;min-width:205px;max-width:270px;padding:11px 12px;border:1px solid rgba(210,219,232,.95);border-radius:12px;background:rgba(255,255,255,.98);box-shadow:0 14px 34px rgba(31,52,84,.16);backdrop-filter:blur(10px);pointer-events:none;opacity:0;transform:translateY(4px);transition:opacity .12s ease,transform .12s ease;color:#334155}.chart-tooltip.show{opacity:1;transform:translateY(0)}.chart-tooltip .tt-title{font-size:11px;font-weight:850;color:#1e293b;margin-bottom:5px}.chart-tooltip .tt-period{font-size:9px;color:#8a98aa;margin-bottom:8px}.chart-tooltip .tt-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-top:5px;margin-top:5px;border-top:1px solid #eef2f6;font-size:9px;color:#64748b}.chart-tooltip .tt-row strong{font-size:11px;color:#1268e8}.chart-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:10px;color:#93a0b1;font-size:9px}.legend-dot{display:inline-block;width:9px;height:9px;margin-right:5px;border-radius:50%;background:linear-gradient(135deg,#1268e8,#7c3aed)}
+
+@media(max-width:1100px){.page-hero{grid-template-columns:1fr}.hero-stat{width:min(100%,320px)}.chart-head{flex-direction:column}.chart-controls{justify-content:flex-start}.kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:720px){.topbar{height:64px;padding:0 14px}.topbar h2{font-size:16px}.topbar h2::after{font-size:8px}.menu-btn{width:36px;height:36px}.sidebar{width:270px;left:-270px}.main{padding:82px 12px 30px}.page-hero{padding:24px 20px;border-radius:22px}.page-hero h1{font-size:34px}.input-card,.chart-card,.table-card{padding:15px;border-radius:18px}.kpi-grid,.chart-summary{grid-template-columns:1fr}.chart-controls{width:100%}.period-toggle,.metric-toggle{width:100%}.period-toggle button,.metric-toggle button{flex:1}.filter-box{flex:1 1 calc(50% - 8px)}.filter-box select{min-width:0;width:100%}.btn-reset-chart{flex:1 1 100%}.chart-wrap{height:300px}.sidebar-toggle-btn{top:22px;right:16px;width:38px;height:38px}}
+
 </style>
 </head>
 <body>
 
 <div class="sidebar" id="sidebar">
+    <button type="button" class="sidebar-toggle-btn" onclick="toggleMenu()" aria-label="Tutup sidebar" title="Tutup menu"><span></span><span></span><span></span></button>
     <a href="index.html">Dashboard Utama</a>
+    <a href="index.html#dor-opening">Visi, Misi & Core Values</a>
     <a href="oee.html">OEE</a>
     <a href="tonase.html">Tonase</a>
     <a href="waste.html" class="active">Waste</a>
     <a href="cost-material.html">Cost Material</a>
+    <a href="input-cost-material.html">Input Cost Material</a>
+    <a href="input-variance.html">📊 Input Variance</a>
     <a href="improvement-monitoring.html">Improvement Monitoring</a>
     <a href="smartway.html" style="margin-top:20px; border-top:1px solid #374151;">🛠️ Smart Way</a>
     <a href="baopack.html">📦 Baopack</a>
@@ -115,10 +164,24 @@ body::after{width:320px;height:320px;right:-130px;top:32%;background:rgba(124,58
 
 <div class="topbar">
     <span class="menu-btn" onclick="toggleMenu()">☰</span>
-    <h2 style="margin:0;">Waste Produksi - Bojonegoro</h2>
+    <h2>Bojonegoro Monitoring</h2>
 </div>
 
 <div class="main">
+
+    <section class="page-hero">
+        <div class="hero-copy">
+            <div class="hero-kicker">Manufacturing Excellence</div>
+            <h1>Waste Produksi</h1>
+            <p>Monitor waste kemasan, SFG, karton, fryer, dan proses produksi Bojonegoro dalam satu halaman yang terintegrasi dengan data Excel dan Supabase.</p>
+        </div>
+        <div class="hero-stat">
+            <span>Waste Control</span>
+            <strong>WASTE</strong>
+            <small>Daily · Weekly · Monthly</small>
+        </div>
+    </section>
+
 
     <!-- Upload Card -->
     <div class="sec-title">📤 Import Excel Waste</div>
@@ -136,7 +199,7 @@ body::after{width:320px;height:320px;right:-130px;top:32%;background:rgba(124,58
         </div>
         <div id="file-name" style="font-size:13px; color:#374151; margin-top:8px;"></div>
         <div id="import-warning" style="background:#fef3c7; border:1px solid #fbbf24; color:#92400e; border-radius:6px; padding:8px 12px; font-size:12px; margin-top:10px; display:none;">
-            ⚠️ <strong>Perhatian:</strong> Data untuk tanggal yang ada di file ini akan <strong>diperbarui (ditimpa)</strong>, sedangkan data pada tanggal lain yang <strong>tidak ada</strong> di file ini akan <strong>tetap tersimpan</strong> (tidak terhapus).
+            ⚠️ <strong>Full Replace:</strong> seluruh data Waste lama akan diganti dengan data dari workbook terbaru. Pastikan file terbaru sudah memuat seluruh histori yang ingin dipertahankan.
         </div>
         <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-top:12px;">
             <button id="btn-proses-excel" onclick="prosesExcelWaste()" style="background:#1f2937; color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer; font-size:14px; display:none;">
@@ -178,6 +241,37 @@ body::after{width:320px;height:320px;right:-130px;top:32%;background:rgba(124,58
             <span class="kpi-target">Batas: 39 Pcs/hari</span>
         </div>
     </div>
+
+
+    <section class="chart-card" id="waste-chart-section">
+        <div class="chart-head">
+            <div class="chart-title">
+                <h3>Grafik Waste Produksi</h3>
+                <p>Weekly menggunakan periode Minggu–Sabtu. Monthly menggunakan agregasi bulan kalender.</p>
+            </div>
+            <div class="chart-controls">
+                <div class="metric-toggle" aria-label="Pilih metrik waste">
+                    <button type="button" id="metric-kemasan-btn" class="active" onclick="switchWasteMetric('kemasan')">Kemasan</button>
+                    <button type="button" id="metric-sfg-btn" onclick="switchWasteMetric('sfg')">SFG</button>
+                    <button type="button" id="metric-karton-btn" onclick="switchWasteMetric('karton')">Karton</button>
+                </div>
+                <div class="period-toggle" aria-label="Pilih periode grafik">
+                    <button type="button" id="waste-weekly-btn" class="active" onclick="switchWasteChartMode('weekly')">Weekly</button>
+                    <button type="button" id="waste-monthly-btn" onclick="switchWasteChartMode('monthly')">Monthly</button>
+                </div>
+                <div class="filter-box"><label>Dari</label><select id="waste-chart-from" onchange="handleWasteChartRangeChange('from')"></select></div>
+                <div class="filter-box"><label>Sampai</label><select id="waste-chart-to" onchange="handleWasteChartRangeChange('to')"></select></div>
+                <button type="button" class="btn-reset-chart" onclick="resetWasteChartRange()">Reset Periode</button>
+            </div>
+        </div>
+        <div class="chart-summary">
+            <div class="chart-summary-box"><span>Total periode</span><strong id="waste-chart-total">—</strong></div>
+            <div class="chart-summary-box"><span>Rata-rata / periode</span><strong id="waste-chart-average">—</strong></div>
+            <div class="chart-summary-box"><span>Periode tertinggi</span><strong id="waste-chart-peak">—</strong></div>
+        </div>
+        <div class="chart-wrap" id="waste-chart-wrap"><canvas id="waste-chart"></canvas><div class="chart-tooltip" id="waste-chart-tooltip"></div></div>
+        <div class="chart-foot"><span><i class="legend-dot"></i><span id="waste-chart-legend">Waste Kemasan</span></span><span id="waste-chart-range-label"></span></div>
+    </section>
 
     <!-- Export & Riwayat -->
     <div class="sec-title">📋 Riwayat & Export Data</div>
@@ -263,7 +357,7 @@ const HARI = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
 
 function toggleMenu() {
     const s = document.getElementById('sidebar');
-    s.style.left = s.style.left === '0px' ? '-250px' : '0px';
+    s.style.left = s.style.left === '0px' ? `-${s.offsetWidth}px` : '0px';
 }
 
 // ── Load KPI summary (total per hari terakhir) ──
@@ -322,6 +416,15 @@ function setKPI(valId, dateId, val, unit, batas, tgl) {
 // ── State filter ──
 let filterState = { bulan: '', shift: '' };
 let allRiwayatData = [];
+let wasteChartRows = [];
+let wasteChartMode = 'weekly';
+let wasteChartMetric = 'kemasan';
+let wasteChartSeries = { weekly: [], monthly: [] };
+let wasteChartRange = { weekly: {from:0,to:0}, monthly: {from:0,to:0} };
+let wasteChartHoverIndex = -1;
+let wasteChartHitBars = [];
+let wasteChartResizeTimer = null;
+
 
 function terapkanFilter() {
     filterState.bulan = document.getElementById('filter-bulan').value;
@@ -391,6 +494,115 @@ async function loadRiwayat() {
         tbody.appendChild(tr);
     });
 }
+
+
+// ════════════════════════════════
+// GRAFIK WASTE WEEKLY / MONTHLY
+// ════════════════════════════════
+function wasteDateFromStr(s){ return new Date(s+'T00:00:00'); }
+function wasteDateToStr(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+function wasteAddDays(s,n){ const d=wasteDateFromStr(s); d.setDate(d.getDate()+n); return wasteDateToStr(d); }
+function wasteStartOfSundayWeek(s){ const d=wasteDateFromStr(s); d.setDate(d.getDate()-d.getDay()); return wasteDateToStr(d); }
+function wasteWeekNumberSunday(s){ const d=wasteDateFromStr(s); const y=d.getFullYear(); const jan1=new Date(y,0,1); const doy=Math.floor((d-jan1)/86400000)+1; return Math.floor((doy+jan1.getDay()-1)/7)+1; }
+function wasteFmtDateShort(s){ return wasteDateFromStr(s).toLocaleDateString('id-ID',{day:'2-digit',month:'short'}); }
+function wasteFmtNumber(v){ return Number(v||0).toLocaleString('id-ID',{minimumFractionDigits:0,maximumFractionDigits:2}); }
+function wasteMetricMeta(){
+    if(wasteChartMetric==='sfg') return {field:'waste_sfg',label:'Waste SFG',unit:'Kg'};
+    if(wasteChartMetric==='karton') return {field:'waste_karton',label:'Waste Karton',unit:'Pcs'};
+    return {field:'waste_kemasan',label:'Waste Kemasan',unit:'Kg'};
+}
+function buildWasteWeeklySeries(rows){
+    const map=new Map();
+    rows.forEach(r=>{
+        const start=wasteStartOfSundayWeek(r.tanggal);
+        if(!map.has(start)) map.set(start,{key:start,start,end:wasteAddDays(start,6),kemasan:0,sfg:0,karton:0,dates:new Set(),lastDate:r.tanggal});
+        const o=map.get(start);o.kemasan+=Number(r.waste_kemasan)||0;o.sfg+=Number(r.waste_sfg)||0;o.karton+=Number(r.waste_karton)||0;o.dates.add(r.tanggal);if(r.tanggal>o.lastDate)o.lastDate=r.tanggal;
+    });
+    return [...map.values()].sort((a,b)=>a.start.localeCompare(b.start)).map(o=>{const ref=o.lastDate||o.start;const week=wasteWeekNumberSunday(ref);const year=wasteDateFromStr(ref).getFullYear();return{...o,days:o.dates.size,label:`W${week} / ${year}`,detail:`${wasteFmtDateShort(o.start)} – ${wasteFmtDateShort(o.end)}`};});
+}
+function buildWasteMonthlySeries(rows){
+    const bulan=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+    const map=new Map();
+    rows.forEach(r=>{const d=wasteDateFromStr(r.tanggal);const key=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;if(!map.has(key))map.set(key,{key,year:d.getFullYear(),month:d.getMonth(),kemasan:0,sfg:0,karton:0,dates:new Set()});const o=map.get(key);o.kemasan+=Number(r.waste_kemasan)||0;o.sfg+=Number(r.waste_sfg)||0;o.karton+=Number(r.waste_karton)||0;o.dates.add(r.tanggal);});
+    return [...map.values()].sort((a,b)=>a.key.localeCompare(b.key)).map(o=>({...o,days:o.dates.size,label:`${bulan[o.month]} ${o.year}`,detail:`${o.dates.size} hari data`}));
+}
+async function loadAllWasteForChart(){
+    const all=[]; const size=1000;
+    for(let from=0;;from+=size){
+        const {data,error}=await db.from('waste_shiftly').select('tanggal,waste_kemasan,waste_sfg,waste_karton').order('tanggal',{ascending:true}).range(from,from+size-1);
+        if(error) throw error;
+        if(data?.length) all.push(...data);
+        if(!data || data.length<size) break;
+    }
+    return all;
+}
+async function loadWasteChartData(){
+    try{
+        wasteChartRows=await loadAllWasteForChart();
+        wasteChartSeries.weekly=buildWasteWeeklySeries(wasteChartRows);
+        wasteChartSeries.monthly=buildWasteMonthlySeries(wasteChartRows);
+        initWasteChartRanges();populateWasteChartSelectors();renderWasteChart();
+    }catch(err){console.error('Grafik waste gagal dimuat:',err);}
+}
+function initWasteChartRanges(){
+    ['weekly','monthly'].forEach(mode=>{const n=wasteChartSeries[mode].length;if(!n){wasteChartRange[mode]={from:0,to:0};return;}const visible=mode==='weekly'?Math.min(8,n):Math.min(6,n);wasteChartRange[mode]={from:Math.max(0,n-visible),to:n-1};});
+}
+function populateWasteChartSelectors(){
+    const data=wasteChartSeries[wasteChartMode],from=document.getElementById('waste-chart-from'),to=document.getElementById('waste-chart-to'); if(!from||!to)return;
+    from.innerHTML='';to.innerHTML='';data.forEach((d,i)=>{from.add(new Option(d.label,i));to.add(new Option(d.label,i));});
+    const r=wasteChartRange[wasteChartMode];if(data.length){from.value=String(Math.min(r.from,data.length-1));to.value=String(Math.min(r.to,data.length-1));}
+}
+function switchWasteMetric(metric){
+    wasteChartMetric=metric;['kemasan','sfg','karton'].forEach(m=>document.getElementById(`metric-${m}-btn`)?.classList.toggle('active',m===metric));renderWasteChart();
+}
+function switchWasteChartMode(mode){
+    wasteChartMode=mode;document.getElementById('waste-weekly-btn')?.classList.toggle('active',mode==='weekly');document.getElementById('waste-monthly-btn')?.classList.toggle('active',mode==='monthly');populateWasteChartSelectors();renderWasteChart();
+}
+function handleWasteChartRangeChange(changed){
+    const data=wasteChartSeries[wasteChartMode];if(!data.length)return;let from=Number(document.getElementById('waste-chart-from').value),to=Number(document.getElementById('waste-chart-to').value);if(from>to){if(changed==='from')to=from;else from=to;}wasteChartRange[wasteChartMode]={from,to};document.getElementById('waste-chart-from').value=String(from);document.getElementById('waste-chart-to').value=String(to);renderWasteChart();
+}
+function resetWasteChartRange(){
+    const n=wasteChartSeries[wasteChartMode].length;if(!n)return;const visible=wasteChartMode==='weekly'?Math.min(8,n):Math.min(6,n);wasteChartRange[wasteChartMode]={from:Math.max(0,n-visible),to:n-1};populateWasteChartSelectors();renderWasteChart();
+}
+function selectedWasteChartSeries(){
+    const data=wasteChartSeries[wasteChartMode];if(!data.length)return[];const r=wasteChartRange[wasteChartMode];return data.slice(Math.max(0,r.from),Math.min(data.length-1,r.to)+1);
+}
+function bindWasteChartInteraction(canvas){
+    if(canvas.dataset.bound==='1')return;canvas.dataset.bound='1';const wrap=document.getElementById('waste-chart-wrap');const tooltip=document.getElementById('waste-chart-tooltip');
+    canvas.addEventListener('mouseleave',()=>{wasteChartHoverIndex=-1;tooltip?.classList.remove('show');renderWasteChart();});
+    canvas.addEventListener('mousemove',e=>{
+        if(!wasteChartHitBars.length){tooltip?.classList.remove('show');return;}
+        const rect=canvas.getBoundingClientRect(),x=e.clientX-rect.left,y=e.clientY-rect.top;
+        let hit=-1;wasteChartHitBars.forEach((b,i)=>{if(x>=b.bandLeft&&x<=b.bandRight&&y>=b.plotTop&&y<=b.plotBottom)hit=i;});
+        if(hit<0){tooltip?.classList.remove('show');if(wasteChartHoverIndex!==-1){wasteChartHoverIndex=-1;renderWasteChart();}return;}
+        if(wasteChartHoverIndex!==hit){wasteChartHoverIndex=hit;renderWasteChart();}
+        const bar=wasteChartHitBars[hit],item=bar.item,meta=wasteMetricMeta();if(!tooltip)return;
+        const value=Number(item[meta.field.replace('waste_','')])||0;
+        tooltip.innerHTML=`<div class="tt-title">${item.label}</div><div class="tt-period">${wasteChartMode==='weekly'?item.detail:item.detail}</div><div class="tt-row"><span>${meta.label}</span><strong>${wasteFmtNumber(value)} ${meta.unit}</strong></div><div class="tt-row"><span>Hari data</span><strong>${item.days||0}</strong></div>`;
+        const wrapRect=wrap.getBoundingClientRect(),tw=tooltip.offsetWidth||220,th=tooltip.offsetHeight||100;let left=e.clientX-wrapRect.left+14,top=e.clientY-wrapRect.top-th-12;if(left+tw>wrap.clientWidth-8)left=e.clientX-wrapRect.left-tw-14;if(top<8)top=e.clientY-wrapRect.top+14;tooltip.style.left=Math.max(8,left)+'px';tooltip.style.top=Math.max(8,top)+'px';tooltip.classList.add('show');
+    });
+}
+function renderWasteChart(){
+    const wrap=document.getElementById('waste-chart-wrap');if(!wrap)return;let canvas=document.getElementById('waste-chart');const data=selectedWasteChartSeries();const meta=wasteMetricMeta();
+    if(!data.length){wrap.innerHTML='<div class="chart-empty">Belum ada data untuk grafik waste.</div>';wasteChartHitBars=[];wasteChartHoverIndex=-1;updateWasteChartSummary([]);return;}
+    if(!canvas){wrap.innerHTML='<canvas id="waste-chart"></canvas><div class="chart-tooltip" id="waste-chart-tooltip"></div>';canvas=document.getElementById('waste-chart');}else if(!document.getElementById('waste-chart-tooltip'))wrap.insertAdjacentHTML('beforeend','<div class="chart-tooltip" id="waste-chart-tooltip"></div>');
+    bindWasteChartInteraction(canvas);
+    const dpr=window.devicePixelRatio||1,cssW=Math.max(320,wrap.clientWidth-20),cssH=Math.max(250,wrap.clientHeight-20);canvas.style.width=cssW+'px';canvas.style.height=cssH+'px';canvas.width=Math.round(cssW*dpr);canvas.height=Math.round(cssH*dpr);const ctx=canvas.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,cssW,cssH);
+    const margin={top:34,right:18,bottom:60,left:72},plotW=cssW-margin.left-margin.right,plotH=cssH-margin.top-margin.bottom;const values=data.map(d=>Number(d[meta.field.replace('waste_','')])||0),maxVal=Math.max(...values,1),yMax=maxVal*1.18,yFor=v=>margin.top+(1-v/yMax)*plotH;
+    ctx.strokeStyle='#e9eef5';ctx.lineWidth=1;ctx.fillStyle='#8492a6';ctx.font='11px Arial, sans-serif';ctx.textBaseline='middle';ctx.textAlign='right';for(let i=0;i<=5;i++){const value=yMax-(yMax/5*i),y=margin.top+plotH/5*i;ctx.beginPath();ctx.moveTo(margin.left,y);ctx.lineTo(cssW-margin.right,y);ctx.stroke();ctx.fillText(`${value.toLocaleString('id-ID',{maximumFractionDigits:1})} ${meta.unit}`,margin.left-10,y);}
+    const band=plotW/data.length,barW=Math.max(8,Math.min(52,band*.5)),maxLabels=Math.max(5,Math.floor(plotW/72)),labelStep=Math.max(1,Math.ceil(data.length/maxLabels)),showAllValues=data.length<=14;wasteChartHitBars=[];
+    data.forEach((item,i)=>{const value=values[i],x=margin.left+i*band+(band-barW)/2,y=yFor(value),bottom=margin.top+plotH,h=bottom-y,hovered=i===wasteChartHoverIndex;const grad=ctx.createLinearGradient(0,y,0,bottom);const colors=wasteChartMetric==='kemasan'?['#f59e0b','#f97316']:wasteChartMetric==='sfg'?['#7c3aed','#5b21b6']:['#ef4444','#e11d48'];grad.addColorStop(0,colors[0]);grad.addColorStop(1,colors[1]);ctx.globalAlpha=hovered?1:.9;ctx.fillStyle=grad;ctx.beginPath();ctx.roundRect(x,y,barW,Math.max(3,h),Math.min(10,barW/2));ctx.fill();ctx.globalAlpha=1;if(hovered){ctx.strokeStyle='rgba(18,104,232,.22)';ctx.lineWidth=6;ctx.beginPath();ctx.roundRect(x-3,y-3,barW+6,Math.max(9,h+6),Math.min(12,(barW+6)/2));ctx.stroke();}
+        if(showAllValues||hovered){ctx.fillStyle='#334155';ctx.font=hovered?'800 12px Arial, sans-serif':'700 10px Arial, sans-serif';ctx.textAlign='center';ctx.textBaseline='bottom';ctx.fillText(`${value.toLocaleString('id-ID',{maximumFractionDigits:1})} ${meta.unit}`,x+barW/2,y-7);}
+        const showLabel=(i%labelStep===0)||i===data.length-1||hovered;if(showLabel){ctx.fillStyle=hovered?'#1e293b':'#60718a';ctx.font=hovered?'800 10px Arial, sans-serif':'700 10px Arial, sans-serif';ctx.textAlign='center';ctx.textBaseline='top';ctx.fillText(item.label,x+barW/2,bottom+17);}
+        wasteChartHitBars.push({item,index:i,x,y,w:barW,h,bandLeft:margin.left+i*band,bandRight:margin.left+(i+1)*band,plotTop:margin.top,plotBottom:bottom});
+    });
+    ctx.strokeStyle='#cfd8e6';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(margin.left,margin.top+plotH);ctx.lineTo(cssW-margin.right,margin.top+plotH);ctx.stroke();updateWasteChartSummary(data);
+}
+function updateWasteChartSummary(data){
+    const meta=wasteMetricMeta(),key=meta.field.replace('waste_',''),values=data.map(d=>Number(d[key])||0),total=values.reduce((s,v)=>s+v,0),avg=data.length?total/data.length:0,peak=data.length?data.reduce((a,b)=>(Number(a[key])||0)>(Number(b[key])||0)?a:b):null;
+    document.getElementById('waste-chart-total').innerHTML=data.length?`${wasteFmtNumber(total)}<small> ${meta.unit}</small>`:'—';document.getElementById('waste-chart-average').innerHTML=data.length?`${wasteFmtNumber(avg)}<small> ${meta.unit}</small>`:'—';document.getElementById('waste-chart-peak').innerHTML=peak?`${peak.label}<small> · ${wasteFmtNumber(peak[key])} ${meta.unit}</small>`:'—';document.getElementById('waste-chart-legend').textContent=meta.label;document.getElementById('waste-chart-range-label').textContent=data.length?`${wasteChartMode==='weekly'?'Weekly · Sunday–Saturday':'Monthly'} · ${data[0].label} s.d. ${data[data.length-1].label}`:'';
+}
+window.addEventListener('resize',()=>{clearTimeout(wasteChartResizeTimer);wasteChartResizeTimer=setTimeout(renderWasteChart,120);});
 
 // ── Export Excel — Data mentah per shift per mesin ──
 function exportExcel() {
@@ -933,96 +1145,50 @@ async function importKeSupabase() {
     if (!parsedWasteData || parsedWasteData.length === 0) return;
     const btn = document.getElementById('btn-import-excel');
     btn.disabled = true;
-    btn.textContent = '⏳ Mengimpor...';
+    btn.textContent = '⏳ Mengganti database...';
     document.getElementById('import-msg').textContent = '';
 
-    try {
-        // Hapus data lama HANYA untuk tanggal yang ada di file ini (update, bukan menimpa semua data)
-        // Tanggal lain yang tidak ada di file ini tetap tersimpan seperti semula.
-        const tanggalUnik = [...new Set(parsedWasteData.map(r => r.tanggal))];
-        const { error: eDel } = await db.from('waste_shiftly')
-            .delete()
-            .in('tanggal', tanggalUnik);
-        if (eDel) throw eDel;
-
-        // Insert data baru (batch per 500, Supabase max ~1000 rows per insert)
-        const BATCH = 500;
-        for (let i = 0; i < parsedWasteData.length; i += BATCH) {
-            const chunk = parsedWasteData.slice(i, i + BATCH);
-            const { error } = await db.from('waste_shiftly').insert(chunk);
+    const BATCH = 500;
+    async function insertBatch(table, rows) {
+        for (let i = 0; i < rows.length; i += BATCH) {
+            const { error } = await db.from(table).insert(rows.slice(i, i + BATCH));
             if (error) throw error;
         }
+    }
 
-        // ── Update batas atas (waste_batas) hanya utk mesin yang ada di file ini ──
-        let batasMsg = '';
-        if (parsedWasteBatas && parsedWasteBatas.length > 0) {
-            try {
-                const mesinIds = parsedWasteBatas.map(b => b.mesin_id);
-                await db.from('waste_batas').delete().in('mesin_id', mesinIds);
-                const { error: eBatas } = await db.from('waste_batas').insert(parsedWasteBatas);
-                if (eBatas) {
-                    console.warn('Gagal update batas atas:', eBatas.message);
-                    batasMsg = ' (batas atas gagal: ' + eBatas.message + ')';
-                } else {
-                    batasMsg = ` & batas atas ${parsedWasteBatas.length} mesin diperbarui`;
-                }
-            } catch (eb) {
-                console.warn('Batas atas exception:', eb.message);
-            }
-        }
+    try {
+        const tanggalUnik = [...new Set(parsedWasteData.map(r => r.tanggal))];
 
-        // ── Update Waste Fryer (waste_fryer_shiftly) — update per tanggal, sama seperti waste_shiftly ──
-        let fryerMsg = '';
-        if (parsedFryerData && parsedFryerData.length > 0) {
-            try {
-                const tanggalFryer = [...new Set(parsedFryerData.map(r => r.tanggal))];
-                const { error: eDelFryer } = await db.from('waste_fryer_shiftly')
-                    .delete()
-                    .in('tanggal', tanggalFryer);
-                if (eDelFryer) throw eDelFryer;
+        // Full replace: workbook terbaru menjadi sumber utama seluruh data Waste.
+        const { error: eDelMain } = await db.from('waste_shiftly').delete().gte('tanggal','2000-01-01');
+        if (eDelMain) throw eDelMain;
+        await insertBatch('waste_shiftly', parsedWasteData);
 
-                for (let i = 0; i < parsedFryerData.length; i += BATCH) {
-                    const chunk = parsedFryerData.slice(i, i + BATCH);
-                    const { error: eFryer } = await db.from('waste_fryer_shiftly').insert(chunk);
-                    if (eFryer) throw eFryer;
-                }
-                fryerMsg = ` & ${parsedFryerData.length} baris waste fryer diperbarui`;
-            } catch (ef) {
-                console.warn('Waste fryer gagal:', ef.message);
-                fryerMsg = ' (waste fryer gagal: ' + ef.message + ')';
-            }
-        }
+        // Batas atas juga diganti penuh agar konsisten dengan workbook terbaru.
+        try {
+            await db.from('waste_batas').delete().neq('mesin_id','__never__');
+            if (parsedWasteBatas && parsedWasteBatas.length) await insertBatch('waste_batas', parsedWasteBatas);
+        } catch (e) { console.warn('Update waste_batas gagal:', e.message); }
 
-        // ── Update Waste Proses (waste_proses_shiftly) — update per tanggal, sama seperti waste_shiftly ──
-        let prosesMsg = '';
-        if (parsedProsesData && parsedProsesData.length > 0) {
-            try {
-                const tanggalProses = [...new Set(parsedProsesData.map(r => r.tanggal))];
-                const { error: eDelProses } = await db.from('waste_proses_shiftly')
-                    .delete()
-                    .in('tanggal', tanggalProses);
-                if (eDelProses) throw eDelProses;
+        // Waste fryer full replace.
+        try {
+            await db.from('waste_fryer_shiftly').delete().gte('tanggal','2000-01-01');
+            if (parsedFryerData && parsedFryerData.length) await insertBatch('waste_fryer_shiftly', parsedFryerData);
+        } catch (e) { console.warn('Update waste_fryer_shiftly gagal:', e.message); }
 
-                for (let i = 0; i < parsedProsesData.length; i += BATCH) {
-                    const chunk = parsedProsesData.slice(i, i + BATCH);
-                    const { error: eProses } = await db.from('waste_proses_shiftly').insert(chunk);
-                    if (eProses) throw eProses;
-                }
-                prosesMsg = ` & ${parsedProsesData.length} baris waste proses diperbarui`;
-            } catch (ep) {
-                console.warn('Waste proses gagal:', ep.message);
-                prosesMsg = ' (waste proses gagal: ' + ep.message + ')';
-            }
-        }
+        // Waste proses full replace.
+        try {
+            await db.from('waste_proses_shiftly').delete().gte('tanggal','2000-01-01');
+            if (parsedProsesData && parsedProsesData.length) await insertBatch('waste_proses_shiftly', parsedProsesData);
+        } catch (e) { console.warn('Update waste_proses_shiftly gagal:', e.message); }
 
         document.getElementById('import-msg').textContent =
-            `✅ ${parsedWasteData.length} baris berhasil diperbarui untuk ${tanggalUnik.length} hari${batasMsg}${fryerMsg}${prosesMsg}! Data hari lain tetap tersimpan.`;
+            `✅ Full replace selesai. ${parsedWasteData.length} baris dari ${tanggalUnik.length} hari dimuat dari workbook terbaru.`;
         document.getElementById('import-msg').style.color = '#16a34a';
         document.getElementById('import-warning').classList.remove('show');
-        btn.textContent = '✅ Diimpor';
+        btn.textContent = '✅ Database Diperbarui';
 
-        loadKPI();
-        loadRiwayat();
+        await Promise.all([loadKPI(), loadRiwayat(), loadWasteChartData()]);
 
     } catch (err) {
         document.getElementById('import-msg').textContent = '❌ Gagal: ' + err.message;
@@ -1034,7 +1200,6 @@ async function importKeSupabase() {
 }
 
 
-
 // Set filter bulan ke bulan ini secara default
 const now = new Date();
 const bulanIni = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
@@ -1043,7 +1208,7 @@ filterState.bulan = bulanIni;
 
 async function init() {
     setStatus('loading', 'Memuat data...');
-    await Promise.all([loadKPI(), loadRiwayat()]);
+    await Promise.all([loadKPI(), loadRiwayat(), loadWasteChartData()]);
     setStatus('active', 'Data berhasil dimuat');
 }
 init();
