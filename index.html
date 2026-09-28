@@ -1641,6 +1641,34 @@ body::after {
     .sidebar-toggle-btn{top:22px;right:16px;width:38px;height:38px;}
 }
 
+/* ===== Mobile polish: Variance section ===== */
+@media (max-width:640px){
+    .variance-chart-section{padding-left:0;padding-right:0;}
+    .variance-chart-title-row{gap:12px;}
+    .variance-chart-toolbar{gap:10px;}
+    .variance-chart-controls{gap:10px;}
+    .variance-chart-control-group{width:100%;}
+    .variance-chart-metric,.variance-chart-type{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%;}
+    .variance-chart-btn{min-height:42px;padding:8px 6px;font-size:10px;line-height:1.2;}
+    .variance-chart-download{width:100%;justify-content:center;}
+    .variance-chart-wrap{min-height:auto;padding:8px 6px 10px;overflow:hidden;}
+    .variance-chart-canvas{width:100% !important;max-width:100%;height:300px !important;display:block;}
+    .variance-chart-tooltip{min-width:150px;max-width:200px;padding:10px;font-size:8.5px;}
+    .variance-chart-tooltip strong{font-size:9.5px;}
+    .variance-chart-legend{gap:7px 10px;font-size:8px;}
+    .variance-chart-meta-pill{padding:4px 6px;}
+    .variance-top5-head{align-items:stretch;flex-direction:column;gap:8px;}
+    .variance-top5-card-head{align-items:flex-start;gap:6px;padding:10px;}
+    .variance-top5-card-head strong{white-space:normal;overflow:visible;text-overflow:clip;line-height:1.3;font-size:8.5px;padding-right:6px;}
+    .variance-top5-card-head span{font-size:7.2px;}
+    .variance-top5-list{padding:6px 8px 7px;}
+    .variance-top5-row{grid-template-columns:22px minmax(0,1fr) 58px 68px;gap:6px;min-height:36px;}
+    .variance-top5-rank{width:20px;height:20px;}
+    .variance-top5-material{font-size:8.5px;}
+    .variance-top5-pct,.variance-top5-value{font-size:8.2px;}
+    .variance-top5-footer{font-size:7px;line-height:1.35;}
+}
+
 </style>
 <!-- VARIANCE MULTISELECT SEARCH V3 + SELECT VISIBLE RESULTS -->
 </head>
@@ -3093,8 +3121,10 @@ function ensureVarianceChartCanvas(wrap){
 function setupVarianceCanvas(wrap){
     const cvs=ensureVarianceChartCanvas(wrap);
     const dpr=window.devicePixelRatio || 1;
-    const cssWidth=Math.max(360, wrap.clientWidth-20);
-    const cssHeight=330;
+    const isMobile=window.innerWidth<=640;
+    const horizontalGap=isMobile?8:20;
+    const cssWidth=Math.max(isMobile?260:320, wrap.clientWidth-horizontalGap);
+    const cssHeight=isMobile?300:330;
     cvs.style.width=cssWidth+'px';
     cvs.style.height=cssHeight+'px';
     cvs.width=Math.round(cssWidth*dpr);
@@ -3103,7 +3133,7 @@ function setupVarianceCanvas(wrap){
     ctx.setTransform(dpr,0,0,dpr,0,0);
     ctx.fillStyle='#ffffff';
     ctx.fillRect(0,0,cssWidth,cssHeight);
-    return { cvs, ctx, cssWidth, cssHeight };
+    return { cvs, ctx, cssWidth, cssHeight, isMobile };
 }
 function drawVarianceChartAxes(ctx, cssWidth, cssHeight, margin, min, max, type, rightAxis=false){
     const plotW=cssWidth-margin.left-margin.right;
@@ -3111,7 +3141,8 @@ function drawVarianceChartAxes(ctx, cssWidth, cssHeight, margin, min, max, type,
     const range=max-min || 1;
     const yFor=v=> margin.top + (max-v)/range*plotH;
     const ticks=5;
-    ctx.font='11px Inter, sans-serif';
+    const isMobile=window.innerWidth<=640;
+    ctx.font=(isMobile?'10px':'11px')+' Inter, sans-serif';
     ctx.fillStyle='#8d99aa';
     ctx.strokeStyle='#eef1f5';
     ctx.lineWidth=1;
@@ -3136,10 +3167,11 @@ function drawVarianceChartAxes(ctx, cssWidth, cssHeight, margin, min, max, type,
     return { plotW, plotH, yFor };
 }
 function drawVarianceXAxisLabel(ctx,text,x,y,maxWidth){
+    const isMobile=window.innerWidth<=640;
     ctx.textAlign='center';
     ctx.textBaseline='top';
     ctx.fillStyle='#64748b';
-    ctx.font='600 10px Inter, sans-serif';
+    ctx.font=(isMobile?'600 9px':'600 10px')+' Inter, sans-serif';
     let label=String(text||'');
     while(label.length>4 && ctx.measureText(label).width>maxWidth) label=label.slice(0,-1);
     if(label!==String(text||'')) label=label.slice(0,-1)+'…';
@@ -3158,7 +3190,8 @@ function varianceChartSavingGradient(ctx,top,bottom,hovered=false){
     return grad;
 }
 function renderVarianceChartBar(ctx, cssWidth, cssHeight, data, meta){
-    const margin={top:24,right:26,bottom:56,left:76};
+    const isMobile=window.innerWidth<=640;
+    const margin=isMobile ? {top:20,right:14,bottom:62,left:60} : {top:24,right:26,bottom:56,left:76};
     const values=data.map(d=>d.hasData?d.value:0);
     let min=Math.min(0,...values), max=Math.max(0,...values);
     if(min===max){
@@ -3171,7 +3204,7 @@ function renderVarianceChartBar(ctx, cssWidth, cssHeight, data, meta){
     const { plotW, yFor } = drawVarianceChartAxes(ctx, cssWidth, cssHeight, margin, min, max, meta.type);
     const zeroY=yFor(0);
     const band=plotW/Math.max(1,data.length);
-    const barW=Math.min(54, Math.max(18,band*0.50));
+    const barW=Math.min(isMobile?42:54, Math.max(isMobile?14:18,band*(isMobile?0.42:0.50)));
     data.forEach((item,idx)=>{
         const x=margin.left + band*idx + (band-barW)/2;
         const y=yFor(item.value);
@@ -3203,7 +3236,8 @@ function renderVarianceChartBar(ctx, cssWidth, cssHeight, data, meta){
     });
 }
 function renderVarianceChartLine(ctx, cssWidth, cssHeight, data, meta){
-    const margin={top:28,right:26,bottom:56,left:76};
+    const isMobile=window.innerWidth<=640;
+    const margin=isMobile ? {top:22,right:14,bottom:62,left:60} : {top:28,right:26,bottom:56,left:76};
     const values=data.map(d=>d.hasData?d.value:0);
     let min=Math.min(0,...values), max=Math.max(0,...values);
     if(min===max){
@@ -3239,12 +3273,13 @@ function renderVarianceChartLine(ctx, cssWidth, cssHeight, data, meta){
     });
 }
 function renderVarianceChartPareto(ctx, cssWidth, cssHeight, paretoData){
-    const margin={top:28,right:64,bottom:50,left:76};
+    const isMobile=window.innerWidth<=640;
+    const margin=isMobile ? {top:22,right:44,bottom:56,left:60} : {top:28,right:64,bottom:50,left:76};
     const values=paretoData.map(d=>d.value);
     let max=Math.max(1,...values)*1.16;
     const { plotW, plotH, yFor } = drawVarianceChartAxes(ctx, cssWidth, cssHeight, margin, 0, max, 'money', true);
     const band=plotW/Math.max(1,paretoData.length);
-    const barW=Math.min(50, Math.max(16,band*0.48));
+    const barW=Math.min(isMobile?38:50, Math.max(isMobile?12:16,band*(isMobile?0.42:0.48)));
 
     const y80=margin.top+(1-.8)*plotH;
     ctx.save();
@@ -3838,7 +3873,7 @@ function renderVarianceTop5Cards(){
             .sort((a,b)=>Number(b.metric.varianceValue)-Number(a.metric.varianceValue))
             .slice(0,5);
         const periodLabel=variancePeriodLabelByKey(key);
-        const shortHead=variancePeriod==='monthly' ? periodLabel : periodLabel.replace(' / ',' / ');
+        const shortHead=variancePeriodCompactLabelByKey(key, variancePeriod);
         const list=items.length ? items.map((item,index)=>{
             const m=item.metric;
             return `<div class="variance-top5-row" title="${escapeHtml(item.name)}">
