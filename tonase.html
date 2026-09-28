@@ -1,349 +1,91 @@
 
-
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tonase - Bojonegoro</title>
+<title>Tonase Produksi | Bojonegoro Monitoring</title>
 <style>
-:root {
-    --primary:#1268e8;
-    --primary-dark:#0748ad;
-    --primary-soft:#eaf3ff;
-    --accent:#7c3aed;
-    --success:#16a065;
-    --success-soft:#e9f9f1;
-    --warning:#f59e0b;
-    --danger:#e5484d;
-    --ink:#152238;
-    --muted:#6b7a90;
-    --line:#e5ebf3;
-    --surface:rgba(255,255,255,.94);
-    --shadow:0 18px 50px rgba(26,63,114,.11);
+:root{
+    --primary:#1268e8;--primary-dark:#0748ad;--primary-soft:#eaf3ff;--accent:#7c3aed;
+    --success:#16a065;--success-soft:#e9f9f1;--warning:#f59e0b;--danger:#ef4444;
+    --ink:#152238;--muted:#6b7a90;--line:#e5ebf3;--surface:rgba(255,255,255,.94);
+    --shadow-sm:0 10px 28px rgba(26,63,114,.07);--shadow:0 18px 50px rgba(26,63,114,.11);
 }
-* { box-sizing:border-box; }
-html { scroll-behavior:smooth; }
-body {
-    margin:0;
-    min-height:100vh;
-    overflow-x:hidden;
-    font-family:Arial, sans-serif;
-    color:var(--ink);
-    background:
-        radial-gradient(circle at 8% 8%, rgba(18,104,232,.13), transparent 28%),
-        radial-gradient(circle at 92% 5%, rgba(124,58,237,.10), transparent 26%),
-        linear-gradient(145deg,#eef5ff 0%,#f8fafc 48%,#f5f1ff 100%);
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{
+    margin:0;min-height:100vh;overflow-x:hidden;font-family:Arial,sans-serif;color:var(--ink);
+    background:radial-gradient(circle at 7% 4%,rgba(18,104,232,.14),transparent 25%),radial-gradient(circle at 93% 7%,rgba(124,58,237,.11),transparent 26%),linear-gradient(145deg,#eef5ff 0%,#f8fafc 44%,#f4f0ff 100%);
 }
-body::before, body::after {
-    content:"";
-    position:fixed;
-    z-index:-1;
-    border-radius:50%;
-    pointer-events:none;
-}
-body::before { width:280px; height:280px; left:-110px; bottom:7%; background:rgba(18,104,232,.06); }
-body::after { width:340px; height:340px; right:-150px; top:35%; background:rgba(124,58,237,.05); }
+body::before,body::after{content:"";position:fixed;z-index:-1;border-radius:50%;pointer-events:none}
+body::before{width:270px;height:270px;left:-110px;bottom:8%;background:rgba(18,104,232,.07)}
+body::after{width:330px;height:330px;right:-145px;top:34%;background:rgba(124,58,237,.06)}
+button,select,input{font-family:Arial,sans-serif}
 
-.topbar {
-    position:fixed;
-    top:0; left:0; right:0;
-    height:64px;
-    z-index:1000;
-    display:flex;
-    align-items:center;
-    gap:14px;
-    padding:0 22px;
-    color:#fff;
-    background:linear-gradient(135deg,rgba(7,72,173,.96),rgba(18,104,232,.94) 55%,rgba(124,58,237,.92));
-    border-bottom:1px solid rgba(255,255,255,.16);
-    box-shadow:0 8px 28px rgba(20,58,125,.18);
-    backdrop-filter:blur(15px);
-}
-.topbar h2 { margin:0 !important; font-size:18px; font-weight:700; letter-spacing:-.01em; }
-.menu-btn {
-    width:40px; height:40px;
-    display:grid; place-items:center;
-    margin:0;
-    border:1px solid rgba(255,255,255,.20);
-    border-radius:12px;
-    background:rgba(255,255,255,.10);
-    font-size:23px;
-    cursor:pointer;
-    transition:.2s ease;
-}
-.menu-btn:hover { background:rgba(255,255,255,.18); transform:translateY(-1px); }
+/* topbar - same family as index */
+.topbar{position:fixed;top:0;left:0;right:0;height:72px;z-index:1000;display:flex;align-items:center;gap:14px;padding:0 28px;background:rgba(255,255,255,.80);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid rgba(229,235,243,.9);box-shadow:0 7px 26px rgba(26,63,114,.05)}
+.topbar h2{margin:0!important;color:var(--ink);font-size:19px;font-weight:750;letter-spacing:-.02em}
+.topbar h2::after{content:'Factory Bojonegoro · Performance Monitoring';display:block;margin-top:2px;color:#8b9ab0;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.menu-btn{width:40px;height:40px;display:grid;place-items:center;border:1px solid #dce7f4;border-radius:12px;background:#fff;color:#34516f;box-shadow:0 7px 16px rgba(26,63,114,.06);font-size:22px;cursor:pointer;transition:.2s ease}
+.menu-btn:hover{background:#edf5ff;color:var(--primary);border-color:#cfe1fb;transform:translateY(-1px)}
 
-.sidebar {
-    height:100%; width:270px;
-    position:fixed;
-    top:0; left:-270px;
-    z-index:1100;
-    padding:78px 14px 24px;
-    overflow-y:auto;
-    background:linear-gradient(180deg,#111a2d 0%,#152340 55%,#101827 100%);
-    box-shadow:18px 0 45px rgba(12,26,54,.22);
-    transition:left .28s ease;
-}
-.sidebar::before {
-    content:"BOJONEGORO";
-    position:absolute;
-    top:22px; left:20px;
-    color:rgba(255,255,255,.60);
-    font-size:11px;
-    font-weight:700;
-    letter-spacing:.18em;
-}
-.sidebar a {
-    display:flex;
-    align-items:center;
-    min-height:44px;
-    margin:4px 0;
-    padding:11px 14px;
-    border-radius:12px;
-    color:#dce6f5;
-    text-decoration:none;
-    font-size:13px;
-    transition:.2s ease;
-}
-.sidebar a:hover { background:rgba(255,255,255,.08); color:#fff; transform:translateX(2px); }
-.sidebar a.active {
-    color:#fff;
-    background:linear-gradient(135deg,var(--primary),#6650dc);
-    box-shadow:0 9px 20px rgba(18,104,232,.26);
-}
+/* sidebar - mirrors index */
+.sidebar{height:100%;width:292px;position:fixed;top:0;left:-292px;z-index:1100;padding:92px 16px 28px;overflow-y:auto;background:linear-gradient(180deg,#10284a 0%,#111d34 48%,#0f172a 100%);box-shadow:20px 0 54px rgba(11,30,56,.24);transition:left .28s cubic-bezier(.4,0,.2,1)}
+.sidebar::before{content:'KOBE · BOJONEGORO';position:absolute;top:28px;left:24px;color:#fff;font-size:12px;font-weight:800;letter-spacing:.14em}
+.sidebar::after{content:'Manufacturing Dashboard';position:absolute;top:48px;left:24px;color:#7f95b5;font-size:10px;font-weight:650;letter-spacing:.04em}
+.sidebar a{display:flex;align-items:center;min-height:46px;margin:4px 0;padding:11px 14px;border-radius:13px;color:#cad6e7;text-decoration:none;font-size:13px;font-weight:600;transition:.18s ease}
+.sidebar a:hover{background:rgba(255,255,255,.08);color:#fff;transform:translateX(2px)}
+.sidebar a.active{background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;box-shadow:0 11px 24px rgba(18,104,232,.26)}
+.sidebar-toggle-btn{position:absolute;top:24px;right:20px;z-index:3;width:42px;height:42px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:0;border:1px solid rgba(255,255,255,.14);border-radius:12px;background:rgba(255,255,255,.08);box-shadow:0 8px 20px rgba(0,0,0,.12);cursor:pointer;transition:.18s ease}
+.sidebar-toggle-btn:hover{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.24);transform:translateY(-1px)}
+.sidebar-toggle-btn span{display:block;width:20px;height:2px;border-radius:999px;background:#fff;pointer-events:none}
 
-.main {
-    width:min(1280px,calc(100% - 36px));
-    margin:0 auto;
-    padding:88px 0 44px;
-}
+.main{max-width:1520px;margin:0 auto;padding:94px 26px 44px}
 
-.page-hero {
-    position:relative;
-    overflow:hidden;
-    min-height:190px;
-    display:grid;
-    grid-template-columns:minmax(0,1fr) auto;
-    align-items:center;
-    gap:28px;
-    margin-bottom:22px;
-    padding:30px 34px;
-    border:1px solid rgba(255,255,255,.40);
-    border-radius:28px;
-    color:#fff;
-    background:
-        linear-gradient(120deg,rgba(0,32,91,.12),rgba(61,16,135,.16)),
-        linear-gradient(135deg,#0b63dc 0%,#174fb6 52%,#7338d2 100%);
-    box-shadow:0 24px 60px rgba(25,73,157,.24);
-}
-.page-hero::before {
-    content:"";
-    position:absolute;
-    width:330px; height:330px;
-    right:-80px; top:-190px;
-    border:1px solid rgba(255,255,255,.15);
-    border-radius:50%;
-    box-shadow:0 0 0 42px rgba(255,255,255,.035),0 0 0 86px rgba(255,255,255,.024);
-}
-.hero-copy,.hero-stat { position:relative; z-index:1; }
-.hero-kicker {
-    display:inline-flex;
-    align-items:center;
-    gap:8px;
-    margin-bottom:13px;
-    padding:7px 11px;
-    border:1px solid rgba(255,255,255,.22);
-    border-radius:999px;
-    background:rgba(255,255,255,.10);
-    font-size:11px;
-    font-weight:700;
-    letter-spacing:.09em;
-    text-transform:uppercase;
-}
-.hero-kicker::before {
-    content:"";
-    width:8px; height:8px;
-    border-radius:50%;
-    background:#6df1ad;
-    box-shadow:0 0 0 5px rgba(109,241,173,.16);
-}
-.page-hero h1 { margin:0; font-size:clamp(31px,4vw,46px); line-height:1; letter-spacing:-.035em; }
-.page-hero p { max-width:680px; margin:10px 0 0; color:rgba(255,255,255,.78); font-size:14px; line-height:1.55; }
-.hero-stat {
-    min-width:215px;
-    padding:20px;
-    border:1px solid rgba(255,255,255,.22);
-    border-radius:20px;
-    background:rgba(255,255,255,.12);
-    backdrop-filter:blur(12px);
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.14);
-}
-.hero-stat span { display:block; color:rgba(255,255,255,.72); font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
-.hero-stat strong { display:block; margin-top:5px; font-size:27px; line-height:1.05; }
-.hero-stat small { display:block; margin-top:7px; color:rgba(255,255,255,.75); font-size:11px; }
+/* hero */
+.page-hero{position:relative;overflow:hidden;min-height:210px;display:grid;grid-template-columns:minmax(0,1fr) 310px;align-items:center;gap:28px;margin-bottom:20px;padding:30px 34px;border:1px solid rgba(255,255,255,.4);border-radius:28px;color:#fff;background:linear-gradient(120deg,rgba(0,32,91,.10),rgba(61,16,135,.16)),linear-gradient(135deg,#0b63dc 0%,#174fb6 52%,#7338d2 100%);box-shadow:0 24px 60px rgba(25,73,157,.20)}
+.page-hero::before{content:"";position:absolute;width:330px;height:330px;right:-80px;top:-190px;border:1px solid rgba(255,255,255,.15);border-radius:50%;box-shadow:0 0 0 42px rgba(255,255,255,.035),0 0 0 86px rgba(255,255,255,.024)}
+.hero-copy,.hero-stat{position:relative;z-index:1}.hero-kicker{display:inline-flex;align-items:center;gap:8px;margin-bottom:13px;padding:7px 11px;border:1px solid rgba(255,255,255,.22);border-radius:999px;background:rgba(255,255,255,.10);font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase}.hero-kicker::before{content:"";width:8px;height:8px;border-radius:50%;background:#6df1ad;box-shadow:0 0 0 5px rgba(109,241,173,.16)}
+.page-hero h1{margin:0;font-size:clamp(31px,4vw,46px);line-height:1;letter-spacing:-.035em}.page-hero p{max-width:720px;margin:10px 0 0;color:rgba(255,255,255,.8);font-size:14px;line-height:1.55}
+.hero-stat{min-width:230px;padding:20px;border:1px solid rgba(255,255,255,.22);border-radius:20px;background:rgba(255,255,255,.12);backdrop-filter:blur(12px);box-shadow:inset 0 1px 0 rgba(255,255,255,.14)}
+.hero-stat span{display:block;color:rgba(255,255,255,.72);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}.hero-stat strong{display:block;margin-top:5px;font-size:27px;line-height:1.05}.hero-stat small{display:block;margin-top:7px;color:rgba(255,255,255,.75);font-size:11px}
 
-.upload-card,.status-bar,.kpi-card,.table-card {
-    border:1px solid rgba(222,231,243,.96);
-    background:var(--surface);
-    box-shadow:var(--shadow);
-    backdrop-filter:blur(14px);
-}
-.upload-card { padding:26px; margin-bottom:16px; border-radius:24px; }
-.upload-card h3 { margin:0 0 17px; color:var(--ink); font-size:18px; letter-spacing:-.02em; }
-.drop-zone {
-    position:relative;
-    padding:34px 24px;
-    overflow:hidden;
-    border:1.5px dashed #b9d8cf;
-    border-radius:18px;
-    color:#60718a;
-    background:linear-gradient(145deg,#f9fffc,#f5f9fc);
-    text-align:center;
-    cursor:pointer;
-    font-size:14px;
-    transition:.22s ease;
-}
-.drop-zone::after {
-    content:"";
-    position:absolute;
-    width:150px; height:150px;
-    right:-70px; bottom:-100px;
-    border-radius:50%;
-    background:rgba(22,160,101,.06);
-}
-.drop-zone:hover,.drop-zone.dragover {
-    border-color:#58c89a;
-    color:var(--success);
-    background:#f4fcf8;
-    box-shadow:0 0 0 4px rgba(22,160,101,.07),0 14px 28px rgba(31,120,84,.08);
-    transform:translateY(-1px);
-}
-.drop-zone input[type=file] { display:none; }
-.drop-icon { position:relative; z-index:1; margin-bottom:9px; font-size:36px; }
-#file-name { margin-top:11px; color:#42536b; font-size:12px; font-weight:700; }
-button { font-family:Arial,sans-serif; }
-.btn-upload,.btn-save {
-    min-height:43px;
-    padding:10px 17px;
-    border:0;
-    border-radius:12px;
-    color:#fff;
-    cursor:pointer;
-    font-size:13px;
-    font-weight:700;
-    transition:.18s ease;
-}
-.btn-upload { display:none; background:linear-gradient(135deg,#263a5e,#172740); box-shadow:0 9px 20px rgba(24,39,67,.17); }
-.btn-upload.visible { display:inline-block; }
-.btn-save { background:linear-gradient(135deg,#16a065,#0d8a57); box-shadow:0 9px 20px rgba(22,160,101,.22); }
-.btn-upload:hover,.btn-save:hover:not(:disabled) { transform:translateY(-2px); filter:brightness(1.03); }
-.btn-save:disabled { cursor:not-allowed; opacity:.55; box-shadow:none; }
-.warning-badge { display:none; margin-top:12px; padding:11px 13px; border:1px solid #f4cf72; border-radius:12px; color:#8a5b06; background:#fff9e8; font-size:12px; line-height:1.5; }
-.warning-badge.show { display:block; }
+.card-shell{border:1px solid rgba(222,231,243,.96);background:var(--surface);box-shadow:var(--shadow);backdrop-filter:blur(14px)}
+.upload-card{padding:24px;margin-bottom:16px;border-radius:22px}.upload-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:16px}.upload-head h3{margin:0;color:var(--ink);font-size:17px}.upload-head p{margin:5px 0 0;color:#8a98aa;font-size:11px;line-height:1.45}
+.drop-zone{position:relative;padding:30px 24px;overflow:hidden;border:1.5px dashed #b9d8cf;border-radius:17px;color:#60718a;background:linear-gradient(145deg,#f9fffc,#f5f9fc);text-align:center;cursor:pointer;font-size:13px;transition:.22s ease}.drop-zone:hover,.drop-zone.dragover{border-color:#58c89a;color:var(--success);background:#f4fcf8;box-shadow:0 0 0 4px rgba(22,160,101,.07),0 14px 28px rgba(31,120,84,.08);transform:translateY(-1px)}.drop-zone input{display:none}.drop-icon{margin-bottom:7px;font-size:31px}#file-name{margin-top:10px;color:#42536b;font-size:12px;font-weight:700}.warning-badge{display:none;margin-top:12px;padding:11px 13px;border:1px solid #f4cf72;border-radius:12px;color:#8a5b06;background:#fff9e8;font-size:12px;line-height:1.5}.warning-badge.show{display:block}
+.btn-upload,.btn-save{min-height:42px;padding:10px 16px;border:0;border-radius:12px;color:#fff;cursor:pointer;font-size:12px;font-weight:700;transition:.18s ease}.btn-upload{display:none;background:linear-gradient(135deg,#263a5e,#172740);box-shadow:0 9px 20px rgba(24,39,67,.17)}.btn-upload.visible{display:inline-block}.btn-save{background:linear-gradient(135deg,#16a065,#0d8a57);box-shadow:0 9px 20px rgba(22,160,101,.22)}.btn-upload:hover,.btn-save:hover:not(:disabled){transform:translateY(-1px)}.btn-save:disabled{cursor:not-allowed;opacity:.55;box-shadow:none}
+.status-bar{min-height:46px;display:flex;align-items:center;gap:10px;margin-bottom:20px;padding:11px 16px;border:1px solid rgba(222,231,243,.96);border-radius:15px;color:var(--muted);background:rgba(255,255,255,.88);font-size:12px;box-shadow:var(--shadow-sm)}.status-dot{width:9px;height:9px;flex:0 0 auto;border-radius:50%;background:#cbd4e1;box-shadow:0 0 0 5px rgba(203,212,225,.25)}.status-dot.active{background:var(--success);box-shadow:0 0 0 5px rgba(22,160,101,.12)}.status-bar.loading{color:var(--primary)}.status-bar.loading .status-dot{background:var(--primary);box-shadow:0 0 0 5px rgba(18,104,232,.12)}.status-bar.error{color:var(--danger)}.status-bar.error .status-dot{background:var(--danger);box-shadow:0 0 0 5px rgba(239,68,68,.12)}
 
-.status-bar {
-    min-height:46px;
-    display:flex;
-    align-items:center;
-    gap:10px;
-    margin-bottom:22px;
-    padding:11px 16px;
-    border-radius:15px;
-    color:var(--muted);
-    font-size:12px;
-    box-shadow:0 10px 28px rgba(38,70,113,.07);
-}
-.status-dot { width:9px; height:9px; flex:0 0 auto; border-radius:50%; background:#cbd4e1; box-shadow:0 0 0 5px rgba(203,212,225,.25); }
-.status-dot.active { background:var(--success); box-shadow:0 0 0 5px rgba(22,160,101,.12); }
-.status-bar.loading { color:var(--primary); }
-.status-bar.loading .status-dot { background:var(--primary); box-shadow:0 0 0 5px rgba(18,104,232,.12); }
-.status-bar.error { color:var(--danger); }
-.status-bar.error .status-dot { background:var(--danger); box-shadow:0 0 0 5px rgba(229,72,77,.12); }
+.section-title{display:flex;align-items:center;gap:10px;margin:26px 2px 12px;color:#3c4d65;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.07em}.section-title::before{content:"";width:4px;height:18px;border-radius:999px;background:linear-gradient(180deg,#16a065,#1268e8)}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:22px}.kpi-card{position:relative;overflow:hidden;min-height:142px;padding:20px;border:1px solid rgba(222,231,243,.96);border-radius:20px;background:rgba(255,255,255,.94);box-shadow:var(--shadow-sm)}.kpi-card::before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:var(--kpi-accent,#16a065)}.kpi-card::after{content:"";position:absolute;width:108px;height:108px;right:-46px;bottom:-50px;border-radius:50%;background:var(--kpi-soft,#e9f9f1)}.kpi-card:nth-child(2){--kpi-accent:#1268e8;--kpi-soft:#eaf3ff}.kpi-card:nth-child(3){--kpi-accent:#7c3aed;--kpi-soft:#f1eaff}.kpi-card:nth-child(4){--kpi-accent:#f59e0b;--kpi-soft:#fff4d8}.kpi-label{position:relative;z-index:1;margin:0 0 9px;color:var(--muted);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.05em}.kpi-value{position:relative;z-index:1;margin:0;color:var(--ink);font-size:34px;font-weight:800;line-height:1;letter-spacing:-.035em}.kpi-value.empty{color:#cdd6e2;font-size:26px}.kpi-unit{margin-left:4px;color:#6b7a90;font-size:14px;font-weight:500}.kpi-sub{position:relative;z-index:1;margin-top:8px;color:#8d99aa;font-size:11px;line-height:1.4}
 
-.section-title {
-    display:flex;
-    align-items:center;
-    gap:10px;
-    margin:27px 2px 12px;
-    color:#3c4d65;
-    font-size:12px;
-    font-weight:700;
-    text-transform:uppercase;
-    letter-spacing:.07em;
-}
-.section-title::before { content:""; width:4px; height:18px; border-radius:999px; background:linear-gradient(180deg,#16a065,#1268e8); }
+/* chart */
+.chart-card{margin-bottom:22px;padding:20px;border:1px solid rgba(222,231,243,.96);border-radius:22px;background:rgba(255,255,255,.94);box-shadow:var(--shadow)}.chart-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:14px}.chart-title h3{margin:0;color:#24334a;font-size:17px}.chart-title p{margin:5px 0 0;color:#91a0b3;font-size:11px;line-height:1.45}.chart-controls{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:flex-end;gap:8px}.period-toggle{display:inline-flex;padding:4px;border:1px solid #e4e9f1;border-radius:13px;background:#f7f9fc}.period-toggle button{min-height:34px;padding:7px 13px;border:0;border-radius:9px;background:transparent;color:#64748b;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;cursor:pointer}.period-toggle button.active{color:#fff;background:linear-gradient(135deg,#1268e8,#7c3aed);box-shadow:0 7px 16px rgba(18,104,232,.18)}
+.filter-box{display:flex;flex-direction:column;gap:4px}.filter-box label{color:#8a98aa;font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.06em}.filter-box select{min-width:145px;height:38px;padding:0 34px 0 11px;border:1px solid #e4e9f1;border-radius:11px;background:#fff;color:#334155;font-size:10px;font-weight:700;outline:none}.filter-box select:focus{border-color:#b9d3fa;box-shadow:0 0 0 3px rgba(18,104,232,.08)}.btn-reset-chart{height:38px;padding:0 13px;border:1px solid #e4e9f1;border-radius:11px;background:#fff;color:#64748b;font-size:10px;font-weight:800;cursor:pointer}.btn-reset-chart:hover{background:#f8fafc;color:#334155}
+.btn-export-tonase{height:38px;display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:0 14px;border:0;border-radius:11px;background:linear-gradient(135deg,#1268e8,#174fb6);color:#fff;font-size:10px;font-weight:800;cursor:pointer;box-shadow:0 8px 18px rgba(18,104,232,.20);transition:.18s ease}.btn-export-tonase:hover{transform:translateY(-1px);filter:brightness(1.04);box-shadow:0 11px 22px rgba(18,104,232,.25)}.btn-export-tonase:active{transform:translateY(0)}.btn-export-tonase svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.chart-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:12px}.chart-summary-box{padding:11px 13px;border:1px solid #edf1f6;border-radius:13px;background:#fafcff}.chart-summary-box span{display:block;color:#8a98aa;font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.05em}.chart-summary-box strong{display:block;margin-top:5px;color:#23324a;font-size:17px}.chart-summary-box small{margin-left:4px;color:#8a98aa;font-size:10px;font-weight:600}
+.chart-wrap{position:relative;height:360px;border:1px solid #edf1f6;border-radius:16px;background:linear-gradient(180deg,#fff,#fbfdff);padding:10px}.chart-wrap canvas{width:100%;height:100%;display:block}.chart-empty{height:100%;display:grid;place-items:center;color:#9aa6b6;font-size:12px}.chart-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:10px;color:#93a0b1;font-size:9px}.legend-dot{display:inline-block;width:9px;height:9px;margin-right:5px;border-radius:50%;background:linear-gradient(135deg,#1268e8,#7c3aed)}
 
-.kpi-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; margin-bottom:24px; }
-.kpi-card {
-    position:relative;
-    overflow:hidden;
-    min-height:146px;
-    padding:21px 21px 19px;
-    border-radius:20px;
-    border-top:0;
-    transition:.2s ease;
-}
-.kpi-card:hover { transform:translateY(-2px); box-shadow:0 20px 42px rgba(38,70,113,.13); }
-.kpi-card::after { content:""; position:absolute; width:108px; height:108px; right:-46px; bottom:-50px; border-radius:50%; background:var(--kpi-soft,#e9f9f1); }
-.kpi-card::before { content:""; position:absolute; top:0; left:0; right:0; height:4px; background:var(--kpi-accent,#16a065); }
-.kpi-card:not(.secondary) { --kpi-accent:#16a065; --kpi-soft:#e9f9f1; }
-.kpi-card.secondary:nth-child(2) { --kpi-accent:#378add; --kpi-soft:#eaf3ff; }
-.kpi-card.secondary:nth-child(3) { --kpi-accent:#7c3aed; --kpi-soft:#f1eaff; }
-.kpi-label { position:relative; z-index:1; margin:0 0 9px; color:var(--muted); font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.045em; }
-.kpi-value { position:relative; z-index:1; margin:0; color:var(--ink); font-size:36px; font-weight:700; line-height:1; letter-spacing:-.035em; }
-.kpi-value.empty { color:#cdd6e2; font-size:26px; }
-.kpi-sub { position:relative; z-index:1; margin-top:8px; color:#8d99aa; font-size:11px; }
-.kpi-unit { margin-left:4px; color:#6b7a90; font-size:15px; font-weight:400; }
+.table-card{padding:0;overflow:hidden;margin-bottom:24px;border:1px solid rgba(222,231,243,.96);border-radius:20px;background:rgba(255,255,255,.94);box-shadow:var(--shadow)}.table-card h4{margin:0;padding:18px 20px;border-bottom:1px solid #edf1f6;color:#2e4059;background:rgba(250,252,255,.72);font-size:14px}.table-scroll{overflow-x:auto}table{width:100%;min-width:620px;border-collapse:separate;border-spacing:0;font-size:12px}th{padding:12px 15px;border-bottom:1px solid #dfe7f1;background:#f7f9fc;color:#708097;font-size:10px;font-weight:700;text-align:left;text-transform:uppercase;letter-spacing:.055em}td{padding:12px 15px;border-bottom:1px solid #eef2f7;color:#405168;background:rgba(255,255,255,.72)}tbody tr:hover td{background:#f9fbff}tbody tr:last-child td{border-bottom:0}td.ton-val{color:var(--ink);font-weight:700}
 
-.table-card { padding:0; overflow:hidden; margin-bottom:24px; border-radius:20px; }
-.table-card h4 { margin:0; padding:19px 22px; border-bottom:1px solid #edf1f6; color:#2e4059; background:rgba(250,252,255,.72); font-size:15px; }
-.table-card { overflow-x:auto; }
-table { width:100%; min-width:620px; border-collapse:separate; border-spacing:0; font-size:12px; }
-th { padding:12px 15px; border-bottom:1px solid #dfe7f1; background:#f7f9fc; color:#708097; font-size:10px; font-weight:700; text-align:left; text-transform:uppercase; letter-spacing:.055em; }
-td { padding:12px 15px; border-bottom:1px solid #eef2f7; color:#405168; background:rgba(255,255,255,.72); }
-tbody tr { transition:background .15s ease; }
-tbody tr:hover td { background:#f9fbff; }
-tbody tr:last-child td { border-bottom:0; }
-td.ton-val { color:var(--ink); font-weight:700; }
-
-@media (max-width:900px) {
-    .page-hero { grid-template-columns:1fr; }
-    .hero-stat { width:min(100%,310px); }
-}
-@media (max-width:640px) {
-    .topbar { height:58px; padding:0 12px; }
-    .topbar h2 { font-size:16px; }
-    .menu-btn { width:36px; height:36px; border-radius:10px; font-size:21px; }
-    .main { width:min(100% - 20px,1280px); padding-top:72px; }
-    .page-hero { min-height:auto; padding:24px 20px; border-radius:22px; gap:18px; }
-    .page-hero h1 { font-size:34px; }
-    .page-hero p { font-size:13px; }
-    .hero-stat { padding:16px; border-radius:16px; }
-    .hero-stat strong { font-size:24px; }
-    .upload-card { padding:18px 15px; border-radius:20px; }
-    .drop-zone { padding:27px 15px; border-radius:15px; }
-    .kpi-grid { grid-template-columns:1fr; gap:11px; }
-    .kpi-card { min-height:128px; padding:18px; border-radius:18px; }
-    .kpi-value { font-size:31px; }
-    .section-title { margin-top:23px; font-size:11px; }
-    .table-card { border-radius:18px; }
-    .table-card h4 { padding:17px 16px; }
-    table { min-width:560px; }
-}
-
+@media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.chart-head{flex-direction:column}.chart-controls{justify-content:flex-start}.page-hero{grid-template-columns:1fr}.hero-stat{width:min(100%,320px)}}
+@media(max-width:720px){.topbar{height:64px;padding:0 14px}.topbar h2{font-size:16px}.topbar h2::after{font-size:8px}.menu-btn{width:36px;height:36px}.sidebar{width:270px;left:-270px}.main{padding:82px 12px 30px}.page-hero{padding:24px 20px;border-radius:22px}.page-hero h1{font-size:34px}.upload-card,.chart-card{padding:15px;border-radius:18px}.kpi-grid{grid-template-columns:1fr}.chart-summary{grid-template-columns:1fr}.chart-controls{width:100%}.period-toggle{width:100%}.period-toggle button{flex:1}.filter-box{flex:1 1 calc(50% - 8px)}.filter-box select{min-width:0;width:100%}.btn-reset-chart,.btn-export-tonase{flex:1 1 100%}.chart-wrap{height:300px}.sidebar-toggle-btn{top:22px;right:16px;width:38px;height:38px}}
 </style>
 </head>
 <body>
 
 <div class="sidebar" id="sidebar">
+    <button type="button" class="sidebar-toggle-btn" onclick="toggleMenu()" aria-label="Tutup sidebar" title="Tutup menu"><span></span><span></span><span></span></button>
     <a href="index.html">Dashboard Utama</a>
+    <a href="index.html#dor-opening">Visi, Misi &amp; Core Values</a>
     <a href="oee.html">OEE</a>
     <a href="tonase.html" class="active">Tonase</a>
     <a href="waste.html">Waste</a>
     <a href="cost-material.html">Cost Material</a>
+    <a href="input-cost-material.html">Input Cost Material</a>
+    <a href="input-variance.html">📊 Input Variance</a>
     <a href="improvement-monitoring.html">Improvement Monitoring</a>
-    <a href="smartway.html" style="margin-top:20px; border-top:1px solid #374151;">🛠️ Smart Way</a>
+    <a href="smartway.html" style="margin-top:20px;border-top:1px solid #374151;">🛠️ Smart Way</a>
     <a href="baopack.html">📦 Baopack</a>
     <a href="chingfong.html">⚙️ ChingFong</a>
     <a href="import-extruder.html">📤 Import Extruder</a>
@@ -352,343 +94,297 @@ td.ton-val { color:var(--ink); font-weight:700; }
 
 <div class="topbar">
     <span class="menu-btn" onclick="toggleMenu()">☰</span>
-    <h2 style="margin:0;">Tonase Produksi · Bojonegoro</h2>
+    <h2>Bojonegoro Monitoring</h2>
 </div>
 
-<div class="main">
-
+<main class="main">
     <section class="page-hero">
         <div class="hero-copy">
-            <div class="hero-kicker">Factory Production Dashboard</div>
+            <div class="hero-kicker">Production Performance</div>
             <h1>Tonase Produksi</h1>
-            <p>Monitor rekap tonase produksi harian dan bulanan sekaligus memperbarui data dari laporan Excel produksi Bojonegoro.</p>
+            <p>Monitor produksi harian, tren mingguan Minggu–Sabtu, dan performa bulanan dalam satu halaman yang terintegrasi dengan data produksi Bojonegoro.</p>
         </div>
         <div class="hero-stat">
-            <span>Production Data</span>
+            <span>Production Dashboard</span>
             <strong>TONASE</strong>
-            <small>Rekap harian &amp; bulanan</small>
+            <small>Daily · Weekly · Monthly</small>
         </div>
     </section>
 
-    <!-- Upload Card -->
-    <div class="upload-card">
-        <h3>📦 Import Excel Tonase</h3>
-        <div class="drop-zone" id="drop-zone"
-             onclick="document.getElementById('file-input').click()"
-             ondragover="handleDrag(event,true)"
-             ondragleave="handleDrag(event,false)"
-             ondrop="handleDrop(event)">
-            <input type="file" id="file-input" accept=".xlsx" onchange="handleFile(this.files[0])">
-            <div class="drop-icon">📊</div>
-            <div>Klik atau drag file Excel ke sini</div>
-            <div style="font-size:12px; margin-top:4px; color:#9ca3af;">
-                Format: Report Production Order Header + Text
+    <section class="upload-card card-shell">
+        <div class="upload-head">
+            <div>
+                <h3>Import Excel Tonase</h3>
+                <p>Perbarui database tonase dari sheet <strong>Data</strong> pada laporan produksi terbaru.</p>
             </div>
         </div>
+        <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()" ondragover="handleDrag(event,true)" ondragleave="handleDrag(event,false)" ondrop="handleDrop(event)">
+            <input type="file" id="file-input" accept=".xlsx" onchange="handleFile(this.files[0])">
+            <div class="drop-icon">📊</div>
+            <div><strong>Klik atau drag file Excel ke sini</strong></div>
+            <div style="font-size:11px;margin-top:5px;color:#9ca3af;">Format: Report Production Order Header + Text</div>
+        </div>
         <div id="file-name"></div>
-        <div class="warning-badge" id="warning-badge">
-            ⚠️ <strong>Perhatian:</strong> Menyimpan file baru akan <strong>menghapus semua data lama</strong> dan menggantinya dengan data terbaru.
+        <div class="warning-badge" id="warning-badge">⚠️ <strong>Perhatian:</strong> Menyimpan file baru akan menghapus data tonase lama dan menggantinya dengan data terbaru.</div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px;">
+            <button class="btn-upload" id="btn-proses" onclick="prosesExcel()">Proses Excel</button>
+            <button class="btn-save" id="btn-save" onclick="simpanKeSupabase()" disabled style="display:none;">Perbarui Data Supabase</button>
         </div>
-        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-top:12px;">
-            <button class="btn-upload" id="btn-proses" onclick="prosesExcel()">🔍 Proses Excel</button>
-            <button class="btn-save" id="btn-save" onclick="simpanKeSupabase()" disabled style="display:none;">
-                🔄 Perbarui Data Supabase
-            </button>
-        </div>
-    </div>
+    </section>
 
-    <!-- Status Bar -->
-    <div class="status-bar" id="status-bar">
-        <div class="status-dot" id="status-dot"></div>
-        <span id="status-text">Memuat data...</span>
-    </div>
+    <div class="status-bar" id="status-bar"><div class="status-dot" id="status-dot"></div><span id="status-text">Memuat data...</span></div>
 
-    <!-- KPI Cards -->
     <div class="section-title">Rekapitulasi Tonase</div>
-    <div class="kpi-grid">
-        <div class="kpi-card">
-            <div class="kpi-label">📦 Total Tonase Bulan Ini</div>
-            <div class="kpi-value empty" id="val-total">—</div>
-            <div class="kpi-sub" id="sub-total"></div>
-        </div>
-        <div class="kpi-card secondary">
-            <div class="kpi-label">📅 Tonase Hari Terakhir</div>
-            <div class="kpi-value empty" id="val-harian">—</div>
-            <div class="kpi-sub" id="sub-harian"></div>
-        </div>
-        <div class="kpi-card secondary">
-            <div class="kpi-label">📈 Rata-rata per Hari</div>
-            <div class="kpi-value empty" id="val-avg">—</div>
-            <div class="kpi-sub" id="sub-avg"></div>
-        </div>
-    </div>
+    <section class="kpi-grid">
+        <article class="kpi-card"><div class="kpi-label">Weekly Total · Sun–Sat</div><div class="kpi-value empty" id="val-weekly">—</div><div class="kpi-sub" id="sub-weekly"></div></article>
+        <article class="kpi-card"><div class="kpi-label">Monthly Total</div><div class="kpi-value empty" id="val-monthly">—</div><div class="kpi-sub" id="sub-monthly"></div></article>
+        <article class="kpi-card"><div class="kpi-label">Tonase Hari Terakhir</div><div class="kpi-value empty" id="val-harian">—</div><div class="kpi-sub" id="sub-harian"></div></article>
+        <article class="kpi-card"><div class="kpi-label">Rata-rata / Hari Produksi</div><div class="kpi-value empty" id="val-avg">—</div><div class="kpi-sub" id="sub-avg"></div></article>
+    </section>
 
-    <!-- Tabel harian -->
-    <div class="table-card">
-        <h4>📋 Rincian Tonase per Hari</h4>
-        <table id="tbl-harian">
-            <thead>
-                <tr>
-                    <th>Tanggal</th>
-                    <th>Hari</th>
-                    <th style="text-align:right;">Tonase (ton)</th>
-                </tr>
-            </thead>
-            <tbody id="tbl-body">
-                <tr><td colspan="3" style="text-align:center; color:#9ca3af; padding:24px;">
-                    Belum ada data
-                </td></tr>
-            </tbody>
-        </table>
-    </div>
+    <section class="chart-card">
+        <div class="chart-head">
+            <div class="chart-title">
+                <h3>Grafik Tonase Produksi</h3>
+                <p>Weekly menggunakan periode <strong>Minggu–Sabtu</strong>. Monthly menggunakan agregasi bulan kalender.</p>
+            </div>
+            <div class="chart-controls">
+                <div class="period-toggle">
+                    <button type="button" id="chart-weekly-btn" class="active" onclick="switchChartMode('weekly')">Weekly</button>
+                    <button type="button" id="chart-monthly-btn" onclick="switchChartMode('monthly')">Monthly</button>
+                </div>
+                <div class="filter-box"><label>Dari</label><select id="chart-from" onchange="handleChartRangeChange('from')"></select></div>
+                <div class="filter-box"><label>Sampai</label><select id="chart-to" onchange="handleChartRangeChange('to')"></select></div>
+                <button type="button" class="btn-reset-chart" onclick="resetChartRange()">Reset Periode</button>
+                <button type="button" class="btn-export-tonase" onclick="exportTonaseExcel()" title="Export data tonase sesuai periode aktif">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>
+                    <span>Export Excel</span>
+                </button>
+            </div>
+        </div>
+        <div class="chart-summary">
+            <div class="chart-summary-box"><span>Total periode</span><strong id="chart-total">—</strong></div>
+            <div class="chart-summary-box"><span>Rata-rata / periode</span><strong id="chart-average">—</strong></div>
+            <div class="chart-summary-box"><span>Periode tertinggi</span><strong id="chart-peak">—</strong></div>
+        </div>
+        <div class="chart-wrap" id="chart-wrap"><canvas id="tonase-chart"></canvas></div>
+        <div class="chart-foot"><span><i class="legend-dot"></i>Tonase produksi</span><span id="chart-range-label"></span></div>
+    </section>
 
-</div>
+    <section class="table-card">
+        <h4>Rincian Tonase per Hari</h4>
+        <div class="table-scroll">
+            <table id="tbl-harian">
+                <thead><tr><th>Tanggal</th><th>Hari</th><th style="text-align:right;">Tonase (ton)</th></tr></thead>
+                <tbody id="tbl-body"><tr><td colspan="3" style="text-align:center;color:#9ca3af;padding:24px;">Belum ada data</td></tr></tbody>
+            </table>
+        </div>
+    </section>
+</main>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const SUPABASE_URL = 'https://bmnhtxalfsfaefacgtpm.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_VItBKenz-q2sYz7MsibODA_nYtLXv9Q';
-const { createClient } = supabase;
-const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+const SUPABASE_URL='https://bmnhtxalfsfaefacgtpm.supabase.co';
+const SUPABASE_KEY='sb_publishable_VItBKenz-q2sYz7MsibODA_nYtLXv9Q';
+const {createClient}=supabase;
+const db=createClient(SUPABASE_URL,SUPABASE_KEY);
 
-let parsedData = null; // { bulan, tahun, rows: [{tanggal, tonase}], total }
+let parsedData=null;
+let currentData=null;
+let chartMode='weekly';
+let chartSeries={weekly:[],monthly:[]};
+let chartRange={weekly:{from:0,to:0},monthly:{from:0,to:0}};
+let chartResizeTimer=null;
+const HARI=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+const BULAN_ID=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 
-const HARI = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+function toggleMenu(){const s=document.getElementById('sidebar');s.style.left=s.style.left==='0px'?`-${s.offsetWidth}px`:'0px'}
+function handleDrag(e,over){e.preventDefault();document.getElementById('drop-zone').classList.toggle('dragover',over)}
+function handleDrop(e){e.preventDefault();handleDrag(e,false);const f=e.dataTransfer.files[0];if(f)handleFile(f)}
+function handleFile(file){if(!file)return;document.getElementById('file-name').textContent='📄 '+file.name;document.getElementById('btn-proses').classList.add('visible');window._pendingFile=file;setStatus('default','File siap diproses: '+file.name);document.getElementById('btn-save').style.display='none';document.getElementById('btn-save').disabled=true;document.getElementById('warning-badge').classList.remove('show');parsedData=null}
 
-function toggleMenu() {
-    const s = document.getElementById('sidebar');
-    s.style.left = s.style.left === '0px' ? '-250px' : '0px';
-}
-function handleDrag(e, over) {
-    e.preventDefault();
-    document.getElementById('drop-zone').classList.toggle('dragover', over);
-}
-function handleDrop(e) {
-    e.preventDefault();
-    handleDrag(e, false);
-    const f = e.dataTransfer.files[0];
-    if (f) handleFile(f);
-}
-function handleFile(file) {
-    if (!file) return;
-    document.getElementById('file-name').textContent = '📄 ' + file.name;
-    document.getElementById('btn-proses').classList.add('visible');
-    window._pendingFile = file;
-    setStatus('default', 'File siap diproses: ' + file.name);
-    document.getElementById('btn-save').style.display = 'none';
-    document.getElementById('btn-save').disabled = true;
-    document.getElementById('warning-badge').classList.remove('show');
-    parsedData = null;
-}
-
-function excelDateToStr(v) {
-    if (!v && v !== 0) return null;
-    if (v instanceof Date) return v.toISOString().slice(0, 10);
-    if (typeof v === 'number') {
-        return new Date(Math.round((v - 25569) * 86400 * 1000)).toISOString().slice(0, 10);
+function excelDateToStr(v){
+    if(!v&&v!==0)return null;
+    if(v instanceof Date)return localDateToStr(v);
+    if(typeof v==='number'){
+        const d=new Date(Math.round((v-25569)*86400*1000));
+        return `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`;
     }
-    if (typeof v === 'string' && v.match(/^\d{4}-\d{2}-\d{2}/)) return v.slice(0, 10);
+    if(typeof v==='string'&&v.match(/^\d{4}-\d{2}-\d{2}/))return v.slice(0,10);
     return null;
 }
+function localDateToStr(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
+function dateFromStr(s){return new Date(s+'T00:00:00')}
+function addDaysStr(s,n){const d=dateFromStr(s);d.setDate(d.getDate()+n);return localDateToStr(d)}
+function fmtDate(d){if(!d)return'';try{return dateFromStr(d).toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'})}catch{return d}}
+function fmtDateShort(d){if(!d)return'';return dateFromStr(d).toLocaleDateString('id-ID',{day:'2-digit',month:'short'})}
+function fmtTon(v){return Number(v||0).toLocaleString('id-ID',{minimumFractionDigits:2,maximumFractionDigits:2})}
 
-function prosesExcel() {
-    const file = window._pendingFile;
-    if (!file) return;
-    setStatus('loading', 'Membaca file Excel...');
+function startOfSundayWeek(dateStr){const d=dateFromStr(dateStr);d.setDate(d.getDate()-d.getDay());return localDateToStr(d)}
+function weekNumberSunday(dateStr){const d=dateFromStr(dateStr);const year=d.getFullYear();const jan1=new Date(year,0,1);const dayOfYear=Math.floor((d-jan1)/86400000)+1;return Math.floor((dayOfYear+jan1.getDay()-1)/7)+1}
 
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        try {
-            const wb = XLSX.read(e.target.result, {
-                type: 'array', raw: true, cellDates: false, cellFormula: true
-            });
-
-            // Sheet "Data" - header row 3, data mulai row 4
-            // Col D (3, 0-based) = Schedule Start Date
-            // Col AH (33, 0-based) = Tonase
-            const ws = wb.Sheets['Data'];
-            if (!ws) throw new Error('Sheet "Data" tidak ditemukan');
-
-            const range = XLSX.utils.decode_range(ws['!ref']);
-            const getCell = (r, c) => ws[XLSX.utils.encode_cell({ r, c })];
-
-            // SUM tonase per tanggal
-            const dailyMap = {};
-            for (let r = 3; r <= range.e.r; r++) { // row 4 = index 3
-                const tglCell = getCell(r, 3);  // col D = index 3
-                const tonCell = getCell(r, 33); // col AH = index 33
-
-                if (!tglCell || tglCell.v === undefined) continue;
-                const tglStr = excelDateToStr(tglCell.v);
-                if (!tglStr) continue;
-
-                const ton = tonCell ? (parseFloat(tonCell.v) || 0) : 0;
-                dailyMap[tglStr] = (dailyMap[tglStr] || 0) + ton;
-            }
-
-            // Buat rows terurut, filter yang ada tonase > 0
-            const rows = Object.entries(dailyMap)
-                .filter(([, v]) => v > 0)
-                .sort(([a], [b]) => a.localeCompare(b))
-                .map(([tanggal, tonase]) => ({ tanggal, tonase: +tonase.toFixed(3) }));
-
-            if (rows.length === 0) throw new Error('Tidak ada data tonase ditemukan');
-
-            const total = +rows.reduce((s, r) => s + r.tonase, 0).toFixed(3);
-            const lastRow = rows[rows.length - 1];
-            const firstDate = new Date(rows[0].tanggal);
-            const bulan = firstDate.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
-
-            parsedData = { bulan, rows, total };
-
-            tampilkanData(parsedData);
-            setStatus('active', `✅ Berhasil dibaca. ${rows.length} hari data, total ${total.toFixed(2)} ton`);
-
-            const btnSave = document.getElementById('btn-save');
-            btnSave.style.display = 'inline-block';
-            btnSave.disabled = false;
-            btnSave.textContent = '🔄 Perbarui Data Supabase';
-            document.getElementById('warning-badge').classList.add('show');
-
-        } catch (err) {
-            setStatus('error', '❌ Gagal membaca Excel: ' + err.message);
-            console.error(err);
+function prosesExcel(){
+    const file=window._pendingFile;if(!file)return;setStatus('loading','Membaca file Excel...');
+    const reader=new FileReader();
+    reader.onload=function(e){try{
+        const wb=XLSX.read(e.target.result,{type:'array',raw:true,cellDates:false,cellFormula:true});
+        const ws=wb.Sheets['Data'];if(!ws)throw new Error('Sheet "Data" tidak ditemukan');
+        const range=XLSX.utils.decode_range(ws['!ref']);const getCell=(r,c)=>ws[XLSX.utils.encode_cell({r,c})];const dailyMap={};
+        for(let r=3;r<=range.e.r;r++){
+            const tglCell=getCell(r,3),tonCell=getCell(r,33);if(!tglCell||tglCell.v===undefined)continue;
+            const tglStr=excelDateToStr(tglCell.v);if(!tglStr)continue;const ton=tonCell?(parseFloat(tonCell.v)||0):0;dailyMap[tglStr]=(dailyMap[tglStr]||0)+ton;
         }
-    };
+        const rows=Object.entries(dailyMap).filter(([,v])=>v>0).sort(([a],[b])=>a.localeCompare(b)).map(([tanggal,tonase])=>({tanggal,tonase:+tonase.toFixed(3)}));
+        if(!rows.length)throw new Error('Tidak ada data tonase ditemukan');
+        const total=+rows.reduce((s,r)=>s+r.tonase,0).toFixed(3);parsedData={rows,total};
+        tampilkanData(parsedData);setStatus('active',`Berhasil dibaca. ${rows.length} hari data, total ${fmtTon(total)} ton`);
+        const btn=document.getElementById('btn-save');btn.style.display='inline-block';btn.disabled=false;btn.textContent='Perbarui Data Supabase';document.getElementById('warning-badge').classList.add('show');
+    }catch(err){setStatus('error','Gagal membaca Excel: '+err.message);console.error(err)}};
     reader.readAsArrayBuffer(file);
 }
 
-function tampilkanData(d) {
-    // KPI total
-    const totalEl = document.getElementById('val-total');
-    totalEl.innerHTML = d.total.toFixed(2) + '<span class="kpi-unit">ton</span>';
-    totalEl.className = 'kpi-value';
-    document.getElementById('sub-total').textContent = d.bulan;
+function computeWeeklyKpi(rows){
+    if(!rows.length)return null;const last=rows[rows.length-1].tanggal;const start=startOfSundayWeek(last);const end=addDaysStr(start,6);const value=rows.filter(r=>r.tanggal>=start&&r.tanggal<=end).reduce((s,r)=>s+r.tonase,0);return{value,start,end};
+}
+function computeMonthlyKpi(rows){
+    if(!rows.length)return null;const lastDate=dateFromStr(rows[rows.length-1].tanggal);const y=lastDate.getFullYear(),m=lastDate.getMonth();const selected=rows.filter(r=>{const d=dateFromStr(r.tanggal);return d.getFullYear()===y&&d.getMonth()===m});return{value:selected.reduce((s,r)=>s+r.tonase,0),year:y,month:m,days:selected.length};
+}
 
-    // KPI hari terakhir
-    const last = d.rows[d.rows.length - 1];
-    const harianEl = document.getElementById('val-harian');
-    harianEl.innerHTML = last.tonase.toFixed(2) + '<span class="kpi-unit">ton</span>';
-    harianEl.className = 'kpi-value';
-    document.getElementById('sub-harian').textContent = fmtDate(last.tanggal);
+function buildWeeklySeries(rows){
+    const map=new Map();
+    rows.forEach(r=>{const start=startOfSundayWeek(r.tanggal);if(!map.has(start))map.set(start,{key:start,start,end:addDaysStr(start,6),value:0,count:0,lastDate:r.tanggal});const o=map.get(start);o.value+=Number(r.tonase)||0;o.count++;if(r.tanggal>o.lastDate)o.lastDate=r.tanggal});
+    return [...map.values()].sort((a,b)=>a.start.localeCompare(b.start)).map(o=>{const ref=o.lastDate||o.start;const week=weekNumberSunday(ref);const year=dateFromStr(ref).getFullYear();return{...o,label:`W${week} / ${year}`,detail:`${fmtDateShort(o.start)} – ${fmtDateShort(o.end)}`}});
+}
+function buildMonthlySeries(rows){
+    const map=new Map();
+    rows.forEach(r=>{const d=dateFromStr(r.tanggal);const key=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;if(!map.has(key))map.set(key,{key,year:d.getFullYear(),month:d.getMonth(),value:0,count:0});const o=map.get(key);o.value+=Number(r.tonase)||0;o.count++});
+    return [...map.values()].sort((a,b)=>a.key.localeCompare(b.key)).map(o=>({...o,label:`${BULAN_ID[o.month]} ${o.year}`,detail:`${o.count} hari produksi`}));
+}
 
-    // KPI rata-rata
-    const hariAktif = d.rows.length;
-    const avg = +(d.total / hariAktif).toFixed(2);
-    const avgEl = document.getElementById('val-avg');
-    avgEl.innerHTML = avg + '<span class="kpi-unit">ton</span>';
-    avgEl.className = 'kpi-value';
-    document.getElementById('sub-avg').textContent = `dari ${hariAktif} hari produksi`;
+function tampilkanData(d){
+    currentData=d;const rows=d.rows||[];if(!rows.length)return;
+    const weekly=computeWeeklyKpi(rows),monthly=computeMonthlyKpi(rows),last=rows[rows.length-1];
+    const weeklyEl=document.getElementById('val-weekly');weeklyEl.innerHTML=fmtTon(weekly.value)+'<span class="kpi-unit">ton</span>';weeklyEl.className='kpi-value';document.getElementById('sub-weekly').textContent=`${fmtDate(weekly.start)} – ${fmtDate(weekly.end)}`;
+    const monthEl=document.getElementById('val-monthly');monthEl.innerHTML=fmtTon(monthly.value)+'<span class="kpi-unit">ton</span>';monthEl.className='kpi-value';document.getElementById('sub-monthly').textContent=`${BULAN_ID[monthly.month]} ${monthly.year} · ${monthly.days} hari produksi`;
+    const harianEl=document.getElementById('val-harian');harianEl.innerHTML=fmtTon(last.tonase)+'<span class="kpi-unit">ton</span>';harianEl.className='kpi-value';document.getElementById('sub-harian').textContent=fmtDate(last.tanggal);
+    const avg=rows.reduce((s,r)=>s+r.tonase,0)/rows.length;const avgEl=document.getElementById('val-avg');avgEl.innerHTML=fmtTon(avg)+'<span class="kpi-unit">ton</span>';avgEl.className='kpi-value';document.getElementById('sub-avg').textContent=`dari ${rows.length} hari produksi tersedia`;
 
-    // Tabel harian
-    const tbody = document.getElementById('tbl-body');
-    tbody.innerHTML = '';
-    // Tampilkan dari terbaru ke terlama
-    [...d.rows].reverse().forEach(row => {
-        const dt = new Date(row.tanggal + 'T00:00:00');
-        const hari = HARI[dt.getDay()];
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>${fmtDate(row.tanggal)}</td>
-            <td>${hari}</td>
-            <td class="ton-val" style="text-align:right;">${row.tonase.toFixed(3)}</td>
-        `;
-        tbody.appendChild(tr);
+    const tbody=document.getElementById('tbl-body');tbody.innerHTML='';[...rows].reverse().forEach(row=>{const dt=dateFromStr(row.tanggal);const tr=document.createElement('tr');tr.innerHTML=`<td>${fmtDate(row.tanggal)}</td><td>${HARI[dt.getDay()]}</td><td class="ton-val" style="text-align:right;">${Number(row.tonase).toFixed(3)}</td>`;tbody.appendChild(tr)});
+    const total=rows.reduce((s,r)=>s+r.tonase,0);const trTotal=document.createElement('tr');trTotal.innerHTML=`<td colspan="2" style="font-weight:800;color:#059669;background:#f0fdf4;">TOTAL DATA TERSEDIA</td><td class="ton-val" style="text-align:right;color:#059669;font-size:14px;background:#f0fdf4;">${Number(total).toFixed(3)}</td>`;tbody.appendChild(trTotal);
+
+    chartSeries.weekly=buildWeeklySeries(rows);chartSeries.monthly=buildMonthlySeries(rows);initChartRanges();populateChartSelectors();renderTonaseChart();
+}
+
+function initChartRanges(){
+    ['weekly','monthly'].forEach(mode=>{const n=chartSeries[mode].length;if(!n){chartRange[mode]={from:0,to:0};return}const visible=mode==='weekly'?Math.min(8,n):Math.min(6,n);chartRange[mode]={from:Math.max(0,n-visible),to:n-1}})
+}
+function populateChartSelectors(){
+    const data=chartSeries[chartMode],from=document.getElementById('chart-from'),to=document.getElementById('chart-to');
+    from.innerHTML='';to.innerHTML='';data.forEach((d,i)=>{const text=d.label;from.add(new Option(text,i));to.add(new Option(text,i))});
+    const r=chartRange[chartMode];if(data.length){from.value=String(Math.min(r.from,data.length-1));to.value=String(Math.min(r.to,data.length-1))}
+}
+function switchChartMode(mode){chartMode=mode;document.getElementById('chart-weekly-btn').classList.toggle('active',mode==='weekly');document.getElementById('chart-monthly-btn').classList.toggle('active',mode==='monthly');populateChartSelectors();renderTonaseChart()}
+function handleChartRangeChange(changed){const data=chartSeries[chartMode];if(!data.length)return;let from=Number(document.getElementById('chart-from').value),to=Number(document.getElementById('chart-to').value);if(from>to){if(changed==='from')to=from;else from=to}chartRange[chartMode]={from,to};document.getElementById('chart-from').value=String(from);document.getElementById('chart-to').value=String(to);renderTonaseChart()}
+function resetChartRange(){const n=chartSeries[chartMode].length;if(!n)return;const visible=chartMode==='weekly'?Math.min(8,n):Math.min(6,n);chartRange[chartMode]={from:Math.max(0,n-visible),to:n-1};populateChartSelectors();renderTonaseChart()}
+function selectedChartSeries(){const data=chartSeries[chartMode];if(!data.length)return[];const r=chartRange[chartMode];return data.slice(Math.max(0,r.from),Math.min(data.length-1,r.to)+1)}
+
+function renderTonaseChart(){
+    const wrap=document.getElementById('chart-wrap');let canvas=document.getElementById('tonase-chart');const data=selectedChartSeries();
+    if(!data.length){wrap.innerHTML='<div class="chart-empty">Belum ada data untuk grafik tonase.</div>';updateChartSummary([]);return}
+    if(!canvas){wrap.innerHTML='<canvas id="tonase-chart"></canvas>';canvas=document.getElementById('tonase-chart')}
+    const dpr=window.devicePixelRatio||1,cssW=Math.max(320,wrap.clientWidth-20),cssH=Math.max(250,wrap.clientHeight-20);canvas.style.width=cssW+'px';canvas.style.height=cssH+'px';canvas.width=Math.round(cssW*dpr);canvas.height=Math.round(cssH*dpr);const ctx=canvas.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,cssW,cssH);
+    const margin={top:28,right:18,bottom:64,left:68},plotW=cssW-margin.left-margin.right,plotH=cssH-margin.top-margin.bottom;const maxVal=Math.max(...data.map(d=>d.value),1);const yMax=maxVal*1.18;const yFor=v=>margin.top+(1-v/yMax)*plotH;
+    ctx.strokeStyle='#e9eef5';ctx.lineWidth=1;ctx.fillStyle='#8492a6';ctx.font='11px Arial, sans-serif';ctx.textBaseline='middle';ctx.textAlign='right';for(let i=0;i<=5;i++){const value=yMax-(yMax/5*i),y=margin.top+plotH/5*i;ctx.beginPath();ctx.moveTo(margin.left,y);ctx.lineTo(cssW-margin.right,y);ctx.stroke();ctx.fillText(`${value.toLocaleString('id-ID',{maximumFractionDigits:1})} t`,margin.left-10,y)}
+    const band=plotW/data.length,barW=Math.min(58,band*.48);data.forEach((item,i)=>{const x=margin.left+i*band+(band-barW)/2,y=yFor(item.value),bottom=margin.top+plotH,h=bottom-y;const grad=ctx.createLinearGradient(0,y,0,bottom);grad.addColorStop(0,'#1268e8');grad.addColorStop(1,'#7c3aed');ctx.fillStyle=grad;ctx.beginPath();ctx.roundRect(x,y,barW,Math.max(3,h),10);ctx.fill();ctx.fillStyle='#174fb6';ctx.font='700 11px Arial, sans-serif';ctx.textAlign='center';ctx.textBaseline='bottom';ctx.fillText(`${item.value.toLocaleString('id-ID',{maximumFractionDigits:1})} t`,x+barW/2,y-7);ctx.fillStyle='#60718a';ctx.font='700 10px Arial, sans-serif';ctx.textBaseline='top';ctx.fillText(item.label,x+barW/2,bottom+16);if(chartMode==='weekly'){ctx.fillStyle='#9aa6b6';ctx.font='9px Arial, sans-serif';ctx.fillText(item.detail,x+barW/2,bottom+32)}});
+    ctx.strokeStyle='#cfd8e6';ctx.beginPath();ctx.moveTo(margin.left,margin.top+plotH);ctx.lineTo(cssW-margin.right,margin.top+plotH);ctx.stroke();updateChartSummary(data)
+}
+function updateChartSummary(data){
+    const total=data.reduce((s,d)=>s+d.value,0),avg=data.length?total/data.length:0,peak=data.length?data.reduce((a,b)=>a.value>b.value?a:b):null;
+    document.getElementById('chart-total').innerHTML=data.length?`${fmtTon(total)}<small> ton</small>`:'—';document.getElementById('chart-average').innerHTML=data.length?`${fmtTon(avg)}<small> ton</small>`:'—';document.getElementById('chart-peak').innerHTML=peak?`${peak.label}<small> · ${fmtTon(peak.value)} ton</small>`:'—';
+    document.getElementById('chart-range-label').textContent=data.length?`${chartMode==='weekly'?'Weekly · Sunday–Saturday':'Monthly'} · ${data[0].label} s.d. ${data[data.length-1].label}`:'';
+}
+
+function selectedDailyRowsForExport(){
+    if(!currentData?.rows?.length)return[];
+    const periods=selectedChartSeries();
+    if(!periods.length)return[];
+    if(chartMode==='weekly'){
+        const starts=new Set(periods.map(p=>p.start));
+        return currentData.rows.filter(r=>starts.has(startOfSundayWeek(r.tanggal)));
+    }
+    const months=new Set(periods.map(p=>p.key));
+    return currentData.rows.filter(r=>{
+        const d=dateFromStr(r.tanggal);
+        const key=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+        return months.has(key);
     });
-
-    // Row total
-    const trTotal = document.createElement('tr');
-    trTotal.style.background = '#f0fdf4';
-    trTotal.innerHTML = `
-        <td colspan="2" style="font-weight:700; color:#059669;">TOTAL ${d.bulan.toUpperCase()}</td>
-        <td class="ton-val" style="text-align:right; color:#059669; font-size:15px;">${d.total.toFixed(3)}</td>
-    `;
-    tbody.appendChild(trTotal);
 }
 
-function fmtDate(d) {
-    if (!d) return '';
-    try {
-        return new Date(d + 'T00:00:00').toLocaleDateString('id-ID', {
-            day: '2-digit', month: 'short', year: 'numeric'
-        });
-    } catch { return d; }
+function exportTonaseExcel(){
+    if(!currentData?.rows?.length){alert('Belum ada data tonase untuk diexport.');return;}
+    const periods=selectedChartSeries();
+    if(!periods.length){alert('Pilih periode terlebih dahulu.');return;}
+    const dailyRows=selectedDailyRowsForExport();
+
+    const summaryRows=periods.map(p=>({
+        'Mode':chartMode==='weekly'?'Weekly (Sun-Sat)':'Monthly',
+        'Periode':p.label,
+        'Tanggal Mulai':chartMode==='weekly'?p.start:(p.key+'-01'),
+        'Tanggal Selesai':chartMode==='weekly'?p.end:localDateToStr(new Date(p.year,p.month+1,0)),
+        'Hari Produksi':p.count||0,
+        'Tonase (ton)':Number(Number(p.value||0).toFixed(3))
+    }));
+
+    const detailRows=dailyRows.map(r=>({
+        'Tanggal':r.tanggal,
+        'Hari':HARI[dateFromStr(r.tanggal).getDay()],
+        'Tonase (ton)':Number(Number(r.tonase||0).toFixed(3)),
+        'Week':`W${weekNumberSunday(r.tanggal)} / ${dateFromStr(r.tanggal).getFullYear()}`,
+        'Bulan':`${BULAN_ID[dateFromStr(r.tanggal).getMonth()]} ${dateFromStr(r.tanggal).getFullYear()}`
+    }));
+
+    const total=periods.reduce((s,p)=>s+Number(p.value||0),0);
+    const metadata=[
+        ['BOJONEGORO TONASE EXPORT',''],
+        ['Mode',chartMode==='weekly'?'Weekly (Minggu-Sabtu)':'Monthly'],
+        ['Periode',`${periods[0].label} s.d. ${periods[periods.length-1].label}`],
+        ['Total Tonase',Number(total.toFixed(3))],
+        ['Jumlah Periode',periods.length],
+        ['Jumlah Hari Produksi',dailyRows.length]
+    ];
+
+    const wb=XLSX.utils.book_new();
+    const wsSummary=XLSX.utils.aoa_to_sheet(metadata);
+    XLSX.utils.sheet_add_aoa(wsSummary,[[]],{origin:-1});
+    XLSX.utils.sheet_add_json(wsSummary,summaryRows,{origin:-1,skipHeader:false});
+    wsSummary['!cols']=[{wch:24},{wch:24},{wch:18},{wch:18},{wch:16},{wch:18}];
+    XLSX.utils.book_append_sheet(wb,wsSummary,'Summary');
+
+    const wsDetail=XLSX.utils.json_to_sheet(detailRows);
+    wsDetail['!cols']=[{wch:14},{wch:12},{wch:16},{wch:14},{wch:20}];
+    XLSX.utils.book_append_sheet(wb,wsDetail,'Daily Detail');
+
+    const first=periods[0]?.label?.replace(/[^A-Za-z0-9_-]+/g,'_')||'periode';
+    const last=periods[periods.length-1]?.label?.replace(/[^A-Za-z0-9_-]+/g,'_')||'periode';
+    const mode=chartMode==='weekly'?'Weekly':'Monthly';
+    XLSX.writeFile(wb,`Tonase_Bojonegoro_${mode}_${first}_to_${last}.xlsx`);
 }
 
-function setStatus(type, msg) {
-    const bar  = document.getElementById('status-bar');
-    const dot  = document.getElementById('status-dot');
-    const text = document.getElementById('status-text');
-    bar.className = 'status-bar ' + (type === 'loading' ? 'loading' : type === 'error' ? 'error' : '');
-    dot.className = 'status-dot ' + (type === 'active' ? 'active' : '');
-    text.textContent = msg;
+function setStatus(type,msg){const bar=document.getElementById('status-bar'),dot=document.getElementById('status-dot'),text=document.getElementById('status-text');bar.className='status-bar '+(type==='loading'?'loading':type==='error'?'error':'');dot.className='status-dot '+(type==='active'?'active':'');text.textContent=msg}
+
+async function simpanKeSupabase(){
+    if(!parsedData)return;const btn=document.getElementById('btn-save');btn.disabled=true;btn.textContent='Memperbarui...';setStatus('loading','Menghapus data lama & menyimpan data baru...');
+    try{const{error:e1}=await db.from('tonase_harian').delete().gte('tanggal','2000-01-01');if(e1)throw e1;const rows=parsedData.rows.map(r=>({tanggal:r.tanggal,tonase:r.tonase}));const chunk=500;for(let i=0;i<rows.length;i+=chunk){const{error}=await db.from('tonase_harian').insert(rows.slice(i,i+chunk));if(error)throw error}setStatus('active',`Tersimpan. ${rows.length} hari data berhasil diperbarui.`);btn.textContent='Diperbarui';document.getElementById('warning-badge').classList.remove('show');await loadFromSupabase()}catch(err){setStatus('error','Gagal memperbarui: '+err.message);btn.disabled=false;btn.textContent='Perbarui Data Supabase';console.error(err)}
 }
 
-async function simpanKeSupabase() {
-    if (!parsedData) return;
-    const btn = document.getElementById('btn-save');
-    btn.disabled = true;
-    btn.textContent = '⏳ Memperbarui...';
-    setStatus('loading', 'Menghapus data lama & menyimpan data baru...');
-
-    try {
-        // Hapus semua data lama
-        const { error: e1 } = await db.from('tonase_harian').delete().gte('tanggal', '2000-01-01');
-        if (e1) throw e1;
-
-        // Insert data baru per hari
-        const rows = parsedData.rows.map(r => ({ tanggal: r.tanggal, tonase: r.tonase }));
-        const { error: e2 } = await db.from('tonase_harian').insert(rows);
-        if (e2) throw e2;
-
-        setStatus('active', `✅ Tersimpan! ${rows.length} hari data, total ${parsedData.total.toFixed(2)} ton`);
-        btn.textContent = '✅ Diperbarui';
-        document.getElementById('warning-badge').classList.remove('show');
-        loadFromSupabase();
-
-    } catch (err) {
-        setStatus('error', '❌ Gagal memperbarui: ' + err.message);
-        btn.disabled = false;
-        btn.textContent = '🔄 Perbarui Data Supabase';
-        console.error(err);
-    }
+async function loadAllTonase(){
+    const all=[];const size=1000;for(let from=0;;from+=size){const{data,error}=await db.from('tonase_harian').select('*').order('tanggal',{ascending:true}).range(from,from+size-1);if(error)throw error;if(data?.length)all.push(...data);if(!data||data.length<size)break}return all
 }
-
-async function loadFromSupabase() {
-    setStatus('loading', 'Memuat data dari Supabase...');
-    try {
-        const { data: rows, error } = await db
-            .from('tonase_harian')
-            .select('*')
-            .order('tanggal', { ascending: true });
-
-        if (error) throw error;
-        if (!rows || rows.length === 0) {
-            setStatus('default', 'Belum ada data. Import Excel untuk memulai.');
-            return;
-        }
-
-        const total = +rows.reduce((s, r) => s + (r.tonase || 0), 0).toFixed(3);
-        const firstDate = new Date(rows[0].tanggal + 'T00:00:00');
-        const bulan = firstDate.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
-
-        const d = {
-            bulan,
-            rows: rows.map(r => ({ tanggal: r.tanggal, tonase: +r.tonase })),
-            total
-        };
-
-        tampilkanData(d);
-        const last = rows[rows.length - 1];
-        setStatus('active', `✅ Data dimuat. Total s.d. ${fmtDate(last.tanggal)}: ${total.toFixed(2)} ton`);
-
-    } catch (err) {
-        setStatus('error', '❌ Gagal memuat: ' + err.message);
-        console.error(err);
-    }
+async function loadFromSupabase(){
+    setStatus('loading','Memuat data tonase dari Supabase...');try{const rows=await loadAllTonase();if(!rows.length){setStatus('default','Belum ada data. Import Excel untuk memulai.');return}const clean=rows.map(r=>({tanggal:r.tanggal,tonase:+r.tonase})).sort((a,b)=>a.tanggal.localeCompare(b.tanggal));const total=clean.reduce((s,r)=>s+r.tonase,0);tampilkanData({rows:clean,total});const last=clean[clean.length-1];setStatus('active',`Data dimuat sampai ${fmtDate(last.tanggal)} · ${clean.length} hari produksi tersedia`)}catch(err){setStatus('error','Gagal memuat: '+err.message);console.error(err)}
 }
-
+window.addEventListener('resize',()=>{clearTimeout(chartResizeTimer);chartResizeTimer=setTimeout(()=>{if(currentData)renderTonaseChart()},120)});
 loadFromSupabase();
 </script>
 </body>
