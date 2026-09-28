@@ -2811,6 +2811,11 @@ function variancePeriodLabelByKey(key, period=variancePeriod){
     const wr=sundayWeekRangeFromNumber(item.tahun,item.minggu);
     return `Week ${item.minggu} / ${item.tahun} · ${fmtDate(wr.start)} — ${fmtDate(wr.end)}`;
 }
+function variancePeriodCompactLabelByKey(key, period=variancePeriod){
+    if(period==='monthly') return variancePeriodLabelByKey(key, period);
+    const item=varianceWeeksList.find(x=>x.key===key);
+    return item ? `Week ${item.minggu} / ${item.tahun}` : key;
+}
 function varianceRowsForSinglePeriod(key, period=variancePeriod){
     if(!key) return [];
     const [tahun,periode]=key.split('-').map(Number);
@@ -2837,8 +2842,8 @@ function varianceApplyFilters(rows, skip=''){
 }
 function variancePeriodSummary(keys){
     if(!keys.length) return 'Pilih periode';
-    if(keys.length===1) return variancePeriodLabelByKey(keys[0]);
-    if(keys.length===2) return variancePeriodLabelByKey(keys[0])+' + 1 lainnya';
+    if(keys.length===1) return variancePeriodCompactLabelByKey(keys[0]);
+    if(keys.length===2) return variancePeriodCompactLabelByKey(keys[0])+' + 1 lainnya';
     return `${keys.length} periode dipilih`;
 }
 function populateVariancePeriodSelect(){
@@ -2854,7 +2859,9 @@ function populateVariancePeriodSelect(){
     setVarianceSelectedPeriodKeys(selected);
     const optionHtml=options.map(item=>{
         const checked=selected.includes(item.key)?' checked':'';
-        return `<label class="variance-multi-option"><input type="checkbox" class="variance-period-check" data-period-key="${item.key}"${checked} onchange="onVariancePeriodOptionChange(this)"><span>${escapeHtml(variancePeriodLabelByKey(item.key))}</span></label>`;
+        const fullLabel=variancePeriodLabelByKey(item.key);
+        const compactLabel=variancePeriodCompactLabelByKey(item.key);
+        return `<label class="variance-multi-option" title="${escapeHtml(fullLabel)}"><input type="checkbox" class="variance-period-check" data-period-key="${item.key}"${checked} onchange="onVariancePeriodOptionChange(this)"><span>${escapeHtml(compactLabel)}</span></label>`;
     }).join('');
     root.innerHTML=`<button type="button" class="variance-multi-btn has-selection" onclick="toggleVarianceMulti('variance-period-multi',event)" aria-expanded="false"><span class="variance-multi-label">${escapeHtml(variancePeriodSummary(selected))}</span><span class="variance-multi-count" style="display:inline-flex">${selected.length}</span><span class="variance-multi-caret">▼</span></button><div class="variance-multi-menu"><div class="variance-multi-menu-head"><div><b>Pilih periode pembanding</b><div class="variance-period-meta">${selected.length} dari ${options.length} dipilih</div></div><button type="button" class="variance-period-reset" onclick="resetVariancePeriodsToLatest(event)">Terbaru saja</button></div><div class="variance-multi-options">${optionHtml}</div></div>`;
 }
