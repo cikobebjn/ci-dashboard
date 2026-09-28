@@ -2763,6 +2763,13 @@ function variancePeriodOptions(){
 function varianceSelectedPeriodKeys(){
     return variancePeriod==='monthly' ? varianceSelectedMonthKeys : varianceSelectedWeekKeys;
 }
+function varianceSelectedPeriodKeysChronological(){
+    return varianceSelectedPeriodKeys().slice().sort((a,b)=>{
+        const [ya,pa]=String(a).split('-').map(Number);
+        const [yb,pb]=String(b).split('-').map(Number);
+        return (ya-yb)||(pa-pb);
+    });
+}
 function setVarianceSelectedPeriodKeys(keys){
     const clean=[...new Set((keys||[]).filter(Boolean))];
     if(variancePeriod==='monthly') varianceSelectedMonthKeys=clean;
@@ -2994,7 +3001,7 @@ function syncVarianceChartButtons(){
     document.getElementById('variance-chart-type-pareto')?.classList.toggle('active', varianceChartType==='pareto');
 }
 function varianceChartData(){
-    const keys=varianceSelectedPeriodKeys();
+    const keys=varianceSelectedPeriodKeysChronological();
     const meta=varianceChartMetricMeta();
     return keys.map(key=>{
         const rows=varianceApplyFilters(varianceRowsForSinglePeriod(key));
@@ -3269,7 +3276,7 @@ function renderVarianceChart(){
     }
 }
 function varianceExportPeriodLabel(){
-    const keys=varianceSelectedPeriodKeys();
+    const keys=varianceSelectedPeriodKeysChronological();
     if(!keys.length) return 'No period selected';
     const parsed=keys.map(key=>{
         const parts=String(key).split('-').map(Number);
@@ -3323,7 +3330,7 @@ function downloadVarianceChart(){
     const filterText=varianceExportFilterLabel();
     const isParetoExport=varianceChartType==='pareto';
 
-    const top5CardsData=!isParetoExport ? varianceSelectedPeriodKeys().map(key=>{
+    const top5CardsData=!isParetoExport ? varianceSelectedPeriodKeysChronological().map(key=>{
         const rows=varianceApplyFilters(varianceRowsForSinglePeriod(key));
         const items=varianceAggregate(rows,'short_text')
             .filter(item=>Number(item.metric.varianceValue)>0)
@@ -3702,7 +3709,7 @@ function renderVarianceTop5Cards(){
     const grid=document.getElementById('variance-top5-grid');
     const title=document.getElementById('variance-top5-title');
     if(!section || !grid) return;
-    const keys=varianceSelectedPeriodKeys();
+    const keys=varianceSelectedPeriodKeysChronological();
     if(!keys.length){ section.style.display='none'; grid.innerHTML=''; return; }
     section.style.display='block';
     if(title) title.textContent=variancePeriod==='monthly' ? 'Top 5 Variance per Month' : 'Top 5 Variance per Week';
@@ -3739,7 +3746,7 @@ function renderVariancePeriodComparison(){
     const body=document.getElementById('variance-comparison-body');
     const title=document.getElementById('variance-comparison-title');
     if(!section || !body) return;
-    const keys=varianceSelectedPeriodKeys();
+    const keys=varianceSelectedPeriodKeysChronological();
     if(keys.length<2){ section.style.display='none'; body.innerHTML=''; return; }
     section.style.display='block';
     if(title) title.textContent=(variancePeriod==='monthly'?'Perbandingan Monthly':'Perbandingan Weekly')+` (${keys.length})`;
