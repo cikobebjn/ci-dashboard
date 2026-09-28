@@ -803,6 +803,41 @@ body::after {
 /* Preserve split layout but make both panels breathe more */
 .split-grid { gap:22px !important; }
 
+/* Waste Fryer / Waste Proses — collapse unused grid tracks so cards always
+   expand to use the available panel width. Unlike auto-fill, auto-fit does
+   not leave invisible empty card slots when only 1–2 cards are available. */
+.fryer-proses-grid > div { min-width:0; }
+#fryer-cards-container,
+#proses-cards-container {
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    width:100%;
+    align-items:stretch;
+}
+#fryer-cards-container .fryer-mini-card,
+#proses-cards-container .proses-mini-card {
+    width:100%;
+    min-width:0;
+    height:auto;
+    display:flex;
+    flex-direction:column;
+}
+#fryer-cards-container .waste-detail-table,
+#proses-cards-container .waste-detail-table {
+    margin-top:auto;
+}
+@media (max-width:1200px) {
+    #fryer-cards-container,
+    #proses-cards-container { grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); }
+}
+@media (max-width:900px) {
+    #fryer-cards-container,
+    #proses-cards-container { grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); }
+}
+@media (max-width:640px) {
+    #fryer-cards-container,
+    #proses-cards-container { grid-template-columns:1fr !important; }
+}
+
 @media (max-width:900px) {
     .dashboard-hero { grid-template-columns:1fr; padding:31px 30px; }
     .hero-panel { width:min(100%,420px); }
@@ -1006,8 +1041,9 @@ body::after {
 .variance-top5-head { display:flex; align-items:flex-end; justify-content:space-between; gap:12px; margin-bottom:8px; }
 .variance-top5-title { color:#704e64; font-size:9px; font-weight:900; text-transform:uppercase; letter-spacing:.07em; }
 .variance-top5-note { margin-top:3px; color:#94a0b2; font-size:7.5px; line-height:1.45; }
-.variance-top5-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
-.variance-top5-card { min-width:0; overflow:hidden; border:1px solid #e3e8f0; border-radius:13px; background:#fff; box-shadow:0 7px 18px rgba(26,63,114,.07); }
+.variance-top5-grid { display:flex; flex-direction:column; gap:12px; width:100%; }
+.variance-top5-row-group { display:flex; flex-wrap:wrap; gap:12px; width:100%; }
+.variance-top5-card { flex:1 1 320px; min-width:0; overflow:hidden; border:1px solid #e3e8f0; border-radius:13px; background:#fff; box-shadow:0 7px 18px rgba(26,63,114,.07); }
 .variance-top5-card-head { display:flex; align-items:center; justify-content:space-between; gap:8px; min-height:38px; padding:9px 12px; background:linear-gradient(135deg,#20336c 0%,#1e2a63 100%); color:#fff; }
 .variance-top5-card-head strong { min-width:0; font-size:8px; font-weight:900; letter-spacing:.04em; text-transform:uppercase; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .variance-top5-card-head span { flex:0 0 auto; padding:3px 6px; border:1px solid rgba(255,255,255,.18); border-radius:999px; background:rgba(255,255,255,.09); font-size:6.8px; font-weight:800; text-transform:uppercase; letter-spacing:.04em; }
@@ -1020,8 +1056,7 @@ body::after {
 .variance-top5-value { text-align:right; color:#64748b; font-size:7.3px; font-weight:800; white-space:nowrap; }
 .variance-top5-empty { padding:18px 12px; text-align:center; color:#9ca3af; font-size:7.5px; }
 .variance-top5-footer { padding:7px 10px; border-top:1px solid #f0f2f6; background:#fafbfc; color:#98a2b3; font-size:6.8px; }
-@media (max-width:1200px){ .variance-top5-grid{grid-template-columns:repeat(2,minmax(0,1fr));} }
-@media (max-width:720px){ .variance-top5-grid{grid-template-columns:1fr;} .variance-top5-row{grid-template-columns:24px minmax(0,1fr) 62px 72px;} }
+@media (max-width:720px){ .variance-top5-card{flex-basis:100%;} .variance-top5-row{grid-template-columns:24px minmax(0,1fr) 62px 72px;} }
 @media (max-width:900px){
     .variance-chart-title-row{flex-direction:column;}
     .variance-chart-toolbar{align-items:stretch;flex-direction:column;}
@@ -3473,6 +3508,23 @@ function renderVarianceMaterialPriority(rows){
     if(total) total.innerHTML=`Total Over: <strong>${fmtRupiah(totalOver)}</strong>`;
 }
 
+function varianceTop5BalancedRows(cards){
+    const rows=[];
+    let i=0;
+    let remaining=cards.length;
+    while(remaining>0){
+        let size;
+        if(remaining===1) size=1;
+        else if(remaining===2) size=2;
+        else if(remaining===4) size=2;
+        else if(remaining===5) size=3;
+        else size=3;
+        rows.push(cards.slice(i,i+size));
+        i+=size;
+        remaining-=size;
+    }
+    return rows;
+}
 function renderVarianceTop5Cards(){
     const section=document.getElementById('variance-top5-section');
     const grid=document.getElementById('variance-top5-grid');
@@ -3483,7 +3535,7 @@ function renderVarianceTop5Cards(){
     section.style.display='block';
     if(title) title.textContent=variancePeriod==='monthly' ? 'Top 5 Variance per Month' : 'Top 5 Variance per Week';
 
-    grid.innerHTML=keys.map(key=>{
+    const cards=keys.map(key=>{
         const rows=varianceApplyFilters(varianceRowsForSinglePeriod(key));
         const items=varianceAggregate(rows,'short_text')
             .filter(item=>Number(item.metric.varianceValue)>0)
@@ -3505,9 +3557,11 @@ function renderVarianceTop5Cards(){
             <div class="variance-top5-list">${list}</div>
             <div class="variance-top5-footer">Ranked by highest positive Variance Value · % = % Variance Value</div>
         </article>`;
-    }).join('');
-}
+    });
 
+    const balanced=varianceTop5BalancedRows(cards);
+    grid.innerHTML=balanced.map(row=>`<div class="variance-top5-row-group">${row.join('')}</div>`).join('');
+}
 function renderVariancePeriodComparison(){
     const section=document.getElementById('variance-comparison-section');
     const body=document.getElementById('variance-comparison-body');
@@ -3589,6 +3643,34 @@ function renderWasteDetail(kategori, perMesin, batasMap, unit) {
     });
 }
 
+let wasteCardHeightSyncTimer = null;
+function syncWasteCardHeights(){
+    const fryerCards=[...document.querySelectorAll('#fryer-cards-container .fryer-mini-card')];
+    const prosesCards=[...document.querySelectorAll('#proses-cards-container .proses-mini-card')];
+    const all=[...fryerCards,...prosesCards];
+    if(!all.length) return;
+
+    // Reset first so the natural content height can be measured accurately.
+    all.forEach(card=>{
+        card.style.minHeight='0px';
+        card.style.height='auto';
+    });
+
+    // On stacked/mobile layout, let each card use its natural height.
+    if(window.innerWidth<=900) return;
+
+    requestAnimationFrame(()=>{
+        const maxHeight=Math.max(...all.map(card=>card.getBoundingClientRect().height));
+        if(!Number.isFinite(maxHeight) || maxHeight<=0) return;
+        all.forEach(card=>{ card.style.minHeight=Math.ceil(maxHeight)+'px'; });
+    });
+}
+function scheduleWasteCardHeightSync(){
+    clearTimeout(wasteCardHeightSyncTimer);
+    wasteCardHeightSyncTimer=setTimeout(syncWasteCardHeights,60);
+}
+window.addEventListener('resize',scheduleWasteCardHeightSync);
+
 async function loadWasteFryer(sDate, eDate) {
     const { data: fryerRows } = await db
         .from('waste_fryer_shiftly')
@@ -3605,6 +3687,7 @@ async function loadWasteFryer(sDate, eDate) {
     if (!fryerRows || fryerRows.length === 0) {
         container.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#9ca3af; padding:20px;">Belum ada data waste fryer</div>';
         titleDate.textContent = '— Tidak ada data';
+        scheduleWasteCardHeightSync();
         return;
     }
 
@@ -3636,6 +3719,7 @@ async function loadWasteFryer(sDate, eDate) {
         `;
         container.appendChild(card);
     });
+    scheduleWasteCardHeightSync();
 }
 
 async function loadWasteProses(sDate, eDate) {
@@ -3654,6 +3738,7 @@ async function loadWasteProses(sDate, eDate) {
     if (!prosesRows || prosesRows.length === 0) {
         container.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#9ca3af; padding:20px;">Belum ada data waste proses</div>';
         titleDate.textContent = '— Tidak ada data';
+        scheduleWasteCardHeightSync();
         return;
     }
 
@@ -3693,6 +3778,7 @@ async function loadWasteProses(sDate, eDate) {
         `;
         container.appendChild(card);
     });
+    scheduleWasteCardHeightSync();
 }
 
 // Menghitung ringkasan (ratio Rp/ton) dari sekumpulan baris cost_material_weekly.
