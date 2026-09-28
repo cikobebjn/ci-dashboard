@@ -1161,6 +1161,12 @@ body::after {
 .variance-chart-download:focus-visible { outline:3px solid rgba(18,104,232,.18); outline-offset:2px; }
 .variance-chart-wrap { position:relative; min-height:350px; border:1px solid #edf0f4; border-radius:14px; background:#fff; padding:10px; overflow:hidden; }
 .variance-chart-canvas { width:100%; height:330px; display:block; }
+.variance-chart-tooltip { position:absolute; z-index:30; min-width:190px; max-width:260px; padding:11px 12px; border:1px solid rgba(148,163,184,.22); border-radius:12px; background:rgba(15,23,42,.94); color:#fff; box-shadow:0 14px 34px rgba(15,23,42,.20); backdrop-filter:blur(10px); pointer-events:none; opacity:0; transform:translateY(4px); transition:opacity .12s ease, transform .12s ease; font-size:9px; line-height:1.45; }
+.variance-chart-tooltip.show { opacity:1; transform:translateY(0); }
+.variance-chart-tooltip strong { display:block; margin-bottom:6px; font-size:10px; color:#fff; }
+.variance-chart-tooltip-grid { display:grid; grid-template-columns:auto auto; gap:4px 12px; }
+.variance-chart-tooltip-grid span:nth-child(odd) { color:#aab6c8; }
+.variance-chart-tooltip-grid span:nth-child(even) { text-align:right; font-weight:800; color:#fff; }
 .variance-chart-empty { min-height:300px; display:grid; place-items:center; color:#9ca3af; font-size:9px; }
 .variance-chart-legend { margin-top:9px; display:flex; align-items:center; flex-wrap:wrap; gap:7px 12px; color:#8793a4; font-size:7.5px; }
 .variance-chart-legend span { display:inline-flex; align-items:center; gap:5px; }
@@ -2125,6 +2131,8 @@ let variancePriorityExpanded = '';
 const varianceFilters = { gedung:[], group:[], material:[], line:[] };
 let varianceChartMetric = 'varianceValue';
 let varianceChartType = 'bar';
+let varianceChartHoverKey = '';
+let varianceChartHitAreas = [];
 let varianceChartResizeTimer = null;
 
 // Item yang bernama seperti ini adalah PEMAKAIAN BAHAN, bukan waste,
@@ -3110,6 +3118,18 @@ function drawVarianceXAxisLabel(ctx,text,x,y,maxWidth){
     if(label!==String(text||'')) label=label.slice(0,-1)+'…';
     ctx.fillText(label,x,y);
 }
+function varianceChartPrimaryGradient(ctx,top,bottom,hovered=false){
+    const grad=ctx.createLinearGradient(0,top,0,bottom);
+    grad.addColorStop(0,hovered?'#1d4ed8':'#2563eb');
+    grad.addColorStop(1,hovered?'#6d28d9':'#7c3aed');
+    return grad;
+}
+function varianceChartSavingGradient(ctx,top,bottom,hovered=false){
+    const grad=ctx.createLinearGradient(0,top,0,bottom);
+    grad.addColorStop(0,hovered?'#0f9f86':'#14b8a6');
+    grad.addColorStop(1,hovered?'#15803d':'#22c55e');
+    return grad;
+}
 function renderVarianceChartBar(ctx, cssWidth, cssHeight, data, meta){
     const margin={top:24,right:26,bottom:56,left:76};
     const values=data.map(d=>d.hasData?d.value:0);
@@ -3124,17 +3144,18 @@ function renderVarianceChartBar(ctx, cssWidth, cssHeight, data, meta){
     const { plotW, yFor } = drawVarianceChartAxes(ctx, cssWidth, cssHeight, margin, min, max, meta.type);
     const zeroY=yFor(0);
     const band=plotW/Math.max(1,data.length);
-    const barW=Math.min(48, Math.max(16,band*0.50));
+    const barW=Math.min(54, Math.max(18,band*0.50));
     data.forEach((item,idx)=>{
         const x=margin.left + band*idx + (band-barW)/2;
         const y=yFor(item.value);
         const top=Math.min(y,zeroY), height=Math.max(3,Math.abs(zeroY-y));
         const positive=item.value>=0;
-        const grad=ctx.createLinearGradient(0,top,0,top+height);
-        if(positive){ grad.addColorStop(0,'#ef4444'); grad.addColorStop(1,'#fb7185'); }
-        else { grad.addColorStop(0,'#16a34a'); grad.addColorStop(1,'#4ade80'); }
-        ctx.fillStyle=grad;
-        const radius=Math.min(8,barW/3);
+        const hovered=varianceChartHoverKey===`period:${item.key}`;
+        ctx.save();
+        if(hovered){ ctx.shadowColor='rgba(37,99,235,.28)'; ctx.shadowBlur=16; ctx.globalAlpha=1; }
+        else ctx.globalAlpha=.92;
+        ctx.fillStyle=positive ? varianceChartPrimaryGradient(ctx,top,top+height,hovered) : varianceChartSavingGradient(ctx,top,top+height,hovered);
+        const radius=Math.min(9,barW/3);
         const bottom=top+height;
         ctx.beginPath();
         if(positive){
@@ -3144,13 +3165,14 @@ function renderVarianceChartBar(ctx, cssWidth, cssHeight, data, meta){
             ctx.moveTo(x,top); ctx.lineTo(x,bottom-radius); ctx.quadraticCurveTo(x,bottom,x+radius,bottom);
             ctx.lineTo(x+barW-radius,bottom); ctx.quadraticCurveTo(x+barW,bottom,x+barW,bottom-radius); ctx.lineTo(x+barW,top);
         }
-        ctx.closePath(); ctx.fill();
+        ctx.closePath(); ctx.fill(); ctx.restore();
         ctx.textAlign='center';
         ctx.textBaseline=positive?'bottom':'top';
-        ctx.fillStyle=positive?'#c81e1e':'#15803d';
-        ctx.font='700 10px Inter, sans-serif';
+        ctx.fillStyle=positive?'#1e40af':'#15803d';
+        ctx.font=(hovered?'800 ':'700 ')+'10px Inter, sans-serif';
         ctx.fillText(fmtVarianceShort(item.value,meta.type),x+barW/2,positive?top-7:bottom+7);
         drawVarianceXAxisLabel(ctx,item.shortLabel,x+barW/2,cssHeight-margin.bottom+18,Math.max(52,band-8));
+        varianceChartHitAreas.push({key:`period:${item.key}`,type:'period',item,x:x-10,y:margin.top,w:barW+20,h:cssHeight-margin.top-margin.bottom+10});
     });
 }
 function renderVarianceChartLine(ctx, cssWidth, cssHeight, data, meta){
@@ -3169,19 +3191,24 @@ function renderVarianceChartLine(ctx, cssWidth, cssHeight, data, meta){
     const points=data.map((item,idx)=>({x:margin.left+band*idx+band/2,y:yFor(item.value),item}));
     if(points.length>1){
         const grad=ctx.createLinearGradient(margin.left,0,cssWidth-margin.right,0);
-        grad.addColorStop(0,'#7c3aed'); grad.addColorStop(1,'#ec4899');
-        ctx.strokeStyle=grad; ctx.lineWidth=3; ctx.lineJoin='round'; ctx.lineCap='round';
+        grad.addColorStop(0,'#2563eb'); grad.addColorStop(1,'#7c3aed');
+        ctx.strokeStyle=grad; ctx.lineWidth=3.2; ctx.lineJoin='round'; ctx.lineCap='round';
         ctx.beginPath(); points.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y)); ctx.stroke();
     }
     points.forEach(p=>{
         const positive=p.item.value>=0;
-        ctx.fillStyle=positive?'#ef4444':'#16a34a';
-        ctx.beginPath(); ctx.arc(p.x,p.y,5.5,0,Math.PI*2); ctx.fill();
+        const hovered=varianceChartHoverKey===`period:${p.item.key}`;
+        if(hovered){
+            ctx.fillStyle='rgba(37,99,235,.10)'; ctx.beginPath(); ctx.arc(p.x,p.y,13,0,Math.PI*2); ctx.fill();
+        }
+        ctx.fillStyle=positive?'#4f46e5':'#16a34a';
+        ctx.beginPath(); ctx.arc(p.x,p.y,hovered?7:5.5,0,Math.PI*2); ctx.fill();
         ctx.strokeStyle='#fff'; ctx.lineWidth=2.5; ctx.stroke();
         ctx.textAlign='center'; ctx.textBaseline=positive?'bottom':'top';
-        ctx.fillStyle=positive?'#c81e1e':'#15803d'; ctx.font='700 10px Inter, sans-serif';
-        ctx.fillText(fmtVarianceShort(p.item.value,meta.type),p.x,positive?p.y-9:p.y+9);
+        ctx.fillStyle=positive?'#3730a3':'#15803d'; ctx.font=(hovered?'800 ':'700 ')+'10px Inter, sans-serif';
+        ctx.fillText(fmtVarianceShort(p.item.value,meta.type),p.x,positive?p.y-10:p.y+10);
         drawVarianceXAxisLabel(ctx,p.item.shortLabel,p.x,cssHeight-margin.bottom+18,Math.max(52,band-8));
+        varianceChartHitAreas.push({key:`period:${p.item.key}`,type:'period',item:p.item,x:p.x-band/2,y:margin.top,w:band,h:cssHeight-margin.top-margin.bottom+12});
     });
 }
 function renderVarianceChartPareto(ctx, cssWidth, cssHeight, paretoData){
@@ -3190,9 +3217,8 @@ function renderVarianceChartPareto(ctx, cssWidth, cssHeight, paretoData){
     let max=Math.max(1,...values)*1.16;
     const { plotW, plotH, yFor } = drawVarianceChartAxes(ctx, cssWidth, cssHeight, margin, 0, max, 'money', true);
     const band=plotW/Math.max(1,paretoData.length);
-    const barW=Math.min(46, Math.max(15,band*0.48));
+    const barW=Math.min(50, Math.max(16,band*0.48));
 
-    // Garis referensi Pareto 80%
     const y80=margin.top+(1-.8)*plotH;
     ctx.save();
     ctx.strokeStyle='#f59e0b'; ctx.lineWidth=1.2; ctx.setLineDash([5,5]);
@@ -3203,13 +3229,16 @@ function renderVarianceChartPareto(ctx, cssWidth, cssHeight, paretoData){
     paretoData.forEach((item,idx)=>{
         const x=margin.left+band*idx+(band-barW)/2;
         const y=yFor(item.value), bottom=margin.top+plotH;
-        const grad=ctx.createLinearGradient(0,y,0,bottom); grad.addColorStop(0,'#ef4444'); grad.addColorStop(1,'#fb7185');
-        ctx.fillStyle=grad;
-        ctx.beginPath(); ctx.roundRect(x,y,barW,Math.max(3,bottom-y),[8,8,0,0]); ctx.fill();
-        ctx.textAlign='center'; ctx.textBaseline='bottom'; ctx.fillStyle='#c81e1e'; ctx.font='700 10px Inter, sans-serif';
+        const hovered=varianceChartHoverKey===`pareto:${item.no}`;
+        ctx.save();
+        if(hovered){ ctx.shadowColor='rgba(79,70,229,.26)'; ctx.shadowBlur=16; }
+        ctx.fillStyle=varianceChartPrimaryGradient(ctx,y,bottom,hovered);
+        ctx.beginPath(); ctx.roundRect(x,y,barW,Math.max(3,bottom-y),[8,8,0,0]); ctx.fill(); ctx.restore();
+        ctx.textAlign='center'; ctx.textBaseline='bottom'; ctx.fillStyle='#3730a3'; ctx.font=(hovered?'800 ':'700 ')+'10px Inter, sans-serif';
         ctx.fillText(fmtVarianceShort(item.value,'money'),x+barW/2,y-7);
         ctx.textBaseline='top'; ctx.fillStyle='#475569'; ctx.font='800 10px Inter, sans-serif';
         ctx.fillText(String(item.no),x+barW/2,cssHeight-margin.bottom+18);
+        varianceChartHitAreas.push({key:`pareto:${item.no}`,type:'pareto',item,x:x-8,y:margin.top,w:barW+16,h:plotH+8});
     });
 
     const points=paretoData.map((item,idx)=>({x:margin.left+band*idx+band/2,y:margin.top+(1-item.cumulative)*plotH,item}));
@@ -3217,7 +3246,9 @@ function renderVarianceChartPareto(ctx, cssWidth, cssHeight, paretoData){
         ctx.strokeStyle='#7c3aed'; ctx.lineWidth=3; ctx.lineJoin='round'; ctx.lineCap='round';
         ctx.beginPath(); points.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y)); ctx.stroke();
         points.forEach(p=>{
-            ctx.fillStyle='#8b5cf6'; ctx.beginPath(); ctx.arc(p.x,p.y,4.5,0,Math.PI*2); ctx.fill();
+            const hovered=varianceChartHoverKey===`pareto:${p.item.no}`;
+            if(hovered){ ctx.fillStyle='rgba(124,58,237,.12)'; ctx.beginPath(); ctx.arc(p.x,p.y,11,0,Math.PI*2); ctx.fill(); }
+            ctx.fillStyle='#8b5cf6'; ctx.beginPath(); ctx.arc(p.x,p.y,hovered?6:4.5,0,Math.PI*2); ctx.fill();
             ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.stroke();
             ctx.fillStyle='#6d28d9'; ctx.font='700 9px Inter, sans-serif'; ctx.textAlign='center'; ctx.textBaseline='bottom';
             ctx.fillText((p.item.cumulative*100).toFixed(0)+'%',p.x,p.y-7);
@@ -3232,6 +3263,63 @@ function varianceActiveFilterSummary(){
         else if(vals.length>1) parts.push(label+': '+vals.length+' dipilih');
     });
     return parts.length?parts.join(' · '):'Semua Gedung · Semua Group · Semua Material · Semua Line';
+}
+function ensureVarianceTooltip(wrap){
+    let tip=wrap.querySelector('.variance-chart-tooltip');
+    if(!tip){
+        tip=document.createElement('div');
+        tip.className='variance-chart-tooltip';
+        wrap.appendChild(tip);
+    }
+    return tip;
+}
+function varianceTooltipHtml(hit){
+    if(!hit) return '';
+    if(hit.type==='pareto'){
+        return `<strong>${escapeHtml(hit.item.label)}</strong><div class="variance-chart-tooltip-grid"><span>Variance Value</span><span>${escapeHtml(fmtVarianceShort(hit.item.value,'money'))}</span><span>Cumulative</span><span>${(hit.item.cumulative*100).toFixed(0)}%</span><span>Rank</span><span>#${hit.item.no}</span></div>`;
+    }
+    const m=hit.item.metric||{};
+    return `<strong>${escapeHtml(hit.item.label)}</strong><div class="variance-chart-tooltip-grid"><span>Variance Value</span><span>${escapeHtml(fmtVarianceShort(m.varianceValue,'money'))}</span><span>% Variance Value</span><span>${escapeHtml(fmtVarianceShort(m.pctValue,'pct'))}</span><span>% Variance Qty</span><span>${escapeHtml(fmtVarianceShort(m.pctQty,'pct'))}</span><span>Kelompok data</span><span>${(hit.item.rows||[]).length.toLocaleString('id-ID')}</span></div>`;
+}
+function bindVarianceChartHover(wrap,cvs){
+    const tip=ensureVarianceTooltip(wrap);
+    cvs.style.cursor='crosshair';
+    cvs.onmousemove=(ev)=>{
+        const rect=cvs.getBoundingClientRect();
+        const x=(ev.clientX-rect.left)*(cvs.clientWidth/rect.width);
+        const y=(ev.clientY-rect.top)*(cvs.clientHeight/rect.height);
+        let hit=varianceChartHitAreas.find(a=>x>=a.x && x<=a.x+a.w && y>=a.y && y<=a.y+a.h);
+        const nextKey=hit?hit.key:'';
+        if(nextKey!==varianceChartHoverKey){
+            varianceChartHoverKey=nextKey;
+            renderVarianceChart();
+            const fresh=document.getElementById('variance-chart-canvas');
+            if(fresh){
+                const freshRect=fresh.getBoundingClientRect();
+                const syntheticX=Math.min(fresh.clientWidth-12,Math.max(12,ev.clientX-freshRect.left));
+                const syntheticY=Math.min(fresh.clientHeight-12,Math.max(12,ev.clientY-freshRect.top));
+                const newTip=ensureVarianceTooltip(wrap);
+                const active=varianceChartHitAreas.find(a=>a.key===varianceChartHoverKey);
+                if(active){
+                    newTip.innerHTML=varianceTooltipHtml(active);
+                    const left=Math.min(wrap.clientWidth-275,syntheticX+18);
+                    const top=Math.max(8,Math.min(wrap.clientHeight-120,syntheticY-18));
+                    newTip.style.left=Math.max(8,left)+'px'; newTip.style.top=top+'px'; newTip.classList.add('show');
+                }
+            }
+            return;
+        }
+        if(hit){
+            tip.innerHTML=varianceTooltipHtml(hit);
+            const left=Math.min(wrap.clientWidth-275,x+18);
+            const top=Math.max(8,Math.min(wrap.clientHeight-120,y-18));
+            tip.style.left=Math.max(8,left)+'px'; tip.style.top=top+'px'; tip.classList.add('show');
+        }else tip.classList.remove('show');
+    };
+    cvs.onmouseleave=()=>{
+        tip.classList.remove('show');
+        if(varianceChartHoverKey){ varianceChartHoverKey=''; renderVarianceChart(); }
+    };
 }
 function renderVarianceChart(){
     const wrap=document.getElementById('variance-chart-wrap');
@@ -3256,17 +3344,19 @@ function renderVarianceChart(){
         return;
     }
 
-    const { ctx, cssWidth, cssHeight }=setupVarianceCanvas(wrap);
+    varianceChartHitAreas=[];
+    const { cvs, ctx, cssWidth, cssHeight }=setupVarianceCanvas(wrap);
     if(varianceChartType==='line') renderVarianceChartLine(ctx,cssWidth,cssHeight,periodData,meta);
     else if(varianceChartType==='pareto') renderVarianceChartPareto(ctx,cssWidth,cssHeight,paretoData);
     else renderVarianceChartBar(ctx,cssWidth,cssHeight,periodData,meta);
+    bindVarianceChartHover(wrap,cvs);
 
     const typeLabel=varianceChartType==='line'?'Line Trend':(varianceChartType==='pareto'?'Pareto':'Bar Chart');
     const periodLabel=(variancePeriod==='monthly'?'Bulanan':'Mingguan')+' · '+varianceSelectedPeriodKeys().length+' periode';
     if(legend){
         const visualLegend=varianceChartType==='pareto'
-            ? '<span><i class="variance-chart-swatch" style="background:#ef4444"></i>Variance Value</span><span><i class="variance-chart-swatch" style="background:#7c3aed"></i>Kumulatif kontribusi</span><span><i class="variance-chart-swatch" style="background:#f59e0b"></i>Batas 80%</span>'
-            : '<span><i class="variance-chart-swatch" style="background:#ef4444"></i>Over variance (+)</span><span><i class="variance-chart-swatch" style="background:#16a34a"></i>Saving (-)</span>';
+            ? '<span><i class="variance-chart-swatch" style="background:linear-gradient(135deg,#2563eb,#7c3aed)"></i>Variance Value</span><span><i class="variance-chart-swatch" style="background:#7c3aed"></i>Kumulatif kontribusi</span><span><i class="variance-chart-swatch" style="background:#f59e0b"></i>Batas 80%</span>'
+            : '<span><i class="variance-chart-swatch" style="background:linear-gradient(135deg,#2563eb,#7c3aed)"></i>Variance (+)</span><span><i class="variance-chart-swatch" style="background:#16a34a"></i>Saving (-)</span>';
         legend.innerHTML=visualLegend+`<span class="variance-chart-meta-pill">${escapeHtml(typeLabel)}</span><span class="variance-chart-meta-pill">${escapeHtml(meta.label)}</span><span class="variance-chart-meta-pill">${escapeHtml(periodLabel)}</span>`;
     }
     if(paretoList){
