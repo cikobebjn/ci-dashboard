@@ -1762,7 +1762,7 @@ body::after {
                 <div class="variance-top5-head">
                     <div>
                         <div class="variance-top5-title" id="variance-top5-title">Top 5 Variance per Week</div>
-                        <div class="variance-top5-note">Menampilkan lima material dengan over-variance value terbesar pada setiap periode terpilih. Seluruh filter Variance tetap diterapkan.</div>
+
                     </div>
                 </div>
                 <div class="variance-top5-grid" id="variance-top5-grid"></div>
@@ -3180,7 +3180,8 @@ function downloadVarianceChart(){
     const marginX=60;
     const contentW=1480;
     const headerY=70;
-    const chartBoxY=180;
+    const hasActiveExportFilter=filterText!=='All Data';
+    const chartBoxY=hasActiveExportFilter ? 180 : 158;
     const chartBoxH=isParetoExport ? 420 : 555;
     const chartBottom=chartBoxY + chartBoxH;
     const showTop5=!isParetoExport && top5CardsData.length>0;
@@ -3190,7 +3191,7 @@ function downloadVarianceChart(){
     let top5GridBottom=0;
     if(showTop5){
         top5TitleY=chartBottom + 42;
-        cardsStartY=top5TitleY + 24;
+        cardsStartY=top5TitleY + 36;
         const cols=Math.min(3,Math.max(1,top5CardsData.length));
         const cardGap=16;
         const cardW=(contentW - (cardGap*(cols-1)))/cols;
@@ -3227,11 +3228,13 @@ function downloadVarianceChart(){
     ctx.font='20px Arial, sans-serif';
     ctx.fillText(`Period: ${periodText}`,70,112);
 
-    ctx.fillStyle='#64748b';
-    ctx.font='18px Arial, sans-serif';
-    let filterLine=`Filters: ${filterText}`;
-    if(filterLine.length>145) filterLine=filterLine.slice(0,142)+'…';
-    ctx.fillText(filterLine,70,146);
+    if(hasActiveExportFilter){
+        ctx.fillStyle='#64748b';
+        ctx.font='18px Arial, sans-serif';
+        let filterLine=`Filters: ${filterText}`;
+        if(filterLine.length>145) filterLine=filterLine.slice(0,142)+'…';
+        ctx.fillText(filterLine,70,146);
+    }
 
     // Chart area.
     const boxX=60, boxY=chartBoxY, boxW=1480, boxH=chartBoxH;
@@ -3295,10 +3298,6 @@ function downloadVarianceChart(){
         ctx.fillStyle='#172033';
         ctx.font='700 22px Arial, sans-serif';
         ctx.fillText(variancePeriod==='monthly' ? 'Top 5 Variance by Selected Month' : 'Top 5 Variance by Selected Week',70,top5TitleY);
-
-        ctx.fillStyle='#94a3b8';
-        ctx.font='14px Arial, sans-serif';
-        ctx.fillText('Cards below summarise the highest positive variance items for each selected period.',70,top5TitleY+20);
 
         const cols=Math.min(3,Math.max(1,top5CardsData.length));
         const cardGap=16;
