@@ -103,7 +103,7 @@ linear-gradient(145deg,#eef5ff 0%,#f8fafc 50%,#f5efff 100%);min-height:100vh}
       <div class="sync-box"><span>Tahun</span><b id="summary-year">—</b></div>
       <div class="sync-box"><span>Target</span><b id="summary-target">—</b></div>
     </div>
-    <div class="notice show"><b>Full Replace Database</b> Saat disimpan, seluruh data lama pada <code>cost_material_weekly</code> akan dihapus dan digantikan dengan semua week dari workbook yang sedang dibaca.</div>
+    <div class="notice show"><b>Sinkronisasi Database</b> Semua Week pada workbook akan menjadi sumber data utama. Week yang sudah ada akan diperbarui, Week baru akan ditambahkan, dan data lama di luar workbook akan dihapus apabila policy database mengizinkan.</div>
     <button class="btn btn-save" id="btn-save" style="width:100%;margin-top:14px">Sinkronkan Semua Week ke Database</button>
     <div class="status" id="save-status"></div>
   </section>
@@ -167,37 +167,120 @@ function detectWorkbookYear(wb){
   const years=Object.keys(counts).map(Number).sort((a,b)=>counts[b]-counts[a]);
   return years[0]||new Date().getFullYear();
 }
+function parseNumericCell(v){
+  if(typeof v==='number' && Number.isFinite(v)) return v;
+  if(v===null || v===undefined || v==='') return null;
+  let s=String(v).trim().replace(/\s+/g,'').replace(/^Rp/i,'');
+  if(!s) return null;
+  // SheetJS normally returns raw numbers. These fallbacks handle formatted text safely.
+  if(/^[-+]?\d+(?:\.\d+)?$/.test(s)){
+    const n=Number(s); return Number.isFinite(n)?n:null;
+  }
+  if(/^[-+]?\d{1,3}(?:\.\d{3})+(?:,\d+)?$/.test(s)) s=s.replace(/\./g,'').replace(',','.');
+  else if(/^[-+]?\d{1,3}(?:,\d{3})+(?:\.\d+)?$/.test(s)) s=s.replace(/,/g,'');
+  else s=s.replace(/,/g,'');
+  const n=Number(s); return Number.isFinite(n)?n:null;
+}
+function cellValue(ws, addr){
+  const cell=ws && ws[addr];
+  return cell ? cell.v : null;
+}
+function columnName(index){ return XLSX.utils.encode_col(index); }
 function parseResumePrice(wb){
   const ws=getSheet(wb,'Resume Price');
-  if(!ws) throw new Error('Sheet "Resume Price" tidak ditemukan.');
-  const rows=sheetRows(ws); const maps={packaging:{},raw:{},sfg:{}};
-  const configs=[{weekCol:0,valueCol:2,key:'packaging'},{weekCol:5,valueCol:7,key:'raw'},{weekCol:10,valueCol:12,key:'sfg'}];
-  for(let r=3;r<rows.length;r++){
-    configs.forEach(c=>{const w=Number(rows[r]?.[c.weekCol]);const v=Number(rows[r]?.[c.valueCol]);if(Number.isFinite(w)&&w>0&&Number.isFinite(v))maps[c.key][Math.trunc(w)]=v});
+  if(!ws) return {packaging:{},raw:{},sfg:{}};
+  const maps={packaging:{},raw:{},sfg:{}};
+  const configs=[
+    {weekCol:'A',valueCol:'C',key:'packaging'},
+    {weekCol:'F',valueCol:'H',key:'raw'},
+    {weekCol:'K',valueCol:'M',key:'sfg'}
+  ];
+  const range=XLSX.utils.decode_range(ws['!ref']||'A1:M2000');
+  for(let r=4;r<=range.e.r+1;r++){
+    for(const c of configs){
+      const w=parseNumericCell(cellValue(ws,`${c.weekCol}${r}`));
+      const v=parseNumericCell(cellValue(ws,`${c.valueCol}${r}`));
+      if(Number.isFinite(w)&&w>0&&w<60&&Number.isFinite(v)) maps[c.key][Math.trunc(w)]=v;
+    }
   }
   return maps;
 }
-function parseTonaseAndTarget(wb){
+function parseSimulasiRatio(wb){
   const ws=getSheet(wb,'Simulasi Ratio COGM');
   if(!ws) throw new Error('Sheet "Simulasi Ratio COGM" tidak ditemukan.');
-  const rows=sheetRows(ws); const tonase={}; let target=30000;
-  const headerRow=rows[1]||[], tonRow=rows[2]||[];
-  headerRow.forEach((h,c)=>{const m=String(h??'').match(/week\s*(\d+)/i);if(m){const t=Number(tonRow[c]);if(Number.isFinite(t)&&t>0)tonase[Number(m[1])]=t}});
-  for(const row of rows){
-    const hasTarget=row.some(v=>String(v??'').trim().toLowerCase()==='target cost / ton');
-    if(hasTarget){const n=row.find(v=>typeof v==='number'&&Number.isFinite(v)&&v>=10000&&v<=100000);if(n){target=n;break}}
+  const range=XLSX.utils.decode_range(ws['!ref']||'A1:AF30');
+  const result={};
+
+  // Row 2 contains Week xx headers. Row 3 contains tonase in the same value column.
+  for(let c=range.s.c;c<=range.e.c;c++){
+    const col=columnName(c);
+    const h=cellValue(ws,`${col}2`);
+    const m=String(h??'').match(/week\s*(\d+)/i);
+    if(!m) continue;
+    const week=Number(m[1]);
+    const tonase=parseNumericCell(cellValue(ws,`${col}3`));
+    result[week]={week,tonase};
   }
-  return {tonase,target};
+
+  let target=30000;
+  for(let r=1;r<=range.e.r+1;r++){
+    let targetLabelCol=-1;
+    for(let c=range.s.c;c<=range.e.c;c++){
+      const col=columnName(c);
+      const v=cellValue(ws,`${col}${r}`);
+      if(String(v??'').trim().toLowerCase()==='target cost / ton'){ targetLabelCol=c; break; }
+    }
+    if(targetLabelCol>=0){
+      for(let c=targetLabelCol+1;c<=range.e.c;c++){
+        const n=parseNumericCell(cellValue(ws,`${columnName(c)}${r}`));
+        if(Number.isFinite(n)&&n>=10000&&n<=100000){ target=n; break; }
+      }
+      if(target!==30000) break;
+    }
+  }
+  return {weeks:result,target};
 }
 function parseWorkbook(wb){
-  const required=['Resume Price','Simulasi Ratio COGM','Data'];
+  const required=['Simulasi Ratio COGM','Resume Price','Data'];
   const missing=required.filter(n=>!getSheet(wb,n));
   if(missing.length) throw new Error('Sheet wajib tidak ditemukan: '+missing.join(', ')+'.');
+
   detectedYear=detectWorkbookYear(wb);
-  const cost=parseResumePrice(wb); const tt=parseTonaseAndTarget(wb); detectedTarget=tt.target||30000;
-  const weeks=Object.keys(tt.tonase).map(Number).filter(w=>cost.packaging[w]!=null&&cost.raw[w]!=null&&cost.sfg[w]!=null).sort((a,b)=>a-b);
-  if(!weeks.length) throw new Error('Tidak ada week yang lengkap antara Simulasi Ratio COGM dan Resume Price.');
-  parsedRows=weeks.map(w=>({tahun:detectedYear,minggu_ke:w,tonase:num(tt.tonase[w]),packaging_value:num(cost.packaging[w]),raw_material_value:num(cost.raw[w]),sfg_value:num(cost.sfg[w]),target_cost_per_ton:num(detectedTarget)}));
+  const sim=parseSimulasiRatio(wb);
+  const resume=parseResumePrice(wb);
+  detectedTarget=sim.target||30000;
+
+  const weeks=Object.keys(sim.weeks).map(Number).sort((a,b)=>a-b);
+  const rows=[];
+  const incomplete=[];
+  weeks.forEach(w=>{
+    const tonase=parseNumericCell(sim.weeks[w]?.tonase);
+    const packaging=parseNumericCell(resume.packaging[w]);
+    const raw=parseNumericCell(resume.raw[w]);
+    const sfg=parseNumericCell(resume.sfg[w]);
+    if(Number.isFinite(tonase)&&tonase>0&&Number.isFinite(packaging)&&Number.isFinite(raw)&&Number.isFinite(sfg)){
+      rows.push({
+        tahun:detectedYear,
+        minggu_ke:w,
+        tonase,
+        packaging_value:packaging,
+        raw_material_value:raw,
+        sfg_value:sfg,
+        target_cost_per_ton:num(detectedTarget)
+      });
+    }else{
+      incomplete.push({week:w,tonase,packaging,raw,sfg});
+    }
+  });
+
+  if(!rows.length){
+    const detail=incomplete.slice(0,4).map(x=>`W${x.week}: Tonase=${Number.isFinite(x.tonase)?'OK':'-'}; Packaging=${Number.isFinite(x.packaging)?'OK':'-'}; Raw=${Number.isFinite(x.raw)?'OK':'-'}; SFG=${Number.isFinite(x.sfg)?'OK':'-'}`).join(' | ');
+    throw new Error('Week berhasil ditemukan, tetapi nilai sumber belum terbaca. '+detail);
+  }
+  if(incomplete.length){
+    console.warn('Week yang dilewati karena data belum lengkap:',incomplete);
+  }
+  parsedRows=rows;
   return parsedRows;
 }
 function rowMetric(r){const total=num(r.packaging_value)+num(r.raw_material_value)+num(r.sfg_value);const ton=num(r.tonase);return{total,costTon:ton?total/ton:0,pkgTon:ton?num(r.packaging_value)/ton:0,rawTon:ton?num(r.raw_material_value)/ton:0,sfgTon:ton?num(r.sfg_value)/ton:0}}
@@ -219,7 +302,7 @@ function renderParsedState(){
 document.getElementById('file-excel').addEventListener('change',()=>{const f=document.getElementById('file-excel').files[0];const info=document.getElementById('file-info');if(f){info.textContent=f.name;info.classList.add('show')}else{info.textContent='';info.classList.remove('show')}parsedRows=[];document.getElementById('preview-card').style.display='none';document.getElementById('parse-status').className='status'});
 document.getElementById('btn-parse').addEventListener('click',async()=>{
   const f=document.getElementById('file-excel').files[0];if(!f){alert('Pilih workbook Cost Material terlebih dahulu.');return}
-  try{setStatus('parse-status','info','Membaca workbook Cost Material...');const wb=XLSX.read(await f.arrayBuffer(),{type:'array',cellDates:true});sourceFile=f.name;parseWorkbook(wb);renderParsedState();setStatus('parse-status','ok',`Berhasil membaca ${parsedRows.length} week (Week ${parsedRows[0].minggu_ke}–${parsedRows[parsedRows.length-1].minggu_ke}) tahun ${detectedYear}. Tidak ada sheet Order Type yang diperlukan.`)}
+  try{setStatus('parse-status','info','Membaca workbook Cost Material...');const wb=XLSX.read(await f.arrayBuffer(),{type:'array',cellDates:true});sourceFile=f.name;parseWorkbook(wb);renderParsedState();setStatus('parse-status','ok',`Berhasil membaca ${parsedRows.length} week (Week ${parsedRows[0].minggu_ke}–${parsedRows[parsedRows.length-1].minggu_ke}) tahun ${detectedYear}. Tonase dibaca dari Simulasi Ratio COGM; nilai Packaging, Raw Material, dan SFG dibaca langsung dari Resume Price.`)}
   catch(e){parsedRows=[];document.getElementById('preview-card').style.display='none';setStatus('parse-status','err','Gagal membaca file: '+e.message)}
 });
 document.getElementById('week-select').addEventListener('change',renderPreview);
@@ -229,16 +312,85 @@ document.getElementById('sync-ack').addEventListener('change',e=>document.getEle
 document.getElementById('sync-modal').addEventListener('click',e=>{if(e.target.id==='sync-modal')e.target.classList.remove('open')});
 document.getElementById('sync-confirm').addEventListener('click',async()=>{document.getElementById('sync-modal').classList.remove('open');await fullReplaceCostMaterial()});
 async function fullReplaceCostMaterial(){
-  const btn=document.getElementById('btn-save');btn.disabled=true;btn.textContent='Menyinkronkan...';setStatus('save-status','info','Menghapus data lama dan menyimpan seluruh week dari workbook terbaru...');
+  const btn=document.getElementById('btn-save');
+  btn.disabled=true;
+  btn.textContent='Menyinkronkan...';
+  setStatus('save-status','info','Menyinkronkan seluruh week dari workbook terbaru ke database...');
+
   try{
-    const clear=await db.from('cost_material_weekly').delete().gte('tahun',2000);if(clear.error)throw clear.error;
-    const payload=parsedRows.map(r=>({tahun:r.tahun,minggu_ke:r.minggu_ke,tonase:r.tonase,packaging_value:r.packaging_value,raw_material_value:r.raw_material_value,sfg_value:r.sfg_value,target_cost_per_ton:r.target_cost_per_ton}));
-    const ins=await db.from('cost_material_weekly').insert(payload);if(ins.error)throw ins.error;
-    const check=await db.from('cost_material_weekly').select('tahun,minggu_ke,tonase,packaging_value,raw_material_value,sfg_value,target_cost_per_ton').eq('tahun',detectedYear).order('minggu_ke',{ascending:true});if(check.error)throw check.error;
-    const actual=check.data||[];if(actual.length!==payload.length)throw new Error(`Verifikasi database tidak cocok: ${actual.length}/${payload.length} week tersimpan.`);
-    setStatus('save-status','ok',`Sinkronisasi selesai. ${actual.length} week dari ${sourceFile} berhasil menggantikan database Cost Material lama.`);await loadHistory();
-  }catch(e){setStatus('save-status','err','Sinkronisasi gagal: '+e.message+'. Jika data lama sudah terhapus, jalankan sinkronisasi ulang menggunakan workbook yang sama.')}
-  finally{btn.disabled=false;btn.textContent='Sinkronkan Semua Week ke Database'}
+    // Pastikan hanya ada satu row untuk setiap kombinasi tahun + week.
+    const dedupe=new Map();
+    parsedRows.forEach(r=>{
+      const row={
+        tahun:Number(r.tahun),
+        minggu_ke:Number(r.minggu_ke),
+        tonase:Number(r.tonase)||0,
+        packaging_value:Number(r.packaging_value)||0,
+        raw_material_value:Number(r.raw_material_value)||0,
+        sfg_value:Number(r.sfg_value)||0,
+        target_cost_per_ton:Number(r.target_cost_per_ton)||30000
+      };
+      dedupe.set(`${row.tahun}-${row.minggu_ke}`,row);
+    });
+    const payload=[...dedupe.values()].sort((a,b)=>a.tahun-b.tahun || a.minggu_ke-b.minggu_ke);
+    if(!payload.length) throw new Error('Tidak ada data Week yang dapat disimpan.');
+
+    // Coba full replace terlebih dahulu. Pada project yang membatasi DELETE via RLS,
+    // operasi ini dapat menghapus 0 row tanpa error; UPSERT di bawah tetap aman.
+    const clear=await db.from('cost_material_weekly').delete().gte('tahun',2000);
+    if(clear.error) console.warn('Full delete tidak dapat dijalankan, lanjut dengan UPSERT:',clear.error.message);
+
+    // UPSERT membuat sinkronisasi aman untuk dijalankan berulang kali.
+    // Unique key database: (tahun, minggu_ke).
+    const chunkSize=200;
+    for(let i=0;i<payload.length;i+=chunkSize){
+      const part=payload.slice(i,i+chunkSize);
+      const up=await db.from('cost_material_weekly').upsert(part,{onConflict:'tahun,minggu_ke'});
+      if(up.error) throw up.error;
+    }
+
+    // Hapus record lama yang tidak lagi ada pada workbook, bila policy DELETE mengizinkan.
+    const allNow=await db.from('cost_material_weekly').select('tahun,minggu_ke');
+    if(allNow.error) throw allNow.error;
+    const wanted=new Set(payload.map(r=>`${r.tahun}-${r.minggu_ke}`));
+    const stale=(allNow.data||[]).filter(r=>!wanted.has(`${Number(r.tahun)}-${Number(r.minggu_ke)}`));
+    for(const r of stale){
+      const del=await db.from('cost_material_weekly').delete().eq('tahun',r.tahun).eq('minggu_ke',r.minggu_ke);
+      if(del.error) console.warn(`Tidak dapat menghapus data lama W${r.minggu_ke}/${r.tahun}:`,del.error.message);
+    }
+
+    // Verifikasi semua Week dari workbook sudah ada dan nilainya tersimpan.
+    const years=[...new Set(payload.map(r=>r.tahun))];
+    let actual=[];
+    for(const y of years){
+      const check=await db.from('cost_material_weekly')
+        .select('tahun,minggu_ke,tonase,packaging_value,raw_material_value,sfg_value,target_cost_per_ton')
+        .eq('tahun',y)
+        .order('minggu_ke',{ascending:true});
+      if(check.error) throw check.error;
+      actual=actual.concat(check.data||[]);
+    }
+    const actualMap=new Map(actual.map(r=>[`${Number(r.tahun)}-${Number(r.minggu_ke)}`,r]));
+    const missing=payload.filter(r=>!actualMap.has(`${r.tahun}-${r.minggu_ke}`));
+    if(missing.length) throw new Error(`Verifikasi gagal: ${missing.length} week belum tersimpan.`);
+
+    // Cek lagi apakah masih ada row lama di luar workbook.
+    const finalRows=await db.from('cost_material_weekly').select('tahun,minggu_ke');
+    if(finalRows.error) throw finalRows.error;
+    const remainingStale=(finalRows.data||[]).filter(r=>!wanted.has(`${Number(r.tahun)}-${Number(r.minggu_ke)}`));
+
+    if(remainingStale.length){
+      setStatus('save-status','ok',`Sinkronisasi selesai. ${payload.length} week dari ${sourceFile} berhasil diperbarui. ${remainingStale.length} data lama masih tersimpan karena kebijakan DELETE database, tetapi Week yang sama sudah diperbarui tanpa duplikat.`);
+    }else{
+      setStatus('save-status','ok',`Sinkronisasi selesai. ${payload.length} week dari ${sourceFile} berhasil menjadi data Cost Material terbaru.`);
+    }
+    await loadHistory();
+  }catch(e){
+    setStatus('save-status','err','Sinkronisasi gagal: '+e.message);
+  }finally{
+    btn.disabled=false;
+    btn.textContent='Sinkronkan Semua Week ke Database';
+  }
 }
 async function loadHistory(){
   const body=document.getElementById('history-body'),sum=document.getElementById('history-summary');
