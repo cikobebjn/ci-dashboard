@@ -4185,10 +4185,10 @@ function hitungRatioCost(rows) {
     const totalTon = rows.reduce((s, r) => s + (r.tonase || 0), 0);
     const target   = rows.length ? (rows[rows.length - 1].target_cost_per_ton || 28000) : 28000;
     return {
-        pkgRatio: totalTon ? totalPkg / totalTon : 0,
-        rawRatio: totalTon ? totalRaw / totalTon : 0,
-        sfgRatio: totalTon ? totalSfg / totalTon : 0,
-        totalRatio: totalTon ? (totalPkg + totalRaw + totalSfg) / totalTon : 0,
+        pkgRatio: totalTon ? totalPkg / (totalTon * 1000) : 0,
+        rawRatio: totalTon ? totalRaw / (totalTon * 1000) : 0,
+        sfgRatio: totalTon ? totalSfg / (totalTon * 1000) : 0,
+        totalRatio: totalTon ? (totalPkg + totalRaw + totalSfg) / (totalTon * 1000) : 0,
         target,
     };
 }
@@ -4230,7 +4230,7 @@ function switchCostPeriod(period) {
 }
 
 // ── Cost Material per Week (Simulasi Ratio COGM) ──
-// Ratio (Rp/ton) dihitung di sisi klien: value / tonase, sesuai rumus di file Excel-nya.
+// Ratio mengikuti workbook operasional: value / (tonase * 1000). Total Actual Cost dari SAP dibagi kg produksi ekuivalen.
 // Tabel ini per-minggu dan tidak terikat pada filter tanggal harian.
 // Diambil lebih dari 8 minggu (limit 15) supaya cukup data untuk menghitung
 // agregat bulan berjalan (kartu Ringkasan → toggle Bulanan) tanpa mengubah
@@ -4287,11 +4287,11 @@ async function loadCostMaterial() {
     const rowsAsc = [...rows].reverse();
     tbody.innerHTML = '';
     rowsAsc.forEach(r => {
-        const pkgRatio = r.tonase ? (r.packaging_value || 0) / r.tonase : 0;
-        const rawRatio = r.tonase ? (r.raw_material_value || 0) / r.tonase : 0;
-        const sfgRatio = r.tonase ? (r.sfg_value || 0) / r.tonase : 0;
+        const pkgRatio = r.tonase ? (r.packaging_value || 0) / (r.tonase * 1000) : 0;
+        const rawRatio = r.tonase ? (r.raw_material_value || 0) / (r.tonase * 1000) : 0;
+        const sfgRatio = r.tonase ? (r.sfg_value || 0) / (r.tonase * 1000) : 0;
         const totalValue = (r.packaging_value || 0) + (r.raw_material_value || 0) + (r.sfg_value || 0);
-        const totalRatio = r.tonase ? totalValue / r.tonase : 0;
+        const totalRatio = r.tonase ? totalValue / (r.tonase * 1000) : 0;
         const rTarget = r.target_cost_per_ton || 28000;
         const isOver = totalRatio > rTarget;
 
