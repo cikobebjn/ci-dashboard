@@ -50,6 +50,15 @@ linear-gradient(145deg,#eef5ff 0%,#f8fafc 50%,#f5efff 100%);min-height:100vh}
 .trend-toggle button{border:0;border-radius:9px;background:transparent;color:#64748b;padding:8px 12px;font-size:10px;font-weight:850;cursor:pointer;transition:.18s ease}
 .trend-toggle button.active{color:#fff;background:linear-gradient(135deg,#0f766e,#14b8a6);box-shadow:0 7px 16px rgba(15,118,110,.18)}
 .trend-toggle button:hover:not(.active){background:#eaf7f5;color:#0f766e}
+.trend-filter{display:grid;grid-template-columns:minmax(150px,1fr) 24px minmax(150px,1fr) auto;gap:8px;align-items:end;margin:0 0 11px;padding:10px 12px;border:1px solid #e7ecf3;border-radius:14px;background:#fbfdff}
+.trend-field{display:flex;flex-direction:column;gap:5px}
+.trend-field label{color:#8a98ab;font-size:8px;font-weight:850;letter-spacing:.06em;text-transform:uppercase}
+.trend-field select{width:100%;height:36px;padding:0 34px 0 10px;border:1px solid #dfe6ef;border-radius:10px;background:#fff;color:#334155;font-size:10px;font-weight:750;outline:none;cursor:pointer}
+.trend-field select:focus{border-color:#5eead4;box-shadow:0 0 0 3px rgba(20,184,166,.10)}
+.trend-filter-sep{align-self:center;text-align:center;color:#94a3b8;font-size:12px;padding-top:13px}
+.trend-reset{height:36px;padding:0 12px;border:1px solid #cfe8e3;border-radius:10px;background:#effcf9;color:#0f766e;font-size:9px;font-weight:850;cursor:pointer;white-space:nowrap}
+.trend-reset:hover{background:#dcf8f2}
+.trend-range-info{margin:-3px 0 9px;color:#94a3b8;font-size:9px;line-height:1.45}
 .trend-legend{display:flex;flex-wrap:wrap;gap:8px 14px;margin-bottom:9px;color:#64748b;font-size:9px;font-weight:750}
 .trend-legend span{display:inline-flex;align-items:center;gap:6px}
 .trend-dot{width:9px;height:9px;border-radius:50%;display:inline-block}
@@ -68,7 +77,7 @@ linear-gradient(145deg,#eef5ff 0%,#f8fafc 50%,#f5efff 100%);min-height:100vh}
 .trend-summary-box b{display:block;margin-top:4px;color:#172033;font-size:13px}
 .trend-foot{margin-top:8px;color:#94a3b8;font-size:9px;line-height:1.45}
 
-@media(max-width:760px){.topbar{height:64px;padding:0 14px}.topbar h2{font-size:16px}.topbar h2 small{font-size:8px}.menu-btn{width:36px;height:36px}.main{padding:82px 12px 30px}.hero{grid-template-columns:1fr;padding:22px 20px;border-radius:22px}.hero h1{font-size:27px}.hero-note{width:100%}.card{padding:16px;border-radius:18px}.section-head{flex-direction:column}.step-pill{align-self:flex-start}.preview-top{grid-template-columns:1fr}.preview-count{white-space:normal}.kpi-grid,.sync-summary{grid-template-columns:1fr}.actions{flex-direction:column;align-items:stretch}.btn{width:100%}.dialog-actions{grid-template-columns:1fr}.sidebar{width:270px;left:-270px}.trend-head{flex-direction:column}.trend-toggle{width:100%}.trend-toggle button{flex:1}.trend-wrap{min-height:315px;padding:7px 5px 2px}#cost-trend-canvas{height:300px}.trend-summary{grid-template-columns:1fr}.trend-tooltip{min-width:195px;max-width:235px}}
+@media(max-width:760px){.topbar{height:64px;padding:0 14px}.topbar h2{font-size:16px}.topbar h2 small{font-size:8px}.menu-btn{width:36px;height:36px}.main{padding:82px 12px 30px}.hero{grid-template-columns:1fr;padding:22px 20px;border-radius:22px}.hero h1{font-size:27px}.hero-note{width:100%}.card{padding:16px;border-radius:18px}.section-head{flex-direction:column}.step-pill{align-self:flex-start}.preview-top{grid-template-columns:1fr}.preview-count{white-space:normal}.kpi-grid,.sync-summary{grid-template-columns:1fr}.actions{flex-direction:column;align-items:stretch}.btn{width:100%}.dialog-actions{grid-template-columns:1fr}.sidebar{width:270px;left:-270px}.trend-head{flex-direction:column}.trend-toggle{width:100%}.trend-toggle button{flex:1}.trend-wrap{min-height:315px;padding:7px 5px 2px}#cost-trend-canvas{height:300px}.trend-summary{grid-template-columns:1fr}.trend-filter{grid-template-columns:1fr 18px 1fr}.trend-reset{grid-column:1/-1;width:100%}.trend-filter-sep{padding-top:13px}.trend-tooltip{min-width:195px;max-width:235px}}
 
 
 /* SAP raw import additions */
@@ -193,6 +202,13 @@ linear-gradient(145deg,#eef5ff 0%,#f8fafc 50%,#f5efff 100%);min-height:100vh}
         <button type="button" id="trend-monthly" onclick="switchTrendMode('monthly')">Monthly</button>
       </div>
     </div>
+    <div class="trend-filter" id="trend-filter">
+      <div class="trend-field"><label id="trend-from-label">Dari Week</label><select id="trend-from" onchange="changeTrendRange()"></select></div>
+      <div class="trend-filter-sep">—</div>
+      <div class="trend-field"><label id="trend-to-label">Sampai Week</label><select id="trend-to" onchange="changeTrendRange()"></select></div>
+      <button type="button" class="trend-reset" onclick="resetTrendRange()">Periode Terbaru</button>
+    </div>
+    <div class="trend-range-info" id="trend-range-info">Pilih rentang Week yang ingin ditampilkan.</div>
     <div class="trend-legend">
       <span><i class="trend-dot" style="background:#0f766e"></i>Total Cost/Ton</span>
       <span><i class="trend-dot" style="background:#2563eb"></i>Packaging</span>
@@ -262,6 +278,7 @@ let leadingPartialWeekKey=null;
 let syncRows=[];
 let historyRows=[];
 let trendMode='weekly';
+let trendRange={weekly:{from:'',to:''},monthly:{from:'',to:''}};
 let trendHoverKey='';
 let trendHitAreas=[];
 let trendResizeTimer=null;
@@ -469,25 +486,62 @@ function weekRangeFromNumber(year,week){
   return{start:msToYmd(start),end:msToYmd(start+6*86400000)};
 }
 function weekThursday(year,week){const r=weekRangeFromNumber(year,week);return new Date(ymdToMs(r.start)+4*86400000)}
-function switchTrendMode(mode){trendMode=mode==='monthly'?'monthly':'weekly';trendHoverKey='';renderTrendChart()}
-function trendDataWeekly(){
-  return [...historyRows].sort((a,b)=>a.tahun-b.tahun||a.minggu_ke-b.minggu_ke).slice(-12).map(r=>{
+function switchTrendMode(mode){
+  trendMode=mode==='monthly'?'monthly':'weekly';trendHoverKey='';syncTrendRangeControls();renderTrendChart();
+}
+function trendAllWeeklyData(){
+  return [...historyRows].sort((a,b)=>a.tahun-b.tahun||a.minggu_ke-b.minggu_ke).map(r=>{
     const m=rowMetric(r),range=weekRangeFromNumber(r.tahun,r.minggu_ke),target=num(r.target_cost_per_ton)||TARGET_COST_DEFAULT;
-    return{key:`w-${r.tahun}-${r.minggu_ke}`,label:`W${r.minggu_ke}`,title:`Week ${r.minggu_ke} / ${r.tahun}`,sub:`${fmtDateShort(range.start)} – ${fmtDateShort(range.end)}`,tonase:num(r.tonase),total:m.costTon,pkg:m.pkgTon,raw:m.rawTon,sfg:m.sfgTon,target};
+    return{key:`w-${r.tahun}-${r.minggu_ke}`,sortKey:Number(r.tahun)*100+Number(r.minggu_ke),label:`W${r.minggu_ke}`,optionLabel:`Week ${r.minggu_ke} / ${r.tahun}`,title:`Week ${r.minggu_ke} / ${r.tahun}`,sub:`${fmtDateShort(range.start)} – ${fmtDateShort(range.end)}`,tonase:num(r.tonase),total:m.costTon,pkg:m.pkgTon,raw:m.rawTon,sfg:m.sfgTon,target};
   });
 }
-function trendDataMonthly(){
+function trendAllMonthlyData(){
   const map=new Map();
   [...historyRows].sort((a,b)=>a.tahun-b.tahun||a.minggu_ke-b.minggu_ke).forEach(r=>{
     const d=weekThursday(r.tahun,r.minggu_ke),y=d.getUTCFullYear(),mo=d.getUTCMonth(),key=`${y}-${mo}`;
     if(!map.has(key))map.set(key,{y,mo,rows:[]});map.get(key).rows.push(r);
   });
-  return [...map.values()].slice(-6).map(g=>{
+  return [...map.values()].map(g=>{
     const pkg=g.rows.reduce((s,r)=>s+num(r.packaging_value),0),raw=g.rows.reduce((s,r)=>s+num(r.raw_material_value),0),sfg=g.rows.reduce((s,r)=>s+num(r.sfg_value),0),tonase=g.rows.reduce((s,r)=>s+num(r.tonase),0),den=tonase*1000,target=num(g.rows[g.rows.length-1]?.target_cost_per_ton)||TARGET_COST_DEFAULT;
-    return{key:`m-${g.y}-${g.mo}`,label:`${BULAN_SHORT[g.mo]} ${g.y}`,title:`${BULAN_FULL[g.mo]} ${g.y}`,sub:`${g.rows.length} week · ${fmtTon(tonase)}`,tonase,total:den?(pkg+raw+sfg)/den:0,pkg:den?pkg/den:0,raw:den?raw/den:0,sfg:den?sfg/den:0,target};
+    return{key:`m-${g.y}-${g.mo}`,sortKey:g.y*100+(g.mo+1),label:`${BULAN_SHORT[g.mo]} ${g.y}`,optionLabel:`${BULAN_FULL[g.mo]} ${g.y}`,title:`${BULAN_FULL[g.mo]} ${g.y}`,sub:`${g.rows.length} week · ${fmtTon(tonase)}`,tonase,total:den?(pkg+raw+sfg)/den:0,pkg:den?pkg/den:0,raw:den?raw/den:0,sfg:den?sfg/den:0,target};
   });
 }
-function getTrendData(){return trendMode==='monthly'?trendDataMonthly():trendDataWeekly()}
+function trendAllData(){return trendMode==='monthly'?trendAllMonthlyData():trendAllWeeklyData()}
+function ensureTrendRangeDefaults(){
+  ['weekly','monthly'].forEach(mode=>{
+    const all=mode==='weekly'?trendAllWeeklyData():trendAllMonthlyData();if(!all.length)return;
+    const range=trendRange[mode],defaultCount=mode==='weekly'?12:6;
+    if(!range.from||!all.some(d=>d.key===range.from))range.from=all[Math.max(0,all.length-defaultCount)].key;
+    if(!range.to||!all.some(d=>d.key===range.to))range.to=all[all.length-1].key;
+  });
+}
+function syncTrendRangeControls(){
+  ensureTrendRangeDefaults();
+  const all=trendAllData(),from=document.getElementById('trend-from'),to=document.getElementById('trend-to');if(!from||!to)return;
+  const range=trendRange[trendMode],options=all.map(d=>`<option value="${d.key}">${d.optionLabel}</option>`).join('');
+  from.innerHTML=options;to.innerHTML=options;from.value=range.from;to.value=range.to;
+  document.getElementById('trend-from-label').textContent=trendMode==='weekly'?'Dari Week':'Dari Bulan';
+  document.getElementById('trend-to-label').textContent=trendMode==='weekly'?'Sampai Week':'Sampai Bulan';
+  const info=document.getElementById('trend-range-info');if(info)info.textContent=trendMode==='weekly'?'Pilih Week awal dan Week akhir. Weekly menggunakan periode Minggu–Sabtu.':'Pilih Bulan awal dan Bulan akhir yang ingin ditampilkan.';
+}
+function changeTrendRange(){
+  const from=document.getElementById('trend-from'),to=document.getElementById('trend-to');if(!from||!to)return;
+  const all=trendAllData(),iFrom=all.findIndex(d=>d.key===from.value),iTo=all.findIndex(d=>d.key===to.value);
+  if(iFrom<0||iTo<0)return;
+  if(iFrom<=iTo){trendRange[trendMode]={from:from.value,to:to.value};}
+  else{trendRange[trendMode]={from:to.value,to:from.value};}
+  trendHoverKey='';syncTrendRangeControls();renderTrendChart();
+}
+function resetTrendRange(){
+  const all=trendAllData();if(!all.length)return;const n=trendMode==='weekly'?12:6;
+  trendRange[trendMode]={from:all[Math.max(0,all.length-n)].key,to:all[all.length-1].key};trendHoverKey='';syncTrendRangeControls();renderTrendChart();
+}
+function getTrendData(){
+  ensureTrendRangeDefaults();const all=trendAllData(),range=trendRange[trendMode];
+  const iFrom=all.findIndex(d=>d.key===range.from),iTo=all.findIndex(d=>d.key===range.to);
+  if(iFrom<0||iTo<0)return all;
+  return all.slice(Math.min(iFrom,iTo),Math.max(iFrom,iTo)+1);
+}
 function syncTrendButtons(){document.getElementById('trend-weekly')?.classList.toggle('active',trendMode==='weekly');document.getElementById('trend-monthly')?.classList.toggle('active',trendMode==='monthly')}
 function setupTrendCanvas(){
   const wrap=document.getElementById('trend-wrap'),canvas=document.getElementById('cost-trend-canvas');if(!wrap||!canvas)return{};
@@ -495,7 +549,7 @@ function setupTrendCanvas(){
   canvas.style.width=cssW+'px';canvas.style.height=cssH+'px';canvas.width=Math.round(cssW*dpr);canvas.height=Math.round(cssH*dpr);const ctx=canvas.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);return{wrap,canvas,ctx,cssW,cssH};
 }
 function renderTrendChart(){
-  syncTrendButtons();const data=getTrendData(),setup=setupTrendCanvas(),{wrap,canvas,ctx,cssW,cssH}=setup;if(!ctx)return;trendHitAreas=[];
+  syncTrendButtons();syncTrendRangeControls();const data=getTrendData(),setup=setupTrendCanvas(),{wrap,canvas,ctx,cssW,cssH}=setup;if(!ctx)return;trendHitAreas=[];
   ctx.clearRect(0,0,cssW,cssH);if(!data.length){ctx.fillStyle='#94a3b8';ctx.font='12px Arial';ctx.textAlign='center';ctx.fillText('Belum ada riwayat Cost Material.',cssW/2,cssH/2);updateTrendTooltip(null);return}
   const mobile=window.innerWidth<=760,margin={top:18,right:14,bottom:42,left:mobile?58:70},plotW=cssW-margin.left-margin.right,plotH=cssH-margin.top-margin.bottom;
   const maxVal=Math.max(...data.flatMap(d=>[d.total,d.pkg,d.raw,d.sfg,d.target]),TARGET_COST_DEFAULT);const max=Math.max(10000,Math.ceil(maxVal*1.14/5000)*5000);const y=v=>margin.top+plotH-(num(v)/max)*plotH,x=i=>margin.left+(data.length===1?plotW/2:i*(plotW/(data.length-1)));
@@ -508,7 +562,7 @@ function renderTrendChart(){
     data.forEach((d,i)=>{const hovered=i===activeIndex;ctx.beginPath();ctx.fillStyle='#fff';ctx.arc(x(i),y(d[key]),hovered?5.5:3.8,0,Math.PI*2);ctx.fill();ctx.strokeStyle=color;ctx.lineWidth=hovered?3:2;ctx.stroke()});
   });
   ctx.textAlign='center';ctx.fillStyle='#64748b';ctx.font=(mobile?'9px':'10px')+' Arial';data.forEach((d,i)=>{ctx.fillText(d.label,x(i),cssH-16);trendHitAreas.push({key:d.key,item:d,x:x(i),y:y(d.total),r:Math.max(18,plotW/Math.max(data.length,1)/2)})});
-  const last=data[data.length-1],diff=last.total-last.target;document.getElementById('trend-last').textContent=last.title;document.getElementById('trend-last-value').textContent=fmtRp(last.total)+'/ton';const vs=document.getElementById('trend-vs-target');vs.textContent=(diff>0?'+':'')+fmtRp(diff)+'/ton';vs.style.color=diff<=0?'#16a34a':'#dc2626';document.getElementById('trend-foot').textContent=trendMode==='weekly'?`Menampilkan ${data.length} week terakhir. Weekly menggunakan Minggu–Sabtu.`:'Monthly dihitung dari agregasi Cost Material weekly pada bulan yang sama.';
+  const last=data[data.length-1],diff=last.total-last.target;document.getElementById('trend-last').textContent=last.title;document.getElementById('trend-last-value').textContent=fmtRp(last.total)+'/ton';const vs=document.getElementById('trend-vs-target');vs.textContent=(diff>0?'+':'')+fmtRp(diff)+'/ton';vs.style.color=diff<=0?'#16a34a':'#dc2626';document.getElementById('trend-foot').textContent=trendMode==='weekly'?`Menampilkan ${data.length} week terpilih (${data[0].title} s.d. ${data[data.length-1].title}). Weekly menggunakan Minggu–Sabtu.`:`Menampilkan ${data.length} bulan terpilih (${data[0].title} s.d. ${data[data.length-1].title}). Monthly dihitung dari agregasi Cost Material weekly pada bulan yang sama.`;
   bindTrendHover(wrap,canvas);if(activeIndex>=0)updateTrendTooltip(trendHitAreas.find(h=>h.key===trendHoverKey));else updateTrendTooltip(null);
 }
 function updateTrendTooltip(hit){
@@ -523,7 +577,7 @@ window.addEventListener('resize',()=>{clearTimeout(trendResizeTimer);trendResize
 
 async function loadHistory(){
   const body=document.getElementById('history-body'),sum=document.getElementById('history-summary');
-  try{const {data,error}=await db.from('cost_material_weekly').select('*').order('tahun',{ascending:false}).order('minggu_ke',{ascending:false});if(error)throw error;const rows=data||[];historyRows=rows;if(rows.length&&num(rows[0].target_cost_per_ton))detectedTarget=num(rows[0].target_cost_per_ton);sum.innerHTML=rows.length?`<span>Database Cost Material aktif.</span><b>${rows.length} week</b>`:'<span>Belum ada data Cost Material.</span><b>0 week</b>';body.innerHTML=rows.length?rows.map(r=>{const m=rowMetric(r),target=num(r.target_cost_per_ton)||TARGET_COST_DEFAULT;return`<tr><td>Week ${r.minggu_ke} / ${r.tahun}</td><td>${fmtTon(r.tonase)}</td><td class="${m.costTon<=target?'good':'low'}">${fmtRp(m.costTon)}/ton</td><td>${fmtRp(target)}/ton</td></tr>`}).join(''):'<tr><td colspan="4" class="history-empty">Belum ada data</td></tr>';renderTrendChart()}
+  try{const {data,error}=await db.from('cost_material_weekly').select('*').order('tahun',{ascending:false}).order('minggu_ke',{ascending:false});if(error)throw error;const rows=data||[];historyRows=rows;ensureTrendRangeDefaults();syncTrendRangeControls();if(rows.length&&num(rows[0].target_cost_per_ton))detectedTarget=num(rows[0].target_cost_per_ton);sum.innerHTML=rows.length?`<span>Database Cost Material aktif.</span><b>${rows.length} week</b>`:'<span>Belum ada data Cost Material.</span><b>0 week</b>';body.innerHTML=rows.length?rows.map(r=>{const m=rowMetric(r),target=num(r.target_cost_per_ton)||TARGET_COST_DEFAULT;return`<tr><td>Week ${r.minggu_ke} / ${r.tahun}</td><td>${fmtTon(r.tonase)}</td><td class="${m.costTon<=target?'good':'low'}">${fmtRp(m.costTon)}/ton</td><td>${fmtRp(target)}/ton</td></tr>`}).join(''):'<tr><td colspan="4" class="history-empty">Belum ada data</td></tr>';renderTrendChart()}
   catch(e){historyRows=[];sum.innerHTML='<span>Riwayat tidak dapat dimuat.</span><b>Error</b>';body.innerHTML=`<tr><td colspan="4" class="history-empty">${e.message}</td></tr>`;renderTrendChart()}
 }
 loadHistory();
