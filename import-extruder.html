@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -233,6 +234,36 @@ table.preview-table tr.row-warn td { background:#fff3f3; color:#d8444a; }
 }
 @media (max-width:380px) { .preview-summary { grid-template-columns:1fr; } }
 
+
+/* Professional confirmation modal */
+.confirm-modal-backdrop{position:fixed;inset:0;z-index:3000;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(15,23,42,.55);backdrop-filter:blur(7px)}
+.confirm-modal-backdrop.show{display:flex}
+.confirm-modal{width:min(560px,100%);overflow:hidden;border:1px solid rgba(226,232,240,.95);border-radius:24px;background:#fff;box-shadow:0 30px 90px rgba(15,23,42,.30);animation:confirmModalIn .18s ease-out}
+@keyframes confirmModalIn{from{opacity:0;transform:translateY(10px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+.confirm-modal-head{display:flex;align-items:flex-start;gap:14px;padding:22px 24px 17px}
+.confirm-modal-icon{flex:0 0 auto;width:46px;height:46px;display:grid;place-items:center;border-radius:15px;color:#b45309;background:#fff7e6;border:1px solid #fde3ae;font-size:22px}
+.confirm-modal-title{margin:1px 0 5px;color:#172033;font-size:19px;font-weight:800;letter-spacing:-.02em}
+.confirm-modal-subtitle{margin:0;color:#718096;font-size:12px;line-height:1.55}
+.confirm-modal-close{margin-left:auto;width:34px;height:34px;display:grid;place-items:center;border:0;border-radius:10px;background:#f5f7fa;color:#64748b;cursor:pointer;font-size:18px}
+.confirm-modal-close:hover{background:#edf1f6;color:#334155}
+.confirm-modal-body{padding:0 24px 20px}
+.confirm-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:14px}
+.confirm-summary-card{padding:14px 15px;border:1px solid #e6edf5;border-radius:15px;background:#f8fbff}
+.confirm-summary-card span{display:block;color:#8795a8;font-size:9px;font-weight:800;letter-spacing:.07em;text-transform:uppercase}
+.confirm-summary-card strong{display:block;margin-top:5px;color:#22314a;font-size:21px;line-height:1.1}
+.confirm-replace-note{display:flex;gap:10px;padding:13px 14px;border:1px solid #f1d49a;border-radius:14px;color:#82570e;background:#fffaf0;font-size:11.5px;line-height:1.55}
+.confirm-replace-note strong{color:#6f4808}
+.confirm-duplicate-note{display:none;margin-top:10px;padding:10px 12px;border:1px solid #d9e7fb;border-radius:12px;color:#315f9c;background:#f3f8ff;font-size:11px;line-height:1.5}
+.confirm-duplicate-note.show{display:block}
+.confirm-modal-actions{display:flex;justify-content:flex-end;gap:10px;padding:16px 24px 22px;border-top:1px solid #edf1f6;background:#fbfcfe}
+.confirm-btn{min-height:43px;padding:10px 16px;border-radius:12px;font-family:Arial,sans-serif;font-size:12px;font-weight:800;cursor:pointer;transition:.18s ease}
+.confirm-btn.cancel{border:1px solid #dce4ee;color:#536176;background:#fff}
+.confirm-btn.cancel:hover{background:#f6f8fb}
+.confirm-btn.primary{border:0;color:#fff;background:linear-gradient(135deg,#0f5bc7,#1268e8 58%,#6a42da);box-shadow:0 10px 22px rgba(18,104,232,.22)}
+.confirm-btn.primary:hover{transform:translateY(-1px);filter:brightness(1.03)}
+body.modal-open{overflow:hidden}
+@media(max-width:560px){.confirm-modal-backdrop{padding:12px;align-items:flex-end}.confirm-modal{border-radius:22px 22px 16px 16px}.confirm-modal-head{padding:19px 18px 14px}.confirm-modal-body{padding:0 18px 17px}.confirm-summary{grid-template-columns:1fr 1fr}.confirm-modal-actions{padding:14px 18px 18px;flex-direction:column-reverse}.confirm-btn{width:100%}}
+
 </style>
 </head>
 <body>
@@ -310,6 +341,32 @@ table.preview-table tr.row-warn td { background:#fff3f3; color:#d8444a; }
 
 </div>
 
+
+<div class="confirm-modal-backdrop" id="submit-confirm-modal" aria-hidden="true" onclick="handleSubmitModalBackdrop(event)">
+  <div class="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="submit-confirm-title">
+    <div class="confirm-modal-head">
+      <div class="confirm-modal-icon">⚠</div>
+      <div>
+        <div class="confirm-modal-title" id="submit-confirm-title">Konfirmasi Sinkronisasi Data</div>
+        <p class="confirm-modal-subtitle">Pastikan workbook yang dipilih sudah benar dan lengkap sebelum melanjutkan.</p>
+      </div>
+      <button type="button" class="confirm-modal-close" onclick="closeSubmitModal()" aria-label="Tutup">×</button>
+    </div>
+    <div class="confirm-modal-body">
+      <div class="confirm-summary">
+        <div class="confirm-summary-card"><span>Achievement</span><strong id="confirm-achievement-count">0</strong></div>
+        <div class="confirm-summary-card"><span>Downtime Event</span><strong id="confirm-downtime-count">0</strong></div>
+      </div>
+      <div class="confirm-replace-note"><span>↻</span><div><strong>Full Replace Database</strong><br>Data achievement dan downtime Extruder yang tersimpan saat ini akan diganti dengan data dari workbook ini.</div></div>
+      <div class="confirm-duplicate-note" id="confirm-duplicate-note"></div>
+    </div>
+    <div class="confirm-modal-actions">
+      <button type="button" class="confirm-btn cancel" onclick="closeSubmitModal()">Batalkan</button>
+      <button type="button" class="confirm-btn primary" onclick="confirmSubmitData()">Konfirmasi &amp; Sinkronkan</button>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
@@ -320,6 +377,8 @@ const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let parsedRows = []; // hasil parsing achievement final, siap dikirim ke Supabase
 let parsedDowntimeRows = []; // hasil parsing sheet Downtime
+let pendingSubmitRows = [];
+let pendingDuplicateCount = 0;
 
 function toggleMenu() {
     const s = document.getElementById('sidebar');
@@ -368,6 +427,36 @@ function toNumOrNull(v) {
     if (v === null || v === undefined || v === '') return null;
     const n = Number(v);
     return Number.isFinite(n) ? n : null;
+}
+
+
+// Pastikan hanya satu record untuk setiap kombinasi tanggal + shift.
+// Jika ada duplikat di workbook, nilai non-kosong pada baris berikutnya
+// melengkapi record yang sudah ada. Ini mencegah error ON CONFLICT ganda.
+function dedupeAchievementRows(rows) {
+    const map = new Map();
+    let duplicateCount = 0;
+
+    rows.forEach(row => {
+        const key = `${row.tanggal}|${row.shift}`;
+        if (!map.has(key)) {
+            map.set(key, { ...row });
+            return;
+        }
+
+        duplicateCount++;
+        const prev = map.get(key);
+        map.set(key, {
+            tanggal: row.tanggal,
+            shift: row.shift,
+            target_adukan: row.target_adukan !== null ? row.target_adukan : prev.target_adukan,
+            realisasi_adukan: row.realisasi_adukan !== null ? row.realisasi_adukan : prev.realisasi_adukan,
+            target_sfg_oven: row.target_sfg_oven !== null ? row.target_sfg_oven : prev.target_sfg_oven,
+            realisasi_sfg_oven: row.realisasi_sfg_oven !== null ? row.realisasi_sfg_oven : prev.realisasi_sfg_oven,
+        });
+    });
+
+    return { rows: Array.from(map.values()), duplicateCount };
 }
 
 function handleFile(file) {
@@ -536,11 +625,18 @@ function parseWorkbook(arrayBuffer) {
         good.push(row);
     });
 
-    parsedRows = good;
-    renderPreview(good, skipped, notRunCount);
+    const deduped = dedupeAchievementRows(good);
+    parsedRows = deduped.rows;
+
+    const finalNotRunCount = parsedRows.filter(r =>
+        r.target_adukan === null && r.realisasi_adukan === null &&
+        r.target_sfg_oven === null && r.realisasi_sfg_oven === null
+    ).length;
+
+    renderPreview(parsedRows, skipped, finalNotRunCount, deduped.duplicateCount);
 }
 
-function renderPreview(rows, skipped, notRunCount) {
+function renderPreview(rows, skipped, notRunCount, duplicateCount = 0) {
     const area = document.getElementById('preview-area');
 
     if (rows.length === 0) {
@@ -567,6 +663,10 @@ function renderPreview(rows, skipped, notRunCount) {
 
     if (skipped.length > 0) {
         html += `<div class="warn-box"><b>${skipped.length} baris dilewati</b>Baris dengan tanggal/shift tidak valid tidak ikut disubmit (contoh baris Excel: ${skipped.slice(0,5).map(s=>s.line).join(', ')}${skipped.length>5?', ...':''}).</div>`;
+    }
+
+    if (duplicateCount > 0) {
+        html += `<div class="warn-box"><b>${duplicateCount} duplikat tanggal + shift dirapikan otomatis</b>Satu tanggal/shift hanya dikirim satu kali ke database. Nilai non-kosong dari baris duplikat sudah digabung.</div>`;
     }
 
     const cell = v => v === null ? '<span class="empty-cell">–</span>' : v;
@@ -614,13 +714,53 @@ function resetForm() {
     document.getElementById('progress-track').style.display = 'none';
 }
 
-async function submitData() {
+function submitData() {
     if (parsedRows.length === 0) return;
 
-    const confirmed = confirm(
-        `Ini akan MENGHAPUS semua data achievement + downtime extruder yang tersimpan dan menggantinya dengan ${parsedRows.length} baris achievement serta ${parsedDowntimeRows.length} kejadian downtime dari file ini.\n\nLanjutkan?`
-    );
-    if (!confirmed) return;
+    // Defensive dedupe tepat sebelum submit agar satu batch tidak pernah
+    // mengandung key tanggal + shift yang sama.
+    const finalData = dedupeAchievementRows(parsedRows);
+    pendingSubmitRows = finalData.rows;
+    pendingDuplicateCount = finalData.duplicateCount;
+    parsedRows = pendingSubmitRows;
+
+    document.getElementById('confirm-achievement-count').textContent = pendingSubmitRows.length.toLocaleString('id-ID');
+    document.getElementById('confirm-downtime-count').textContent = parsedDowntimeRows.length.toLocaleString('id-ID');
+    const duplicateNote = document.getElementById('confirm-duplicate-note');
+    if (pendingDuplicateCount > 0) {
+        duplicateNote.textContent = `${pendingDuplicateCount} duplikat tanggal + shift sudah dirapikan otomatis sebelum sinkronisasi.`;
+        duplicateNote.classList.add('show');
+    } else {
+        duplicateNote.textContent = '';
+        duplicateNote.classList.remove('show');
+    }
+
+    const modal = document.getElementById('submit-confirm-modal');
+    modal.classList.add('show');
+    modal.setAttribute('aria-hidden','false');
+    document.body.classList.add('modal-open');
+}
+
+function closeSubmitModal() {
+    const modal = document.getElementById('submit-confirm-modal');
+    modal.classList.remove('show');
+    modal.setAttribute('aria-hidden','true');
+    document.body.classList.remove('modal-open');
+}
+
+function handleSubmitModalBackdrop(event) {
+    if (event.target && event.target.id === 'submit-confirm-modal') closeSubmitModal();
+}
+
+document.addEventListener('keydown', event => {
+    const modal = document.getElementById('submit-confirm-modal');
+    if (event.key === 'Escape' && modal && modal.classList.contains('show')) closeSubmitModal();
+});
+
+async function confirmSubmitData() {
+    if (!pendingSubmitRows.length) return;
+    const submitRows = pendingSubmitRows;
+    closeSubmitModal();
 
     const btn = document.getElementById('btn-submit');
     const status = document.getElementById('status-line');
@@ -667,20 +807,20 @@ async function submitData() {
         }
 
         fill.style.width = '20%';
-        status.textContent = `Mengirim data baru (0 / ${parsedRows.length})...`;
+        status.textContent = `Mengirim data baru (0 / ${submitRows.length})...`;
 
         const batchSize = 500;
         let sent = 0;
-        for (let i = 0; i < parsedRows.length; i += batchSize) {
-            const batch = parsedRows.slice(i, i + batchSize);
+        for (let i = 0; i < submitRows.length; i += batchSize) {
+            const batch = submitRows.slice(i, i + batchSize);
             const { error: insError } = await db
                 .from('extruder_daily')
                 .upsert(batch, { onConflict: 'tanggal,shift' });
             if (insError) throw new Error('Gagal menyimpan data baru: ' + insError.message);
             sent += batch.length;
-            const pct = 20 + Math.round((sent / parsedRows.length) * 55);
+            const pct = 20 + Math.round((sent / submitRows.length) * 55);
             fill.style.width = pct + '%';
-            status.textContent = `Mengirim data baru (${sent} / ${parsedRows.length})...`;
+            status.textContent = `Mengirim data baru (${sent} / ${submitRows.length})...`;
         }
 
         fill.style.width = '75%';
@@ -697,7 +837,7 @@ async function submitData() {
         }
         fill.style.width = '100%';
         status.className = 'status-line ok';
-        status.textContent = `✅ Berhasil. ${parsedRows.length} baris achievement dan ${parsedDowntimeRows.length} kejadian downtime tersimpan. Cek di Dashboard Utama.`;
+        status.textContent = `✅ Berhasil. ${submitRows.length} baris achievement dan ${parsedDowntimeRows.length} kejadian downtime tersimpan. Cek di Dashboard Utama.`;
     } catch (err) {
         console.error(err);
         status.className = 'status-line err';
