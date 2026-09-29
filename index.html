@@ -1717,29 +1717,161 @@ body::after {
     .variance-top5-footer{font-size:7px;line-height:1.35;}
 }
 
+
+/* ===== Compact Corporate Sidebar ===== */
+.sidebar{
+    width:264px !important;
+    left:-264px !important;
+    padding:14px 12px 16px !important;
+    background:linear-gradient(180deg,#102a4d 0%,#0f213d 58%,#0d192d 100%) !important;
+    box-shadow:18px 0 46px rgba(8,24,47,.28) !important;
+    overflow-y:auto !important;
+    overscroll-behavior:contain;
+}
+.sidebar[style*="left: 0px"],.sidebar[style*="left:0px"]{left:0 !important;}
+.sidebar::before,.sidebar::after{content:none !important;display:none !important;}
+.sidebar-head{
+    min-height:62px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:7px 44px 10px 7px;
+    margin-bottom:8px;
+    border-bottom:1px solid rgba(255,255,255,.075);
+}
+.sidebar-brand-mark{
+    width:34px;height:34px;flex:0 0 34px;
+    display:grid;place-items:center;
+    border:1px solid rgba(255,255,255,.16);
+    border-radius:10px;
+    background:linear-gradient(145deg,rgba(255,255,255,.14),rgba(255,255,255,.06));
+    color:#fff;
+    font-size:14px;font-weight:900;letter-spacing:-.03em;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.1);
+}
+.sidebar-brand-copy{min-width:0;display:flex;flex-direction:column;gap:2px;}
+.sidebar-brand-copy strong{
+    color:#f8fbff;font-size:11px;font-weight:850;letter-spacing:.10em;white-space:nowrap;
+}
+.sidebar-brand-copy span{
+    color:#7890af;font-size:9px;font-weight:650;letter-spacing:.02em;white-space:nowrap;
+}
+.sidebar-toggle-btn,.sidebar-close{
+    top:20px !important;right:14px !important;
+    width:34px !important;height:34px !important;
+    gap:4px !important;
+    border-radius:10px !important;
+    border:1px solid rgba(255,255,255,.11) !important;
+    background:rgba(255,255,255,.065) !important;
+    box-shadow:none !important;
+}
+.sidebar-toggle-btn:hover,.sidebar-close:hover{
+    background:rgba(255,255,255,.11) !important;
+    border-color:rgba(255,255,255,.18) !important;
+    transform:none !important;
+}
+.sidebar-toggle-btn span,.sidebar-close span{width:16px !important;height:1.5px !important;}
+.sidebar-nav{display:flex;flex-direction:column;gap:2px;}
+.sidebar-section{margin-top:5px;}
+.sidebar-section + .sidebar-section{
+    margin-top:10px;
+    padding-top:9px;
+    border-top:1px solid rgba(255,255,255,.065);
+}
+.sidebar-section-label{
+    display:block;
+    padding:0 10px 5px;
+    color:#617a9b;
+    font-size:8px;
+    font-weight:850;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+}
+.sidebar a{
+    position:relative;
+    min-height:38px !important;
+    margin:1px 0 !important;
+    padding:8px 30px 8px 12px !important;
+    border:1px solid transparent;
+    border-radius:10px !important;
+    color:#c4d1e3 !important;
+    font-size:11.5px !important;
+    font-weight:650 !important;
+    letter-spacing:-.005em;
+    transition:background .16s ease,border-color .16s ease,color .16s ease !important;
+}
+.sidebar a::after{
+    content:'›';
+    position:absolute;right:12px;top:50%;transform:translateY(-52%);
+    color:#6f86a5;font-size:16px;font-weight:400;
+    opacity:0;transition:opacity .16s ease,color .16s ease;
+}
+.sidebar a:hover{
+    background:rgba(255,255,255,.055) !important;
+    border-color:rgba(255,255,255,.055) !important;
+    color:#fff !important;
+    transform:none !important;
+}
+.sidebar a:hover::after{opacity:.8;color:#9eb2cc;}
+.sidebar a.active{
+    background:rgba(255,255,255,.105) !important;
+    border-color:rgba(255,255,255,.10) !important;
+    color:#fff !important;
+    box-shadow:inset 3px 0 0 #4f8df7,0 5px 16px rgba(2,12,27,.12) !important;
+}
+.sidebar a.active::after{opacity:1;color:#89b5ff;}
+.sidebar-footer{
+    display:flex;align-items:center;gap:7px;
+    margin:12px 5px 0;
+    padding:10px 8px 2px;
+    border-top:1px solid rgba(255,255,255,.06);
+    color:#607997;font-size:8.5px;font-weight:700;
+}
+.sidebar-status-dot{width:6px;height:6px;border-radius:50%;background:#35c98a;box-shadow:0 0 0 4px rgba(53,201,138,.08);}
+@media(max-width:640px){
+    .sidebar{width:252px !important;left:-252px !important;padding:12px 10px 14px !important;}
+    .sidebar-head{min-height:58px;padding-left:6px;margin-bottom:6px;}
+    .sidebar-brand-mark{width:32px;height:32px;flex-basis:32px;}
+    .sidebar-toggle-btn,.sidebar-close{top:18px !important;right:12px !important;width:32px !important;height:32px !important;}
+    .sidebar a{min-height:37px !important;font-size:11.5px !important;}
+}
+
 </style>
 <!-- VARIANCE MULTISELECT SEARCH V3 + SELECT VISIBLE RESULTS -->
 </head>
 <body>
 
 <div class="sidebar" id="sidebar">
-    <button type="button" class="sidebar-toggle-btn" onclick="toggleMenu()" aria-label="Tutup sidebar" title="Tutup menu">
-        <span></span><span></span><span></span>
-    </button>
-    <a href="index.html" class="active">Dashboard Utama</a>
-    <a href="#dor-opening">Visi, Misi & Core Values</a>
-    <a href="oee.html">OEE</a>
-    <a href="tonase.html">Tonase</a>
-    <a href="waste.html">Waste</a>
-    <a href="cost-material.html">Cost Material</a>
-    <a href="input-cost-material.html">Input Cost Material</a>
-    <a href="input-variance.html">📊 Input Variance</a>
-    <a href="improvement-monitoring.html">Improvement Monitoring</a>
-    <a href="smartway.html" style="margin-top:20px; border-top:1px solid #374151;">🛠️ Smart Way</a>
-    <a href="baopack.html">📦 Baopack</a>
-    <a href="chingfong.html">⚙️ ChingFong</a>
-    <a href="import-extruder.html">📤 Import Extruder</a>
-    <a href="settings.html">⚙️ Settings</a>
+    <div class="sidebar-head">
+        <div class="sidebar-brand-mark">K</div>
+        <div class="sidebar-brand-copy"><strong>KOBE BOJONEGORO</strong><span>Factory Monitoring</span></div>
+    </div>
+    <button type="button" class="sidebar-toggle-btn" onclick="toggleMenu()" aria-label="Tutup sidebar" title="Tutup menu"><span></span><span></span><span></span></button>
+    <nav class="sidebar-nav" aria-label="Navigasi dashboard">
+        <div class="sidebar-section">
+            <span class="sidebar-section-label">Overview</span>
+            <a href="index.html" class="active">Dashboard Utama</a>
+            <a href="#dor-opening">Visi, Misi &amp; Core Values</a>
+        </div>
+        <div class="sidebar-section">
+            <span class="sidebar-section-label">Performance</span>
+            <a href="oee.html">OEE</a>
+            <a href="tonase.html">Tonase</a>
+            <a href="waste.html">Waste</a>
+            <a href="input-cost-material.html">Cost Material / Ton</a>
+            <a href="input-variance.html">Variance</a>
+        </div>
+        <div class="sidebar-section">
+            <span class="sidebar-section-label">Data &amp; Improvement</span>
+            <a href="improvement-monitoring.html">Improvement Monitoring</a>
+            <a href="smartway.html">Smart Way</a>
+            <a href="baopack.html">Baopack</a>
+            <a href="chingfong.html">ChingFong</a>
+            <a href="import-extruder.html">Extruder</a>
+            <a href="settings.html">Settings</a>
+        </div>
+    </nav>
+    <div class="sidebar-footer"><span class="sidebar-status-dot"></span><span>Manufacturing Dashboard</span></div>
 </div>
  
 <div class="topbar">
