@@ -1,247 +1,251 @@
 
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>Cost Material - Bojonegoro Monitoring</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Input Cost Material - Bojonegoro Monitoring</title>
 <style>
-body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; }
-.topbar {
-    background:#1f2937; color:white; padding:15px;
-    display:flex; align-items:center;
-    position:fixed; top:0; left:0; width:100%; z-index:1000;
-    box-sizing:border-box;
+:root{
+  --primary:#1268e8;--primary-dark:#0b56bd;--accent:#7c3aed;--ink:#172033;--muted:#6b7a90;
+  --line:#e5ebf3;--surface:#fff;--bg:#f5f8fd;--success:#16a34a;--danger:#dc2626;
+  --teal:#0f9f93;--amber:#d97706;--navy:#10284a;--shadow:0 16px 42px rgba(31,63,108,.09);
 }
-.menu-btn { font-size:28px; cursor:pointer; margin-right:15px; }
-.sidebar {
-    height:100%; width:250px; position:fixed;
-    top:0; left:-250px; background:#111827;
-    transition:0.3s; padding-top:60px; z-index:999;
-}
-.sidebar a { display:block; color:white; padding:15px 20px; text-decoration:none; }
-.sidebar a:hover { background:#374151; }
-.sidebar a.active { background:#3b82f6; }
-.main { padding:80px 24px 24px 24px; }
-
-.kpi-grid {
-    display:grid;
-    grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));
-    gap:16px; margin-bottom:20px;
-}
-.card {
-    background:white; border-radius:12px; padding:20px 24px;
-    box-shadow:0 1px 3px rgba(0,0,0,0.08);
-    border-top:4px solid #0d9488;
-}
-.card h3 {
-    margin:0 0 8px; font-size:13px; color:#6b7280; font-weight:600;
-    text-transform:uppercase; letter-spacing:0.05em;
-}
-.value { font-size:36px; font-weight:700; color:#1f2937; line-height:1.1; }
-.value.loading { font-size:20px; color:#9ca3af; }
-.value.good { color:#16a34a; }
-.value.low  { color:#dc2626; }
-.card-date { font-size:11px; color:#9ca3af; margin-top:6px; }
-.target-badge {
-    font-size:10px; color:#6b7280; background:#f3f4f6;
-    border-radius:4px; padding:2px 6px; margin-top:6px; display:inline-block;
-}
-.kpi-unit { font-size:16px; font-weight:400; color:#6b7280; margin-left:2px; }
-
-.sec-title {
-    font-size:13px; font-weight:700; color:#374151;
-    text-transform:uppercase; letter-spacing:0.05em;
-    margin:28px 0 12px;
-    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
-    justify-content:space-between;
-}
-.sec-title .btn-link {
-    font-size:12px; font-weight:700; color:#0d9488; text-decoration:none;
-    background:#f0fdfa; padding:6px 12px; border-radius:7px;
-}
-.sec-title .btn-link:hover { background:#ccfbf1; }
-
-.card-wide {
-    background:white; border-radius:12px; padding:20px 24px;
-    box-shadow:0 1px 3px rgba(0,0,0,0.08);
-    border-top:4px solid #6366f1;
-    margin-bottom:16px;
-}
-
-.cost-table { width:100%; border-collapse:collapse; font-size:12px; margin-top:4px; }
-.cost-table th {
-    background:#f9fafb; color:#6b7280; font-weight:600; font-size:10px;
-    padding:9px 10px; text-align:center; border-bottom:2px solid #e5e7eb;
-    text-transform:uppercase; letter-spacing:0.03em;
-}
-.cost-table th:first-child { text-align:left; }
-.cost-table td { padding:8px 10px; border-bottom:1px solid #f3f4f6; text-align:center; }
-.cost-table td:first-child { text-align:left; font-weight:600; }
-.cost-table tr:last-child td { border-bottom:none; }
-.cost-table td.total-col { font-weight:700; }
-.cost-table td.total-col.good { color:#16a34a; }
-.cost-table td.total-col.low  { color:#dc2626; }
-.cost-table td.share-col { color:#9ca3af; font-size:10px; }
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Arial,sans-serif;color:var(--ink);background:
+radial-gradient(circle at 7% 3%,rgba(18,104,232,.12),transparent 26%),
+radial-gradient(circle at 94% 6%,rgba(124,58,237,.09),transparent 25%),
+linear-gradient(145deg,#eef5ff 0%,#f8fafc 50%,#f5efff 100%);min-height:100vh}
+.topbar{position:fixed;top:0;left:0;right:0;height:72px;z-index:1000;display:flex;align-items:center;gap:14px;padding:0 28px;background:rgba(255,255,255,.88);backdrop-filter:blur(16px);border-bottom:1px solid #e6edf6;box-shadow:0 6px 24px rgba(38,70,113,.05)}
+.topbar h2{margin:0;font-size:18px;letter-spacing:-.02em}.topbar h2 small{display:block;margin-top:3px;color:#90a0b5;font-size:9px;font-weight:700;letter-spacing:.09em;text-transform:uppercase}
+.menu-btn{width:40px;height:40px;display:grid;place-items:center;border:1px solid #dce7f4;border-radius:12px;background:#fff;color:#34516f;font-size:22px;cursor:pointer;box-shadow:0 7px 16px rgba(26,63,114,.06)}
+.sidebar{height:100%;width:292px;position:fixed;top:0;left:-292px;z-index:1100;padding:92px 16px 28px;background:linear-gradient(180deg,#10284a,#111d34 48%,#0f172a);box-shadow:20px 0 54px rgba(11,30,56,.24);transition:left .28s cubic-bezier(.4,0,.2,1);overflow-y:auto}
+.sidebar:before{content:'KOBE · BOJONEGORO';position:absolute;top:28px;left:24px;color:#fff;font-size:12px;font-weight:800;letter-spacing:.14em}.sidebar:after{content:'Manufacturing Dashboard';position:absolute;top:48px;left:24px;color:#7f95b5;font-size:10px;font-weight:650}
+.sidebar a{display:flex;align-items:center;min-height:46px;margin:4px 0;padding:11px 14px;border-radius:13px;color:#cad6e7;text-decoration:none;font-size:13px;font-weight:600}.sidebar a:hover{background:rgba(255,255,255,.08);color:#fff}.sidebar a.active{background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;box-shadow:0 11px 24px rgba(18,104,232,.26)}
+.sidebar-close{position:absolute;top:24px;right:20px;width:42px;height:42px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;border:1px solid rgba(255,255,255,.14);border-radius:12px;background:rgba(255,255,255,.08);cursor:pointer}.sidebar-close span{width:20px;height:2px;border-radius:999px;background:#fff}
+.main{max-width:1180px;margin:0 auto;padding:94px 22px 46px}
+.hero{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:24px;align-items:center;margin-bottom:20px;padding:29px 32px;border-radius:26px;color:#fff;background:linear-gradient(135deg,#0b63dc 0%,#174fb6 54%,#7338d2 100%);box-shadow:0 22px 54px rgba(25,73,157,.21);overflow:hidden;position:relative}
+.hero:after{content:'';position:absolute;width:300px;height:300px;border-radius:50%;right:-120px;top:-160px;border:1px solid rgba(255,255,255,.14);box-shadow:0 0 0 45px rgba(255,255,255,.03),0 0 0 88px rgba(255,255,255,.02)}
+.hero-copy,.hero-note{position:relative;z-index:1}.hero-kicker{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;opacity:.78}.hero h1{margin:8px 0 6px;font-size:31px;letter-spacing:-.03em}.hero p{margin:0;max-width:700px;font-size:12px;line-height:1.6;opacity:.8}.hero-note{padding:16px;border:1px solid rgba(255,255,255,.2);border-radius:17px;background:rgba(255,255,255,.11);font-size:11px;line-height:1.6}.hero-note b{display:block;margin-bottom:4px;color:#fff}
+.card{padding:22px;margin-bottom:18px;border:1px solid rgba(226,233,243,.98);border-radius:22px;background:rgba(255,255,255,.95);box-shadow:var(--shadow)}
+.section-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:14px}.section-head h3{margin:0;color:#38495f;font-size:12px;font-weight:850;letter-spacing:.07em;text-transform:uppercase}.section-head p{margin:5px 0 0;color:#8b99ac;font-size:10px;line-height:1.5}.step-pill{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid #d9e4f4;border-radius:999px;background:#f8fbff;color:#60728a;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.05em}.step-pill:before{content:'';width:7px;height:7px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--accent));box-shadow:0 0 0 4px rgba(18,104,232,.09)}
+.upload-box{padding:24px;border:1.5px dashed #c6d8ef;border-radius:18px;text-align:center;background:linear-gradient(180deg,#fbfdff,#f5f8fd)}
+.upload-icon{width:52px;height:52px;display:grid;place-items:center;margin:0 auto 10px;border-radius:17px;background:linear-gradient(135deg,rgba(18,104,232,.1),rgba(124,58,237,.13));font-size:25px}.upload-title{font-size:13px;font-weight:800;color:#42536b}.upload-hint{margin-top:6px;color:#8492a5;font-size:10px;line-height:1.55}.upload-box input{margin-top:14px;font-size:12px;max-width:100%}.file-info{display:none;align-items:center;gap:10px;margin-top:13px;padding:11px 13px;border:1px solid #dce7f4;border-radius:13px;background:#f8fbff;color:#4f6077;font-size:10px;font-weight:750;word-break:break-word}.file-info.show{display:flex}.file-info:before{content:'📄';width:27px;height:27px;display:grid;place-items:center;border-radius:9px;background:#eef4ff;flex:0 0 auto}
+.actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px}.btn{min-height:42px;padding:10px 15px;border-radius:12px;border:0;cursor:pointer;font-size:11px;font-weight:800;transition:.18s ease}.btn:hover:not(:disabled){transform:translateY(-1px)}.btn:disabled{opacity:.5;cursor:not-allowed}.btn-read{background:#eef4ff;color:#185ab8;border:1px solid #d4e3fa}.btn-save{background:linear-gradient(135deg,#0f766e,#14b8a6);color:#fff;box-shadow:0 9px 20px rgba(15,118,110,.18)}.btn-outline{background:#fff;color:#53647a;border:1px solid #dce4ef}
+.notice{display:none;margin-top:13px;padding:12px 14px;border:1px solid #f0d38f;border-left:4px solid #dda91e;border-radius:13px;background:linear-gradient(180deg,#fffdf6,#fff8e5);color:#80560d;font-size:10px;line-height:1.6}.notice.show{display:block}.notice b{color:#704909}
+.status{display:none;margin-top:12px;padding:11px 13px;border-radius:11px;font-size:10px;line-height:1.55}.status.ok{display:block;background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0}.status.err{display:block;background:#fef2f2;color:#b91c1c;border:1px solid #fecaca}.status.info{display:block;background:#eff6ff;color:#1d5da8;border:1px solid #bfdbfe}
+.preview-top{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:end}.field label{display:block;margin:0 0 5px;color:#7d899b;font-size:8px;font-weight:850;letter-spacing:.06em;text-transform:uppercase}.field select{width:100%;height:40px;padding:0 11px;border:1px solid #dfe6ef;border-radius:11px;background:#fff;color:#334155;font-size:11px;font-weight:700}.preview-count{min-height:40px;display:flex;align-items:center;justify-content:center;padding:8px 12px;border:1px solid #bbf7d0;border-radius:11px;background:#f0fdf4;color:#15803d;font-size:10px;font-weight:800;white-space:nowrap}
+.kpi-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}.metric{padding:13px;border:1px solid #e9eef5;border-radius:14px;background:#fbfcff}.metric span{display:block;color:#8a98ab;font-size:8px;font-weight:850;text-transform:uppercase;letter-spacing:.05em}.metric b{display:block;margin-top:5px;color:#172033;font-size:20px}.metric b.good{color:var(--success)}.metric b.low{color:var(--danger)}
+.tbl-wrap{overflow:auto;margin-top:14px;border:1px solid #e7ecf3;border-radius:14px;background:#fff}.tbl{width:100%;border-collapse:collapse;font-size:10px;min-width:650px}.tbl th{padding:9px 10px;background:#f7f9fc;color:#718096;font-size:8px;text-transform:uppercase;letter-spacing:.04em;text-align:right;white-space:nowrap}.tbl th:first-child,.tbl td:first-child{text-align:left}.tbl td{padding:9px 10px;border-top:1px solid #f0f3f7;text-align:right;color:#506078}.tbl td strong{color:#334155}.tbl td.good{color:var(--success);font-weight:800}.tbl td.low{color:var(--danger);font-weight:800}
+.sync-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:13px}.sync-box{padding:11px 12px;border:1px solid #e8edf4;border-radius:13px;background:#f8fafc}.sync-box span{display:block;color:#8a98ab;font-size:8px;font-weight:850;text-transform:uppercase}.sync-box b{display:block;margin-top:4px;color:#172033;font-size:14px}.helper{margin-top:9px;color:#8d99aa;font-size:9px;line-height:1.5}
+.history-summary{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;padding:10px 12px;border:1px solid #dbeafe;border-radius:12px;background:#f8fbff;color:#48627f;font-size:10px}.history-summary b{color:#1559a7}.history-scroll{max-height:410px;overflow:auto;border:1px solid #eef2f6;border-radius:12px}.history-table{width:100%;border-collapse:collapse;font-size:10px;min-width:650px}.history-table th,.history-table td{padding:9px 10px;border-bottom:1px solid #eef2f6;text-align:right}.history-table th:first-child,.history-table td:first-child{text-align:left}.history-table th{position:sticky;top:0;background:#f8fafc;color:#7c899b;font-size:8px;text-transform:uppercase}.history-empty{text-align:center!important;color:#9ca3af;padding:18px!important}
+.modal{position:fixed;inset:0;z-index:3000;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(15,23,42,.56);backdrop-filter:blur(7px)}.modal.open{display:flex}.dialog{width:min(520px,100%);overflow:hidden;border-radius:23px;background:#fff;box-shadow:0 30px 80px rgba(15,23,42,.3)}.dialog-head{padding:20px 22px 17px;color:#fff;background:linear-gradient(135deg,#1268e8,#583ac8 62%,#7c3aed)}.dialog-head h3{margin:0;font-size:19px}.dialog-head p{margin:5px 0 0;color:rgba(255,255,255,.78);font-size:10px;line-height:1.5}.dialog-body{padding:20px 22px}.confirm-warning{padding:11px 12px;border:1px solid #fde68a;border-radius:12px;background:#fffbeb;color:#81580f;font-size:10px;line-height:1.55}.confirm-check{display:flex;align-items:flex-start;gap:8px;margin-top:12px;color:#526277;font-size:10px;line-height:1.45}.confirm-check input{margin-top:2px}.dialog-actions{display:grid;grid-template-columns:1fr 1.25fr;gap:9px;margin-top:15px}
+@media(max-width:760px){.topbar{height:64px;padding:0 14px}.topbar h2{font-size:16px}.topbar h2 small{font-size:8px}.menu-btn{width:36px;height:36px}.main{padding:82px 12px 30px}.hero{grid-template-columns:1fr;padding:22px 20px;border-radius:22px}.hero h1{font-size:27px}.hero-note{width:100%}.card{padding:16px;border-radius:18px}.section-head{flex-direction:column}.step-pill{align-self:flex-start}.preview-top{grid-template-columns:1fr}.preview-count{white-space:normal}.kpi-grid,.sync-summary{grid-template-columns:1fr}.actions{flex-direction:column;align-items:stretch}.btn{width:100%}.dialog-actions{grid-template-columns:1fr}.sidebar{width:270px;left:-270px}}
 </style>
 </head>
 <body>
-
 <div class="sidebar" id="sidebar">
-    <a href="index.html">Dashboard Utama</a>
-    <a href="oee.html">OEE</a>
-    <a href="tonase.html">Tonase</a>
-    <a href="waste.html">Waste</a>
-    <a href="cost-material.html" class="active">Cost Material</a>
-    <a href="improvement-monitoring.html">Improvement Monitoring</a>
-    <a href="smartway.html" style="margin-top:20px; border-top:1px solid #374151;">🛠️ Smart Way</a>
-    <a href="baopack.html">📦 Baopack</a>
-    <a href="chingfong.html">⚙️ ChingFong</a>
-    <a href="import-extruder.html">📤 Import Extruder</a>
-    <a href="settings.html">⚙️ Settings</a>
+  <button class="sidebar-close" type="button" onclick="toggleMenu()" aria-label="Tutup menu"><span></span><span></span><span></span></button>
+  <a href="index.html">Dashboard Utama</a>
+  <a href="index.html#dor-opening">Visi, Misi & Core Values</a>
+  <a href="oee.html">OEE</a>
+  <a href="tonase.html">Tonase</a>
+  <a href="waste.html">Waste</a>
+  <a href="cost-material.html">Cost Material</a>
+  <a href="input-cost-material.html" class="active">Input Cost Material</a>
+  <a href="input-variance.html">📊 Input Variance</a>
+  <a href="improvement-monitoring.html">Improvement Monitoring</a>
+  <a href="smartway.html" style="margin-top:18px;border-top:1px solid rgba(255,255,255,.12)">🛠️ Smart Way</a>
+  <a href="baopack.html">📦 Baopack</a>
+  <a href="chingfong.html">⚙️ ChingFong</a>
+  <a href="import-extruder.html">📤 Import Extruder</a>
+  <a href="settings.html">⚙️ Settings</a>
 </div>
-
-<div class="topbar">
-    <span class="menu-btn" onclick="toggleMenu()">☰</span>
-    <h2 style="margin:0;">💰 Cost Material</h2>
-</div>
-
+<div class="topbar"><span class="menu-btn" onclick="toggleMenu()">☰</span><h2>Input Cost Material<small>Weekly Excel · Factory Bojonegoro</small></h2></div>
 <div class="main">
+  <section class="hero">
+    <div class="hero-copy">
+      <div class="hero-kicker">Material Cost Control</div>
+      <h1>Import Cost Material</h1>
+      <p>Sinkronkan data Cost Material mingguan dari workbook terbaru. Sistem membaca seluruh periode sekaligus dan mengganti database Cost Material dengan isi workbook terbaru.</p>
+    </div>
+    <div class="hero-note"><b>Struktur workbook yang dibaca</b>Tonase dari <strong>Simulasi Ratio COGM</strong>, nilai Packaging / Raw Material / SFG dari <strong>Resume Price</strong>, dan tahun dari <strong>Scheduled start</strong> pada sheet <strong>Data</strong>.</div>
+  </section>
 
+  <section class="card">
+    <div class="section-head"><div><h3>Upload Workbook Cost Material</h3><p>Tidak membutuhkan sheet Order Type. Cukup gunakan workbook Cost Material dengan struktur yang sama seperti file operasional saat ini.</p></div><div class="step-pill">1 · Baca Workbook</div></div>
+    <div class="upload-box">
+      <div class="upload-icon">📊</div>
+      <div class="upload-title">Pilih workbook Cost Material terbaru</div>
+      <div class="upload-hint">File akan dibaca langsung di browser. Formula tidak dihitung ulang; sistem menggunakan nilai mingguan yang sudah tersedia pada Resume Price.</div>
+      <input type="file" id="file-excel" accept=".xlsx,.xls">
+    </div>
+    <div class="file-info" id="file-info"></div>
+    <div class="actions"><button class="btn btn-read" id="btn-parse">Baca Semua Data</button></div>
+    <div class="status" id="parse-status"></div>
+  </section>
+
+  <section class="card" id="preview-card" style="display:none">
+    <div class="section-head"><div><h3>Preview Cost Material</h3><p>Pilih week hanya untuk preview. Tombol sinkronisasi akan menyimpan seluruh week dari workbook.</p></div><div class="step-pill">2 · Preview & Sinkronkan</div></div>
+    <div class="preview-top">
+      <div class="field"><label>Week untuk preview</label><select id="week-select"></select></div>
+      <div class="preview-count" id="week-count">—</div>
+    </div>
     <div class="kpi-grid">
-        <div class="card">
-            <h3>Total Cost / Ton (Minggu Terakhir)</h3>
-            <div class="value loading" id="val-cost-total">...</div>
-            <div class="card-date" id="date-cost"></div>
-            <span class="target-badge" id="cost-target-badge">Target: ≤ Rp 28.000/ton</span>
-        </div>
-        <div class="card">
-            <h3>📦 Tonase Minggu Terakhir</h3>
-            <div class="value loading" id="val-cost-tonase">...</div>
-            <div class="card-date" id="date-cost-tonase"></div>
-        </div>
-        <div class="card">
-            <h3>Total Cost (Rp) Minggu Terakhir</h3>
-            <div class="value loading" id="val-cost-rupiah">...</div>
-            <div class="card-date" id="date-cost-rupiah"></div>
-        </div>
+      <div class="metric"><span>Total Cost / Ton</span><b id="kpi-cost-ton">—</b></div>
+      <div class="metric"><span>Tonase</span><b id="kpi-tonase">—</b></div>
+      <div class="metric"><span>Total Material Cost</span><b id="kpi-total-cost">—</b></div>
     </div>
+    <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Material Group</th><th>Total Cost</th><th>Cost / Ton</th><th>Share</th></tr></thead><tbody id="preview-body"></tbody></table></div>
+    <div class="sync-summary">
+      <div class="sync-box"><span>Periode</span><b id="summary-weeks">—</b></div>
+      <div class="sync-box"><span>Tahun</span><b id="summary-year">—</b></div>
+      <div class="sync-box"><span>Target</span><b id="summary-target">—</b></div>
+    </div>
+    <div class="notice show"><b>Full Replace Database</b> Saat disimpan, seluruh data lama pada <code>cost_material_weekly</code> akan dihapus dan digantikan dengan semua week dari workbook yang sedang dibaca.</div>
+    <button class="btn btn-save" id="btn-save" style="width:100%;margin-top:14px">Sinkronkan Semua Week ke Database</button>
+    <div class="status" id="save-status"></div>
+  </section>
 
-    <div class="sec-title">
-        Riwayat Cost Material per Week <span id="title-cost-week" style="color:#9ca3af; font-weight:400; text-transform:none;"></span>
-        <a href="input-cost-material.html" class="btn-link">+ Input / Upload Data</a>
-    </div>
-    <div class="card-wide">
-        <table class="cost-table">
-            <thead>
-                <tr>
-                    <th>Week</th>
-                    <th>Tonase (ton)</th>
-                    <th>Packaging (Rp/ton)</th>
-                    <th>Raw Material (Rp/ton)</th>
-                    <th>SFG (Rp/ton)</th>
-                    <th>Total Cost/Ton</th>
-                    <th>Target</th>
-                    <th>Selisih</th>
-                </tr>
-            </thead>
-            <tbody id="tbl-cost-body">
-                <tr><td colspan="8" style="text-align:center; color:#9ca3af; padding:20px;">Memuat data...</td></tr>
-            </tbody>
-        </table>
-    </div>
-
+  <section class="card">
+    <div class="section-head"><div><h3>Riwayat Cost Material Weekly</h3><p>Data yang saat ini terbaca di database.</p></div></div>
+    <div class="history-summary" id="history-summary"><span>Memuat riwayat...</span><b>—</b></div>
+    <div class="history-scroll"><table class="history-table"><thead><tr><th>Week</th><th>Tonase</th><th>Total Cost/Ton</th><th>Target</th></tr></thead><tbody id="history-body"><tr><td colspan="4" class="history-empty">Memuat data...</td></tr></tbody></table></div>
+  </section>
 </div>
 
+<div class="modal" id="sync-modal" aria-hidden="true">
+  <div class="dialog">
+    <div class="dialog-head"><h3>Konfirmasi Sinkronisasi Cost Material</h3><p>Pastikan workbook yang dipilih adalah versi terbaru dan memuat seluruh week yang ingin dipertahankan.</p></div>
+    <div class="dialog-body">
+      <div class="sync-summary" style="margin-top:0">
+        <div class="sync-box"><span>Week</span><b id="modal-weeks">—</b></div>
+        <div class="sync-box"><span>Rentang</span><b id="modal-range">—</b></div>
+        <div class="sync-box"><span>Tahun</span><b id="modal-year">—</b></div>
+      </div>
+      <div class="confirm-warning">Data lama akan dihapus terlebih dahulu lalu diganti dengan seluruh data Cost Material dari workbook terbaru.</div>
+      <label class="confirm-check"><input type="checkbox" id="sync-ack"> <span>Saya sudah memastikan workbook terbaru berisi seluruh data Cost Material yang ingin dipertahankan.</span></label>
+      <div class="dialog-actions"><button class="btn btn-outline" id="sync-cancel">Batal</button><button class="btn btn-save" id="sync-confirm" disabled>Ya, Sinkronkan Semua Data</button></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const SUPABASE_URL = 'https://bmnhtxalfsfaefacgtpm.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_VItBKenz-q2sYz7MsibODA_nYtLXv9Q';
-const { createClient } = supabase;
-const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+const SUPABASE_URL='https://bmnhtxalfsfaefacgtpm.supabase.co';
+const SUPABASE_KEY='sb_publishable_VItBKenz-q2sYz7MsibODA_nYtLXv9Q';
+const {createClient}=supabase;
+const db=createClient(SUPABASE_URL,SUPABASE_KEY);
+let parsedRows=[];
+let sourceFile='';
+let detectedYear=null;
+let detectedTarget=30000;
 
-function toggleMenu() {
-    const s = document.getElementById('sidebar');
-    s.style.left = s.style.left === '0px' ? '-250px' : '0px';
+function toggleMenu(){const s=document.getElementById('sidebar');s.style.left=s.style.left==='0px'?`-${s.offsetWidth}px`:'0px'}
+function num(v){const n=Number(v);return Number.isFinite(n)?n:0}
+function fmtRp(v){return 'Rp '+Math.round(num(v)).toLocaleString('id-ID')}
+function fmtTon(v){return num(v).toLocaleString('id-ID',{minimumFractionDigits:0,maximumFractionDigits:2})+' ton'}
+function setStatus(id,type,msg){const el=document.getElementById(id);el.className='status '+type;el.textContent=msg}
+function getSheet(wb,name){return wb.Sheets[name]||wb.Sheets[wb.SheetNames.find(n=>n.trim().toLowerCase()===name.toLowerCase())]}
+function sheetRows(ws){return XLSX.utils.sheet_to_json(ws,{header:1,raw:true,defval:null})}
+function detectWorkbookYear(wb){
+  const ws=getSheet(wb,'Data'); if(!ws) return new Date().getFullYear();
+  const rows=sheetRows(ws); if(!rows.length) return new Date().getFullYear();
+  const headers=(rows[0]||[]).map(v=>String(v??'').trim().toLowerCase());
+  const idx=headers.indexOf('scheduled start');
+  if(idx<0) return new Date().getFullYear();
+  const counts={};
+  for(let r=1;r<rows.length;r++){
+    const v=rows[r][idx]; let y=null;
+    if(v instanceof Date && !isNaN(v)) y=v.getFullYear();
+    else if(typeof v==='number') { const d=XLSX.SSF.parse_date_code(v); if(d) y=d.y; }
+    else if(typeof v==='string'){ const d=new Date(v); if(!isNaN(d)) y=d.getFullYear(); }
+    if(y && y>=2000 && y<=2100) counts[y]=(counts[y]||0)+1;
+  }
+  const years=Object.keys(counts).map(Number).sort((a,b)=>counts[b]-counts[a]);
+  return years[0]||new Date().getFullYear();
 }
-
-function fmtRupiah(v) {
-    if (v === null || v === undefined || isNaN(v)) return '—';
-    return 'Rp ' + Math.round(v).toLocaleString('id-ID');
+function parseResumePrice(wb){
+  const ws=getSheet(wb,'Resume Price');
+  if(!ws) throw new Error('Sheet "Resume Price" tidak ditemukan.');
+  const rows=sheetRows(ws); const maps={packaging:{},raw:{},sfg:{}};
+  const configs=[{weekCol:0,valueCol:2,key:'packaging'},{weekCol:5,valueCol:7,key:'raw'},{weekCol:10,valueCol:12,key:'sfg'}];
+  for(let r=3;r<rows.length;r++){
+    configs.forEach(c=>{const w=Number(rows[r]?.[c.weekCol]);const v=Number(rows[r]?.[c.valueCol]);if(Number.isFinite(w)&&w>0&&Number.isFinite(v))maps[c.key][Math.trunc(w)]=v});
+  }
+  return maps;
 }
-
-async function loadCostMaterial() {
-    const { data: rows } = await db
-        .from('cost_material_weekly')
-        .select('*')
-        .order('tahun', { ascending: false })
-        .order('minggu_ke', { ascending: false })
-        .limit(26); // ~6 bulan terakhir
-
-    const tbody     = document.getElementById('tbl-cost-body');
-    const titleWeek = document.getElementById('title-cost-week');
-
-    if (!rows || rows.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:#9ca3af; padding:20px;">Belum ada data cost material. <a href="input-cost-material.html">Input data di sini</a>.</td></tr>';
-        titleWeek.textContent = '';
-        ['val-cost-total','val-cost-tonase','val-cost-rupiah'].forEach(id => {
-            document.getElementById(id).textContent = '—';
-            document.getElementById(id).className = 'value';
-        });
-        return;
-    }
-
-    // ── Kartu ringkasan (minggu terbaru) ──
-    const latest = rows[0];
-    const latestTotalValue = (latest.packaging_value || 0) + (latest.raw_material_value || 0) + (latest.sfg_value || 0);
-    const latestTotalRatio = latest.tonase ? latestTotalValue / latest.tonase : 0;
-    const target = latest.target_cost_per_ton || 28000;
-
-    const totalEl = document.getElementById('val-cost-total');
-    totalEl.innerHTML = Math.round(latestTotalRatio).toLocaleString('id-ID') + '<span class="kpi-unit"> /ton</span>';
-    totalEl.className = 'value ' + (latestTotalRatio <= target ? 'good' : 'low');
-    document.getElementById('date-cost').textContent = `Week ${latest.minggu_ke} - ${latest.tahun}`;
-    document.getElementById('cost-target-badge').textContent = `Target: ≤ Rp ${Math.round(target).toLocaleString('id-ID')}/ton`;
-
-    const tonEl = document.getElementById('val-cost-tonase');
-    tonEl.innerHTML = (latest.tonase || 0).toLocaleString('id-ID') + '<span class="kpi-unit"> ton</span>';
-    tonEl.className = 'value';
-    document.getElementById('date-cost-tonase').textContent = `Week ${latest.minggu_ke} - ${latest.tahun}`;
-
-    const rupEl = document.getElementById('val-cost-rupiah');
-    rupEl.textContent = fmtRupiah(latestTotalValue);
-    rupEl.className = 'value';
-    document.getElementById('date-cost-rupiah').textContent = `Week ${latest.minggu_ke} - ${latest.tahun}`;
-
-    titleWeek.textContent = `— Week ${rows[rows.length - 1].minggu_ke}/${rows[rows.length - 1].tahun} s.d. Week ${latest.minggu_ke}/${latest.tahun}`;
-
-    // ── Tabel riwayat, urut dari minggu terbaru ke terlama ──
-    tbody.innerHTML = '';
-    rows.forEach(r => {
-        const pkgRatio = r.tonase ? (r.packaging_value || 0) / r.tonase : 0;
-        const rawRatio = r.tonase ? (r.raw_material_value || 0) / r.tonase : 0;
-        const sfgRatio = r.tonase ? (r.sfg_value || 0) / r.tonase : 0;
-        const totalValue = (r.packaging_value || 0) + (r.raw_material_value || 0) + (r.sfg_value || 0);
-        const totalRatio = r.tonase ? totalValue / r.tonase : 0;
-        const rTarget = r.target_cost_per_ton || 28000;
-        const isOver = totalRatio > rTarget;
-        const selisih = totalRatio - rTarget;
-
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>Week ${r.minggu_ke} / ${r.tahun}</td>
-            <td>${(r.tonase || 0).toLocaleString('id-ID')}</td>
-            <td>${fmtRupiah(pkgRatio)}</td>
-            <td>${fmtRupiah(rawRatio)}</td>
-            <td>${fmtRupiah(sfgRatio)}</td>
-            <td class="total-col ${isOver ? 'low' : 'good'}">${fmtRupiah(totalRatio)}</td>
-            <td style="color:#6b7280; font-size:11px;">${fmtRupiah(rTarget)}</td>
-            <td class="share-col" style="color:${isOver ? '#dc2626' : '#16a34a'};">${isOver ? '+' : ''}${fmtRupiah(selisih)}</td>
-        `;
-        tbody.appendChild(tr);
-    });
+function parseTonaseAndTarget(wb){
+  const ws=getSheet(wb,'Simulasi Ratio COGM');
+  if(!ws) throw new Error('Sheet "Simulasi Ratio COGM" tidak ditemukan.');
+  const rows=sheetRows(ws); const tonase={}; let target=30000;
+  const headerRow=rows[1]||[], tonRow=rows[2]||[];
+  headerRow.forEach((h,c)=>{const m=String(h??'').match(/week\s*(\d+)/i);if(m){const t=Number(tonRow[c]);if(Number.isFinite(t)&&t>0)tonase[Number(m[1])]=t}});
+  for(const row of rows){
+    const hasTarget=row.some(v=>String(v??'').trim().toLowerCase()==='target cost / ton');
+    if(hasTarget){const n=row.find(v=>typeof v==='number'&&Number.isFinite(v)&&v>=10000&&v<=100000);if(n){target=n;break}}
+  }
+  return {tonase,target};
 }
-
-loadCostMaterial();
+function parseWorkbook(wb){
+  const required=['Resume Price','Simulasi Ratio COGM','Data'];
+  const missing=required.filter(n=>!getSheet(wb,n));
+  if(missing.length) throw new Error('Sheet wajib tidak ditemukan: '+missing.join(', ')+'.');
+  detectedYear=detectWorkbookYear(wb);
+  const cost=parseResumePrice(wb); const tt=parseTonaseAndTarget(wb); detectedTarget=tt.target||30000;
+  const weeks=Object.keys(tt.tonase).map(Number).filter(w=>cost.packaging[w]!=null&&cost.raw[w]!=null&&cost.sfg[w]!=null).sort((a,b)=>a-b);
+  if(!weeks.length) throw new Error('Tidak ada week yang lengkap antara Simulasi Ratio COGM dan Resume Price.');
+  parsedRows=weeks.map(w=>({tahun:detectedYear,minggu_ke:w,tonase:num(tt.tonase[w]),packaging_value:num(cost.packaging[w]),raw_material_value:num(cost.raw[w]),sfg_value:num(cost.sfg[w]),target_cost_per_ton:num(detectedTarget)}));
+  return parsedRows;
+}
+function rowMetric(r){const total=num(r.packaging_value)+num(r.raw_material_value)+num(r.sfg_value);const ton=num(r.tonase);return{total,costTon:ton?total/ton:0,pkgTon:ton?num(r.packaging_value)/ton:0,rawTon:ton?num(r.raw_material_value)/ton:0,sfgTon:ton?num(r.sfg_value)/ton:0}}
+function renderPreview(){
+  const week=Number(document.getElementById('week-select').value);const r=parsedRows.find(x=>x.minggu_ke===week);if(!r)return;const m=rowMetric(r);const target=num(r.target_cost_per_ton)||30000;
+  const costEl=document.getElementById('kpi-cost-ton');costEl.textContent=fmtRp(m.costTon)+'/ton';costEl.className=m.costTon<=target?'good':'low';
+  document.getElementById('kpi-tonase').textContent=fmtTon(r.tonase);document.getElementById('kpi-total-cost').textContent=fmtRp(m.total);
+  const groups=[['Packaging Material',r.packaging_value,m.pkgTon],['Raw Material',r.raw_material_value,m.rawTon],['SFG',r.sfg_value,m.sfgTon]];
+  document.getElementById('preview-body').innerHTML=groups.map(g=>`<tr><td><strong>${g[0]}</strong></td><td>${fmtRp(g[1])}</td><td>${fmtRp(g[2])}</td><td>${m.total?((g[1]/m.total)*100).toFixed(1):'0.0'}%</td></tr>`).join('');
+}
+function renderParsedState(){
+  const sel=document.getElementById('week-select');const desc=[...parsedRows].sort((a,b)=>b.minggu_ke-a.minggu_ke);sel.innerHTML=desc.map(r=>`<option value="${r.minggu_ke}">Week ${r.minggu_ke} / ${r.tahun}</option>`).join('');sel.value=desc[0].minggu_ke;
+  document.getElementById('week-count').textContent=`${parsedRows.length} week akan disimpan`;
+  document.getElementById('summary-weeks').textContent=`Week ${parsedRows[0].minggu_ke}–${parsedRows[parsedRows.length-1].minggu_ke}`;
+  document.getElementById('summary-year').textContent=detectedYear;
+  document.getElementById('summary-target').textContent=fmtRp(detectedTarget)+'/ton';
+  document.getElementById('preview-card').style.display='block';renderPreview();
+}
+document.getElementById('file-excel').addEventListener('change',()=>{const f=document.getElementById('file-excel').files[0];const info=document.getElementById('file-info');if(f){info.textContent=f.name;info.classList.add('show')}else{info.textContent='';info.classList.remove('show')}parsedRows=[];document.getElementById('preview-card').style.display='none';document.getElementById('parse-status').className='status'});
+document.getElementById('btn-parse').addEventListener('click',async()=>{
+  const f=document.getElementById('file-excel').files[0];if(!f){alert('Pilih workbook Cost Material terlebih dahulu.');return}
+  try{setStatus('parse-status','info','Membaca workbook Cost Material...');const wb=XLSX.read(await f.arrayBuffer(),{type:'array',cellDates:true});sourceFile=f.name;parseWorkbook(wb);renderParsedState();setStatus('parse-status','ok',`Berhasil membaca ${parsedRows.length} week (Week ${parsedRows[0].minggu_ke}–${parsedRows[parsedRows.length-1].minggu_ke}) tahun ${detectedYear}. Tidak ada sheet Order Type yang diperlukan.`)}
+  catch(e){parsedRows=[];document.getElementById('preview-card').style.display='none';setStatus('parse-status','err','Gagal membaca file: '+e.message)}
+});
+document.getElementById('week-select').addEventListener('change',renderPreview);
+document.getElementById('btn-save').addEventListener('click',()=>{if(!parsedRows.length)return;const first=parsedRows[0],last=parsedRows[parsedRows.length-1];document.getElementById('modal-weeks').textContent=parsedRows.length+' week';document.getElementById('modal-range').textContent=`W${first.minggu_ke}–W${last.minggu_ke}`;document.getElementById('modal-year').textContent=detectedYear;document.getElementById('sync-ack').checked=false;document.getElementById('sync-confirm').disabled=true;document.getElementById('sync-modal').classList.add('open')});
+document.getElementById('sync-cancel').addEventListener('click',()=>document.getElementById('sync-modal').classList.remove('open'));
+document.getElementById('sync-ack').addEventListener('change',e=>document.getElementById('sync-confirm').disabled=!e.target.checked);
+document.getElementById('sync-modal').addEventListener('click',e=>{if(e.target.id==='sync-modal')e.target.classList.remove('open')});
+document.getElementById('sync-confirm').addEventListener('click',async()=>{document.getElementById('sync-modal').classList.remove('open');await fullReplaceCostMaterial()});
+async function fullReplaceCostMaterial(){
+  const btn=document.getElementById('btn-save');btn.disabled=true;btn.textContent='Menyinkronkan...';setStatus('save-status','info','Menghapus data lama dan menyimpan seluruh week dari workbook terbaru...');
+  try{
+    const clear=await db.from('cost_material_weekly').delete().gte('tahun',2000);if(clear.error)throw clear.error;
+    const payload=parsedRows.map(r=>({tahun:r.tahun,minggu_ke:r.minggu_ke,tonase:r.tonase,packaging_value:r.packaging_value,raw_material_value:r.raw_material_value,sfg_value:r.sfg_value,target_cost_per_ton:r.target_cost_per_ton}));
+    const ins=await db.from('cost_material_weekly').insert(payload);if(ins.error)throw ins.error;
+    const check=await db.from('cost_material_weekly').select('tahun,minggu_ke,tonase,packaging_value,raw_material_value,sfg_value,target_cost_per_ton').eq('tahun',detectedYear).order('minggu_ke',{ascending:true});if(check.error)throw check.error;
+    const actual=check.data||[];if(actual.length!==payload.length)throw new Error(`Verifikasi database tidak cocok: ${actual.length}/${payload.length} week tersimpan.`);
+    setStatus('save-status','ok',`Sinkronisasi selesai. ${actual.length} week dari ${sourceFile} berhasil menggantikan database Cost Material lama.`);await loadHistory();
+  }catch(e){setStatus('save-status','err','Sinkronisasi gagal: '+e.message+'. Jika data lama sudah terhapus, jalankan sinkronisasi ulang menggunakan workbook yang sama.')}
+  finally{btn.disabled=false;btn.textContent='Sinkronkan Semua Week ke Database'}
+}
+async function loadHistory(){
+  const body=document.getElementById('history-body'),sum=document.getElementById('history-summary');
+  try{const {data,error}=await db.from('cost_material_weekly').select('*').order('tahun',{ascending:false}).order('minggu_ke',{ascending:false});if(error)throw error;const rows=data||[];sum.innerHTML=rows.length?`<span>Database Cost Material aktif.</span><b>${rows.length} week</b>`:'<span>Belum ada data Cost Material.</span><b>0 week</b>';body.innerHTML=rows.length?rows.map(r=>{const m=rowMetric(r),target=num(r.target_cost_per_ton)||30000;return`<tr><td>Week ${r.minggu_ke} / ${r.tahun}</td><td>${fmtTon(r.tonase)}</td><td class="${m.costTon<=target?'good':'low'}">${fmtRp(m.costTon)}/ton</td><td>${fmtRp(target)}/ton</td></tr>`}).join(''):'<tr><td colspan="4" class="history-empty">Belum ada data</td></tr>'}
+  catch(e){sum.innerHTML='<span>Riwayat tidak dapat dimuat.</span><b>Error</b>';body.innerHTML=`<tr><td colspan="4" class="history-empty">${e.message}</td></tr>`}
+}
+loadHistory();
 </script>
 </body>
 </html>
