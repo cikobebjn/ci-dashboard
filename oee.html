@@ -3,6 +3,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -555,22 +556,24 @@ body{
 
 /* ===== Compact Corporate Sidebar ===== */
 .sidebar{
-    width:260px !important;
-    left:-260px !important;
-    padding:12px 12px 16px !important;
-    background:linear-gradient(180deg,#10284a 0%,#111d34 48%,#0f172a 100%) !important;
-    box-shadow:20px 0 54px rgba(11,30,56,.24) !important;
-    transition:left .28s cubic-bezier(.4,0,.2,1) !important;
+    width:264px !important;
+    left:-264px !important;
+    padding:14px 12px 16px !important;
+    background:linear-gradient(180deg,#102a4d 0%,#0f213d 58%,#0d192d 100%) !important;
+    box-shadow:18px 0 46px rgba(8,24,47,.28) !important;
+    overflow-y:auto !important;
+    overscroll-behavior:contain;
 }
-.sidebar::before,.sidebar::after{content:none !important;}
-.sidebar.open{left:0 !important;}
+.sidebar[style*="left: 0px"],.sidebar[style*="left:0px"],.sidebar.open{left:0 !important;}
+.sidebar::before,.sidebar::after{content:none !important;display:none !important;}
 .sidebar-head{
-    min-height:64px;
+    min-height:62px;
     display:flex;
     align-items:center;
-    gap:9px;
-    padding:5px 48px 7px 5px;
-    margin-bottom:5px;
+    gap:10px;
+    padding:7px 44px 10px 7px;
+    margin-bottom:8px;
+    border-bottom:1px solid rgba(255,255,255,.075);
 }
 .sidebar-brand-mark{
     width:36px;height:36px;flex:0 0 36px;
@@ -588,38 +591,144 @@ body{
     object-fit:contain;
 }
 .sidebar-brand-copy{min-width:0;display:flex;flex-direction:column;gap:2px;}
-.sidebar-brand-copy strong{color:#f8fbff;font-size:11px;font-weight:850;letter-spacing:.10em;white-space:nowrap;}
-.sidebar-brand-copy span{color:#7890af;font-size:9px;font-weight:650;letter-spacing:.02em;white-space:nowrap;}
-.sidebar-toggle-btn{
-    top:20px !important;right:14px !important;width:34px !important;height:34px !important;gap:4px !important;
-    border-radius:10px !important;border:1px solid rgba(255,255,255,.11) !important;
-    background:rgba(255,255,255,.065) !important;box-shadow:none !important;
+.sidebar-brand-copy strong{
+    color:#f8fbff;font-size:11px;font-weight:850;letter-spacing:.10em;white-space:nowrap;
 }
-.sidebar-toggle-btn:hover{background:rgba(255,255,255,.11) !important;border-color:rgba(255,255,255,.18) !important;transform:none !important;}
-.sidebar-toggle-btn span{width:16px !important;height:1.5px !important;}
+.sidebar-brand-copy span{
+    color:#7890af;font-size:9px;font-weight:650;letter-spacing:.02em;white-space:nowrap;
+}
+.sidebar-toggle-btn,.sidebar-close{
+    top:20px !important;right:14px !important;
+    width:34px !important;height:34px !important;
+    gap:4px !important;
+    border-radius:10px !important;
+    border:1px solid rgba(255,255,255,.11) !important;
+    background:rgba(255,255,255,.065) !important;
+    box-shadow:none !important;
+}
+.sidebar-toggle-btn:hover,.sidebar-close:hover{
+    background:rgba(255,255,255,.11) !important;
+    border-color:rgba(255,255,255,.18) !important;
+    transform:none !important;
+}
+.sidebar-toggle-btn span,.sidebar-close span{width:16px !important;height:1.5px !important;}
 .sidebar-nav{display:flex;flex-direction:column;gap:2px;}
 .sidebar-section{margin-top:5px;}
-.sidebar-section + .sidebar-section{margin-top:10px;padding-top:9px;border-top:1px solid rgba(255,255,255,.065);}
-.sidebar-section-label{display:block;padding:0 10px 5px;color:#617a9b;font-size:8px;font-weight:850;letter-spacing:.12em;text-transform:uppercase;}
+.sidebar-section + .sidebar-section{
+    margin-top:10px;
+    padding-top:9px;
+    border-top:1px solid rgba(255,255,255,.065);
+}
+.sidebar-section-label{
+    display:block;
+    padding:0 10px 5px;
+    color:#617a9b;
+    font-size:8px;
+    font-weight:850;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+}
 .sidebar a{
-    position:relative;min-height:38px !important;margin:1px 0 !important;padding:8px 30px 8px 12px !important;
-    border:1px solid transparent;border-radius:10px !important;color:#c4d1e3 !important;
-    font-size:11.5px !important;font-weight:650 !important;letter-spacing:-.005em;
+    position:relative;
+    min-height:38px !important;
+    margin:1px 0 !important;
+    padding:8px 30px 8px 12px !important;
+    border:1px solid transparent;
+    border-radius:10px !important;
+    color:#c4d1e3 !important;
+    font-size:11.5px !important;
+    font-weight:650 !important;
+    letter-spacing:-.005em;
     transition:background .16s ease,border-color .16s ease,color .16s ease !important;
 }
-.sidebar a::after{content:'›';position:absolute;right:12px;top:50%;transform:translateY(-52%);color:#6f86a5;font-size:16px;font-weight:400;opacity:0;transition:opacity .16s ease,color .16s ease;}
-.sidebar a:hover{background:rgba(255,255,255,.055) !important;border-color:rgba(255,255,255,.055) !important;color:#fff !important;transform:none !important;}
+.sidebar a::after{
+    content:'›';
+    position:absolute;right:12px;top:50%;transform:translateY(-52%);
+    color:#6f86a5;font-size:16px;font-weight:400;
+    opacity:0;transition:opacity .16s ease,color .16s ease;
+}
+.sidebar a:hover{
+    background:rgba(255,255,255,.055) !important;
+    border-color:rgba(255,255,255,.055) !important;
+    color:#fff !important;
+    transform:none !important;
+}
 .sidebar a:hover::after{opacity:.8;color:#9eb2cc;}
-.sidebar a.active{background:rgba(255,255,255,.105) !important;border-color:rgba(255,255,255,.10) !important;color:#fff !important;box-shadow:inset 3px 0 0 #4f8df7,0 5px 16px rgba(2,12,27,.12) !important;}
+.sidebar a.active{
+    background:rgba(255,255,255,.105) !important;
+    border-color:rgba(255,255,255,.10) !important;
+    color:#fff !important;
+    box-shadow:inset 3px 0 0 #4f8df7,0 5px 16px rgba(2,12,27,.12) !important;
+}
 .sidebar a.active::after{opacity:1;color:#89b5ff;}
-.sidebar-footer{display:flex;align-items:center;gap:7px;margin:12px 5px 0;padding:10px 8px 2px;border-top:1px solid rgba(255,255,255,.06);color:#607997;font-size:8.5px;font-weight:700;}
+.sidebar-footer{
+    display:flex;align-items:center;gap:7px;
+    margin:12px 5px 0;
+    padding:10px 8px 2px;
+    border-top:1px solid rgba(255,255,255,.06);
+    color:#607997;font-size:8.5px;font-weight:700;
+}
 .sidebar-status-dot{width:6px;height:6px;border-radius:50%;background:#35c98a;box-shadow:0 0 0 4px rgba(53,201,138,.08);}
 @media(max-width:640px){
     .sidebar{width:252px !important;left:-252px !important;padding:12px 10px 14px !important;}
     .sidebar-head{min-height:58px;padding-left:6px;margin-bottom:6px;}
     .sidebar-brand-mark{width:34px;height:34px;flex-basis:34px;} .sidebar-brand-mark img{width:25px;height:25px;}
-    .sidebar-toggle-btn{top:18px !important;right:12px !important;width:32px !important;height:32px !important;}
+    .sidebar-toggle-btn,.sidebar-close{top:18px !important;right:12px !important;width:32px !important;height:32px !important;}
     .sidebar a{min-height:37px !important;font-size:11.5px !important;}
+}
+
+/* ===== Interactive OEE Trend ===== */
+.chart-wrap{
+    position:relative;
+    overflow:hidden;
+    min-height:370px;
+    height:370px;
+    padding:12px 10px 6px;
+    background:
+        radial-gradient(circle at 82% 8%,rgba(18,104,232,.055),transparent 25%),
+        linear-gradient(180deg,#ffffff 0%,#fbfdff 100%);
+}
+.chart-wrap::after{
+    content:'';
+    position:absolute;
+    width:180px;height:180px;
+    right:-80px;bottom:-120px;
+    border-radius:50%;
+    background:rgba(124,58,237,.035);
+    pointer-events:none;
+}
+#oee-chart{position:relative;z-index:1;cursor:crosshair;}
+.oee-chart-tooltip{
+    position:absolute;
+    z-index:12;
+    min-width:220px;
+    max-width:285px;
+    padding:12px 13px;
+    border:1px solid rgba(255,255,255,.10);
+    border-radius:14px;
+    background:rgba(15,23,42,.95);
+    color:#fff;
+    box-shadow:0 18px 44px rgba(15,23,42,.26);
+    backdrop-filter:blur(10px);
+    pointer-events:none;
+    opacity:0;
+    transform:translateY(5px);
+    transition:opacity .12s ease,transform .12s ease;
+}
+.oee-chart-tooltip.show{opacity:1;transform:translateY(0);}
+.oee-chart-tooltip .oee-tip-title{font-size:12px;font-weight:850;margin-bottom:3px;}
+.oee-chart-tooltip .oee-tip-sub{font-size:9px;line-height:1.45;color:rgba(255,255,255,.65);margin-bottom:8px;}
+.oee-chart-tooltip .oee-tip-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:3px 0;font-size:10px;}
+.oee-chart-tooltip .oee-tip-key{color:rgba(255,255,255,.78);}
+.oee-chart-tooltip .oee-tip-val{font-weight:850;white-space:nowrap;}
+.oee-chart-tooltip .oee-tip-good{color:#86efac;}
+.oee-chart-tooltip .oee-tip-low{color:#fca5a5;}
+.chart-foot{position:relative;z-index:2;}
+.chart-live-note{display:inline-flex;align-items:center;gap:6px;}
+.chart-live-note::before{content:'';width:6px;height:6px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 4px rgba(34,197,94,.10);}
+@media(max-width:720px){
+    .chart-wrap{height:315px;min-height:315px;padding:8px 5px 4px;}
+    .oee-chart-tooltip{min-width:195px;max-width:235px;}
 }
 
 </style>
@@ -643,7 +752,7 @@ body{
             <a href="oee.html" class="active">OEE</a>
             <a href="tonase.html">Tonase</a>
             <a href="waste.html">Waste</a>
-            <a href="input-cost-material.html">Cost Material / Ton</a>
+            <a href="cost-material.html">Cost Material / Ton</a>
             <a href="input-variance.html">Variance</a>
         </div>
         <div class="sidebar-section">
@@ -658,7 +767,7 @@ body{
     </nav>
     <div class="sidebar-footer"><span class="sidebar-status-dot"></span><span>Manufacturing Dashboard</span></div>
 </div>
-
+ 
 <div class="topbar">
     <span class="menu-btn" onclick="toggleMenu()">☰</span>
     <h2>Bojonegoro Monitoring</h2>
@@ -744,8 +853,8 @@ body{
             <div class="chart-summary-box"><span>Periode Tertinggi</span><strong id="chart-peak">—</strong></div>
             <div class="chart-summary-box"><span>Target Tercapai</span><strong id="chart-target-hit">—</strong></div>
         </div>
-        <div class="chart-wrap" id="chart-wrap"><canvas id="oee-chart"></canvas></div>
-        <div class="chart-foot"><span><i class="legend-dot legend-good"></i>≥ 55% &nbsp;&nbsp; <i class="legend-dot legend-low"></i>&lt; 55% &nbsp;&nbsp; <i class="legend-dot legend-target"></i>Target 55%</span><span id="chart-range-label"></span></div>
+        <div class="chart-wrap" id="chart-wrap"><canvas id="oee-chart"></canvas><div class="oee-chart-tooltip" id="oee-chart-tooltip"></div></div>
+        <div class="chart-foot"><span><i class="legend-dot legend-good"></i>≥ 55% &nbsp;&nbsp; <i class="legend-dot legend-low"></i>&lt; 55% &nbsp;&nbsp; <i class="legend-dot legend-target"></i>Target 55%</span><span class="chart-live-note">Arahkan kursor ke grafik</span><span id="chart-range-label"></span></div>
     </section>
 
     <div class="section-title">OEE per Line — Hari Terakhir</div>
@@ -784,6 +893,9 @@ let chartMode='weekly';
 let chartSeries={weekly:[],monthly:[]};
 let chartRange={weekly:{from:0,to:0},monthly:{from:0,to:0}};
 let chartResizeTimer=null;
+let chartHoverKey='';
+let chartHitAreas=[];
+let chartEventsBound=false;
 const HARI=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
 const BULAN_ID=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 
@@ -857,12 +969,12 @@ function aggregateOee(rows){
 function buildWeeklySeries(rows){
     const map=new Map();
     rows.forEach(r=>{const start=startOfSundayWeek(r.tanggal);if(!map.has(start))map.set(start,{start,end:addDaysStr(start,6),rows:[],lastDate:r.tanggal});const o=map.get(start);o.rows.push(r);if(r.tanggal>o.lastDate)o.lastDate=r.tanggal});
-    return [...map.values()].sort((a,b)=>a.start.localeCompare(b.start)).map(o=>{const m=aggregateOee(o.rows)||{oee:0,target:null,output:null,count:0};const ref=o.lastDate||o.start;const week=weekNumberSunday(ref);const year=dateFromStr(ref).getFullYear();return{...o,...m,value:m.oee,label:`W${week} / ${year}`,detail:`${fmtDateShort(o.start)} – ${fmtDateShort(o.end)}`}});
+    return [...map.values()].sort((a,b)=>a.start.localeCompare(b.start)).map(o=>{const m=aggregateOee(o.rows)||{oee:0,target:null,output:null,count:0};const ref=o.lastDate||o.start;const week=weekNumberSunday(ref);const year=dateFromStr(ref).getFullYear();return{...o,...m,key:`w-${o.start}`,value:m.oee,label:`W${week} / ${year}`,detail:`${fmtDateShort(o.start)} – ${fmtDateShort(o.end)}`}});
 }
 function buildMonthlySeries(rows){
     const map=new Map();
     rows.forEach(r=>{const d=dateFromStr(r.tanggal);const key=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;if(!map.has(key))map.set(key,{key,year:d.getFullYear(),month:d.getMonth(),rows:[]});map.get(key).rows.push(r)});
-    return [...map.values()].sort((a,b)=>a.key.localeCompare(b.key)).map(o=>{const m=aggregateOee(o.rows)||{oee:0,target:null,output:null,count:0};return{...o,...m,value:m.oee,label:`${BULAN_ID[o.month]} ${o.year}`,detail:`${o.rows.length} hari data`}});
+    return [...map.values()].sort((a,b)=>a.key.localeCompare(b.key)).map(o=>{const m=aggregateOee(o.rows)||{oee:0,target:null,output:null,count:0};return{...o,...m,key:`m-${o.key}`,value:m.oee,label:`${BULAN_ID[o.month]} ${o.year}`,detail:`${o.rows.length} hari data`}});
 }
 function computeWeeklyOee(rows){if(!rows.length)return null;const last=rows[rows.length-1].tanggal,start=startOfSundayWeek(last),end=addDaysStr(start,6),selected=rows.filter(r=>r.tanggal>=start&&r.tanggal<=end);const m=aggregateOee(selected);return m?{...m,start,end}:null}
 function computeMonthlyOee(rows){if(!rows.length)return null;const d=dateFromStr(rows[rows.length-1].tanggal),y=d.getFullYear(),mth=d.getMonth(),selected=rows.filter(r=>{const x=dateFromStr(r.tanggal);return x.getFullYear()===y&&x.getMonth()===mth});const m=aggregateOee(selected);return m?{...m,year:y,month:mth}:null}
@@ -1199,26 +1311,140 @@ function populateChartSelectors(){
     from.innerHTML='';to.innerHTML='';data.forEach((d,i)=>{from.add(new Option(d.label,i));to.add(new Option(d.label,i))});
     const r=chartRange[chartMode];if(data.length){from.value=String(Math.min(r.from,data.length-1));to.value=String(Math.min(r.to,data.length-1))}
 }
-function switchChartMode(mode){chartMode=mode;document.getElementById('chart-weekly-btn').classList.toggle('active',mode==='weekly');document.getElementById('chart-monthly-btn').classList.toggle('active',mode==='monthly');populateChartSelectors();renderOeeChart()}
-function handleChartRangeChange(changed){const data=chartSeries[chartMode];if(!data.length)return;let from=Number(document.getElementById('chart-from').value),to=Number(document.getElementById('chart-to').value);if(from>to){if(changed==='from')to=from;else from=to}chartRange[chartMode]={from,to};document.getElementById('chart-from').value=String(from);document.getElementById('chart-to').value=String(to);renderOeeChart()}
-function resetChartRange(){const n=chartSeries[chartMode].length;if(!n)return;const visible=chartMode==='weekly'?Math.min(8,n):Math.min(6,n);chartRange[chartMode]={from:Math.max(0,n-visible),to:n-1};populateChartSelectors();renderOeeChart()}
+function switchChartMode(mode){chartMode=mode;chartHoverKey='';document.getElementById('chart-weekly-btn').classList.toggle('active',mode==='weekly');document.getElementById('chart-monthly-btn').classList.toggle('active',mode==='monthly');populateChartSelectors();renderOeeChart()}
+function handleChartRangeChange(changed){const data=chartSeries[chartMode];if(!data.length)return;let from=Number(document.getElementById('chart-from').value),to=Number(document.getElementById('chart-to').value);if(from>to){if(changed==='from')to=from;else from=to}chartRange[chartMode]={from,to};chartHoverKey='';document.getElementById('chart-from').value=String(from);document.getElementById('chart-to').value=String(to);renderOeeChart()}
+function resetChartRange(){const n=chartSeries[chartMode].length;if(!n)return;const visible=chartMode==='weekly'?Math.min(8,n):Math.min(6,n);chartRange[chartMode]={from:Math.max(0,n-visible),to:n-1};chartHoverKey='';populateChartSelectors();renderOeeChart()}
 function selectedChartSeries(){const data=chartSeries[chartMode];if(!data.length)return[];const r=chartRange[chartMode];return data.slice(Math.max(0,r.from),Math.min(data.length-1,r.to)+1)}
 function selectedDailyRowsForChart(){
     if(!currentOeeData?.all_daily?.length)return[];const periods=selectedChartSeries();if(!periods.length)return[];
     if(chartMode==='weekly'){const starts=new Set(periods.map(p=>p.start));return currentOeeData.all_daily.filter(r=>starts.has(startOfSundayWeek(r.tanggal)))}
     const months=new Set(periods.map(p=>p.key));return currentOeeData.all_daily.filter(r=>{const d=dateFromStr(r.tanggal);return months.has(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`)})
 }
-function renderOeeChart(){
-    const wrap=document.getElementById('chart-wrap');let canvas=document.getElementById('oee-chart');const data=selectedChartSeries();
-    if(!data.length){wrap.innerHTML='<div class="chart-empty">Belum ada data untuk grafik OEE.</div>';updateChartSummary([]);return}
-    if(!canvas){wrap.innerHTML='<canvas id="oee-chart"></canvas>';canvas=document.getElementById('oee-chart')}
-    const dpr=window.devicePixelRatio||1,cssW=Math.max(320,wrap.clientWidth-20),cssH=Math.max(250,wrap.clientHeight-20);canvas.style.width=cssW+'px';canvas.style.height=cssH+'px';canvas.width=Math.round(cssW*dpr);canvas.height=Math.round(cssH*dpr);const ctx=canvas.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,cssW,cssH);
-    const margin={top:28,right:18,bottom:64,left:58},plotW=cssW-margin.left-margin.right,plotH=cssH-margin.top-margin.bottom;const maxData=Math.max(...data.map(d=>d.value),OEE_TARGET,100),yMax=Math.ceil(Math.max(100,maxData*1.12)/10)*10,yFor=v=>margin.top+(1-v/yMax)*plotH;
-    ctx.strokeStyle='#e9eef5';ctx.lineWidth=1;ctx.fillStyle='#8492a6';ctx.font='11px Arial, sans-serif';ctx.textBaseline='middle';ctx.textAlign='right';for(let i=0;i<=5;i++){const value=yMax-(yMax/5*i),y=margin.top+plotH/5*i;ctx.beginPath();ctx.moveTo(margin.left,y);ctx.lineTo(cssW-margin.right,y);ctx.stroke();ctx.fillText(`${value.toFixed(0)}%`,margin.left-10,y)}
-    const targetY=yFor(OEE_TARGET);ctx.save();ctx.strokeStyle='#f59e0b';ctx.lineWidth=1.6;ctx.setLineDash([7,6]);ctx.beginPath();ctx.moveTo(margin.left,targetY);ctx.lineTo(cssW-margin.right,targetY);ctx.stroke();ctx.restore();ctx.fillStyle='#b77905';ctx.font='700 10px Arial, sans-serif';ctx.textAlign='right';ctx.textBaseline='bottom';ctx.fillText('Target 55%',cssW-margin.right,targetY-5);
-    const band=plotW/data.length,barW=Math.min(58,band*.48);data.forEach((item,i)=>{const x=margin.left+i*band+(band-barW)/2,y=yFor(item.value),bottom=margin.top+plotH,h=bottom-y,good=item.value>=OEE_TARGET;const grad=ctx.createLinearGradient(0,y,0,bottom);if(good){grad.addColorStop(0,'#16a065');grad.addColorStop(1,'#2fc78a')}else{grad.addColorStop(0,'#ef4444');grad.addColorStop(1,'#fb7185')}ctx.fillStyle=grad;ctx.beginPath();ctx.roundRect(x,y,barW,Math.max(3,h),10);ctx.fill();ctx.fillStyle=good?'#0f8b58':'#dc2626';ctx.font='700 11px Arial, sans-serif';ctx.textAlign='center';ctx.textBaseline='bottom';ctx.fillText(`${item.value.toLocaleString('id-ID',{maximumFractionDigits:2})}%`,x+barW/2,y-7);ctx.fillStyle='#60718a';ctx.font='700 10px Arial, sans-serif';ctx.textBaseline='top';ctx.fillText(item.label,x+barW/2,bottom+16)});
-    ctx.strokeStyle='#cfd8e6';ctx.beginPath();ctx.moveTo(margin.left,margin.top+plotH);ctx.lineTo(cssW-margin.right,margin.top+plotH);ctx.stroke();updateChartSummary(data)
+function updateOeeChartTooltip(hit){
+    const tip=document.getElementById('oee-chart-tooltip');
+    const wrap=document.getElementById('chart-wrap');
+    if(!tip||!wrap)return;
+    if(!hit){tip.classList.remove('show');tip.innerHTML='';return;}
+    const d=hit.item;
+    const diff=Number(d.value||0)-OEE_TARGET;
+    const status=d.value>=OEE_TARGET?'Target tercapai':'Di bawah target';
+    const targetPcs=Number.isFinite(Number(d.target))&&d.target!==null?Math.round(Number(d.target)).toLocaleString('id-ID'):'—';
+    const outputPcs=Number.isFinite(Number(d.output))&&d.output!==null?Math.round(Number(d.output)).toLocaleString('id-ID'):'—';
+    tip.innerHTML=`
+        <div class="oee-tip-title">${d.label}</div>
+        <div class="oee-tip-sub">${d.detail||''}</div>
+        <div class="oee-tip-row"><span class="oee-tip-key">OEE</span><span class="oee-tip-val">${Number(d.value||0).toLocaleString('id-ID',{minimumFractionDigits:2,maximumFractionDigits:2})}%</span></div>
+        <div class="oee-tip-row"><span class="oee-tip-key">Target</span><span class="oee-tip-val">${OEE_TARGET}%</span></div>
+        <div class="oee-tip-row"><span class="oee-tip-key">Vs Target</span><span class="oee-tip-val ${diff>=0?'oee-tip-good':'oee-tip-low'}">${diff>0?'+':''}${diff.toLocaleString('id-ID',{minimumFractionDigits:2,maximumFractionDigits:2})} pt</span></div>
+        <div class="oee-tip-row"><span class="oee-tip-key">Status</span><span class="oee-tip-val ${diff>=0?'oee-tip-good':'oee-tip-low'}">${status}</span></div>
+        <div class="oee-tip-row"><span class="oee-tip-key">Output PCS</span><span class="oee-tip-val">${outputPcs}</span></div>
+        <div class="oee-tip-row"><span class="oee-tip-key">Target PCS</span><span class="oee-tip-val">${targetPcs}</span></div>
+        <div class="oee-tip-row"><span class="oee-tip-key">Hari data</span><span class="oee-tip-val">${d.count||0}</span></div>`;
+    tip.classList.add('show');
+    const w=wrap.clientWidth,h=wrap.clientHeight;
+    let left=hit.x+18;
+    if(left+tip.offsetWidth>w-10)left=hit.x-tip.offsetWidth-18;
+    let top=hit.y-tip.offsetHeight/2;
+    top=Math.max(10,Math.min(h-tip.offsetHeight-10,top));
+    tip.style.left=Math.max(10,left)+'px';
+    tip.style.top=top+'px';
 }
+
+function bindOeeChartHover(){
+    const canvas=document.getElementById('oee-chart');
+    if(!canvas||canvas.dataset.hoverBound==='1')return;
+    canvas.dataset.hoverBound='1';
+    canvas.addEventListener('mousemove',e=>{
+        const rect=canvas.getBoundingClientRect();
+        const mx=e.clientX-rect.left;
+        let hit=chartHitAreas.reduce((best,h)=>{
+            const dist=Math.abs(h.x-mx);
+            return !best||dist<best.dist?{...h,dist}:best;
+        },null);
+        const threshold=Math.max(28,rect.width/Math.max(chartHitAreas.length,1)/2);
+        const next=hit&&hit.dist<=threshold?hit.key:'';
+        if(next!==chartHoverKey){chartHoverKey=next;renderOeeChart();}
+    });
+    canvas.addEventListener('mouseleave',()=>{
+        if(chartHoverKey){chartHoverKey='';renderOeeChart();}
+        else updateOeeChartTooltip(null);
+    });
+}
+
+function renderOeeChart(){
+    const wrap=document.getElementById('chart-wrap');
+    const canvas=document.getElementById('oee-chart');
+    const data=selectedChartSeries();
+    if(!wrap||!canvas)return;
+    const dpr=Math.max(1,Math.min(2,window.devicePixelRatio||1));
+    const cssW=Math.max(320,wrap.clientWidth-20);
+    const cssH=Math.max(270,wrap.clientHeight-18);
+    canvas.style.width=cssW+'px';canvas.style.height=cssH+'px';
+    canvas.width=Math.round(cssW*dpr);canvas.height=Math.round(cssH*dpr);
+    const ctx=canvas.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,cssW,cssH);
+    chartHitAreas=[];
+    if(!data.length){
+        ctx.fillStyle='#94a3b8';ctx.font='12px Arial, sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('Belum ada data untuk grafik OEE.',cssW/2,cssH/2);updateChartSummary([]);updateOeeChartTooltip(null);return;
+    }
+
+    const mobile=window.innerWidth<=720;
+    const margin={top:30,right:18,bottom:58,left:mobile?50:62};
+    const plotW=cssW-margin.left-margin.right,plotH=cssH-margin.top-margin.bottom;
+    const maxData=Math.max(...data.map(d=>Number(d.value)||0),OEE_TARGET);
+    const yMax=Math.max(100,Math.ceil((maxData*1.10)/10)*10);
+    const yMin=0;
+    const yFor=v=>margin.top+plotH-((Number(v||0)-yMin)/(yMax-yMin))*plotH;
+    const xFor=i=>margin.left+(data.length===1?plotW/2:i*(plotW/(data.length-1)));
+
+    // Grid + Y axis
+    ctx.strokeStyle='#e8edf4';ctx.lineWidth=1;ctx.fillStyle='#8492a6';ctx.font=(mobile?'9px':'10px')+' Arial, sans-serif';ctx.textBaseline='middle';ctx.textAlign='right';
+    for(let i=0;i<=5;i++){
+        const value=yMax-(yMax/5*i),yy=margin.top+plotH/5*i;
+        ctx.beginPath();ctx.moveTo(margin.left,yy);ctx.lineTo(cssW-margin.right,yy);ctx.stroke();
+        ctx.fillText(`${Math.round(value)}%`,margin.left-8,yy);
+    }
+
+    // Target line
+    const targetY=yFor(OEE_TARGET);
+    ctx.save();ctx.strokeStyle='#f59e0b';ctx.lineWidth=2;ctx.setLineDash([7,6]);ctx.beginPath();ctx.moveTo(margin.left,targetY);ctx.lineTo(cssW-margin.right,targetY);ctx.stroke();ctx.restore();
+    ctx.fillStyle='#b77905';ctx.font='700 9px Arial, sans-serif';ctx.textAlign='right';ctx.textBaseline='bottom';ctx.fillText('Target 55%',cssW-margin.right,targetY-5);
+
+    // Soft area under trend
+    const area=ctx.createLinearGradient(0,margin.top,0,margin.top+plotH);
+    area.addColorStop(0,'rgba(18,104,232,.19)');area.addColorStop(.55,'rgba(99,102,241,.08)');area.addColorStop(1,'rgba(18,104,232,.015)');
+    ctx.beginPath();ctx.moveTo(xFor(0),margin.top+plotH);
+    data.forEach((d,i)=>ctx.lineTo(xFor(i),yFor(d.value)));
+    ctx.lineTo(xFor(data.length-1),margin.top+plotH);ctx.closePath();ctx.fillStyle=area;ctx.fill();
+
+    // Main trend line with soft glow
+    ctx.save();ctx.strokeStyle='rgba(18,104,232,.15)';ctx.lineWidth=8;ctx.lineJoin='round';ctx.lineCap='round';ctx.beginPath();data.forEach((d,i)=>i?ctx.lineTo(xFor(i),yFor(d.value)):ctx.moveTo(xFor(i),yFor(d.value)));ctx.stroke();ctx.restore();
+    const lineGrad=ctx.createLinearGradient(margin.left,0,cssW-margin.right,0);lineGrad.addColorStop(0,'#1268e8');lineGrad.addColorStop(1,'#6d4ce8');
+    ctx.strokeStyle=lineGrad;ctx.lineWidth=3;ctx.lineJoin='round';ctx.lineCap='round';ctx.beginPath();data.forEach((d,i)=>i?ctx.lineTo(xFor(i),yFor(d.value)):ctx.moveTo(xFor(i),yFor(d.value)));ctx.stroke();
+
+    const activeIndex=data.findIndex(d=>d.key===chartHoverKey || d.label===chartHoverKey);
+    if(activeIndex>=0){
+        const xx=xFor(activeIndex);
+        ctx.save();ctx.strokeStyle='rgba(18,104,232,.22)';ctx.lineWidth=1.5;ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(xx,margin.top);ctx.lineTo(xx,margin.top+plotH);ctx.stroke();ctx.restore();
+    }
+
+    // Points and labels
+    data.forEach((d,i)=>{
+        const xx=xFor(i),yy=yFor(d.value),good=Number(d.value)>=OEE_TARGET,hovered=i===activeIndex;
+        if(hovered){ctx.beginPath();ctx.arc(xx,yy,11,0,Math.PI*2);ctx.fillStyle=good?'rgba(22,160,101,.13)':'rgba(239,68,68,.12)';ctx.fill();}
+        ctx.beginPath();ctx.arc(xx,yy,hovered?5.8:4.3,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();ctx.strokeStyle=good?'#16a065':'#ef4444';ctx.lineWidth=hovered?3:2.2;ctx.stroke();
+        ctx.fillStyle=good?'#118454':'#d9363e';ctx.font=(hovered?'800 ':'700 ')+(mobile?'9px':'10px')+' Arial, sans-serif';ctx.textAlign='center';ctx.textBaseline='bottom';ctx.fillText(`${Number(d.value).toLocaleString('id-ID',{maximumFractionDigits:1})}%`,xx,yy-9);
+        ctx.fillStyle='#60718a';ctx.font='700 '+(mobile?'8px':'9px')+' Arial, sans-serif';ctx.textBaseline='top';ctx.fillText(d.label,xx,margin.top+plotH+15);
+        const key=d.key||d.label;chartHitAreas.push({key,item:d,x:xx,y:yy,r:18});
+    });
+
+    // Axis baseline
+    ctx.strokeStyle='#cfd8e6';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(margin.left,margin.top+plotH);ctx.lineTo(cssW-margin.right,margin.top+plotH);ctx.stroke();
+
+    updateChartSummary(data);
+    bindOeeChartHover();
+    if(activeIndex>=0)updateOeeChartTooltip(chartHitAreas[activeIndex]);else updateOeeChartTooltip(null);
+}
+
 function updateChartSummary(data){
     const selectedRows=selectedDailyRowsForChart(),overall=aggregateOee(selectedRows),peak=data.length?data.reduce((a,b)=>a.value>b.value?a:b):null,hits=data.filter(d=>d.value>=OEE_TARGET).length;
     document.getElementById('chart-average').innerHTML=overall?`${overall.oee.toLocaleString('id-ID',{minimumFractionDigits:2,maximumFractionDigits:2})}<small>%</small>`:'—';
