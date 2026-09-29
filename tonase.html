@@ -62,6 +62,10 @@ linear-gradient(145deg,#eef5ff 0%,#f8fafc 50%,#f5efff 100%);min-height:100vh}
 .trend-legend{display:flex;flex-wrap:wrap;gap:8px 14px;margin-bottom:9px;color:#64748b;font-size:9px;font-weight:750}
 .trend-legend span{display:inline-flex;align-items:center;gap:6px}
 .trend-dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+.trend-line-key{width:22px;height:0;display:inline-block;border-top:2px dashed currentColor;opacity:.95}
+.trend-line-key.total-target{border-top-width:2px;border-top-style:dashed}
+.trend-legend{row-gap:7px}
+
 .trend-budget-note{display:inline-flex;align-items:center;gap:6px;color:#7c899b;font-size:8.5px;font-weight:700}
 .trend-budget-line-sample{width:20px;height:0;border-top:2px dashed #94a3b8;display:inline-block}
 .component-budget-panel{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) auto;gap:9px;align-items:end;margin:0 0 11px;padding:11px 12px;border:1px solid #e7ecf3;border-radius:14px;background:linear-gradient(180deg,#fff,#fbfdff)}
@@ -366,17 +370,19 @@ linear-gradient(145deg,#eef5ff 0%,#f8fafc 50%,#f5efff 100%);min-height:100vh}
     </div>
     <div class="trend-range-info" id="trend-range-info">Pilih rentang Week yang ingin ditampilkan.</div>
     <div class="trend-legend">
-      <span><i class="trend-dot" style="background:#0f766e"></i>Total Cost/Ton</span>
-      <span><i class="trend-dot" style="background:#2563eb"></i>PM · Packaging</span>
-      <span><i class="trend-dot" style="background:#f97316"></i>RM · Raw Material</span>
-      <span><i class="trend-dot" style="background:#8b5cf6"></i>SFG</span>
-      <span><i class="trend-dot" style="background:#475569"></i>Target Total</span>
-      <span class="trend-budget-note"><i class="trend-budget-line-sample"></i>Budget SAP = garis putus-putus</span>
+      <span><i class="trend-dot" style="background:#0f766e"></i>Total Actual</span>
+      <span><i class="trend-dot" style="background:#2563eb"></i>PM Actual</span>
+      <span><i class="trend-line-key" style="border-color:#2563eb"></i>PM Target SAP</span>
+      <span><i class="trend-dot" style="background:#f97316"></i>RM Actual</span>
+      <span><i class="trend-line-key" style="border-color:#f97316"></i>RM Target SAP</span>
+      <span><i class="trend-dot" style="background:#8b5cf6"></i>SFG Actual</span>
+      <span><i class="trend-line-key" style="border-color:#8b5cf6"></i>SFG Target SAP</span>
+      <span><i class="trend-line-key total-target" style="border-color:#475569"></i>Target Total</span>
     </div>
     <div class="component-budget-panel" style="grid-template-columns:1fr;">
       <div class="component-budget-meta" style="grid-column:1;">
-        <span><b>Budget otomatis dari SAP.</b> PM, RM, dan SFG dihitung dari <b>Target Est. Cost</b> pada raw YCOR002 lalu dibagi Tonase Produksi pada periode yang sama.</span>
-        <b id="component-budget-total">Budget SAP mengikuti Week/Bulan terpilih</b>
+        <span><b>Target otomatis dari SAP.</b> PM, RM, dan SFG menggunakan <b>Target Est. Cost</b> raw YCOR002. Pada grafik, Actual = garis solid dan Target SAP = garis putus-putus dengan warna komponen yang sama.</span>
+        <b id="component-budget-total">Target SAP PM/RM/SFG mengikuti Week/Bulan terpilih</b>
       </div>
     </div>
     <div class="trend-wrap" id="trend-wrap">
@@ -759,9 +765,32 @@ function renderTrendChart(){
   for(let i=0;i<=5;i++){const yy=margin.top+i*plotH/5,val=max-i*max/5;ctx.beginPath();ctx.moveTo(margin.left,yy);ctx.lineTo(cssW-margin.right,yy);ctx.stroke();ctx.fillText(Math.round(val).toLocaleString('id-ID'),margin.left-8,yy+3)}
   const activeIndex=data.findIndex(d=>d.key===trendHoverKey);if(activeIndex>=0){ctx.save();ctx.strokeStyle='rgba(15,118,110,.20)';ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(x(activeIndex),margin.top);ctx.lineTo(x(activeIndex),margin.top+plotH);ctx.stroke();ctx.restore()}
   ctx.save();ctx.setLineDash([6,6]);ctx.strokeStyle=TREND_COLORS.target;ctx.lineWidth=2;ctx.beginPath();data.forEach((d,i)=>i?ctx.lineTo(x(i),y(d.target)):ctx.moveTo(x(i),y(d.target)));ctx.stroke();ctx.restore();
+  // Target SAP per komponen: garis linear putus-putus tanpa marker besar.
   [['pkgBudget',TREND_COLORS.pkg],['rawBudget',TREND_COLORS.raw],['sfgBudget',TREND_COLORS.sfg]].forEach(([key,color])=>{
     if(!data.some(d=>num(d[key])>0))return;
-    ctx.save();ctx.globalAlpha=.66;ctx.setLineDash([4,5]);ctx.strokeStyle=color;ctx.lineWidth=1.5;ctx.beginPath();let started=false;data.forEach((d,i)=>{const v=num(d[key]);if(v<=0){started=false;return}if(!started){ctx.moveTo(x(i),y(v));started=true}else ctx.lineTo(x(i),y(v))});ctx.stroke();ctx.restore();
+    ctx.save();
+    ctx.globalAlpha=.94;
+    ctx.setLineDash([7,5]);
+    ctx.strokeStyle=color;
+    ctx.lineWidth=2;
+    ctx.lineJoin='round';
+    ctx.lineCap='round';
+    ctx.beginPath();
+    let started=false;
+    data.forEach((d,i)=>{
+      const v=num(d[key]);
+      if(v<=0){started=false;return;}
+      if(!started){ctx.moveTo(x(i),y(v));started=true;}else ctx.lineTo(x(i),y(v));
+    });
+    ctx.stroke();
+    ctx.setLineDash([]);
+    // Titik kecil transparan menjaga target tetap mudah ditelusuri saat garis berdekatan.
+    data.forEach((d,i)=>{
+      const v=num(d[key]); if(v<=0)return;
+      ctx.beginPath();ctx.fillStyle='#fff';ctx.arc(x(i),y(v),2.3,0,Math.PI*2);ctx.fill();
+      ctx.strokeStyle=color;ctx.lineWidth=1.4;ctx.stroke();
+    });
+    ctx.restore();
   });
   [['pkg',TREND_COLORS.pkg,2],['raw',TREND_COLORS.raw,2],['sfg',TREND_COLORS.sfg,2],['total',TREND_COLORS.total,3]].forEach(([key,color,width])=>{
     ctx.strokeStyle=color;ctx.lineWidth=width;ctx.lineJoin='round';ctx.lineCap='round';ctx.beginPath();data.forEach((d,i)=>i?ctx.lineTo(x(i),y(d[key])):ctx.moveTo(x(i),y(d[key])));ctx.stroke();
