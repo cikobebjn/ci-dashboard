@@ -120,7 +120,7 @@ linear-gradient(145deg,#eef5ff 0%,#f8fafc 50%,#f5efff 100%);min-height:100vh}
 
   <section class="card" id="preview-card" style="display:none">
     <div class="section-head">
-      <div><h3>Preview Cost Material dari SAP</h3><p>Nilai material berasal dari Total Actual Costs. Tonase diambil otomatis dari tabel Tonase Produksi untuk Week yang sama.</p></div>
+      <div><h3>Preview Cost Material dari SAP</h3><p>Nilai material berasal dari Total Actual Costs. Tonase diambil otomatis dari tabel Tonase Produksi untuk Week yang sama. Cost/Ton mengikuti formula workbook operasional: Total Actual Cost ÷ (Tonase × 1.000).</p></div>
       <div class="step-pill">2 · Preview & Sinkronkan</div>
     </div>
 
@@ -295,7 +295,7 @@ function aggregateSap(rows,tonaseMap){
   auditItems=[...audit.values()].sort((a,b)=>Math.abs(b.cost)-Math.abs(a.cost));
   return out;
 }
-function rowMetric(r){const total=num(r.packaging_value)+num(r.raw_material_value)+num(r.sfg_value),ton=num(r.tonase);return{total,costTon:ton?total/ton:0,pkgTon:ton?num(r.packaging_value)/ton:0,rawTon:ton?num(r.raw_material_value)/ton:0,sfgTon:ton?num(r.sfg_value)/ton:0}}
+function rowMetric(r){const total=num(r.packaging_value)+num(r.raw_material_value)+num(r.sfg_value),ton=num(r.tonase),den=ton*1000;return{total,costTon:den?total/den:0,pkgTon:den?num(r.packaging_value)/den:0,rawTon:den?num(r.raw_material_value)/den:0,sfgTon:den?num(r.sfg_value)/den:0}}
 function renderPreview(){
   const key=document.getElementById('week-select').value;const r=parsedRows.find(x=>`${x.tahun}-${x.minggu_ke}`===key);if(!r)return;const m=rowMetric(r),target=num(r.target_cost_per_ton)||TARGET_COST_DEFAULT;
   const costEl=document.getElementById('kpi-cost-ton');costEl.textContent=r.tonase?fmtRp(m.costTon)+'/ton':'Tonase belum tersedia';costEl.className=r.tonase?(m.costTon<=target?'good':'low'):'missing-tonase';
