@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Input Cost Material - Bojonegoro Monitoring</title>
+<title>Input Cost Material SAP - Bojonegoro Monitoring</title>
 <style>
 :root{
   --primary:#1268e8;--primary-dark:#0b56bd;--accent:#7c3aed;--ink:#172033;--muted:#6b7a90;
@@ -42,6 +42,35 @@ linear-gradient(145deg,#eef5ff 0%,#f8fafc 50%,#f5efff 100%);min-height:100vh}
 .history-summary{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;padding:10px 12px;border:1px solid #dbeafe;border-radius:12px;background:#f8fbff;color:#48627f;font-size:10px}.history-summary b{color:#1559a7}.history-scroll{max-height:410px;overflow:auto;border:1px solid #eef2f6;border-radius:12px}.history-table{width:100%;border-collapse:collapse;font-size:10px;min-width:650px}.history-table th,.history-table td{padding:9px 10px;border-bottom:1px solid #eef2f6;text-align:right}.history-table th:first-child,.history-table td:first-child{text-align:left}.history-table th{position:sticky;top:0;background:#f8fafc;color:#7c899b;font-size:8px;text-transform:uppercase}.history-empty{text-align:center!important;color:#9ca3af;padding:18px!important}
 .modal{position:fixed;inset:0;z-index:3000;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(15,23,42,.56);backdrop-filter:blur(7px)}.modal.open{display:flex}.dialog{width:min(520px,100%);overflow:hidden;border-radius:23px;background:#fff;box-shadow:0 30px 80px rgba(15,23,42,.3)}.dialog-head{padding:20px 22px 17px;color:#fff;background:linear-gradient(135deg,#1268e8,#583ac8 62%,#7c3aed)}.dialog-head h3{margin:0;font-size:19px}.dialog-head p{margin:5px 0 0;color:rgba(255,255,255,.78);font-size:10px;line-height:1.5}.dialog-body{padding:20px 22px}.confirm-warning{padding:11px 12px;border:1px solid #fde68a;border-radius:12px;background:#fffbeb;color:#81580f;font-size:10px;line-height:1.55}.confirm-check{display:flex;align-items:flex-start;gap:8px;margin-top:12px;color:#526277;font-size:10px;line-height:1.45}.confirm-check input{margin-top:2px}.dialog-actions{display:grid;grid-template-columns:1fr 1.25fr;gap:9px;margin-top:15px}
 @media(max-width:760px){.topbar{height:64px;padding:0 14px}.topbar h2{font-size:16px}.topbar h2 small{font-size:8px}.menu-btn{width:36px;height:36px}.main{padding:82px 12px 30px}.hero{grid-template-columns:1fr;padding:22px 20px;border-radius:22px}.hero h1{font-size:27px}.hero-note{width:100%}.card{padding:16px;border-radius:18px}.section-head{flex-direction:column}.step-pill{align-self:flex-start}.preview-top{grid-template-columns:1fr}.preview-count{white-space:normal}.kpi-grid,.sync-summary{grid-template-columns:1fr}.actions{flex-direction:column;align-items:stretch}.btn{width:100%}.dialog-actions{grid-template-columns:1fr}.sidebar{width:270px;left:-270px}}
+
+
+/* SAP raw import additions */
+.file-info{flex-direction:column;align-items:stretch}
+.file-info:before{display:none}
+.file-list{display:grid;gap:7px;width:100%}
+.file-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;border:1px solid #e8eef6;border-radius:10px;background:#fff;color:#52647b;font-size:10px}
+.file-row span:first-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:750}
+.file-row small{flex:0 0 auto;color:#94a3b8}
+.raw-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:14px 0}
+.raw-stat{padding:12px;border:1px solid #e8edf5;border-radius:14px;background:#fbfcff}
+.raw-stat span{display:block;color:#8b99ac;font-size:8px;font-weight:850;letter-spacing:.05em;text-transform:uppercase}
+.raw-stat b{display:block;margin-top:5px;color:#172033;font-size:17px}
+.audit-box{margin-top:13px;border:1px solid #e6edf5;border-radius:14px;overflow:hidden;background:#fff}
+.audit-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;background:#f8fafc;border-bottom:1px solid #edf1f5}
+.audit-head strong{font-size:10px;color:#475569;text-transform:uppercase;letter-spacing:.05em}
+.audit-head span{font-size:9px;color:#8b99ac}
+.audit-scroll{max-height:220px;overflow:auto}
+.audit-table{width:100%;border-collapse:collapse;font-size:9px;min-width:620px}
+.audit-table th,.audit-table td{padding:8px 10px;border-bottom:1px solid #f0f3f7;text-align:right}
+.audit-table th{position:sticky;top:0;background:#fff;color:#8b99ac;font-size:8px;text-transform:uppercase}
+.audit-table th:first-child,.audit-table td:first-child{text-align:left}
+.audit-table td:first-child{font-weight:700;color:#475569}
+.badge-soft{display:inline-flex;align-items:center;padding:4px 7px;border-radius:999px;background:#eef4ff;color:#2f63ad;font-size:8px;font-weight:800}
+.missing-tonase{color:#b91c1c!important}
+.good-tonase{color:#15803d!important}
+.source-note{margin-top:8px;color:#8290a4;font-size:9px;line-height:1.55}
+@media(max-width:760px){.raw-summary{grid-template-columns:1fr 1fr}.file-row{align-items:flex-start}.file-row span:first-child{white-space:normal}.audit-table{min-width:560px}}
+@media(max-width:420px){.raw-summary{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -62,54 +91,75 @@ linear-gradient(145deg,#eef5ff 0%,#f8fafc 50%,#f5efff 100%);min-height:100vh}
   <a href="import-extruder.html">📤 Import Extruder</a>
   <a href="settings.html">⚙️ Settings</a>
 </div>
-<div class="topbar"><span class="menu-btn" onclick="toggleMenu()">☰</span><h2>Input Cost Material<small>Weekly Excel · Factory Bojonegoro</small></h2></div>
+<div class="topbar"><span class="menu-btn" onclick="toggleMenu()">☰</span><h2>Input Cost Material<small>SAP YCOR002 · Factory Bojonegoro</small></h2></div>
 <div class="main">
   <section class="hero">
     <div class="hero-copy">
-      <div class="hero-kicker">Material Cost Control</div>
+      <div class="hero-kicker">SAP Raw Cost Integration</div>
       <h1>Import Cost Material</h1>
-      <p>Sinkronkan data Cost Material mingguan dari workbook terbaru. Sistem membaca seluruh periode sekaligus dan mengganti database Cost Material dengan isi workbook terbaru.</p>
+      <p>Gunakan raw export SAP YCOR002 layout <strong>/PERFORMANCE</strong>. Sistem menggabungkan file bulanan, mengelompokkan Packaging / Raw Material / SFG, menghitung Week Minggu–Sabtu, lalu mengambil Tonase otomatis dari database Produksi.</p>
     </div>
-    <div class="hero-note"><b>Struktur workbook yang dibaca</b>Tonase dari <strong>Simulasi Ratio COGM</strong>, nilai Packaging / Raw Material / SFG dari <strong>Resume Price</strong>, dan tahun dari <strong>Scheduled start</strong> pada sheet <strong>Data</strong>.</div>
+    <div class="hero-note"><b>Workflow SAP-only</b>1. Export YCOR002 per bulan<br>2. Pilih semua file SAP yang ingin digabung<br>3. Sistem merge + klasifikasi + weekly<br>4. Tonase diambil otomatis dari Dashboard<br>5. Sinkronkan Cost Material</div>
   </section>
 
   <section class="card">
-    <div class="section-head"><div><h3>Upload Workbook Cost Material</h3><p>Tidak membutuhkan sheet Order Type. Cukup gunakan workbook Cost Material dengan struktur yang sama seperti file operasional saat ini.</p></div><div class="step-pill">1 · Baca Workbook</div></div>
+    <div class="section-head">
+      <div><h3>Upload Raw SAP YCOR002</h3><p>Bisa memilih beberapa file sekaligus. Untuk histori lengkap, pilih seluruh file bulanan yang ingin dipertahankan dalam satu kali sinkronisasi.</p></div>
+      <div class="step-pill">1 · Merge SAP</div>
+    </div>
     <div class="upload-box">
-      <div class="upload-icon">📊</div>
-      <div class="upload-title">Pilih workbook Cost Material terbaru</div>
-      <div class="upload-hint">File akan dibaca langsung di browser. Formula tidak dihitung ulang; sistem menggunakan nilai mingguan yang sudah tersedia pada Resume Price.</div>
-      <input type="file" id="file-excel" accept=".xlsx,.xls">
+      <div class="upload-icon">📥</div>
+      <div class="upload-title">Pilih raw export SAP YCOR002</div>
+      <div class="upload-hint">Layout SAP: <b>/PERFORMANCE</b> · Quantity ✓ · Amount ✓ · format .xlsx/.xls<br>Pilih Jan, Feb, Mar, ... sekaligus. File diproses langsung di browser.</div>
+      <input type="file" id="file-excel" accept=".xlsx,.xls" multiple>
     </div>
     <div class="file-info" id="file-info"></div>
-    <div class="actions"><button class="btn btn-read" id="btn-parse">Baca Semua Data</button></div>
+    <div class="actions"><button class="btn btn-read" id="btn-parse">Baca & Gabungkan Data SAP</button></div>
     <div class="status" id="parse-status"></div>
   </section>
 
   <section class="card" id="preview-card" style="display:none">
-    <div class="section-head"><div><h3>Preview Cost Material</h3><p>Pilih week hanya untuk preview. Tombol sinkronisasi akan menyimpan seluruh week dari workbook.</p></div><div class="step-pill">2 · Preview & Sinkronkan</div></div>
+    <div class="section-head">
+      <div><h3>Preview Cost Material dari SAP</h3><p>Nilai material berasal dari Total Actual Costs. Tonase diambil otomatis dari tabel Tonase Produksi untuk Week yang sama.</p></div>
+      <div class="step-pill">2 · Preview & Sinkronkan</div>
+    </div>
+
+    <div class="raw-summary">
+      <div class="raw-stat"><span>File SAP</span><b id="raw-files">—</b></div>
+      <div class="raw-stat"><span>Goods Issues</span><b id="raw-rows">—</b></div>
+      <div class="raw-stat"><span>Baris Cost Terpakai</span><b id="raw-mapped">—</b></div>
+      <div class="raw-stat"><span>Duplikat Dihapus</span><b id="raw-duplicates">—</b></div>
+    </div>
+
     <div class="preview-top">
       <div class="field"><label>Week untuk preview</label><select id="week-select"></select></div>
       <div class="preview-count" id="week-count">—</div>
     </div>
     <div class="kpi-grid">
       <div class="metric"><span>Total Cost / Ton</span><b id="kpi-cost-ton">—</b></div>
-      <div class="metric"><span>Tonase</span><b id="kpi-tonase">—</b></div>
-      <div class="metric"><span>Total Material Cost</span><b id="kpi-total-cost">—</b></div>
+      <div class="metric"><span>Tonase dari Dashboard</span><b id="kpi-tonase">—</b></div>
+      <div class="metric"><span>Total Material Cost SAP</span><b id="kpi-total-cost">—</b></div>
     </div>
-    <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Material Group</th><th>Total Cost</th><th>Cost / Ton</th><th>Share</th></tr></thead><tbody id="preview-body"></tbody></table></div>
+    <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Material Group</th><th>Total Actual Cost</th><th>Cost / Ton</th><th>Share</th></tr></thead><tbody id="preview-body"></tbody></table></div>
     <div class="sync-summary">
-      <div class="sync-box"><span>Periode</span><b id="summary-weeks">—</b></div>
-      <div class="sync-box"><span>Tahun</span><b id="summary-year">—</b></div>
+      <div class="sync-box"><span>Periode SAP</span><b id="summary-weeks">—</b></div>
+      <div class="sync-box"><span>Tonase</span><b id="summary-tonase">—</b></div>
       <div class="sync-box"><span>Target</span><b id="summary-target">—</b></div>
     </div>
-    <div class="notice show"><b>Sinkronisasi Database</b> Semua Week pada workbook akan menjadi sumber data utama. Week yang sudah ada akan diperbarui, Week baru akan ditambahkan, dan data lama di luar workbook akan dihapus apabila policy database mengizinkan.</div>
-    <button class="btn btn-save" id="btn-save" style="width:100%;margin-top:14px">Sinkronkan Semua Week ke Database</button>
+
+    <div class="audit-box" id="audit-box">
+      <div class="audit-head"><strong>Audit · Di luar mapping Cost Material</strong><span id="audit-caption">—</span></div>
+      <div class="audit-scroll"><table class="audit-table"><thead><tr><th>Short Text</th><th>Origin</th><th>Baris</th><th>Total Actual Cost</th></tr></thead><tbody id="audit-body"></tbody></table></div>
+    </div>
+    <div class="source-note">Mapping mengikuti klasifikasi Cost Material yang selama ini dipakai pada workbook operasional: <b>139 Packaging</b>, <b>11 Raw Material</b>, dan <b>41 SFG</b>. Item di luar mapping tidak masuk perhitungan dan ditampilkan untuk audit.</div>
+
+    <div class="notice show" id="sync-notice"><b>Sinkronisasi Database</b> Data pada <code>cost_material_weekly</code> akan disesuaikan dengan seluruh Week dari file SAP yang dipilih. Karena export dilakukan per bulan, pilih semua file bulan yang ingin dipertahankan agar Week lintas bulan tetap lengkap.</div>
+    <button class="btn btn-save" id="btn-save" style="width:100%;margin-top:14px">Sinkronkan Hasil SAP ke Database</button>
     <div class="status" id="save-status"></div>
   </section>
 
   <section class="card">
-    <div class="section-head"><div><h3>Riwayat Cost Material Weekly</h3><p>Data yang saat ini terbaca di database.</p></div></div>
+    <div class="section-head"><div><h3>Riwayat Cost Material Weekly</h3><p>Data Cost Material yang saat ini digunakan Dashboard.</p></div></div>
     <div class="history-summary" id="history-summary"><span>Memuat riwayat...</span><b>—</b></div>
     <div class="history-scroll"><table class="history-table"><thead><tr><th>Week</th><th>Tonase</th><th>Total Cost/Ton</th><th>Target</th></tr></thead><tbody id="history-body"><tr><td colspan="4" class="history-empty">Memuat data...</td></tr></tbody></table></div>
   </section>
@@ -117,16 +167,16 @@ linear-gradient(145deg,#eef5ff 0%,#f8fafc 50%,#f5efff 100%);min-height:100vh}
 
 <div class="modal" id="sync-modal" aria-hidden="true">
   <div class="dialog">
-    <div class="dialog-head"><h3>Konfirmasi Sinkronisasi Cost Material</h3><p>Pastikan workbook yang dipilih adalah versi terbaru dan memuat seluruh week yang ingin dipertahankan.</p></div>
+    <div class="dialog-head"><h3>Konfirmasi Sinkronisasi SAP Cost Material</h3><p>Pastikan seluruh file SAP bulanan yang ingin dipertahankan sudah dipilih.</p></div>
     <div class="dialog-body">
       <div class="sync-summary" style="margin-top:0">
+        <div class="sync-box"><span>File SAP</span><b id="modal-files">—</b></div>
         <div class="sync-box"><span>Week</span><b id="modal-weeks">—</b></div>
         <div class="sync-box"><span>Rentang</span><b id="modal-range">—</b></div>
-        <div class="sync-box"><span>Tahun</span><b id="modal-year">—</b></div>
       </div>
-      <div class="confirm-warning">Data lama akan dihapus terlebih dahulu lalu diganti dengan seluruh data Cost Material dari workbook terbaru.</div>
-      <label class="confirm-check"><input type="checkbox" id="sync-ack"> <span>Saya sudah memastikan workbook terbaru berisi seluruh data Cost Material yang ingin dipertahankan.</span></label>
-      <div class="dialog-actions"><button class="btn btn-outline" id="sync-cancel">Batal</button><button class="btn btn-save" id="sync-confirm" disabled>Ya, Sinkronkan Semua Data</button></div>
+      <div class="confirm-warning">Seluruh Cost Material Weekly akan disinkronkan dari hasil penggabungan raw SAP yang dipilih. Week lama yang tidak ada pada hasil SAP akan dihapus apabila policy database mengizinkan.</div>
+      <label class="confirm-check"><input type="checkbox" id="sync-ack"> <span>Saya sudah memastikan file SAP yang dipilih mencakup seluruh periode Cost Material yang ingin dipertahankan.</span></label>
+      <div class="dialog-actions"><button class="btn btn-outline" id="sync-cancel">Batal</button><button class="btn btn-save" id="sync-confirm" disabled>Konfirmasi & Sinkronkan</button></div>
     </div>
   </div>
 </div>
@@ -138,263 +188,188 @@ const SUPABASE_URL='https://bmnhtxalfsfaefacgtpm.supabase.co';
 const SUPABASE_KEY='sb_publishable_VItBKenz-q2sYz7MsibODA_nYtLXv9Q';
 const {createClient}=supabase;
 const db=createClient(SUPABASE_URL,SUPABASE_KEY);
+const TARGET_COST_DEFAULT=30000;
+const BASELINE_MAPPING={"PACKAGING": ["0.1BON X30 SD 3521 BK TTR 33MM X 700M", "AJM WATER BASE INK 42 ml", "CATRIDGE SOLVENBASE 53+S", "DISPLAY BOX BK NOODLE 200G X 10PCS_KRY_1", "DISPLAY BOX BK NOODLE 200G X 10PCS_KRY_2", "DPRINT WAX RESIN M2 25mm x 500 m", "KARTON BCM BIG PUFF LV0 13Gx80PCS GT", "KARTON BCM BIGPUFF BALADO BBQ13Gx80PCSGT", "KARTON BCM GRH RNYH LV0 12Gx80PCS GT", "KARTON BMK PDS RYH LV10 12Gx80PCS GT", "KARTON BONCABE CAKAR NAGA LV15 24X60G", "KARTON BONCABE CAKAR NAGA LV15 60X25G", "KARTON BONCABE MI KRISPI LV15 16Gx24PAC", "KARTON BONCABE MI KRISPI LV15 80X16G GT", "KARTON BONCRISPY MI KRISPI LV0 16Gx24PAC", "KARTON BONCRISPY MI KRISPI LV0 80X16G LK", "KARTON BONCRISPY UBI BALADO 20Gx60PCS", "KARTON BONCRISPY UBI BALADO 50Gx24PCS", "KARTON BONCRISPY UBI ORIGINAL 20Gx60PCS", "KARTON BONCRISPY UBI ORIGINAL 50Gx24PCS", "KARTON CN JAGUNG BAKAR 23GX60PCS", "KARTON CN JAGUNG BAKAR 55GX24PCS", "KARTON CN RUMPUT LAUT 23GX60PCS", "KARTON CN RUMPUT LAUT 55GX24PCS", "KARTON CN SAPI PANGGANG 23GX60PCS", "KARTON CN SAPI PANGGANG 55GX24PCS", "KARTON KP AYAM PANGGANG 27G X 60PCS", "KARTON KP RUMPUT LAUT 27G X 60PCS", "KARTON KP RUMPUT LAUT 70G X 24PCS", "KARTON KULIT PANGSIT LV 10 70GR", "KARTON MI BONCABE CHILI OIL 60GX40PCS", "KARTON MIE BONCHILLI 6PACx(5PCSx105G)MUL", "KEMASAN BCM BIG PUFF LV0 13GR_1500M", "KEMASAN BCM BIGPUFF BALADO BBQ 13G", "KEMASAN BCM GURIH RENYAH LV0 12G_1500M", "KEMASAN BMK PEDAS RENYAH LV10 12G_1500M", "KEMASAN BONCABE CAKAR NAGA LV15 25G_1500", "KEMASAN BONCABE CAKAR NAGA LV15 60G_1500", "KEMASAN BONCABE LV15 5.5GR 6LINE", "KEMASAN BONCABE MI KRISPI LV15 10G", "KEMASAN BONCABE MI KRISPI LV15 16G", "KEMASAN BONCRISPY MI KRISPI LV0 10G", "KEMASAN BONCRISPY MI KRISPI LV0 16G", "KEMASAN BONCRISPY UBI BALADO 20G", "KEMASAN BONCRISPY UBI BALADO 50G", "KEMASAN BONCRISPY UBI ORIGINAL 20G", "KEMASAN BONCRISPY UBI ORIGINAL 50G", "KEMASAN CHILI NOODLES 200G EXPORT", "KEMASAN CHOW MIEN TAO-TAO 200GR EXP", "KEMASAN CN JAGUNG BAKAR 23G_1000M ", "KEMASAN CN JAGUNG BAKAR 55G_1000M", "KEMASAN CN RUMPUT LAUT 23G_1000M ", "KEMASAN CN RUMPUT LAUT 55G_1000M ", "KEMASAN CN SAPI PANGGANG 23G_1000M ", "KEMASAN CN SAPI PANGGANG 55G_1000M ", "KEMASAN KP AYAM PANGGANG 27G_1000M", "KEMASAN KP RUMPUT LAUT 27G_1000M", "KEMASAN KP RUMPUT LAUT 70G_1000M", "KEMASAN KULIT PANGSIT LV 10 70GR_1500M", "KEMASAN MI BONCABE CHILI OIL LV15 60G", "KEMASAN MIE GORENG NOODLES 200G EXPORT", "KEMASAN VEGETABLE NOODLES 200G EXPORT", "KEMASAN WONTON TAO-TAO 200G", "LABEL MI KRISPI LV0 10G 2X(12RCGx10PCS)", "LABEL MI KRISPI LV15 10G 2X(12RCGx10PCS)", "LAKBAN BENING 2\"", "LAKBAN BENING 2\" 1000 M", "LAKBAN BIRU MUDA POLOS 2", "LAKBAN HIJAU POLOS 2\"", "LAKBAN HITAM POLOS 2\"", "LAKBAN KUNING POLOS 2\"", "LAKBAN MERAH POLOS 2\"", "LAKBAN UNGU POLOS 2\"", "N1-KARTON KULIT PANGSIT LV 10 70GR", "N1-KARTON MIE TAO-TAO CHOWMIEN REGULER", "N1-KEMASAN BONCABE LV 30 4.5 GR 6 LINE", "N1-KEMASAN BONCABE LV10 5.5 GR 6 LINE", "N1-KEMASAN KULIT PANGSIT LV 10 27GR", "N1-KEMASAN KULIT PANGSIT LV 10 70GR_1000", "N1-KEMASAN MAKARONI KEJU LV2 27G NEW1500", "N1-KEMASAN MAKARONI LV15 135GR NEW_1000M", "N1-KEMASAN MAKARONI LV15 27GR NEW_1500M", "N1-KEMASAN MAKARONI LV50 20GR MURI_1500M", "N1-KEMASAN MIE BONCHILI LV 10", "N2-KARTON BONCABE SACHET 240 MULTI", "N2-KARTON KULIT PANGSIT LV 10 27GR", "N2-KARTON MAKARONI LV 50 20GR REKOR MURI", "N2-KEMASAN BONCABE LV 30 4.5 GR 6 LINE", "N2-KEMASAN MAKARONI KEJU LV2 135G NW1000", "N2-KEMASAN MAKARONI KEJU LV2 27G NEW1500", "N2-KEMASAN MAKARONI LV10 135GR NEW_1000M", "N2-KEMASAN MAKARONI LV10 27GR NEW_1500M", "N3-KARTON BONCABE SACHET 240 MULTI", "N3-KARTON KULIT PANGSIT LV 10 27GR", "N-CATRIDGE DIKAI INK 42X3MH30", "N-DISPLAY BOX BK NOODLE 200GX10PCS_KRY_2", "N-KARTON BCM BIG PUFF LV0 13Gx80PCS GT", "N-KARTON BCM BIGPUFF BALADO 13Gx80PCS GT", "N-KARTON BMK 135GX24PCS MULTI+SEKAT 1PCS", "N-KARTON BONCABE SACHET 4.5x240MULTI", "N-KARTON MAKARONI KEJU LV2 16X135GR_NEW", "N-KARTON MAKARONI KEJU LV2 60X27GR_NEW", "N-KARTON MAKARONI LV10 16X135GR_NEW", "N-KARTON MAKARONI LV10 60X27GR_NEW", "N-KARTON MAKARONI LV15 16X135GR_NEW", "N-KARTON MAKARONI LV15 60X27GR_NEW", "N-KARTON MIE TAO-TAO WONTON REGULER", "N-KEMASAN BC UBI BALADO 20G_1000M", "N-KEMASAN BC UBI ORIGINAL 20G_1000M", "N-KEMASAN BONCABE LV10 5.5 GR 6 LINE", "N-KEMASAN BONCABE LV15 5.5GR 6LINE", "N-KEMASAN BONCABE MI KRISPI LV15 10G", "N-KEMASAN CAKAR NAGA LV15 25G_1000M", "N-KEMASAN CAKAR NAGA LV15 60G_1000M", "N-KEMASAN KULIT PANGSIT LV 10 27GR", "N-KEMASAN MAKARONI KEJU LV2 135G NEW1500", "N-KEMASAN MAKARONI LV10 135GR NEW_1500M", "N-KEMASAN MAKARONI LV10 27GR NEW_1500M", "N-KEMASAN MAKARONI LV15 135GR NEW_1500M", "N-KEMASAN MI BONCABE CHILLI OIL LV15 60G", "N-PLASTIK BANDED MIE BONCHILLI LV 10", "N-STICKER IMPORTIR WAH HONG ENTERPRISE", "PITA ROLL HITAM 25MMx200M", "PLASTIK 3KG PP 03X35X43CM", "PLASTIK BDD MI KRISPI LV0 16G x 4PCS MT", "PLASTIK BDD MI KRISPI LV15 16G x 4PCS MT", "PLASTIK INNER MI KRISPI 10G PE 6X40X76CM", "PLASTIK OUTER MI KRISPI 10G PE 3X47X85CM", "PLASTIK PE 05X56X105CM", "RIBBON B110AX(F/O) 110X300M", "RIBBON TTR ATWR088 UK. 33MM X 550M", "RIBBON TTR ATWR088 UK. 55MM X 550M", "SEKAT MAKARONI 135GR EXPORT", "STICKER IMPORTIR WAH HONG ENTERPRISE", "STICKER LABEL BLANK FOOD UK.10,2CMX12CM", "STICKER LABEL BLANK UK.10,2CMX5CM", "STIKER BD BONCHILI INST NOODLE LV10 105G", "STIKER BONCABE MAKARONI LV10 135G ELOM", "STIKER BONCABE MAKARONI LV10 JAVA TRAD"], "SFG": ["PREMIX BJ BOJONEGORO (30.64KG)", "PREMIX CN (15.48KG)", "PREMIX K38B ( 5 KG)", "PREMIX K38B (10KG)", "PREMIX K82B (10KG)", "PREMIX MJ (3.55 KG)", "PREMIX MM B (29.223KG)", "PREMIX N16B (10.849KG)", "PREMIX N19B (13.160KG)", "PREMIX N2B (12.069KG)", "PREMIX N35B (51.377KG)", "PREMIX N36B (54.923 KG)", "PREMIX N36B (55.023 KG)", "PREMIX N3B (16.2KG)", "PREMIX N44B (25.26KG)", "PREMIX N5B (10.408KG)", "SFG FILL BONCHILI LV10 2.5GR", "SFG FILL SEASONING CHILI OIL LV15 15 G", "SFG FILL SEASONING MIE BONCHILI 23G SCN", "SFG MIX BONCABE LV10 RASA BAWANG GORENG", "SFG MIX BONCABE LV15", "SFG MIX BONCABE LV30", "SFG MIX SEASONING BCM BIGPUFF BALADO BBQ", "SFG MIX SEASONING BCM GURIH RENYAH LV0", "SFG MIX SEASONING BMK PEDAS RENYAH LV10", "SFG MIX SEASONING CAKAR NAGA LV 15", "SFG MIX SEASONING CN RUMPUT LAUT", "SFG MIX SEASONING CN SAPI PANGGANG", "SFG MIX SEASONING KP AYAM PANGGANG", "SFG MIX SEASONING KP RUMPUT LAUT", "SFG MIX SEASONING MAKARONI KEJU PDS LV 2", "SFG MIX SEASONING MAKARONI LV 0 (1K)", "SFG MIX SEASONING MAKARONI LV 10", "SFG MIX SEASONING MAKARONI LV 15", "SFG MIX SEASONING MAKARONI LV 50", "SFG MIX SEASONING MI KRISPI BOJONEGORO", "SFG MIX SEASONING MI KRISPI LV15 KGC", "SFG MIX SEASONING SNACK KLT PANGSIT LV10", "SFG MIX SEASONING UBI BALADO", "SFG MIX SEASONING UBI ORIGINAL", "SFG MIX  SEASONING CN JAGUNGBAKAR"], "RAW": ["GARAM B", "KACANG PANJANG", "MAKARONI MENTAH B", "MAKARONI MENTAH D", "MINYAK SAYUR (B)", "TERIGU A", "TERIGU A1", "TERIGU A3", "TERIGU B (EXPORT)", "UBI UTUH", "WORTEL"]};
+const normText=v=>String(v??'').trim().replace(/\s+/g,' ').toUpperCase();
+const COST_MAP={
+  PACKAGING:new Set(BASELINE_MAPPING.PACKAGING.map(normText)),
+  RAW:new Set(BASELINE_MAPPING.RAW.map(normText)),
+  SFG:new Set(BASELINE_MAPPING.SFG.map(normText))
+};
 let parsedRows=[];
-let sourceFile='';
-let detectedYear=null;
-let detectedTarget=30000;
+let rawMergedRows=[];
+let auditItems=[];
+let sourceFiles=[];
+let duplicateCount=0;
+let detectedTarget=TARGET_COST_DEFAULT;
 
 function toggleMenu(){const s=document.getElementById('sidebar');s.style.left=s.style.left==='0px'?`-${s.offsetWidth}px`:'0px'}
 function num(v){const n=Number(v);return Number.isFinite(n)?n:0}
 function fmtRp(v){return 'Rp '+Math.round(num(v)).toLocaleString('id-ID')}
 function fmtTon(v){return num(v).toLocaleString('id-ID',{minimumFractionDigits:0,maximumFractionDigits:2})+' ton'}
 function setStatus(id,type,msg){const el=document.getElementById(id);el.className='status '+type;el.textContent=msg}
-function getSheet(wb,name){return wb.Sheets[name]||wb.Sheets[wb.SheetNames.find(n=>n.trim().toLowerCase()===name.toLowerCase())]}
-function sheetRows(ws){return XLSX.utils.sheet_to_json(ws,{header:1,raw:true,defval:null})}
-function detectWorkbookYear(wb){
-  const ws=getSheet(wb,'Data'); if(!ws) return new Date().getFullYear();
-  const rows=sheetRows(ws); if(!rows.length) return new Date().getFullYear();
-  const headers=(rows[0]||[]).map(v=>String(v??'').trim().toLowerCase());
-  const idx=headers.indexOf('scheduled start');
-  if(idx<0) return new Date().getFullYear();
-  const counts={};
-  for(let r=1;r<rows.length;r++){
-    const v=rows[r][idx]; let y=null;
-    if(v instanceof Date && !isNaN(v)) y=v.getFullYear();
-    else if(typeof v==='number') { const d=XLSX.SSF.parse_date_code(v); if(d) y=d.y; }
-    else if(typeof v==='string'){ const d=new Date(v); if(!isNaN(d)) y=d.getFullYear(); }
-    if(y && y>=2000 && y<=2100) counts[y]=(counts[y]||0)+1;
-  }
-  const years=Object.keys(counts).map(Number).sort((a,b)=>counts[b]-counts[a]);
-  return years[0]||new Date().getFullYear();
-}
-function parseNumericCell(v){
-  if(typeof v==='number' && Number.isFinite(v)) return v;
-  if(v===null || v===undefined || v==='') return null;
+function parseNumeric(v){
+  if(typeof v==='number'&&Number.isFinite(v))return v;
+  if(v===null||v===undefined||v==='')return null;
   let s=String(v).trim().replace(/\s+/g,'').replace(/^Rp/i,'');
-  if(!s) return null;
-  // SheetJS normally returns raw numbers. These fallbacks handle formatted text safely.
-  if(/^[-+]?\d+(?:\.\d+)?$/.test(s)){
-    const n=Number(s); return Number.isFinite(n)?n:null;
-  }
-  if(/^[-+]?\d{1,3}(?:\.\d{3})+(?:,\d+)?$/.test(s)) s=s.replace(/\./g,'').replace(',','.');
-  else if(/^[-+]?\d{1,3}(?:,\d{3})+(?:\.\d+)?$/.test(s)) s=s.replace(/,/g,'');
+  if(!s)return null;
+  if(/^[-+]?\d{1,3}(?:\.\d{3})+(?:,\d+)?$/.test(s))s=s.replace(/\./g,'').replace(',','.');
+  else if(/^[-+]?\d{1,3}(?:,\d{3})+(?:\.\d+)?$/.test(s))s=s.replace(/,/g,'');
   else s=s.replace(/,/g,'');
-  const n=Number(s); return Number.isFinite(n)?n:null;
+  const n=Number(s);return Number.isFinite(n)?n:null;
 }
-function cellValue(ws, addr){
-  const cell=ws && ws[addr];
-  return cell ? cell.v : null;
+function parseDateYMD(v){
+  if(v===null||v===undefined||v==='')return null;
+  if(typeof v==='number'){const d=XLSX.SSF.parse_date_code(v);if(d)return `${d.y}-${String(d.m).padStart(2,'0')}-${String(d.d).padStart(2,'0')}`;}
+  if(v instanceof Date&&!isNaN(v))return `${v.getUTCFullYear()}-${String(v.getUTCMonth()+1).padStart(2,'0')}-${String(v.getUTCDate()).padStart(2,'0')}`;
+  const s=String(v).trim();
+  let m=s.match(/^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{4})$/);if(m)return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
+  m=s.match(/^(\d{4})-(\d{2})-(\d{2})/);if(m)return `${m[1]}-${m[2]}-${m[3]}`;
+  const d=new Date(s);if(!isNaN(d))return `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`;
+  return null;
 }
-function columnName(index){ return XLSX.utils.encode_col(index); }
-function parseResumePrice(wb){
-  const ws=getSheet(wb,'Resume Price');
-  if(!ws) return {packaging:{},raw:{},sfg:{}};
-  const maps={packaging:{},raw:{},sfg:{}};
-  const configs=[
-    {weekCol:'A',valueCol:'C',key:'packaging'},
-    {weekCol:'F',valueCol:'H',key:'raw'},
-    {weekCol:'K',valueCol:'M',key:'sfg'}
-  ];
-  const range=XLSX.utils.decode_range(ws['!ref']||'A1:M2000');
-  for(let r=4;r<=range.e.r+1;r++){
-    for(const c of configs){
-      const w=parseNumericCell(cellValue(ws,`${c.weekCol}${r}`));
-      const v=parseNumericCell(cellValue(ws,`${c.valueCol}${r}`));
-      if(Number.isFinite(w)&&w>0&&w<60&&Number.isFinite(v)) maps[c.key][Math.trunc(w)]=v;
+function ymdToMs(ymd){const [y,m,d]=ymd.split('-').map(Number);return Date.UTC(y,m-1,d)}
+function msToYmd(ms){const d=new Date(ms);return `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`}
+function weekInfo(ymd){
+  const ms=ymdToMs(ymd), d=new Date(ms), year=d.getUTCFullYear(), jan1=Date.UTC(year,0,1), janDay=new Date(jan1).getUTCDay();
+  const firstSunday=jan1+((7-janDay)%7)*86400000;
+  let week,start;
+  if(ms<firstSunday){week=1;start=jan1;}
+  else{week=2+Math.floor((ms-firstSunday)/(7*86400000));start=firstSunday+(week-2)*7*86400000;}
+  return {year,week,start:msToYmd(start),end:msToYmd(start+6*86400000)};
+}
+function fmtDateShort(ymd){return new Date(ymd+'T00:00:00Z').toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric',timeZone:'UTC'})}
+function classifyShortText(v){const n=normText(v);if(COST_MAP.PACKAGING.has(n))return'PACKAGING';if(COST_MAP.RAW.has(n))return'RAW';if(COST_MAP.SFG.has(n))return'SFG';return null}
+function normalizeHeader(v){return normText(v).replace(/[^A-Z0-9]+/g,' ')}
+function findSapSheet(wb){
+  for(const name of wb.SheetNames){
+    const ws=wb.Sheets[name];const rows=XLSX.utils.sheet_to_json(ws,{header:1,raw:true,defval:null,range:0});
+    for(let r=0;r<Math.min(rows.length,20);r++){
+      const h=(rows[r]||[]).map(normalizeHeader);
+      if(h.includes('TRANSACTION')&&h.includes('SCHEDULED START')&&h.includes('SHORT TEXT')&&h.includes('TOTAL ACTUAL COSTS'))return{name,ws,rows,headerIdx:r};
     }
   }
-  return maps;
+  return null;
 }
-function parseSimulasiRatio(wb){
-  const ws=getSheet(wb,'Simulasi Ratio COGM');
-  if(!ws) throw new Error('Sheet "Simulasi Ratio COGM" tidak ditemukan.');
-  const range=XLSX.utils.decode_range(ws['!ref']||'A1:AF30');
-  const result={};
-
-  // Row 2 contains Week xx headers. Row 3 contains tonase in the same value column.
-  for(let c=range.s.c;c<=range.e.c;c++){
-    const col=columnName(c);
-    const h=cellValue(ws,`${col}2`);
-    const m=String(h??'').match(/week\s*(\d+)/i);
-    if(!m) continue;
-    const week=Number(m[1]);
-    const tonase=parseNumericCell(cellValue(ws,`${col}3`));
-    result[week]={week,tonase};
+function rowFingerprint(r){return [r.tanggal,r.order,r.orderType,r.material,r.origin,r.shortText,r.actualQty,r.actualCost,r.description,r.workCenter].map(v=>String(v??'')).join('|')}
+function parseSapWorkbook(wb,fileName){
+  const found=findSapSheet(wb);if(!found)throw new Error(`${fileName}: header SAP YCOR002 tidak ditemukan.`);
+  const {rows,headerIdx}=found;const headers=(rows[headerIdx]||[]).map(normalizeHeader);const idx={};headers.forEach((h,i)=>{if(h&&!Object.prototype.hasOwnProperty.call(idx,h))idx[h]=i});
+  const required=['TRANSACTION','SCHEDULED START','ORDER','ORDER TYPE','MATERIAL','ORIGIN','SHORT TEXT','TOTAL ACTUAL COSTS'];
+  const missing=required.filter(h=>idx[h]===undefined);if(missing.length)throw new Error(`${fileName}: kolom tidak ditemukan: ${missing.join(', ')}.`);
+  const out=[];
+  for(let i=headerIdx+1;i<rows.length;i++){
+    const r=rows[i];if(normText(r[idx['TRANSACTION']])!=='GOODS ISSUES')continue;
+    const tanggal=parseDateYMD(r[idx['SCHEDULED START']]);if(!tanggal)continue;
+    const actualCost=parseNumeric(r[idx['TOTAL ACTUAL COSTS']]);if(actualCost===null)continue;
+    const shortText=String(r[idx['SHORT TEXT']]??'').trim();
+    out.push({
+      tanggal,order:String(r[idx['ORDER']]??'').trim(),orderType:String(r[idx['ORDER TYPE']]??'').trim(),material:String(r[idx['MATERIAL']]??'').trim(),
+      materialDescription:String(r[idx['MATERIAL DESCRIPTION']]??'').trim(),origin:String(r[idx['ORIGIN']]??'').trim(),shortText,
+      actualQty:parseNumeric(r[idx['TOTAL ACTUAL QTY']]),actualCost,description:String(r[idx['DESCRIPTION']]??'').trim(),workCenter:String(r[idx['WORK CENTER']]??'').trim(),
+      group:classifyShortText(shortText),source:fileName
+    });
   }
-
-  let target=30000;
-  for(let r=1;r<=range.e.r+1;r++){
-    let targetLabelCol=-1;
-    for(let c=range.s.c;c<=range.e.c;c++){
-      const col=columnName(c);
-      const v=cellValue(ws,`${col}${r}`);
-      if(String(v??'').trim().toLowerCase()==='target cost / ton'){ targetLabelCol=c; break; }
-    }
-    if(targetLabelCol>=0){
-      for(let c=targetLabelCol+1;c<=range.e.c;c++){
-        const n=parseNumericCell(cellValue(ws,`${columnName(c)}${r}`));
-        if(Number.isFinite(n)&&n>=10000&&n<=100000){ target=n; break; }
-      }
-      if(target!==30000) break;
-    }
-  }
-  return {weeks:result,target};
+  return out;
 }
-function parseWorkbook(wb){
-  const required=['Simulasi Ratio COGM','Resume Price','Data'];
-  const missing=required.filter(n=>!getSheet(wb,n));
-  if(missing.length) throw new Error('Sheet wajib tidak ditemukan: '+missing.join(', ')+'.');
-
-  detectedYear=detectWorkbookYear(wb);
-  const sim=parseSimulasiRatio(wb);
-  const resume=parseResumePrice(wb);
-  detectedTarget=sim.target||30000;
-
-  const weeks=Object.keys(sim.weeks).map(Number).sort((a,b)=>a-b);
-  const rows=[];
-  const incomplete=[];
-  weeks.forEach(w=>{
-    const tonase=parseNumericCell(sim.weeks[w]?.tonase);
-    const packaging=parseNumericCell(resume.packaging[w]);
-    const raw=parseNumericCell(resume.raw[w]);
-    const sfg=parseNumericCell(resume.sfg[w]);
-    if(Number.isFinite(tonase)&&tonase>0&&Number.isFinite(packaging)&&Number.isFinite(raw)&&Number.isFinite(sfg)){
-      rows.push({
-        tahun:detectedYear,
-        minggu_ke:w,
-        tonase,
-        packaging_value:packaging,
-        raw_material_value:raw,
-        sfg_value:sfg,
-        target_cost_per_ton:num(detectedTarget)
-      });
-    }else{
-      incomplete.push({week:w,tonase,packaging,raw,sfg});
+async function fetchTonaseWeekly(){
+  const all=[];const size=1000;
+  for(let from=0;;from+=size){const {data,error}=await db.from('tonase_harian').select('tanggal,tonase').order('tanggal',{ascending:true}).range(from,from+size-1);if(error)throw new Error('Tonase Produksi tidak dapat dimuat: '+error.message);if(data?.length)all.push(...data);if(!data||data.length<size)break;}
+  const map=new Map();
+  all.forEach(r=>{if(!r.tanggal)return;const w=weekInfo(String(r.tanggal).slice(0,10));const k=`${w.year}-${w.week}`;map.set(k,(map.get(k)||0)+num(r.tonase));});
+  return map;
+}
+function aggregateSap(rows,tonaseMap){
+  const weekly=new Map(), audit=new Map();
+  rows.forEach(r=>{
+    const w=weekInfo(r.tanggal);const key=`${w.year}-${w.week}`;
+    if(r.group){
+      if(!weekly.has(key))weekly.set(key,{tahun:w.year,minggu_ke:w.week,week_start:w.start,week_end:w.end,packaging_value:0,raw_material_value:0,sfg_value:0,classified_rows:0,target_cost_per_ton:detectedTarget});
+      const o=weekly.get(key);if(r.group==='PACKAGING')o.packaging_value+=r.actualCost;else if(r.group==='RAW')o.raw_material_value+=r.actualCost;else if(r.group==='SFG')o.sfg_value+=r.actualCost;o.classified_rows++;
+    }else if(Math.abs(r.actualCost)>0){
+      const ak=normText(r.shortText)+'|'+r.origin;if(!audit.has(ak))audit.set(ak,{shortText:r.shortText||'(blank)',origin:r.origin||'—',rows:0,cost:0});const a=audit.get(ak);a.rows++;a.cost+=r.actualCost;
     }
   });
-
-  if(!rows.length){
-    const detail=incomplete.slice(0,4).map(x=>`W${x.week}: Tonase=${Number.isFinite(x.tonase)?'OK':'-'}; Packaging=${Number.isFinite(x.packaging)?'OK':'-'}; Raw=${Number.isFinite(x.raw)?'OK':'-'}; SFG=${Number.isFinite(x.sfg)?'OK':'-'}`).join(' | ');
-    throw new Error('Week berhasil ditemukan, tetapi nilai sumber belum terbaca. '+detail);
-  }
-  if(incomplete.length){
-    console.warn('Week yang dilewati karena data belum lengkap:',incomplete);
-  }
-  parsedRows=rows;
-  return parsedRows;
+  const out=[...weekly.values()].sort((a,b)=>a.tahun-b.tahun||a.minggu_ke-b.minggu_ke);
+  out.forEach(r=>{r.tonase=tonaseMap.get(`${r.tahun}-${r.minggu_ke}`)||0;});
+  auditItems=[...audit.values()].sort((a,b)=>Math.abs(b.cost)-Math.abs(a.cost));
+  return out;
 }
-function rowMetric(r){const total=num(r.packaging_value)+num(r.raw_material_value)+num(r.sfg_value);const ton=num(r.tonase);return{total,costTon:ton?total/ton:0,pkgTon:ton?num(r.packaging_value)/ton:0,rawTon:ton?num(r.raw_material_value)/ton:0,sfgTon:ton?num(r.sfg_value)/ton:0}}
+function rowMetric(r){const total=num(r.packaging_value)+num(r.raw_material_value)+num(r.sfg_value),ton=num(r.tonase);return{total,costTon:ton?total/ton:0,pkgTon:ton?num(r.packaging_value)/ton:0,rawTon:ton?num(r.raw_material_value)/ton:0,sfgTon:ton?num(r.sfg_value)/ton:0}}
 function renderPreview(){
-  const week=Number(document.getElementById('week-select').value);const r=parsedRows.find(x=>x.minggu_ke===week);if(!r)return;const m=rowMetric(r);const target=num(r.target_cost_per_ton)||30000;
-  const costEl=document.getElementById('kpi-cost-ton');costEl.textContent=fmtRp(m.costTon)+'/ton';costEl.className=m.costTon<=target?'good':'low';
-  document.getElementById('kpi-tonase').textContent=fmtTon(r.tonase);document.getElementById('kpi-total-cost').textContent=fmtRp(m.total);
+  const key=document.getElementById('week-select').value;const r=parsedRows.find(x=>`${x.tahun}-${x.minggu_ke}`===key);if(!r)return;const m=rowMetric(r),target=num(r.target_cost_per_ton)||TARGET_COST_DEFAULT;
+  const costEl=document.getElementById('kpi-cost-ton');costEl.textContent=r.tonase?fmtRp(m.costTon)+'/ton':'Tonase belum tersedia';costEl.className=r.tonase?(m.costTon<=target?'good':'low'):'missing-tonase';
+  const tonEl=document.getElementById('kpi-tonase');tonEl.textContent=r.tonase?fmtTon(r.tonase):'Belum tersedia';tonEl.className=r.tonase?'good-tonase':'missing-tonase';
+  document.getElementById('kpi-total-cost').textContent=fmtRp(m.total);
   const groups=[['Packaging Material',r.packaging_value,m.pkgTon],['Raw Material',r.raw_material_value,m.rawTon],['SFG',r.sfg_value,m.sfgTon]];
-  document.getElementById('preview-body').innerHTML=groups.map(g=>`<tr><td><strong>${g[0]}</strong></td><td>${fmtRp(g[1])}</td><td>${fmtRp(g[2])}</td><td>${m.total?((g[1]/m.total)*100).toFixed(1):'0.0'}%</td></tr>`).join('');
+  document.getElementById('preview-body').innerHTML=groups.map(g=>`<tr><td><strong>${g[0]}</strong></td><td>${fmtRp(g[1])}</td><td>${r.tonase?fmtRp(g[2]):'—'}</td><td>${m.total?((g[1]/m.total)*100).toFixed(1):'0.0'}%</td></tr>`).join('');
+}
+function renderAudit(){
+  const body=document.getElementById('audit-body'),cap=document.getElementById('audit-caption');const total=auditItems.reduce((s,x)=>s+x.cost,0);
+  cap.textContent=`${auditItems.length} item · ${fmtRp(total)} (tidak dihitung)`;
+  body.innerHTML=auditItems.length?auditItems.slice(0,30).map(x=>`<tr><td>${x.shortText}</td><td>${x.origin}</td><td>${x.rows.toLocaleString('id-ID')}</td><td>${fmtRp(x.cost)}</td></tr>`).join(''):'<tr><td colspan="4" style="text-align:center;color:#94a3b8">Tidak ada item di luar mapping.</td></tr>';
 }
 function renderParsedState(){
-  const sel=document.getElementById('week-select');const desc=[...parsedRows].sort((a,b)=>b.minggu_ke-a.minggu_ke);sel.innerHTML=desc.map(r=>`<option value="${r.minggu_ke}">Week ${r.minggu_ke} / ${r.tahun}</option>`).join('');sel.value=desc[0].minggu_ke;
-  document.getElementById('week-count').textContent=`${parsedRows.length} week akan disimpan`;
-  document.getElementById('summary-weeks').textContent=`Week ${parsedRows[0].minggu_ke}–${parsedRows[parsedRows.length-1].minggu_ke}`;
-  document.getElementById('summary-year').textContent=detectedYear;
+  const sel=document.getElementById('week-select');const desc=[...parsedRows].sort((a,b)=>b.tahun-a.tahun||b.minggu_ke-a.minggu_ke);sel.innerHTML=desc.map(r=>`<option value="${r.tahun}-${r.minggu_ke}">Week ${r.minggu_ke} / ${r.tahun}</option>`).join('');if(desc.length)sel.value=`${desc[0].tahun}-${desc[0].minggu_ke}`;
+  const missing=parsedRows.filter(r=>!r.tonase).length;
+  document.getElementById('week-count').textContent=`${parsedRows.length} week · ${missing?missing+' tanpa tonase':'tonase lengkap'}`;
+  document.getElementById('raw-files').textContent=sourceFiles.length;
+  document.getElementById('raw-rows').textContent=rawMergedRows.length.toLocaleString('id-ID');
+  document.getElementById('raw-mapped').textContent=rawMergedRows.filter(r=>r.group).length.toLocaleString('id-ID');
+  document.getElementById('raw-duplicates').textContent=duplicateCount.toLocaleString('id-ID');
+  const first=parsedRows[0],last=parsedRows[parsedRows.length-1];
+  document.getElementById('summary-weeks').textContent=first&&last?`W${first.minggu_ke}/${first.tahun} – W${last.minggu_ke}/${last.tahun}`:'—';
+  document.getElementById('summary-tonase').textContent=missing?`${missing} week belum tersedia`:'Otomatis dari Dashboard';
   document.getElementById('summary-target').textContent=fmtRp(detectedTarget)+'/ton';
-  document.getElementById('preview-card').style.display='block';renderPreview();
+  document.getElementById('preview-card').style.display='block';renderPreview();renderAudit();
+  const btn=document.getElementById('btn-save');btn.disabled=missing>0;
+  const notice=document.getElementById('sync-notice');
+  if(missing){notice.innerHTML=`<b>Tonase belum lengkap</b> Ada ${missing} Week SAP yang belum memiliki Tonase Produksi pada database. Sinkronisasi dinonaktifkan agar Cost/Ton tidak salah.`;}
+  else{notice.innerHTML='<b>Sinkronisasi Database</b> Data pada <code>cost_material_weekly</code> akan disesuaikan dengan seluruh Week dari file SAP yang dipilih. Karena export dilakukan per bulan, pilih semua file bulan yang ingin dipertahankan agar Week lintas bulan tetap lengkap.';}
 }
-document.getElementById('file-excel').addEventListener('change',()=>{const f=document.getElementById('file-excel').files[0];const info=document.getElementById('file-info');if(f){info.textContent=f.name;info.classList.add('show')}else{info.textContent='';info.classList.remove('show')}parsedRows=[];document.getElementById('preview-card').style.display='none';document.getElementById('parse-status').className='status'});
+function renderFileInfo(files){const info=document.getElementById('file-info');if(!files.length){info.classList.remove('show');info.innerHTML='';return}info.classList.add('show');info.innerHTML=`<div style="font-weight:850;color:#34455d">${files.length} file SAP dipilih</div><div class="file-list">${files.map(f=>`<div class="file-row"><span>📄 ${f.name}</span><small>${(f.size/1024).toLocaleString('id-ID',{maximumFractionDigits:0})} KB</small></div>`).join('')}</div>`;}
+
+document.getElementById('file-excel').addEventListener('change',e=>{sourceFiles=[...(e.target.files||[])];renderFileInfo(sourceFiles);parsedRows=[];rawMergedRows=[];auditItems=[];duplicateCount=0;document.getElementById('preview-card').style.display='none';document.getElementById('parse-status').className='status';});
 document.getElementById('btn-parse').addEventListener('click',async()=>{
-  const f=document.getElementById('file-excel').files[0];if(!f){alert('Pilih workbook Cost Material terlebih dahulu.');return}
-  try{setStatus('parse-status','info','Membaca workbook Cost Material...');const wb=XLSX.read(await f.arrayBuffer(),{type:'array',cellDates:true});sourceFile=f.name;parseWorkbook(wb);renderParsedState();setStatus('parse-status','ok',`Berhasil membaca ${parsedRows.length} week (Week ${parsedRows[0].minggu_ke}–${parsedRows[parsedRows.length-1].minggu_ke}) tahun ${detectedYear}. Tonase dibaca dari Simulasi Ratio COGM; nilai Packaging, Raw Material, dan SFG dibaca langsung dari Resume Price.`)}
-  catch(e){parsedRows=[];document.getElementById('preview-card').style.display='none';setStatus('parse-status','err','Gagal membaca file: '+e.message)}
+  if(!sourceFiles.length){setStatus('parse-status','err','Pilih minimal satu raw export SAP YCOR002 terlebih dahulu.');return}
+  const btn=document.getElementById('btn-parse');btn.disabled=true;btn.textContent='Membaca SAP...';
+  try{
+    setStatus('parse-status','info',`Membaca dan menggabungkan ${sourceFiles.length} file SAP...`);
+    const collected=[];
+    for(const f of sourceFiles){const wb=XLSX.read(await f.arrayBuffer(),{type:'array',cellDates:false});collected.push(...parseSapWorkbook(wb,f.name));}
+    const dedupe=new Map();duplicateCount=0;collected.forEach(r=>{const k=rowFingerprint(r);if(dedupe.has(k))duplicateCount++;else dedupe.set(k,r)});rawMergedRows=[...dedupe.values()];
+    if(!rawMergedRows.length)throw new Error('Tidak ada baris Goods Issues yang valid pada file SAP.');
+    const tonaseMap=await fetchTonaseWeekly();parsedRows=aggregateSap(rawMergedRows,tonaseMap);if(!parsedRows.length)throw new Error('Tidak ada Cost Material yang cocok dengan mapping Packaging / Raw Material / SFG.');
+    renderParsedState();const missing=parsedRows.filter(r=>!r.tonase).length;
+    setStatus('parse-status',missing?'info':'ok',`Berhasil: ${sourceFiles.length} file SAP, ${rawMergedRows.length.toLocaleString('id-ID')} Goods Issues unik, ${parsedRows.length} Week terbentuk${duplicateCount?`, ${duplicateCount} duplikat dihapus`:''}${missing?`. ${missing} Week belum memiliki Tonase Produksi.`:'. Tonase seluruh Week berhasil dicocokkan dari Dashboard.'}`);
+  }catch(e){parsedRows=[];document.getElementById('preview-card').style.display='none';setStatus('parse-status','err','Gagal membaca data SAP: '+(e.message||e));}
+  finally{btn.disabled=false;btn.textContent='Baca & Gabungkan Data SAP';}
 });
 document.getElementById('week-select').addEventListener('change',renderPreview);
-document.getElementById('btn-save').addEventListener('click',()=>{if(!parsedRows.length)return;const first=parsedRows[0],last=parsedRows[parsedRows.length-1];document.getElementById('modal-weeks').textContent=parsedRows.length+' week';document.getElementById('modal-range').textContent=`W${first.minggu_ke}–W${last.minggu_ke}`;document.getElementById('modal-year').textContent=detectedYear;document.getElementById('sync-ack').checked=false;document.getElementById('sync-confirm').disabled=true;document.getElementById('sync-modal').classList.add('open')});
+document.getElementById('btn-save').addEventListener('click',()=>{if(!parsedRows.length||parsedRows.some(r=>!r.tonase))return;const first=parsedRows[0],last=parsedRows[parsedRows.length-1];document.getElementById('modal-files').textContent=sourceFiles.length+' file';document.getElementById('modal-weeks').textContent=parsedRows.length+' week';document.getElementById('modal-range').textContent=`W${first.minggu_ke}/${first.tahun} – W${last.minggu_ke}/${last.tahun}`;document.getElementById('sync-ack').checked=false;document.getElementById('sync-confirm').disabled=true;document.getElementById('sync-modal').classList.add('open')});
 document.getElementById('sync-cancel').addEventListener('click',()=>document.getElementById('sync-modal').classList.remove('open'));
 document.getElementById('sync-ack').addEventListener('change',e=>document.getElementById('sync-confirm').disabled=!e.target.checked);
 document.getElementById('sync-modal').addEventListener('click',e=>{if(e.target.id==='sync-modal')e.target.classList.remove('open')});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.getElementById('sync-modal').classList.remove('open')});
 document.getElementById('sync-confirm').addEventListener('click',async()=>{document.getElementById('sync-modal').classList.remove('open');await fullReplaceCostMaterial()});
+
 async function fullReplaceCostMaterial(){
-  const btn=document.getElementById('btn-save');
-  btn.disabled=true;
-  btn.textContent='Menyinkronkan...';
-  setStatus('save-status','info','Menyinkronkan seluruh week dari workbook terbaru ke database...');
-
+  const btn=document.getElementById('btn-save');btn.disabled=true;btn.textContent='Menyinkronkan...';setStatus('save-status','info','Menyinkronkan hasil raw SAP ke Cost Material Weekly...');
   try{
-    // Pastikan hanya ada satu row untuk setiap kombinasi tahun + week.
-    const dedupe=new Map();
-    parsedRows.forEach(r=>{
-      const row={
-        tahun:Number(r.tahun),
-        minggu_ke:Number(r.minggu_ke),
-        tonase:Number(r.tonase)||0,
-        packaging_value:Number(r.packaging_value)||0,
-        raw_material_value:Number(r.raw_material_value)||0,
-        sfg_value:Number(r.sfg_value)||0,
-        target_cost_per_ton:Number(r.target_cost_per_ton)||30000
-      };
-      dedupe.set(`${row.tahun}-${row.minggu_ke}`,row);
-    });
-    const payload=[...dedupe.values()].sort((a,b)=>a.tahun-b.tahun || a.minggu_ke-b.minggu_ke);
-    if(!payload.length) throw new Error('Tidak ada data Week yang dapat disimpan.');
-
-    // Coba full replace terlebih dahulu. Pada project yang membatasi DELETE via RLS,
-    // operasi ini dapat menghapus 0 row tanpa error; UPSERT di bawah tetap aman.
-    const clear=await db.from('cost_material_weekly').delete().gte('tahun',2000);
-    if(clear.error) console.warn('Full delete tidak dapat dijalankan, lanjut dengan UPSERT:',clear.error.message);
-
-    // UPSERT membuat sinkronisasi aman untuk dijalankan berulang kali.
-    // Unique key database: (tahun, minggu_ke).
-    const chunkSize=200;
-    for(let i=0;i<payload.length;i+=chunkSize){
-      const part=payload.slice(i,i+chunkSize);
-      const up=await db.from('cost_material_weekly').upsert(part,{onConflict:'tahun,minggu_ke'});
-      if(up.error) throw up.error;
-    }
-
-    // Hapus record lama yang tidak lagi ada pada workbook, bila policy DELETE mengizinkan.
-    const allNow=await db.from('cost_material_weekly').select('tahun,minggu_ke');
-    if(allNow.error) throw allNow.error;
-    const wanted=new Set(payload.map(r=>`${r.tahun}-${r.minggu_ke}`));
-    const stale=(allNow.data||[]).filter(r=>!wanted.has(`${Number(r.tahun)}-${Number(r.minggu_ke)}`));
-    for(const r of stale){
-      const del=await db.from('cost_material_weekly').delete().eq('tahun',r.tahun).eq('minggu_ke',r.minggu_ke);
-      if(del.error) console.warn(`Tidak dapat menghapus data lama W${r.minggu_ke}/${r.tahun}:`,del.error.message);
-    }
-
-    // Verifikasi semua Week dari workbook sudah ada dan nilainya tersimpan.
-    const years=[...new Set(payload.map(r=>r.tahun))];
-    let actual=[];
-    for(const y of years){
-      const check=await db.from('cost_material_weekly')
-        .select('tahun,minggu_ke,tonase,packaging_value,raw_material_value,sfg_value,target_cost_per_ton')
-        .eq('tahun',y)
-        .order('minggu_ke',{ascending:true});
-      if(check.error) throw check.error;
-      actual=actual.concat(check.data||[]);
-    }
-    const actualMap=new Map(actual.map(r=>[`${Number(r.tahun)}-${Number(r.minggu_ke)}`,r]));
-    const missing=payload.filter(r=>!actualMap.has(`${r.tahun}-${r.minggu_ke}`));
-    if(missing.length) throw new Error(`Verifikasi gagal: ${missing.length} week belum tersimpan.`);
-
-    // Cek lagi apakah masih ada row lama di luar workbook.
-    const finalRows=await db.from('cost_material_weekly').select('tahun,minggu_ke');
-    if(finalRows.error) throw finalRows.error;
-    const remainingStale=(finalRows.data||[]).filter(r=>!wanted.has(`${Number(r.tahun)}-${Number(r.minggu_ke)}`));
-
-    if(remainingStale.length){
-      setStatus('save-status','ok',`Sinkronisasi selesai. ${payload.length} week dari ${sourceFile} berhasil diperbarui. ${remainingStale.length} data lama masih tersimpan karena kebijakan DELETE database, tetapi Week yang sama sudah diperbarui tanpa duplikat.`);
-    }else{
-      setStatus('save-status','ok',`Sinkronisasi selesai. ${payload.length} week dari ${sourceFile} berhasil menjadi data Cost Material terbaru.`);
-    }
-    await loadHistory();
-  }catch(e){
-    setStatus('save-status','err','Sinkronisasi gagal: '+e.message);
-  }finally{
-    btn.disabled=false;
-    btn.textContent='Sinkronkan Semua Week ke Database';
-  }
+    const payload=parsedRows.map(r=>({tahun:Number(r.tahun),minggu_ke:Number(r.minggu_ke),tonase:Number(r.tonase)||0,packaging_value:Math.round(num(r.packaging_value)),raw_material_value:Math.round(num(r.raw_material_value)),sfg_value:Math.round(num(r.sfg_value)),target_cost_per_ton:Number(r.target_cost_per_ton)||TARGET_COST_DEFAULT}));
+    if(payload.some(r=>!r.tonase))throw new Error('Masih ada Week tanpa Tonase Produksi. Perbarui halaman Tonase terlebih dahulu.');
+    const clear=await db.from('cost_material_weekly').delete().gte('tahun',2000);if(clear.error)console.warn('DELETE penuh tidak diizinkan, lanjut UPSERT:',clear.error.message);
+    const size=200;for(let i=0;i<payload.length;i+=size){const {error}=await db.from('cost_material_weekly').upsert(payload.slice(i,i+size),{onConflict:'tahun,minggu_ke'});if(error)throw error;}
+    const current=await db.from('cost_material_weekly').select('tahun,minggu_ke');if(current.error)throw current.error;const wanted=new Set(payload.map(r=>`${r.tahun}-${r.minggu_ke}`));const stale=(current.data||[]).filter(r=>!wanted.has(`${Number(r.tahun)}-${Number(r.minggu_ke)}`));
+    for(const r of stale){const del=await db.from('cost_material_weekly').delete().eq('tahun',r.tahun).eq('minggu_ke',r.minggu_ke);if(del.error)console.warn('Stale row tidak dapat dihapus',r,del.error.message);}
+    const verify=await db.from('cost_material_weekly').select('tahun,minggu_ke');if(verify.error)throw verify.error;const actual=new Set((verify.data||[]).map(r=>`${Number(r.tahun)}-${Number(r.minggu_ke)}`));const missing=payload.filter(r=>!actual.has(`${r.tahun}-${r.minggu_ke}`));if(missing.length)throw new Error(`${missing.length} Week belum tersimpan setelah verifikasi.`);
+    setStatus('save-status','ok',`Sinkronisasi selesai. ${payload.length} Week dari ${sourceFiles.length} file SAP berhasil diperbarui.`);await loadHistory();
+  }catch(e){setStatus('save-status','err','Sinkronisasi gagal: '+(e.message||e));}
+  finally{btn.disabled=false;btn.textContent='Sinkronkan Hasil SAP ke Database';}
 }
 async function loadHistory(){
   const body=document.getElementById('history-body'),sum=document.getElementById('history-summary');
-  try{const {data,error}=await db.from('cost_material_weekly').select('*').order('tahun',{ascending:false}).order('minggu_ke',{ascending:false});if(error)throw error;const rows=data||[];sum.innerHTML=rows.length?`<span>Database Cost Material aktif.</span><b>${rows.length} week</b>`:'<span>Belum ada data Cost Material.</span><b>0 week</b>';body.innerHTML=rows.length?rows.map(r=>{const m=rowMetric(r),target=num(r.target_cost_per_ton)||30000;return`<tr><td>Week ${r.minggu_ke} / ${r.tahun}</td><td>${fmtTon(r.tonase)}</td><td class="${m.costTon<=target?'good':'low'}">${fmtRp(m.costTon)}/ton</td><td>${fmtRp(target)}/ton</td></tr>`}).join(''):'<tr><td colspan="4" class="history-empty">Belum ada data</td></tr>'}
+  try{const {data,error}=await db.from('cost_material_weekly').select('*').order('tahun',{ascending:false}).order('minggu_ke',{ascending:false});if(error)throw error;const rows=data||[];if(rows.length&&num(rows[0].target_cost_per_ton))detectedTarget=num(rows[0].target_cost_per_ton);sum.innerHTML=rows.length?`<span>Database Cost Material aktif.</span><b>${rows.length} week</b>`:'<span>Belum ada data Cost Material.</span><b>0 week</b>';body.innerHTML=rows.length?rows.map(r=>{const m=rowMetric(r),target=num(r.target_cost_per_ton)||TARGET_COST_DEFAULT;return`<tr><td>Week ${r.minggu_ke} / ${r.tahun}</td><td>${fmtTon(r.tonase)}</td><td class="${m.costTon<=target?'good':'low'}">${fmtRp(m.costTon)}/ton</td><td>${fmtRp(target)}/ton</td></tr>`}).join(''):'<tr><td colspan="4" class="history-empty">Belum ada data</td></tr>'}
   catch(e){sum.innerHTML='<span>Riwayat tidak dapat dimuat.</span><b>Error</b>';body.innerHTML=`<tr><td colspan="4" class="history-empty">${e.message}</td></tr>`}
 }
 loadHistory();
