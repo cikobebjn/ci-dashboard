@@ -2,6 +2,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -551,26 +552,110 @@ body{
 @media(max-width:1100px){.kpi-grid.summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.chart-head{flex-direction:column}.chart-controls{justify-content:flex-start}.page-hero{grid-template-columns:1fr}.hero-target{width:min(100%,320px)}}
 @media(max-width:720px){.topbar{height:64px;padding:0 14px}.topbar h2{font-size:16px}.topbar h2::after{font-size:8px}.menu-btn{width:36px;height:36px}.sidebar{width:270px;left:-270px}.main{padding:82px 12px 30px}.page-hero{padding:24px 20px;border-radius:22px}.page-hero h1{font-size:34px}.upload-card,.chart-card{padding:15px;border-radius:18px}.kpi-grid.summary-grid,.kpi-grid.shift-grid{grid-template-columns:1fr}.chart-summary{grid-template-columns:1fr}.chart-controls{width:100%}.period-toggle{width:100%}.period-toggle button{flex:1}.filter-box{flex:1 1 calc(50% - 8px)}.filter-box select{min-width:0;width:100%}.btn-reset-chart,.btn-export-oee{flex:1 1 100%;justify-content:center}.chart-wrap{height:300px}.sidebar-toggle-btn{top:22px;right:16px;width:38px;height:38px}}
 
+
+/* ===== Compact Corporate Sidebar ===== */
+.sidebar{
+    width:260px !important;
+    left:-260px !important;
+    padding:12px 12px 16px !important;
+    background:linear-gradient(180deg,#10284a 0%,#111d34 48%,#0f172a 100%) !important;
+    box-shadow:20px 0 54px rgba(11,30,56,.24) !important;
+    transition:left .28s cubic-bezier(.4,0,.2,1) !important;
+}
+.sidebar::before,.sidebar::after{content:none !important;}
+.sidebar-head{
+    min-height:64px;
+    display:flex;
+    align-items:center;
+    gap:9px;
+    padding:5px 48px 7px 5px;
+    margin-bottom:5px;
+}
+.sidebar-brand-mark{
+    width:36px;height:36px;flex:0 0 36px;
+    display:grid;place-items:center;
+    overflow:hidden;
+    border:1px solid rgba(255,255,255,.14);
+    border-radius:11px;
+    background:#fff;
+    box-shadow:0 4px 12px rgba(0,0,0,.12);
+}
+.sidebar-brand-mark img{
+    display:block;
+    width:27px;
+    height:27px;
+    object-fit:contain;
+}
+.sidebar-brand-copy{min-width:0;display:flex;flex-direction:column;gap:2px;}
+.sidebar-brand-copy strong{color:#f8fbff;font-size:11px;font-weight:850;letter-spacing:.10em;white-space:nowrap;}
+.sidebar-brand-copy span{color:#7890af;font-size:9px;font-weight:650;letter-spacing:.02em;white-space:nowrap;}
+.sidebar-toggle-btn{
+    top:20px !important;right:14px !important;width:34px !important;height:34px !important;gap:4px !important;
+    border-radius:10px !important;border:1px solid rgba(255,255,255,.11) !important;
+    background:rgba(255,255,255,.065) !important;box-shadow:none !important;
+}
+.sidebar-toggle-btn:hover{background:rgba(255,255,255,.11) !important;border-color:rgba(255,255,255,.18) !important;transform:none !important;}
+.sidebar-toggle-btn span{width:16px !important;height:1.5px !important;}
+.sidebar-nav{display:flex;flex-direction:column;gap:2px;}
+.sidebar-section{margin-top:5px;}
+.sidebar-section + .sidebar-section{margin-top:10px;padding-top:9px;border-top:1px solid rgba(255,255,255,.065);}
+.sidebar-section-label{display:block;padding:0 10px 5px;color:#617a9b;font-size:8px;font-weight:850;letter-spacing:.12em;text-transform:uppercase;}
+.sidebar a{
+    position:relative;min-height:38px !important;margin:1px 0 !important;padding:8px 30px 8px 12px !important;
+    border:1px solid transparent;border-radius:10px !important;color:#c4d1e3 !important;
+    font-size:11.5px !important;font-weight:650 !important;letter-spacing:-.005em;
+    transition:background .16s ease,border-color .16s ease,color .16s ease !important;
+}
+.sidebar a::after{content:'›';position:absolute;right:12px;top:50%;transform:translateY(-52%);color:#6f86a5;font-size:16px;font-weight:400;opacity:0;transition:opacity .16s ease,color .16s ease;}
+.sidebar a:hover{background:rgba(255,255,255,.055) !important;border-color:rgba(255,255,255,.055) !important;color:#fff !important;transform:none !important;}
+.sidebar a:hover::after{opacity:.8;color:#9eb2cc;}
+.sidebar a.active{background:rgba(255,255,255,.105) !important;border-color:rgba(255,255,255,.10) !important;color:#fff !important;box-shadow:inset 3px 0 0 #4f8df7,0 5px 16px rgba(2,12,27,.12) !important;}
+.sidebar a.active::after{opacity:1;color:#89b5ff;}
+.sidebar-footer{display:flex;align-items:center;gap:7px;margin:12px 5px 0;padding:10px 8px 2px;border-top:1px solid rgba(255,255,255,.06);color:#607997;font-size:8.5px;font-weight:700;}
+.sidebar-status-dot{width:6px;height:6px;border-radius:50%;background:#35c98a;box-shadow:0 0 0 4px rgba(53,201,138,.08);}
+@media(max-width:640px){
+    .sidebar{width:252px !important;left:-252px !important;padding:12px 10px 14px !important;}
+    .sidebar-head{min-height:58px;padding-left:6px;margin-bottom:6px;}
+    .sidebar-brand-mark{width:34px;height:34px;flex-basis:34px;} .sidebar-brand-mark img{width:25px;height:25px;}
+    .sidebar-toggle-btn{top:18px !important;right:12px !important;width:32px !important;height:32px !important;}
+    .sidebar a{min-height:37px !important;font-size:11.5px !important;}
+}
+
 </style>
 </head>
 <body>
 
 <div class="sidebar" id="sidebar">
+    <div class="sidebar-head">
+        <div class="sidebar-brand-mark"><img src="kobe-logo.png" alt="KOBE"></div>
+        <div class="sidebar-brand-copy"><strong>KOBE BOJONEGORO</strong><span>Factory Monitoring</span></div>
+    </div>
     <button type="button" class="sidebar-toggle-btn" onclick="toggleMenu()" aria-label="Tutup sidebar" title="Tutup menu"><span></span><span></span><span></span></button>
-    <a href="index.html">Dashboard Utama</a>
-    <a href="index.html#dor-opening">Visi, Misi &amp; Core Values</a>
-    <a href="oee.html" class="active">OEE</a>
-    <a href="tonase.html">Tonase</a>
-    <a href="waste.html">Waste</a>
-    <a href="cost-material.html">Cost Material</a>
-    <a href="input-cost-material.html">Input Cost Material</a>
-    <a href="input-variance.html">📊 Input Variance</a>
-    <a href="improvement-monitoring.html">Improvement Monitoring</a>
-    <a href="smartway.html" style="margin-top:20px;border-top:1px solid #374151;">🛠️ Smart Way</a>
-    <a href="baopack.html">📦 Baopack</a>
-    <a href="chingfong.html">⚙️ ChingFong</a>
-    <a href="import-extruder.html">📤 Import Extruder</a>
-    <a href="settings.html">⚙️ Settings</a>
+    <nav class="sidebar-nav" aria-label="Navigasi dashboard">
+        <div class="sidebar-section">
+            <span class="sidebar-section-label">Overview</span>
+            <a href="index.html">Dashboard Utama</a>
+            <a href="index.html#dor-opening">Visi, Misi &amp; Core Values</a>
+        </div>
+        <div class="sidebar-section">
+            <span class="sidebar-section-label">Performance</span>
+            <a href="oee.html" class="active">OEE</a>
+            <a href="tonase.html">Tonase</a>
+            <a href="waste.html">Waste</a>
+            <a href="input-cost-material.html">Cost Material / Ton</a>
+            <a href="input-variance.html">Variance</a>
+        </div>
+        <div class="sidebar-section">
+            <span class="sidebar-section-label">Data &amp; Improvement</span>
+            <a href="improvement-monitoring.html">Improvement Monitoring</a>
+            <a href="smartway.html">Smart Way</a>
+            <a href="baopack.html">Baopack</a>
+            <a href="chingfong.html">ChingFong</a>
+            <a href="import-extruder.html">Extruder</a>
+            <a href="settings.html">Settings</a>
+        </div>
+    </nav>
+    <div class="sidebar-footer"><span class="sidebar-status-dot"></span><span>Manufacturing Dashboard</span></div>
 </div>
 
 <div class="topbar">
