@@ -41,7 +41,43 @@ linear-gradient(145deg,#eef5ff 0%,#f8fafc 50%,#f5efff 100%);min-height:100vh}
 .sync-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:13px}.sync-box{padding:11px 12px;border:1px solid #e8edf4;border-radius:13px;background:#f8fafc}.sync-box span{display:block;color:#8a98ab;font-size:8px;font-weight:850;text-transform:uppercase}.sync-box b{display:block;margin-top:4px;color:#172033;font-size:14px}.helper{margin-top:9px;color:#8d99aa;font-size:9px;line-height:1.5}
 .history-summary{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;padding:10px 12px;border:1px solid #dbeafe;border-radius:12px;background:#f8fbff;color:#48627f;font-size:10px}.history-summary b{color:#1559a7}.history-scroll{max-height:410px;overflow:auto;border:1px solid #eef2f6;border-radius:12px}.history-table{width:100%;border-collapse:collapse;font-size:10px;min-width:650px}.history-table th,.history-table td{padding:9px 10px;border-bottom:1px solid #eef2f6;text-align:right}.history-table th:first-child,.history-table td:first-child{text-align:left}.history-table th{position:sticky;top:0;background:#f8fafc;color:#7c899b;font-size:8px;text-transform:uppercase}.history-empty{text-align:center!important;color:#9ca3af;padding:18px!important}
 .modal{position:fixed;inset:0;z-index:3000;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(15,23,42,.56);backdrop-filter:blur(7px)}.modal.open{display:flex}.dialog{width:min(520px,100%);overflow:hidden;border-radius:23px;background:#fff;box-shadow:0 30px 80px rgba(15,23,42,.3)}.dialog-head{padding:20px 22px 17px;color:#fff;background:linear-gradient(135deg,#1268e8,#583ac8 62%,#7c3aed)}.dialog-head h3{margin:0;font-size:19px}.dialog-head p{margin:5px 0 0;color:rgba(255,255,255,.78);font-size:10px;line-height:1.5}.dialog-body{padding:20px 22px}.confirm-warning{padding:11px 12px;border:1px solid #fde68a;border-radius:12px;background:#fffbeb;color:#81580f;font-size:10px;line-height:1.55}.confirm-check{display:flex;align-items:flex-start;gap:8px;margin-top:12px;color:#526277;font-size:10px;line-height:1.45}.confirm-check input{margin-top:2px}.dialog-actions{display:grid;grid-template-columns:1fr 1.25fr;gap:9px;margin-top:15px}
-@media(max-width:760px){.topbar{height:64px;padding:0 14px}.topbar h2{font-size:16px}.topbar h2 small{font-size:8px}.menu-btn{width:36px;height:36px}.main{padding:82px 12px 30px}.hero{grid-template-columns:1fr;padding:22px 20px;border-radius:22px}.hero h1{font-size:27px}.hero-note{width:100%}.card{padding:16px;border-radius:18px}.section-head{flex-direction:column}.step-pill{align-self:flex-start}.preview-top{grid-template-columns:1fr}.preview-count{white-space:normal}.kpi-grid,.sync-summary{grid-template-columns:1fr}.actions{flex-direction:column;align-items:stretch}.btn{width:100%}.dialog-actions{grid-template-columns:1fr}.sidebar{width:270px;left:-270px}}
+
+.trend-card{overflow:hidden}
+.trend-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:12px}
+.trend-copy h3{margin:0;color:#38495f;font-size:12px;font-weight:850;letter-spacing:.07em;text-transform:uppercase}
+.trend-copy p{margin:5px 0 0;color:#8b99ac;font-size:10px;line-height:1.5}
+.trend-toggle{display:inline-flex;gap:5px;padding:4px;border:1px solid #dfe6ef;border-radius:12px;background:#f5f8fc}
+.trend-toggle button{border:0;border-radius:9px;background:transparent;color:#64748b;padding:8px 12px;font-size:10px;font-weight:850;cursor:pointer;transition:.18s ease}
+.trend-toggle button.active{color:#fff;background:linear-gradient(135deg,#0f766e,#14b8a6);box-shadow:0 7px 16px rgba(15,118,110,.18)}
+.trend-toggle button:hover:not(.active){background:#eaf7f5;color:#0f766e}
+.trend-filter{display:grid;grid-template-columns:minmax(150px,1fr) 24px minmax(150px,1fr) auto;gap:8px;align-items:end;margin:0 0 11px;padding:10px 12px;border:1px solid #e7ecf3;border-radius:14px;background:#fbfdff}
+.trend-field{display:flex;flex-direction:column;gap:5px}
+.trend-field label{color:#8a98ab;font-size:8px;font-weight:850;letter-spacing:.06em;text-transform:uppercase}
+.trend-field select{width:100%;height:36px;padding:0 34px 0 10px;border:1px solid #dfe6ef;border-radius:10px;background:#fff;color:#334155;font-size:10px;font-weight:750;outline:none;cursor:pointer}
+.trend-field select:focus{border-color:#5eead4;box-shadow:0 0 0 3px rgba(20,184,166,.10)}
+.trend-filter-sep{align-self:center;text-align:center;color:#94a3b8;font-size:12px;padding-top:13px}
+.trend-reset{height:36px;padding:0 12px;border:1px solid #cfe8e3;border-radius:10px;background:#effcf9;color:#0f766e;font-size:9px;font-weight:850;cursor:pointer;white-space:nowrap}
+.trend-reset:hover{background:#dcf8f2}
+.trend-range-info{margin:-3px 0 9px;color:#94a3b8;font-size:9px;line-height:1.45}
+.trend-legend{display:flex;flex-wrap:wrap;gap:8px 14px;margin-bottom:9px;color:#64748b;font-size:9px;font-weight:750}
+.trend-legend span{display:inline-flex;align-items:center;gap:6px}
+.trend-dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+.trend-wrap{position:relative;min-height:350px;padding:10px 8px 4px;border:1px solid #e7ecf3;border-radius:16px;background:linear-gradient(180deg,#fff,#fbfdff);overflow:hidden}
+#cost-trend-canvas{display:block;width:100%;height:330px}
+.trend-tooltip{position:absolute;z-index:8;min-width:215px;max-width:275px;padding:12px 13px;border:1px solid rgba(255,255,255,.1);border-radius:14px;background:rgba(15,23,42,.95);box-shadow:0 18px 42px rgba(15,23,42,.27);color:#fff;pointer-events:none;opacity:0;transform:translateY(5px);transition:opacity .12s ease,transform .12s ease}
+.trend-tooltip.show{opacity:1;transform:translateY(0)}
+.trend-tooltip strong{display:block;margin-bottom:3px;font-size:12px}
+.trend-tooltip .tip-sub{margin-bottom:8px;color:rgba(255,255,255,.68);font-size:9px;line-height:1.45}
+.trend-tooltip .tip-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:3px 0;font-size:10px}
+.trend-tooltip .tip-label{display:inline-flex;align-items:center;gap:6px;color:rgba(255,255,255,.82)}
+.trend-tooltip .tip-val{font-weight:850;white-space:nowrap}
+.trend-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:10px}
+.trend-summary-box{padding:10px 12px;border:1px solid #e8edf4;border-radius:12px;background:#f8fafc}
+.trend-summary-box span{display:block;color:#8a98ab;font-size:8px;font-weight:850;text-transform:uppercase;letter-spacing:.05em}
+.trend-summary-box b{display:block;margin-top:4px;color:#172033;font-size:13px}
+.trend-foot{margin-top:8px;color:#94a3b8;font-size:9px;line-height:1.45}
+
+@media(max-width:760px){.topbar{height:64px;padding:0 14px}.topbar h2{font-size:16px}.topbar h2 small{font-size:8px}.menu-btn{width:36px;height:36px}.main{padding:82px 12px 30px}.hero{grid-template-columns:1fr;padding:22px 20px;border-radius:22px}.hero h1{font-size:27px}.hero-note{width:100%}.card{padding:16px;border-radius:18px}.section-head{flex-direction:column}.step-pill{align-self:flex-start}.preview-top{grid-template-columns:1fr}.preview-count{white-space:normal}.kpi-grid,.sync-summary{grid-template-columns:1fr}.actions{flex-direction:column;align-items:stretch}.btn{width:100%}.dialog-actions{grid-template-columns:1fr}.sidebar{width:270px;left:-270px}.trend-head{flex-direction:column}.trend-toggle{width:100%}.trend-toggle button{flex:1}.trend-wrap{min-height:315px;padding:7px 5px 2px}#cost-trend-canvas{height:300px}.trend-summary{grid-template-columns:1fr}.trend-filter{grid-template-columns:1fr 18px 1fr}.trend-reset{grid-column:1/-1;width:100%}.trend-filter-sep{padding-top:13px}.trend-tooltip{min-width:195px;max-width:235px}}
 
 
 /* SAP raw import additions */
@@ -99,7 +135,7 @@ linear-gradient(145deg,#eef5ff 0%,#f8fafc 50%,#f5efff 100%);min-height:100vh}
       <h1>Import Cost Material</h1>
       <p>Gunakan raw export SAP YCOR002 layout <strong>/PERFORMANCE</strong>. Sistem menggabungkan file bulanan, mengelompokkan Packaging / Raw Material / SFG, menghitung Week Minggu–Sabtu, lalu mengambil Tonase otomatis dari database Produksi.</p>
     </div>
-    <div class="hero-note"><b>Workflow SAP-only</b>1. Export YCOR002 per bulan<br>2. Pilih semua file SAP yang ingin digabung<br>3. Sistem merge + klasifikasi + weekly<br>4. Tonase diambil otomatis dari Dashboard<br>5. Sinkronkan Cost Material</div>
+    <div class="hero-note"><b>Workflow Monitoring Harian</b>1. Tarik YCOR002 sampai hari terakhir<br>2. Upload file SAP terbaru<br>3. Sistem hitung Week Minggu–Sabtu<br>4. Tonase diambil otomatis dari Dashboard<br>5. Week terkait diperbarui tanpa menghapus histori</div>
   </section>
 
   <section class="card">
@@ -153,9 +189,43 @@ linear-gradient(145deg,#eef5ff 0%,#f8fafc 50%,#f5efff 100%);min-height:100vh}
     </div>
     <div class="source-note">Mapping mengikuti klasifikasi Cost Material yang selama ini dipakai pada workbook operasional: <b>139 Packaging</b>, <b>11 Raw Material</b>, dan <b>41 SFG</b>. Item di luar mapping tidak masuk perhitungan dan ditampilkan untuk audit.</div>
 
-    <div class="notice show" id="sync-notice"><b>Sinkronisasi Database</b> Data pada <code>cost_material_weekly</code> akan disesuaikan dengan seluruh Week dari file SAP yang dipilih. Karena export dilakukan per bulan, pilih semua file bulan yang ingin dipertahankan agar Week lintas bulan tetap lengkap.</div>
-    <button class="btn btn-save" id="btn-save" style="width:100%;margin-top:14px">Sinkronkan Hasil SAP ke Database</button>
+    <div class="notice show" id="sync-notice"><b>Mode Monitoring Harian</b> Hanya Week yang terdapat pada file SAP terbaru yang akan diperbarui. Histori Week lain tetap tersimpan. Week pertama yang terdeteksi parsial akan dilewati untuk mencegah overwrite data yang belum lengkap.</div>
+    <button class="btn btn-save" id="btn-save" style="width:100%;margin-top:14px">Update Cost Material Harian</button>
     <div class="status" id="save-status"></div>
+  </section>
+
+  <section class="card trend-card">
+    <div class="trend-head">
+      <div class="trend-copy"><h3>Trend Cost Material / Ton</h3><p>Monitoring perkembangan Cost Material dari database. Arahkan kursor ke titik grafik untuk melihat detail nilai dan tonase.</p></div>
+      <div class="trend-toggle">
+        <button type="button" id="trend-weekly" class="active" onclick="switchTrendMode('weekly')">Weekly</button>
+        <button type="button" id="trend-monthly" onclick="switchTrendMode('monthly')">Monthly</button>
+      </div>
+    </div>
+    <div class="trend-filter" id="trend-filter">
+      <div class="trend-field"><label id="trend-from-label">Dari Week</label><select id="trend-from" onchange="changeTrendRange()"></select></div>
+      <div class="trend-filter-sep">—</div>
+      <div class="trend-field"><label id="trend-to-label">Sampai Week</label><select id="trend-to" onchange="changeTrendRange()"></select></div>
+      <button type="button" class="trend-reset" onclick="resetTrendRange()">Periode Terbaru</button>
+    </div>
+    <div class="trend-range-info" id="trend-range-info">Pilih rentang Week yang ingin ditampilkan.</div>
+    <div class="trend-legend">
+      <span><i class="trend-dot" style="background:#0f766e"></i>Total Cost/Ton</span>
+      <span><i class="trend-dot" style="background:#2563eb"></i>Packaging</span>
+      <span><i class="trend-dot" style="background:#6366f1"></i>Raw Material</span>
+      <span><i class="trend-dot" style="background:#8b5cf6"></i>SFG</span>
+      <span><i class="trend-dot" style="background:#f59e0b"></i>Target</span>
+    </div>
+    <div class="trend-wrap" id="trend-wrap">
+      <canvas id="cost-trend-canvas"></canvas>
+      <div class="trend-tooltip" id="trend-tooltip"></div>
+    </div>
+    <div class="trend-summary">
+      <div class="trend-summary-box"><span>Periode Terakhir</span><b id="trend-last">—</b></div>
+      <div class="trend-summary-box"><span>Cost/Ton Terakhir</span><b id="trend-last-value">—</b></div>
+      <div class="trend-summary-box"><span>Vs Target</span><b id="trend-vs-target">—</b></div>
+    </div>
+    <div class="trend-foot" id="trend-foot">Grafik akan tampil setelah riwayat Cost Material dimuat.</div>
   </section>
 
   <section class="card">
@@ -167,7 +237,7 @@ linear-gradient(145deg,#eef5ff 0%,#f8fafc 50%,#f5efff 100%);min-height:100vh}
 
 <div class="modal" id="sync-modal" aria-hidden="true">
   <div class="dialog">
-    <div class="dialog-head"><h3>Konfirmasi Sinkronisasi SAP Cost Material</h3><p>Pastikan seluruh file SAP bulanan yang ingin dipertahankan sudah dipilih.</p></div>
+    <div class="dialog-head"><h3>Konfirmasi Update Cost Material</h3><p>Mode monitoring harian hanya memperbarui Week yang tercakup pada tarikan SAP ini. Histori Week lain tidak dihapus.</p></div>
     <div class="dialog-body">
       <div class="sync-summary" style="margin-top:0">
         <div class="sync-box"><span>File SAP</span><b id="modal-files">—</b></div>
@@ -175,8 +245,8 @@ linear-gradient(145deg,#eef5ff 0%,#f8fafc 50%,#f5efff 100%);min-height:100vh}
         <div class="sync-box"><span>Rentang</span><b id="modal-range">—</b></div>
       </div>
       <div class="confirm-warning">Seluruh Cost Material Weekly akan disinkronkan dari hasil penggabungan raw SAP yang dipilih. Week lama yang tidak ada pada hasil SAP akan dihapus apabila policy database mengizinkan.</div>
-      <label class="confirm-check"><input type="checkbox" id="sync-ack"> <span>Saya sudah memastikan file SAP yang dipilih mencakup seluruh periode Cost Material yang ingin dipertahankan.</span></label>
-      <div class="dialog-actions"><button class="btn btn-outline" id="sync-cancel">Batal</button><button class="btn btn-save" id="sync-confirm" disabled>Konfirmasi & Sinkronkan</button></div>
+      <label class="confirm-check"><input type="checkbox" id="sync-ack"> <span>Saya sudah memeriksa preview dan memahami bahwa Week pada file ini akan diperbarui, sedangkan histori Week lain tetap tersimpan.</span></label>
+      <div class="dialog-actions"><button class="btn btn-outline" id="sync-cancel">Batal</button><button class="btn btn-save" id="sync-confirm" disabled>Konfirmasi & Update</button></div>
     </div>
   </div>
 </div>
@@ -202,6 +272,16 @@ let auditItems=[];
 let sourceFiles=[];
 let duplicateCount=0;
 let detectedTarget=TARGET_COST_DEFAULT;
+let sourceMinDate=null;
+let sourceMaxDate=null;
+let leadingPartialWeekKey=null;
+let syncRows=[];
+let historyRows=[];
+let trendMode='weekly';
+let trendRange={weekly:{from:'',to:''},monthly:{from:'',to:''}};
+let trendHoverKey='';
+let trendHitAreas=[];
+let trendResizeTimer=null;
 
 function toggleMenu(){const s=document.getElementById('sidebar');s.style.left=s.style.left==='0px'?`-${s.offsetWidth}px`:'0px'}
 function num(v){const n=Number(v);return Number.isFinite(n)?n:0}
@@ -239,6 +319,22 @@ function weekInfo(ymd){
   return {year,week,start:msToYmd(start),end:msToYmd(start+6*86400000)};
 }
 function fmtDateShort(ymd){return new Date(ymd+'T00:00:00Z').toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric',timeZone:'UTC'})}
+function buildDailySyncPlan(){
+  sourceMinDate=null;sourceMaxDate=null;leadingPartialWeekKey=null;syncRows=[...parsedRows];
+  if(!rawMergedRows.length||!parsedRows.length)return;
+  const dates=rawMergedRows.map(r=>r.tanggal).filter(Boolean).sort();
+  sourceMinDate=dates[0]||null;sourceMaxDate=dates[dates.length-1]||null;
+  if(!sourceMinDate)return;
+  const firstWeek=weekInfo(sourceMinDate);
+  if(firstWeek.start!==sourceMinDate){
+    leadingPartialWeekKey=`${firstWeek.year}-${firstWeek.week}`;
+    syncRows=parsedRows.filter(r=>`${r.tahun}-${r.minggu_ke}`!==leadingPartialWeekKey);
+  }
+}
+function syncPlanLabel(){
+  if(!sourceMinDate||!sourceMaxDate)return '';
+  return `${fmtDateShort(sourceMinDate)} – ${fmtDateShort(sourceMaxDate)}`;
+}
 function classifyShortText(v){const n=normText(v);if(COST_MAP.PACKAGING.has(n))return'PACKAGING';if(COST_MAP.RAW.has(n))return'RAW';if(COST_MAP.SFG.has(n))return'SFG';return null}
 function normalizeHeader(v){return normText(v).replace(/[^A-Z0-9]+/g,' ')}
 function findSapSheet(wb){
@@ -322,14 +418,20 @@ function renderParsedState(){
   document.getElementById('summary-tonase').textContent=missing?`${missing} week belum tersedia`:'Otomatis dari Dashboard';
   document.getElementById('summary-target').textContent=fmtRp(detectedTarget)+'/ton';
   document.getElementById('preview-card').style.display='block';renderPreview();renderAudit();
-  const btn=document.getElementById('btn-save');btn.disabled=missing>0;
+  const syncMissing=syncRows.filter(r=>!r.tonase).length;
+  const btn=document.getElementById('btn-save');btn.disabled=syncMissing>0||syncRows.length===0;
   const notice=document.getElementById('sync-notice');
-  if(missing){notice.innerHTML=`<b>Tonase belum lengkap</b> Ada ${missing} Week SAP yang belum memiliki Tonase Produksi pada database. Sinkronisasi dinonaktifkan agar Cost/Ton tidak salah.`;}
-  else{notice.innerHTML='<b>Sinkronisasi Database</b> Data pada <code>cost_material_weekly</code> akan disesuaikan dengan seluruh Week dari file SAP yang dipilih. Karena export dilakukan per bulan, pilih semua file bulan yang ingin dipertahankan agar Week lintas bulan tetap lengkap.';}
+  if(syncMissing){notice.innerHTML=`<b>Tonase belum lengkap</b> Ada ${syncMissing} Week yang akan di-update tetapi belum memiliki Tonase Produksi. Update dinonaktifkan agar Cost/Ton tidak salah.`;}
+  else if(leadingPartialWeekKey){
+    const [py,pw]=leadingPartialWeekKey.split('-');
+    notice.innerHTML=`<b>Mode Monitoring Harian</b> ${syncRows.length} Week akan diperbarui dan histori lain tetap tersimpan. <b>Week ${pw} / ${py}</b> dilewati otomatis karena tarikan SAP dimulai ${fmtDateShort(sourceMinDate)}, bukan dari awal minggu (Minggu). Untuk memperbarui Week tersebut, tarik SAP mulai hari Minggu pada Week itu.`;
+  }else{
+    notice.innerHTML=`<b>Mode Monitoring Harian</b> ${syncRows.length} Week akan diperbarui berdasarkan SAP ${syncPlanLabel()}. Histori Week lain tetap tersimpan. Week terakhir boleh parsial dan akan terus ter-update setiap hari.`;
+  }
 }
 function renderFileInfo(files){const info=document.getElementById('file-info');if(!files.length){info.classList.remove('show');info.innerHTML='';return}info.classList.add('show');info.innerHTML=`<div style="font-weight:850;color:#34455d">${files.length} file SAP dipilih</div><div class="file-list">${files.map(f=>`<div class="file-row"><span>📄 ${f.name}</span><small>${(f.size/1024).toLocaleString('id-ID',{maximumFractionDigits:0})} KB</small></div>`).join('')}</div>`;}
 
-document.getElementById('file-excel').addEventListener('change',e=>{sourceFiles=[...(e.target.files||[])];renderFileInfo(sourceFiles);parsedRows=[];rawMergedRows=[];auditItems=[];duplicateCount=0;document.getElementById('preview-card').style.display='none';document.getElementById('parse-status').className='status';});
+document.getElementById('file-excel').addEventListener('change',e=>{sourceFiles=[...(e.target.files||[])];renderFileInfo(sourceFiles);parsedRows=[];rawMergedRows=[];auditItems=[];duplicateCount=0;sourceMinDate=null;sourceMaxDate=null;leadingPartialWeekKey=null;syncRows=[];document.getElementById('preview-card').style.display='none';document.getElementById('parse-status').className='status';});
 document.getElementById('btn-parse').addEventListener('click',async()=>{
   if(!sourceFiles.length){setStatus('parse-status','err','Pilih minimal satu raw export SAP YCOR002 terlebih dahulu.');return}
   const btn=document.getElementById('btn-parse');btn.disabled=true;btn.textContent='Membaca SAP...';
@@ -339,38 +441,144 @@ document.getElementById('btn-parse').addEventListener('click',async()=>{
     for(const f of sourceFiles){const wb=XLSX.read(await f.arrayBuffer(),{type:'array',cellDates:false});collected.push(...parseSapWorkbook(wb,f.name));}
     const dedupe=new Map();duplicateCount=0;collected.forEach(r=>{const k=rowFingerprint(r);if(dedupe.has(k))duplicateCount++;else dedupe.set(k,r)});rawMergedRows=[...dedupe.values()];
     if(!rawMergedRows.length)throw new Error('Tidak ada baris Goods Issues yang valid pada file SAP.');
-    const tonaseMap=await fetchTonaseWeekly();parsedRows=aggregateSap(rawMergedRows,tonaseMap);if(!parsedRows.length)throw new Error('Tidak ada Cost Material yang cocok dengan mapping Packaging / Raw Material / SFG.');
+    const tonaseMap=await fetchTonaseWeekly();parsedRows=aggregateSap(rawMergedRows,tonaseMap);if(!parsedRows.length)throw new Error('Tidak ada Cost Material yang cocok dengan mapping Packaging / Raw Material / SFG.');buildDailySyncPlan();
     renderParsedState();const missing=parsedRows.filter(r=>!r.tonase).length;
     setStatus('parse-status',missing?'info':'ok',`Berhasil: ${sourceFiles.length} file SAP, ${rawMergedRows.length.toLocaleString('id-ID')} Goods Issues unik, ${parsedRows.length} Week terbentuk${duplicateCount?`, ${duplicateCount} duplikat dihapus`:''}${missing?`. ${missing} Week belum memiliki Tonase Produksi.`:'. Tonase seluruh Week berhasil dicocokkan dari Dashboard.'}`);
   }catch(e){parsedRows=[];document.getElementById('preview-card').style.display='none';setStatus('parse-status','err','Gagal membaca data SAP: '+(e.message||e));}
   finally{btn.disabled=false;btn.textContent='Baca & Gabungkan Data SAP';}
 });
 document.getElementById('week-select').addEventListener('change',renderPreview);
-document.getElementById('btn-save').addEventListener('click',()=>{if(!parsedRows.length||parsedRows.some(r=>!r.tonase))return;const first=parsedRows[0],last=parsedRows[parsedRows.length-1];document.getElementById('modal-files').textContent=sourceFiles.length+' file';document.getElementById('modal-weeks').textContent=parsedRows.length+' week';document.getElementById('modal-range').textContent=`W${first.minggu_ke}/${first.tahun} – W${last.minggu_ke}/${last.tahun}`;document.getElementById('sync-ack').checked=false;document.getElementById('sync-confirm').disabled=true;document.getElementById('sync-modal').classList.add('open')});
+document.getElementById('btn-save').addEventListener('click',()=>{if(!syncRows.length||syncRows.some(r=>!r.tonase))return;const first=syncRows[0],last=syncRows[syncRows.length-1];document.getElementById('modal-files').textContent=sourceFiles.length+' file';document.getElementById('modal-weeks').textContent=syncRows.length+' week';document.getElementById('modal-range').textContent=`W${first.minggu_ke}/${first.tahun} – W${last.minggu_ke}/${last.tahun}`;document.getElementById('sync-ack').checked=false;document.getElementById('sync-confirm').disabled=true;document.getElementById('sync-modal').classList.add('open')});
 document.getElementById('sync-cancel').addEventListener('click',()=>document.getElementById('sync-modal').classList.remove('open'));
 document.getElementById('sync-ack').addEventListener('change',e=>document.getElementById('sync-confirm').disabled=!e.target.checked);
 document.getElementById('sync-modal').addEventListener('click',e=>{if(e.target.id==='sync-modal')e.target.classList.remove('open')});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')document.getElementById('sync-modal').classList.remove('open')});
-document.getElementById('sync-confirm').addEventListener('click',async()=>{document.getElementById('sync-modal').classList.remove('open');await fullReplaceCostMaterial()});
+document.getElementById('sync-confirm').addEventListener('click',async()=>{document.getElementById('sync-modal').classList.remove('open');await incrementalSyncCostMaterial()});
 
-async function fullReplaceCostMaterial(){
-  const btn=document.getElementById('btn-save');btn.disabled=true;btn.textContent='Menyinkronkan...';setStatus('save-status','info','Menyinkronkan hasil raw SAP ke Cost Material Weekly...');
+async function incrementalSyncCostMaterial(){
+  const btn=document.getElementById('btn-save');btn.disabled=true;btn.textContent='Memperbarui...';setStatus('save-status','info','Memperbarui Week Cost Material dari raw SAP tanpa menghapus histori...');
   try{
-    const payload=parsedRows.map(r=>({tahun:Number(r.tahun),minggu_ke:Number(r.minggu_ke),tonase:Number(r.tonase)||0,packaging_value:Math.round(num(r.packaging_value)),raw_material_value:Math.round(num(r.raw_material_value)),sfg_value:Math.round(num(r.sfg_value)),target_cost_per_ton:Number(r.target_cost_per_ton)||TARGET_COST_DEFAULT}));
+    const payload=syncRows.map(r=>({tahun:Number(r.tahun),minggu_ke:Number(r.minggu_ke),tonase:Number(r.tonase)||0,packaging_value:Math.round(num(r.packaging_value)),raw_material_value:Math.round(num(r.raw_material_value)),sfg_value:Math.round(num(r.sfg_value)),target_cost_per_ton:Number(r.target_cost_per_ton)||TARGET_COST_DEFAULT}));
+    if(!payload.length)throw new Error('Tidak ada Week yang aman untuk diperbarui. Jika Week pertama parsial, tarik SAP mulai hari Minggu pada Week tersebut.');
     if(payload.some(r=>!r.tonase))throw new Error('Masih ada Week tanpa Tonase Produksi. Perbarui halaman Tonase terlebih dahulu.');
-    const clear=await db.from('cost_material_weekly').delete().gte('tahun',2000);if(clear.error)console.warn('DELETE penuh tidak diizinkan, lanjut UPSERT:',clear.error.message);
-    const size=200;for(let i=0;i<payload.length;i+=size){const {error}=await db.from('cost_material_weekly').upsert(payload.slice(i,i+size),{onConflict:'tahun,minggu_ke'});if(error)throw error;}
-    const current=await db.from('cost_material_weekly').select('tahun,minggu_ke');if(current.error)throw current.error;const wanted=new Set(payload.map(r=>`${r.tahun}-${r.minggu_ke}`));const stale=(current.data||[]).filter(r=>!wanted.has(`${Number(r.tahun)}-${Number(r.minggu_ke)}`));
-    for(const r of stale){const del=await db.from('cost_material_weekly').delete().eq('tahun',r.tahun).eq('minggu_ke',r.minggu_ke);if(del.error)console.warn('Stale row tidak dapat dihapus',r,del.error.message);}
-    const verify=await db.from('cost_material_weekly').select('tahun,minggu_ke');if(verify.error)throw verify.error;const actual=new Set((verify.data||[]).map(r=>`${Number(r.tahun)}-${Number(r.minggu_ke)}`));const missing=payload.filter(r=>!actual.has(`${r.tahun}-${r.minggu_ke}`));if(missing.length)throw new Error(`${missing.length} Week belum tersimpan setelah verifikasi.`);
-    setStatus('save-status','ok',`Sinkronisasi selesai. ${payload.length} Week dari ${sourceFiles.length} file SAP berhasil diperbarui.`);await loadHistory();
-  }catch(e){setStatus('save-status','err','Sinkronisasi gagal: '+(e.message||e));}
-  finally{btn.disabled=false;btn.textContent='Sinkronkan Hasil SAP ke Database';}
+    const unique=new Map();payload.forEach(r=>unique.set(`${r.tahun}-${r.minggu_ke}`,r));const rows=[...unique.values()];
+    const size=200;
+    for(let i=0;i<rows.length;i+=size){
+      const {error}=await db.from('cost_material_weekly').upsert(rows.slice(i,i+size),{onConflict:'tahun,minggu_ke'});
+      if(error)throw error;
+    }
+    const keys=rows.map(r=>`${r.tahun}-${r.minggu_ke}`);
+    const verify=await db.from('cost_material_weekly').select('tahun,minggu_ke');if(verify.error)throw verify.error;
+    const actual=new Set((verify.data||[]).map(r=>`${Number(r.tahun)}-${Number(r.minggu_ke)}`));
+    const missing=keys.filter(k=>!actual.has(k));if(missing.length)throw new Error(`${missing.length} Week belum tersimpan setelah verifikasi.`);
+    const skippedText=leadingPartialWeekKey?' Week pertama parsial dilewati untuk melindungi histori.':'';
+    setStatus('save-status','ok',`Update harian selesai. ${rows.length} Week berhasil diperbarui; histori Week lain tetap tersimpan.${skippedText}`);await loadHistory();
+  }catch(e){setStatus('save-status','err','Update gagal: '+(e.message||e));}
+  finally{btn.disabled=false;btn.textContent='Update Cost Material Harian';}
 }
+
+const TREND_COLORS={total:'#0f766e',pkg:'#2563eb',raw:'#6366f1',sfg:'#8b5cf6',target:'#f59e0b',grid:'#e8edf4',axis:'#94a3b8'};
+const BULAN_SHORT=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+const BULAN_FULL=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+function weekRangeFromNumber(year,week){
+  const jan1=Date.UTC(Number(year),0,1),janDay=new Date(jan1).getUTCDay(),firstSunday=jan1+((7-janDay)%7)*86400000;
+  let start;if(Number(week)<=1)start=jan1;else start=firstSunday+(Number(week)-2)*7*86400000;
+  return{start:msToYmd(start),end:msToYmd(start+6*86400000)};
+}
+function weekThursday(year,week){const r=weekRangeFromNumber(year,week);return new Date(ymdToMs(r.start)+4*86400000)}
+function switchTrendMode(mode){
+  trendMode=mode==='monthly'?'monthly':'weekly';trendHoverKey='';syncTrendRangeControls();renderTrendChart();
+}
+function trendAllWeeklyData(){
+  return [...historyRows].sort((a,b)=>a.tahun-b.tahun||a.minggu_ke-b.minggu_ke).map(r=>{
+    const m=rowMetric(r),range=weekRangeFromNumber(r.tahun,r.minggu_ke),target=num(r.target_cost_per_ton)||TARGET_COST_DEFAULT;
+    return{key:`w-${r.tahun}-${r.minggu_ke}`,sortKey:Number(r.tahun)*100+Number(r.minggu_ke),label:`W${r.minggu_ke}`,optionLabel:`Week ${r.minggu_ke} / ${r.tahun}`,title:`Week ${r.minggu_ke} / ${r.tahun}`,sub:`${fmtDateShort(range.start)} – ${fmtDateShort(range.end)}`,tonase:num(r.tonase),total:m.costTon,pkg:m.pkgTon,raw:m.rawTon,sfg:m.sfgTon,target};
+  });
+}
+function trendAllMonthlyData(){
+  const map=new Map();
+  [...historyRows].sort((a,b)=>a.tahun-b.tahun||a.minggu_ke-b.minggu_ke).forEach(r=>{
+    const d=weekThursday(r.tahun,r.minggu_ke),y=d.getUTCFullYear(),mo=d.getUTCMonth(),key=`${y}-${mo}`;
+    if(!map.has(key))map.set(key,{y,mo,rows:[]});map.get(key).rows.push(r);
+  });
+  return [...map.values()].map(g=>{
+    const pkg=g.rows.reduce((s,r)=>s+num(r.packaging_value),0),raw=g.rows.reduce((s,r)=>s+num(r.raw_material_value),0),sfg=g.rows.reduce((s,r)=>s+num(r.sfg_value),0),tonase=g.rows.reduce((s,r)=>s+num(r.tonase),0),den=tonase*1000,target=num(g.rows[g.rows.length-1]?.target_cost_per_ton)||TARGET_COST_DEFAULT;
+    return{key:`m-${g.y}-${g.mo}`,sortKey:g.y*100+(g.mo+1),label:`${BULAN_SHORT[g.mo]} ${g.y}`,optionLabel:`${BULAN_FULL[g.mo]} ${g.y}`,title:`${BULAN_FULL[g.mo]} ${g.y}`,sub:`${g.rows.length} week · ${fmtTon(tonase)}`,tonase,total:den?(pkg+raw+sfg)/den:0,pkg:den?pkg/den:0,raw:den?raw/den:0,sfg:den?sfg/den:0,target};
+  });
+}
+function trendAllData(){return trendMode==='monthly'?trendAllMonthlyData():trendAllWeeklyData()}
+function ensureTrendRangeDefaults(){
+  ['weekly','monthly'].forEach(mode=>{
+    const all=mode==='weekly'?trendAllWeeklyData():trendAllMonthlyData();if(!all.length)return;
+    const range=trendRange[mode],defaultCount=mode==='weekly'?12:6;
+    if(!range.from||!all.some(d=>d.key===range.from))range.from=all[Math.max(0,all.length-defaultCount)].key;
+    if(!range.to||!all.some(d=>d.key===range.to))range.to=all[all.length-1].key;
+  });
+}
+function syncTrendRangeControls(){
+  ensureTrendRangeDefaults();
+  const all=trendAllData(),from=document.getElementById('trend-from'),to=document.getElementById('trend-to');if(!from||!to)return;
+  const range=trendRange[trendMode],options=all.map(d=>`<option value="${d.key}">${d.optionLabel}</option>`).join('');
+  from.innerHTML=options;to.innerHTML=options;from.value=range.from;to.value=range.to;
+  document.getElementById('trend-from-label').textContent=trendMode==='weekly'?'Dari Week':'Dari Bulan';
+  document.getElementById('trend-to-label').textContent=trendMode==='weekly'?'Sampai Week':'Sampai Bulan';
+  const info=document.getElementById('trend-range-info');if(info)info.textContent=trendMode==='weekly'?'Pilih Week awal dan Week akhir. Weekly menggunakan periode Minggu–Sabtu.':'Pilih Bulan awal dan Bulan akhir yang ingin ditampilkan.';
+}
+function changeTrendRange(){
+  const from=document.getElementById('trend-from'),to=document.getElementById('trend-to');if(!from||!to)return;
+  const all=trendAllData(),iFrom=all.findIndex(d=>d.key===from.value),iTo=all.findIndex(d=>d.key===to.value);
+  if(iFrom<0||iTo<0)return;
+  if(iFrom<=iTo){trendRange[trendMode]={from:from.value,to:to.value};}
+  else{trendRange[trendMode]={from:to.value,to:from.value};}
+  trendHoverKey='';syncTrendRangeControls();renderTrendChart();
+}
+function resetTrendRange(){
+  const all=trendAllData();if(!all.length)return;const n=trendMode==='weekly'?12:6;
+  trendRange[trendMode]={from:all[Math.max(0,all.length-n)].key,to:all[all.length-1].key};trendHoverKey='';syncTrendRangeControls();renderTrendChart();
+}
+function getTrendData(){
+  ensureTrendRangeDefaults();const all=trendAllData(),range=trendRange[trendMode];
+  const iFrom=all.findIndex(d=>d.key===range.from),iTo=all.findIndex(d=>d.key===range.to);
+  if(iFrom<0||iTo<0)return all;
+  return all.slice(Math.min(iFrom,iTo),Math.max(iFrom,iTo)+1);
+}
+function syncTrendButtons(){document.getElementById('trend-weekly')?.classList.toggle('active',trendMode==='weekly');document.getElementById('trend-monthly')?.classList.toggle('active',trendMode==='monthly')}
+function setupTrendCanvas(){
+  const wrap=document.getElementById('trend-wrap'),canvas=document.getElementById('cost-trend-canvas');if(!wrap||!canvas)return{};
+  const dpr=Math.max(1,Math.min(2,window.devicePixelRatio||1)),cssW=Math.max(280,wrap.clientWidth-16),cssH=window.innerWidth<=760?300:330;
+  canvas.style.width=cssW+'px';canvas.style.height=cssH+'px';canvas.width=Math.round(cssW*dpr);canvas.height=Math.round(cssH*dpr);const ctx=canvas.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);return{wrap,canvas,ctx,cssW,cssH};
+}
+function renderTrendChart(){
+  syncTrendButtons();syncTrendRangeControls();const data=getTrendData(),setup=setupTrendCanvas(),{wrap,canvas,ctx,cssW,cssH}=setup;if(!ctx)return;trendHitAreas=[];
+  ctx.clearRect(0,0,cssW,cssH);if(!data.length){ctx.fillStyle='#94a3b8';ctx.font='12px Arial';ctx.textAlign='center';ctx.fillText('Belum ada riwayat Cost Material.',cssW/2,cssH/2);updateTrendTooltip(null);return}
+  const mobile=window.innerWidth<=760,margin={top:18,right:14,bottom:42,left:mobile?58:70},plotW=cssW-margin.left-margin.right,plotH=cssH-margin.top-margin.bottom;
+  const maxVal=Math.max(...data.flatMap(d=>[d.total,d.pkg,d.raw,d.sfg,d.target]),TARGET_COST_DEFAULT);const max=Math.max(10000,Math.ceil(maxVal*1.14/5000)*5000);const y=v=>margin.top+plotH-(num(v)/max)*plotH,x=i=>margin.left+(data.length===1?plotW/2:i*(plotW/(data.length-1)));
+  ctx.strokeStyle=TREND_COLORS.grid;ctx.lineWidth=1;ctx.font=(mobile?'9px':'10px')+' Arial';ctx.fillStyle=TREND_COLORS.axis;ctx.textAlign='right';
+  for(let i=0;i<=5;i++){const yy=margin.top+i*plotH/5,val=max-i*max/5;ctx.beginPath();ctx.moveTo(margin.left,yy);ctx.lineTo(cssW-margin.right,yy);ctx.stroke();ctx.fillText(Math.round(val).toLocaleString('id-ID'),margin.left-8,yy+3)}
+  const activeIndex=data.findIndex(d=>d.key===trendHoverKey);if(activeIndex>=0){ctx.save();ctx.strokeStyle='rgba(15,118,110,.20)';ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(x(activeIndex),margin.top);ctx.lineTo(x(activeIndex),margin.top+plotH);ctx.stroke();ctx.restore()}
+  ctx.save();ctx.setLineDash([6,6]);ctx.strokeStyle=TREND_COLORS.target;ctx.lineWidth=2;ctx.beginPath();data.forEach((d,i)=>i?ctx.lineTo(x(i),y(d.target)):ctx.moveTo(x(i),y(d.target)));ctx.stroke();ctx.restore();
+  [['pkg',TREND_COLORS.pkg,2],['raw',TREND_COLORS.raw,2],['sfg',TREND_COLORS.sfg,2],['total',TREND_COLORS.total,3]].forEach(([key,color,width])=>{
+    ctx.strokeStyle=color;ctx.lineWidth=width;ctx.lineJoin='round';ctx.lineCap='round';ctx.beginPath();data.forEach((d,i)=>i?ctx.lineTo(x(i),y(d[key])):ctx.moveTo(x(i),y(d[key])));ctx.stroke();
+    data.forEach((d,i)=>{const hovered=i===activeIndex;ctx.beginPath();ctx.fillStyle='#fff';ctx.arc(x(i),y(d[key]),hovered?5.5:3.8,0,Math.PI*2);ctx.fill();ctx.strokeStyle=color;ctx.lineWidth=hovered?3:2;ctx.stroke()});
+  });
+  ctx.textAlign='center';ctx.fillStyle='#64748b';ctx.font=(mobile?'9px':'10px')+' Arial';data.forEach((d,i)=>{ctx.fillText(d.label,x(i),cssH-16);trendHitAreas.push({key:d.key,item:d,x:x(i),y:y(d.total),r:Math.max(18,plotW/Math.max(data.length,1)/2)})});
+  const last=data[data.length-1],diff=last.total-last.target;document.getElementById('trend-last').textContent=last.title;document.getElementById('trend-last-value').textContent=fmtRp(last.total)+'/ton';const vs=document.getElementById('trend-vs-target');vs.textContent=(diff>0?'+':'')+fmtRp(diff)+'/ton';vs.style.color=diff<=0?'#16a34a':'#dc2626';document.getElementById('trend-foot').textContent=trendMode==='weekly'?`Menampilkan ${data.length} week terpilih (${data[0].title} s.d. ${data[data.length-1].title}). Weekly menggunakan Minggu–Sabtu.`:`Menampilkan ${data.length} bulan terpilih (${data[0].title} s.d. ${data[data.length-1].title}). Monthly dihitung dari agregasi Cost Material weekly pada bulan yang sama.`;
+  bindTrendHover(wrap,canvas);if(activeIndex>=0)updateTrendTooltip(trendHitAreas.find(h=>h.key===trendHoverKey));else updateTrendTooltip(null);
+}
+function updateTrendTooltip(hit){
+  const tip=document.getElementById('trend-tooltip'),wrap=document.getElementById('trend-wrap');if(!tip||!wrap)return;if(!hit){tip.classList.remove('show');tip.innerHTML='';return}const d=hit.item,dot=c=>`<i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${c}"></i>`;
+  tip.innerHTML=`<strong>${d.title}</strong><div class="tip-sub">${d.sub}<br>Tonase: ${fmtTon(d.tonase)}</div><div class="tip-row"><span class="tip-label">${dot(TREND_COLORS.total)} Total</span><span class="tip-val">${fmtRp(d.total)}/ton</span></div><div class="tip-row"><span class="tip-label">${dot(TREND_COLORS.pkg)} Packaging</span><span class="tip-val">${fmtRp(d.pkg)}</span></div><div class="tip-row"><span class="tip-label">${dot(TREND_COLORS.raw)} Raw Material</span><span class="tip-val">${fmtRp(d.raw)}</span></div><div class="tip-row"><span class="tip-label">${dot(TREND_COLORS.sfg)} SFG</span><span class="tip-val">${fmtRp(d.sfg)}</span></div><div class="tip-row"><span class="tip-label">${dot(TREND_COLORS.target)} Target</span><span class="tip-val">${fmtRp(d.target)}</span></div>`;
+  tip.classList.add('show');const w=wrap.clientWidth,h=wrap.clientHeight;let left=Math.min(w-tip.offsetWidth-10,hit.x+18),top=hit.y<130?hit.y+20:hit.y-tip.offsetHeight-14;tip.style.left=Math.max(10,left)+'px';tip.style.top=Math.max(10,Math.min(h-tip.offsetHeight-10,top))+'px';
+}
+function bindTrendHover(wrap,canvas){
+  if(wrap.dataset.trendBound==='1')return;wrap.dataset.trendBound='1';canvas.addEventListener('mousemove',e=>{const r=canvas.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;let hit=trendHitAreas.reduce((best,h)=>{const dist=Math.abs(h.x-mx);return!best||dist<best.dist?{...h,dist}:best},null);const next=hit&&hit.dist<=Math.max(28,(r.width/Math.max(trendHitAreas.length,1))/2)?hit.key:'';if(next!==trendHoverKey){trendHoverKey=next;renderTrendChart()}});canvas.addEventListener('mouseleave',()=>{trendHoverKey='';renderTrendChart()});
+}
+window.addEventListener('resize',()=>{clearTimeout(trendResizeTimer);trendResizeTimer=setTimeout(renderTrendChart,120)});
+
 async function loadHistory(){
   const body=document.getElementById('history-body'),sum=document.getElementById('history-summary');
-  try{const {data,error}=await db.from('cost_material_weekly').select('*').order('tahun',{ascending:false}).order('minggu_ke',{ascending:false});if(error)throw error;const rows=data||[];if(rows.length&&num(rows[0].target_cost_per_ton))detectedTarget=num(rows[0].target_cost_per_ton);sum.innerHTML=rows.length?`<span>Database Cost Material aktif.</span><b>${rows.length} week</b>`:'<span>Belum ada data Cost Material.</span><b>0 week</b>';body.innerHTML=rows.length?rows.map(r=>{const m=rowMetric(r),target=num(r.target_cost_per_ton)||TARGET_COST_DEFAULT;return`<tr><td>Week ${r.minggu_ke} / ${r.tahun}</td><td>${fmtTon(r.tonase)}</td><td class="${m.costTon<=target?'good':'low'}">${fmtRp(m.costTon)}/ton</td><td>${fmtRp(target)}/ton</td></tr>`}).join(''):'<tr><td colspan="4" class="history-empty">Belum ada data</td></tr>'}
-  catch(e){sum.innerHTML='<span>Riwayat tidak dapat dimuat.</span><b>Error</b>';body.innerHTML=`<tr><td colspan="4" class="history-empty">${e.message}</td></tr>`}
+  try{const {data,error}=await db.from('cost_material_weekly').select('*').order('tahun',{ascending:false}).order('minggu_ke',{ascending:false});if(error)throw error;const rows=data||[];historyRows=rows;ensureTrendRangeDefaults();syncTrendRangeControls();if(rows.length&&num(rows[0].target_cost_per_ton))detectedTarget=num(rows[0].target_cost_per_ton);sum.innerHTML=rows.length?`<span>Database Cost Material aktif.</span><b>${rows.length} week</b>`:'<span>Belum ada data Cost Material.</span><b>0 week</b>';body.innerHTML=rows.length?rows.map(r=>{const m=rowMetric(r),target=num(r.target_cost_per_ton)||TARGET_COST_DEFAULT;return`<tr><td>Week ${r.minggu_ke} / ${r.tahun}</td><td>${fmtTon(r.tonase)}</td><td class="${m.costTon<=target?'good':'low'}">${fmtRp(m.costTon)}/ton</td><td>${fmtRp(target)}/ton</td></tr>`}).join(''):'<tr><td colspan="4" class="history-empty">Belum ada data</td></tr>';renderTrendChart()}
+  catch(e){historyRows=[];sum.innerHTML='<span>Riwayat tidak dapat dimuat.</span><b>Error</b>';body.innerHTML=`<tr><td colspan="4" class="history-empty">${e.message}</td></tr>`;renderTrendChart()}
 }
 loadHistory();
 </script>
