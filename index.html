@@ -244,6 +244,54 @@ body {
     box-shadow:var(--shadow-md);
     border-color:#dbe3ee;
 }
+
+/* KPI cards that open their detail page */
+.card.kpi-link-card {
+    cursor:pointer;
+    outline:none;
+}
+.card.kpi-link-card::after {
+    content:'↗';
+    position:absolute;
+    top:14px;
+    right:14px;
+    z-index:3;
+    width:27px;
+    height:27px;
+    display:grid;
+    place-items:center;
+    border:1px solid rgba(203,213,225,.75);
+    border-radius:9px;
+    background:rgba(255,255,255,.80);
+    color:#64748b;
+    font-size:13px;
+    font-weight:800;
+    opacity:0;
+    transform:translateY(2px);
+    transition:opacity .18s ease, transform .18s ease, color .18s ease, border-color .18s ease;
+    pointer-events:none;
+}
+.card.kpi-link-card:hover::after,
+.card.kpi-link-card:focus-visible::after {
+    opacity:1;
+    transform:translateY(0);
+    color:var(--primary);
+    border-color:#bdd6fb;
+}
+.card.kpi-link-card:focus-visible {
+    box-shadow:0 0 0 4px rgba(18,104,232,.12), var(--shadow-md);
+    border-color:#b9d3fa;
+}
+.card.kpi-link-card .period-btn,
+.card.kpi-link-card button,
+.card.kpi-link-card a,
+.card.kpi-link-card input,
+.card.kpi-link-card select {
+    cursor:pointer;
+}
+@media (max-width:640px){
+    .card.kpi-link-card::after{opacity:1;top:12px;right:12px;width:25px;height:25px;font-size:12px;background:rgba(255,255,255,.88);}
+}
 .card::before, .card-wide::before {
     content:'';
     position:absolute;
@@ -1772,7 +1820,7 @@ body::after {
     <div class="sec-title" style="margin-top:0;">Ringkasan KPI <span id="title-date-waste" style="color:#9ca3af; font-weight:400; text-transform:none;"></span></div>
     <div class="kpi-grid summary-kpi-grid">
 
-        <div class="card oee-card">
+        <div class="card oee-card kpi-link-card" role="link" tabindex="0" aria-label="Buka detail OEE" data-href="oee.html" onclick="openKpiCard(event,this)" onkeydown="openKpiCardKey(event,this)">
             <h3>Daily OEE (rata-rata)</h3>
             <div class="value loading" id="val-oee">...</div>
             <div class="card-date" id="date-oee"></div>
@@ -1787,7 +1835,7 @@ body::after {
             </div>
         </div>
 
-        <div class="card tonase-card">
+        <div class="card tonase-card kpi-link-card" role="link" tabindex="0" aria-label="Buka detail Tonase Produksi" data-href="tonase.html" onclick="openKpiCard(event,this)" onkeydown="openKpiCardKey(event,this)">
             <h3>📦 Tonase Produksi</h3>
             <div class="tonase-primary">
                 <div class="tonase-eyebrow">Periode Terpilih</div>
@@ -1803,28 +1851,28 @@ body::after {
             </div>
         </div>
 
-        <div class="card waste-mini-card kemasan">
+        <div class="card waste-mini-card kemasan kpi-link-card" role="link" tabindex="0" aria-label="Buka detail Waste Kemasan" data-href="waste.html" onclick="openKpiCard(event,this)" onkeydown="openKpiCardKey(event,this)">
             <h3>🗑️ Waste Kemasan</h3>
             <div class="value loading" id="wd-total-kemasan">...</div>
             <div class="card-date" id="wd-batas-kemasan"></div>
             <table class="waste-detail-table" id="wd-table-kemasan"><tbody></tbody></table>
         </div>
 
-        <div class="card waste-mini-card sfg">
+        <div class="card waste-mini-card sfg kpi-link-card" role="link" tabindex="0" aria-label="Buka detail Waste SFG" data-href="waste.html" onclick="openKpiCard(event,this)" onkeydown="openKpiCardKey(event,this)">
             <h3>🗑️ Waste SFG</h3>
             <div class="value loading" id="wd-total-sfg">...</div>
             <div class="card-date" id="wd-batas-sfg"></div>
             <table class="waste-detail-table" id="wd-table-sfg"><tbody></tbody></table>
         </div>
 
-        <div class="card waste-mini-card karton">
+        <div class="card waste-mini-card karton kpi-link-card" role="link" tabindex="0" aria-label="Buka detail Waste Karton" data-href="waste.html" onclick="openKpiCard(event,this)" onkeydown="openKpiCardKey(event,this)">
             <h3>🗑️ Waste Karton</h3>
             <div class="value loading" id="wd-total-karton">...</div>
             <div class="card-date" id="wd-batas-karton"></div>
             <table class="waste-detail-table" id="wd-table-karton"><tbody></tbody></table>
         </div>
 
-        <div class="card cost-material-card">
+        <div class="card cost-material-card kpi-link-card" role="link" tabindex="0" aria-label="Buka detail Cost Material per Ton" data-href="cost-material.html" onclick="openKpiCard(event,this)" onkeydown="openKpiCardKey(event,this)">
             <h3>💰 Cost Material / Ton</h3>
             <div class="cost-period-toggle">
                 <button type="button" class="period-btn active" id="btn-cost-weekly" onclick="switchCostPeriod('weekly')">Mingguan</button>
@@ -2183,6 +2231,23 @@ function toggleMenu() {
     const s = document.getElementById('sidebar');
     s.style.left = s.style.left === '0px' ? `-${s.offsetWidth}px` : '0px';
 }
+
+function openKpiCard(event, card){
+    if(!card) return;
+    const interactive=event.target.closest('button, a, input, select, textarea, label, [role="button"]');
+    if(interactive && interactive!==card) return;
+    const href=card.dataset.href;
+    if(href) window.location.href=href;
+}
+function openKpiCardKey(event, card){
+    if(event.target!==card) return;
+    if(event.key==='Enter' || event.key===' '){
+        event.preventDefault();
+        const href=card.dataset.href;
+        if(href) window.location.href=href;
+    }
+}
+
 
 function fmtDate(d) {
     if (!d) return '';
