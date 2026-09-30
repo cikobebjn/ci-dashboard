@@ -2,6 +2,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -2083,7 +2084,7 @@ body::after {
                     <div class="variance-chart-title-row">
                         <div>
                             <div class="variance-chart-title">Grafik Variance</div>
-                            <div class="variance-chart-note">Grafik mengikuti seluruh filter Variance. Gunakan Bar untuk perbandingan periode, Line untuk tren, dan Pareto untuk menentukan material prioritas improvement.</div>
+                            <div class="variance-chart-note">Grafik mengikuti seluruh filter Variance. Bar dan Line membandingkan periode, sedangkan Pareto meranking material berdasarkan metrik yang dipilih: Variance Value, % Var Value, atau % Var Qty.</div>
                         </div>
                         <button type="button" class="variance-chart-download" onclick="downloadVarianceChart()" title="Export chart as PNG for presentation">
                             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v11m0 0 4-4m-4 4-4-4M5 15v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -3292,20 +3293,29 @@ function varianceRowsAcrossSelectedPeriods(){
 }
 function varianceParetoData(){
     const rows=varianceRowsAcrossSelectedPeriods();
+    const meta=varianceChartMetricMeta();
     const items=varianceAggregate(rows,'short_text')
-        .filter(item=> Number(item.metric.varianceValue)>0)
-        .sort((a,b)=>b.metric.varianceValue-a.metric.varianceValue)
+        .map(item=>({
+            ...item,
+            paretoValue:Number(item.metric?.[meta.key])
+        }))
+        .filter(item=>Number.isFinite(item.paretoValue) && item.paretoValue>0)
+        .sort((a,b)=>b.paretoValue-a.paretoValue)
         .slice(0,10);
-    const total=items.reduce((s,item)=>s+Number(item.metric.varianceValue||0),0);
+    const total=items.reduce((s,item)=>s+item.paretoValue,0);
     let cum=0;
     return items.map((item,index)=>{
-        const value=Number(item.metric.varianceValue||0);
+        const value=item.paretoValue;
         cum += value;
         return {
             no:index+1,
-            label: item.name,
+            label:item.name,
             value,
-            cumulative: total>0 ? (cum/total) : 0,
+            metric:item.metric,
+            metricKey:meta.key,
+            metricLabel:meta.label,
+            metricType:meta.type,
+            cumulative:total>0 ? (cum/total) : 0,
         };
     });
 }
@@ -3474,12 +3484,12 @@ function renderVarianceChartLine(ctx, cssWidth, cssHeight, data, meta){
         varianceChartHitAreas.push({key:`period:${p.item.key}`,type:'period',item:p.item,x:p.x-band/2,y:margin.top,w:band,h:cssHeight-margin.top-margin.bottom+12});
     });
 }
-function renderVarianceChartPareto(ctx, cssWidth, cssHeight, paretoData){
+function renderVarianceChartPareto(ctx, cssWidth, cssHeight, paretoData, meta){
     const isMobile=window.innerWidth<=640;
     const margin=isMobile ? {top:22,right:44,bottom:56,left:60} : {top:28,right:64,bottom:50,left:76};
     const values=paretoData.map(d=>d.value);
-    let max=Math.max(1,...values)*1.16;
-    const { plotW, plotH, yFor } = drawVarianceChartAxes(ctx, cssWidth, cssHeight, margin, 0, max, 'money', true);
+    let max=Math.max(meta.type==='pct'?0.01:1,...values)*1.16;
+    const { plotW, plotH, yFor } = drawVarianceChartAxes(ctx, cssWidth, cssHeight, margin, 0, max, meta.type, true);
     const band=plotW/Math.max(1,paretoData.length);
     const barW=Math.min(isMobile?38:50, Math.max(isMobile?12:16,band*(isMobile?0.42:0.48)));
 
@@ -3499,7 +3509,7 @@ function renderVarianceChartPareto(ctx, cssWidth, cssHeight, paretoData){
         ctx.fillStyle=varianceChartPrimaryGradient(ctx,y,bottom,hovered);
         ctx.beginPath(); ctx.roundRect(x,y,barW,Math.max(3,bottom-y),[8,8,0,0]); ctx.fill(); ctx.restore();
         ctx.textAlign='center'; ctx.textBaseline='bottom'; ctx.fillStyle='#3730a3'; ctx.font=(hovered?'800 ':'700 ')+'10px Inter, sans-serif';
-        ctx.fillText(fmtVarianceShort(item.value,'money'),x+barW/2,y-7);
+        ctx.fillText(fmtVarianceShort(item.value,meta.type),x+barW/2,y-7);
         ctx.textBaseline='top'; ctx.fillStyle='#475569'; ctx.font='800 10px Inter, sans-serif';
         ctx.fillText(String(item.no),x+barW/2,cssHeight-margin.bottom+18);
         varianceChartHitAreas.push({key:`pareto:${item.no}`,type:'pareto',item,x:x-8,y:margin.top,w:barW+16,h:plotH+8});
@@ -3540,7 +3550,9 @@ function ensureVarianceTooltip(wrap){
 function varianceTooltipHtml(hit){
     if(!hit) return '';
     if(hit.type==='pareto'){
-        return `<strong>${escapeHtml(hit.item.label)}</strong><div class="variance-chart-tooltip-grid"><span>Variance Value</span><span>${escapeHtml(fmtVarianceShort(hit.item.value,'money'))}</span><span>Cumulative</span><span>${(hit.item.cumulative*100).toFixed(0)}%</span><span>Rank</span><span>#${hit.item.no}</span></div>`;
+        const label=hit.item.metricLabel||varianceChartMetricMeta().label;
+        const type=hit.item.metricType||varianceChartMetricMeta().type;
+        return `<strong>${escapeHtml(hit.item.label)}</strong><div class="variance-chart-tooltip-grid"><span>${escapeHtml(label)}</span><span>${escapeHtml(fmtVarianceShort(hit.item.value,type))}</span><span>Cumulative</span><span>${(hit.item.cumulative*100).toFixed(0)}%</span><span>Rank</span><span>#${hit.item.no}</span></div>`;
     }
     const m=hit.item.metric||{};
     return `<strong>${escapeHtml(hit.item.label)}</strong><div class="variance-chart-tooltip-grid"><span>Variance Value</span><span>${escapeHtml(fmtVarianceShort(m.varianceValue,'money'))}</span><span>% Variance Value</span><span>${escapeHtml(fmtVarianceShort(m.pctValue,'pct'))}</span><span>% Variance Qty</span><span>${escapeHtml(fmtVarianceShort(m.pctQty,'pct'))}</span><span>Kelompok data</span><span>${(hit.item.rows||[]).length.toLocaleString('id-ID')}</span></div>`;
@@ -3596,7 +3608,7 @@ function renderVarianceChart(){
     const paretoData=varianceParetoData();
 
     if(varianceChartType==='pareto' && !paretoData.length){
-        wrap.innerHTML='<div class="variance-chart-empty">Belum ada item material over-variance untuk ditampilkan pada Pareto.</div>';
+        wrap.innerHTML=`<div class="variance-chart-empty">Belum ada item material dengan ${escapeHtml(meta.label)} positif untuk ditampilkan pada Pareto.</div>`;
         if(legend) legend.innerHTML='';
         if(paretoList) paretoList.innerHTML='';
         return;
@@ -3611,7 +3623,7 @@ function renderVarianceChart(){
     varianceChartHitAreas=[];
     const { cvs, ctx, cssWidth, cssHeight }=setupVarianceCanvas(wrap);
     if(varianceChartType==='line') renderVarianceChartLine(ctx,cssWidth,cssHeight,periodData,meta);
-    else if(varianceChartType==='pareto') renderVarianceChartPareto(ctx,cssWidth,cssHeight,paretoData);
+    else if(varianceChartType==='pareto') renderVarianceChartPareto(ctx,cssWidth,cssHeight,paretoData,meta);
     else renderVarianceChartBar(ctx,cssWidth,cssHeight,periodData,meta);
     bindVarianceChartHover(wrap,cvs);
 
@@ -3619,7 +3631,7 @@ function renderVarianceChart(){
     const periodLabel=(variancePeriod==='monthly'?'Bulanan':'Mingguan')+' · '+varianceSelectedPeriodKeys().length+' periode';
     if(legend){
         const visualLegend=varianceChartType==='pareto'
-            ? '<span><i class="variance-chart-swatch" style="background:linear-gradient(135deg,#2563eb,#7c3aed)"></i>Variance Value</span><span><i class="variance-chart-swatch" style="background:#7c3aed"></i>Kumulatif kontribusi</span><span><i class="variance-chart-swatch" style="background:#f59e0b"></i>Batas 80%</span>'
+            ? `<span><i class="variance-chart-swatch" style="background:linear-gradient(135deg,#2563eb,#7c3aed)"></i>${escapeHtml(meta.label)}</span><span><i class="variance-chart-swatch" style="background:#7c3aed"></i>Kumulatif kontribusi</span><span><i class="variance-chart-swatch" style="background:#f59e0b"></i>Batas 80%</span>`
             : '<span><i class="variance-chart-swatch" style="background:linear-gradient(135deg,#2563eb,#7c3aed)"></i>Variance (+)</span><span><i class="variance-chart-swatch" style="background:#16a34a"></i>Saving (-)</span>';
         legend.innerHTML=visualLegend+`<span class="variance-chart-meta-pill">${escapeHtml(typeLabel)}</span><span class="variance-chart-meta-pill">${escapeHtml(meta.label)}</span><span class="variance-chart-meta-pill">${escapeHtml(periodLabel)}</span>`;
     }
@@ -3803,7 +3815,7 @@ function downloadVarianceChart(){
         const paretoItems=varianceParetoData();
         ctx.fillStyle='#172033';
         ctx.font='700 30px Arial, sans-serif';
-        ctx.fillText('Top 10 Material / SKU Contributors',marginX,top5TitleY);
+        ctx.fillText(`Top 10 Material / SKU Contributors — ${meta.label}`,marginX,top5TitleY);
 
         // Clean separation between the section title and the SKU list.
         ctx.strokeStyle='#e8edf4';
