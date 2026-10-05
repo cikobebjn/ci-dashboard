@@ -1426,10 +1426,17 @@ body::after {
 .variance-line-block { margin:6px 0; border:1px solid #edf0f4; border-radius:9px; overflow:hidden; background:#fff; }
 .variance-line-head { display:grid; grid-template-columns:minmax(0,1fr) 145px 88px 88px; gap:6px; align-items:center; padding:6px 8px; background:#f8fafc; color:#526075; font-size:8px; }
 .variance-line-head b { color:#344257; }
+.variance-machine-block { margin:5px 8px 7px 18px; border:1px solid #eef1f5; border-radius:8px; overflow:hidden; background:#fff; }
+.variance-machine-head { display:grid; grid-template-columns:minmax(0,1fr) 145px 88px 88px; gap:6px; align-items:center; padding:6px 8px; background:#fbfcfe; color:#526075; font-size:7.8px; border-top:1px solid #f3f4f6; }
+.variance-machine-head:first-child { border-top:0; }
+.variance-machine-name { display:flex; align-items:center; gap:6px; min-width:0; }
+.variance-machine-badge { flex:0 0 auto; padding:2px 6px; border-radius:999px; background:#eaf3ff; color:#1268e8; font-size:6.8px; font-weight:900; letter-spacing:.04em; }
+.variance-machine-head b { color:#344257; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.variance-machine-head span:not(:first-child) { text-align:right; }
 .variance-product-row { display:grid; grid-template-columns:minmax(0,1fr) 145px 88px 88px; gap:6px; align-items:center; padding:6px 8px 6px 22px; border-top:1px solid #f0f2f5; color:#68768a; font-size:7.5px; }
 .variance-line-head span:not(:first-child), .variance-product-row span:not(:first-child) { text-align:right; }
-.variance-product-row .over, .variance-line-head .over { color:#dc2626; font-weight:800; }
-.variance-product-row .saving, .variance-line-head .saving { color:#16a34a; font-weight:800; }
+.variance-product-row .over, .variance-line-head .over, .variance-machine-head .over { color:#dc2626; font-weight:800; }
+.variance-product-row .saving, .variance-line-head .saving, .variance-machine-head .saving { color:#16a34a; font-weight:800; }
 .variance-priority-note { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:6px; color:#9aa3b1; font-size:7.5px; }
 .variance-priority-note strong { color:#7b526a; }
 @media (max-width:700px){
@@ -2140,7 +2147,7 @@ body::after {
                 <div class="variance-material-head">
                     <div>
                         <div class="variance-material-title">Material Priority for Improvement</div>
-                        <div class="variance-material-hint">Item material diurutkan dari over-variance terbesar. Klik item untuk drill-down Line → Produk/SKU.</div>
+                        <div class="variance-material-hint">Item material diurutkan dari over-variance terbesar. Klik item untuk drill-down Line → Mesin/Work Center → Produk/SKU.</div>
                     </div>
                     <button type="button" class="variance-material-toggle" id="variance-material-toggle" onclick="toggleVariancePriorityList()">Lihat Semua Item</button>
                 </div>
@@ -4037,14 +4044,20 @@ function renderVarianceMaterialPriority(rows){
                 const lines=varianceAggregate(item.rows,'line').sort((a,b)=>b.metric.varianceValue-a.metric.varianceValue);
                 const detail=lines.map(line=>{
                     const lm=line.metric, lc=varianceMetricClass(lm.varianceValue);
-                    const products=varianceAggregate(line.rows,'material_description').sort((a,b)=>b.metric.varianceValue-a.metric.varianceValue);
-                    const productHtml=products.map(prod=>{
-                        const pm=prod.metric, pc=varianceMetricClass(pm.varianceValue);
-                        return `<div class="variance-product-row"><span>↳ ${escapeHtml(prod.name)}</span><span class="${pc}">${fmtRupiah(pm.varianceValue)}</span><span class="${varianceMetricClass(pm.pctValue||0)}">${fmtVariancePct(pm.pctValue)}</span><span class="${varianceMetricClass(pm.pctQty||0)}">${fmtVariancePct(pm.pctQty)}</span></div>`;
+                    const machines=varianceAggregate(line.rows,'work_center').sort((a,b)=>b.metric.varianceValue-a.metric.varianceValue);
+                    const validMachines=machines.filter(machine=>machine.name && machine.name!=='(Tanpa nama)');
+                    const machineHtml=(validMachines.length?validMachines:[{name:'Work Center belum tersimpan',rows:line.rows,metric:lm}]).map(machine=>{
+                        const mm=machine.metric, mc=varianceMetricClass(mm.varianceValue);
+                        const products=varianceAggregate(machine.rows,'material_description').sort((a,b)=>b.metric.varianceValue-a.metric.varianceValue);
+                        const productHtml=products.map(prod=>{
+                            const pm=prod.metric, pc=varianceMetricClass(pm.varianceValue);
+                            return `<div class="variance-product-row"><span>↳ ${escapeHtml(prod.name)}</span><span class="${pc}">${fmtRupiah(pm.varianceValue)}</span><span class="${varianceMetricClass(pm.pctValue||0)}">${fmtVariancePct(pm.pctValue)}</span><span class="${varianceMetricClass(pm.pctQty||0)}">${fmtVariancePct(pm.pctQty)}</span></div>`;
+                        }).join('');
+                        return `<div class="variance-machine-block"><div class="variance-machine-head"><span class="variance-machine-name"><span class="variance-machine-badge">MESIN</span><b>${escapeHtml(machine.name)}</b></span><span class="${mc}">${fmtRupiah(mm.varianceValue)}</span><span class="${varianceMetricClass(mm.pctValue||0)}">${fmtVariancePct(mm.pctValue)}</span><span class="${varianceMetricClass(mm.pctQty||0)}">${fmtVariancePct(mm.pctQty)}</span></div>${productHtml}</div>`;
                     }).join('');
-                    return `<div class="variance-line-block"><div class="variance-line-head"><span><b>${escapeHtml(line.name)}</b></span><span class="${lc}">${fmtRupiah(lm.varianceValue)}</span><span class="${varianceMetricClass(lm.pctValue||0)}">${fmtVariancePct(lm.pctValue)}</span><span class="${varianceMetricClass(lm.pctQty||0)}">${fmtVariancePct(lm.pctQty)}</span></div>${productHtml}</div>`;
+                    return `<div class="variance-line-block"><div class="variance-line-head"><span><b>${escapeHtml(line.name)}</b></span><span class="${lc}">${fmtRupiah(lm.varianceValue)}</span><span class="${varianceMetricClass(lm.pctValue||0)}">${fmtVariancePct(lm.pctValue)}</span><span class="${varianceMetricClass(lm.pctQty||0)}">${fmtVariancePct(lm.pctQty)}</span></div>${machineHtml}</div>`;
                 }).join('');
-                html+=`<tr class="variance-drill-row"><td colspan="5"><div class="variance-drill"><div class="variance-drill-label">Drill-down Line → Produk/SKU</div>${detail||'<div style="color:#9ca3af;font-size:8px;">Tidak ada detail line.</div>'}</div></td></tr>`;
+                html+=`<tr class="variance-drill-row"><td colspan="5"><div class="variance-drill"><div class="variance-drill-label">Drill-down Line → Mesin/Work Center → Produk/SKU</div>${detail||'<div style="color:#9ca3af;font-size:8px;">Tidak ada detail line.</div>'}</div></td></tr>`;
             }
             return html;
         }).join('');
