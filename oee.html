@@ -731,6 +731,50 @@ body{
     .oee-chart-tooltip{min-width:195px;max-width:235px;}
 }
 
+
+
+/* ===== WhatsApp OEE Report Converter ===== */
+.report-card{
+    margin-bottom:22px;
+    padding:22px;
+    border:1px solid rgba(222,231,243,.96);
+    border-radius:22px;
+    background:rgba(255,255,255,.95);
+    box-shadow:var(--shadow);
+}
+.report-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:15px}
+.report-head h3{margin:0;color:#24334a;font-size:17px;letter-spacing:-.02em}
+.report-head p{margin:5px 0 0;max-width:760px;color:#8a98aa;font-size:11px;line-height:1.55}
+.report-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border:1px solid #d8e6fb;border-radius:999px;background:#f4f8ff;color:#245fae;font-size:9px;font-weight:800;white-space:nowrap}
+.report-badge::before{content:'';width:7px;height:7px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 4px rgba(34,197,94,.10)}
+.report-controls{display:grid;grid-template-columns:minmax(170px,1fr) minmax(140px,.7fr) auto;gap:9px;align-items:end;padding:12px;border:1px solid #e8edf4;border-radius:15px;background:#fafcff}
+.report-field label{display:block;margin:0 0 5px;color:#8a98aa;font-size:8px;font-weight:850;letter-spacing:.06em;text-transform:uppercase}
+.report-field select,.report-field input{width:100%;height:38px;padding:0 10px;border:1px solid #dfe6ef;border-radius:10px;background:#fff;color:#334155;font-size:10px;font-weight:750;outline:none}
+.report-field select:focus,.report-field input:focus,.report-line-card textarea:focus{border-color:#77aef7;box-shadow:0 0 0 3px rgba(18,104,232,.08)}
+.report-load-btn,.report-generate-btn,.report-copy-btn,.report-clear-btn{height:38px;padding:0 13px;border-radius:10px;font-size:10px;font-weight:850;cursor:pointer;transition:.16s ease}
+.report-load-btn{border:1px solid #d5e5fb;background:#edf5ff;color:#155bb5}
+.report-load-btn:hover{background:#e3efff}
+.report-workspace{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(320px,.85fr);gap:14px;margin-top:14px}
+.report-lines{display:grid;gap:10px;align-content:start}
+.report-empty{padding:26px 18px;border:1px dashed #cfdbea;border-radius:15px;background:#fbfdff;color:#8b99ac;text-align:center;font-size:11px;line-height:1.6}
+.report-line-card{padding:14px;border:1px solid #e6ecf4;border-radius:15px;background:#fff;box-shadow:0 8px 20px rgba(38,70,113,.045)}
+.report-line-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px}
+.report-line-title{min-width:0}.report-line-title strong{display:block;color:#25364e;font-size:12px;line-height:1.35}.report-line-title span{display:block;margin-top:3px;color:#8a98aa;font-size:9px;line-height:1.4}
+.report-include{display:flex;align-items:center;gap:6px;color:#627289;font-size:9px;font-weight:800;white-space:nowrap}.report-include input{accent-color:#1268e8}
+.report-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-bottom:10px}
+.report-metric{padding:8px 9px;border:1px solid #edf1f6;border-radius:10px;background:#fafcff;min-width:0}.report-metric span{display:block;color:#94a3b8;font-size:7px;font-weight:850;text-transform:uppercase;letter-spacing:.04em}.report-metric b{display:block;margin-top:4px;color:#334155;font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.report-edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}.report-edit-grid .report-field input{height:36px}
+.report-line-card textarea{width:100%;min-height:105px;resize:vertical;padding:10px 11px;border:1px solid #dfe6ef;border-radius:11px;background:#fff;color:#334155;font-family:Arial,sans-serif;font-size:10px;line-height:1.5;outline:none}
+.report-line-card .textarea-label{display:block;margin:0 0 5px;color:#8a98aa;font-size:8px;font-weight:850;letter-spacing:.05em;text-transform:uppercase}
+.report-preview{position:sticky;top:86px;align-self:start;padding:14px;border:1px solid #dfe7f1;border-radius:16px;background:linear-gradient(180deg,#fff,#fafcff)}
+.report-preview-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}.report-preview-head strong{color:#2b3a52;font-size:11px}.report-preview-head span{color:#94a3b8;font-size:8px}
+#wa-report-output{width:100%;min-height:390px;resize:vertical;padding:13px;border:1px solid #e0e7ef;border-radius:12px;background:#0f172a;color:#e5edf8;font-family:Consolas,"Courier New",monospace;font-size:10px;line-height:1.55;outline:none;white-space:pre-wrap}
+.report-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}.report-generate-btn{border:0;background:linear-gradient(135deg,#1268e8,#7c3aed);color:#fff;box-shadow:0 7px 16px rgba(18,104,232,.18)}.report-copy-btn{border:0;background:linear-gradient(135deg,#0f766e,#14b8a6);color:#fff;box-shadow:0 7px 16px rgba(15,118,110,.16)}.report-clear-btn{grid-column:1/-1;border:1px solid #e4e9f1;background:#fff;color:#64748b}.report-generate-btn:hover,.report-copy-btn:hover,.report-clear-btn:hover{transform:translateY(-1px)}
+.report-helper{margin-top:8px;color:#94a3b8;font-size:8.5px;line-height:1.5}.report-helper b{color:#64748b}
+.report-status{display:none;margin-top:9px;padding:8px 10px;border-radius:10px;font-size:9px;font-weight:750}.report-status.show{display:block}.report-status.ok{background:#f0fdf4;border:1px solid #bbf7d0;color:#15803d}.report-status.warn{background:#fffbeb;border:1px solid #fde68a;color:#9a6700}
+@media(max-width:980px){.report-workspace{grid-template-columns:1fr}.report-preview{position:static}.report-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:640px){.report-card{padding:15px;border-radius:18px}.report-head{flex-direction:column}.report-controls{grid-template-columns:1fr}.report-load-btn{width:100%}.report-edit-grid{grid-template-columns:1fr}.report-metrics{grid-template-columns:1fr 1fr}.report-actions{grid-template-columns:1fr}.report-clear-btn{grid-column:auto}#wa-report-output{min-height:330px}}
+
 </style>
 </head>
 <body>
@@ -816,6 +860,39 @@ body{
         <div class="status-dot" id="status-dot"></div>
         <span id="status-text">Belum ada data. Import Excel untuk memulai.</span>
     </div>
+
+
+    <section class="report-card" id="wa-report-card">
+        <div class="report-head">
+            <div>
+                <h3>Konversi Laporan OEE WhatsApp</h3>
+                <p>Data produksi diambil dari sheet <strong>DATA</strong> pada workbook OEE yang sama. Pilih tanggal dan shift, lengkapi Speed Actual serta downtime, lalu generate ringkasan yang siap disalin ke grup WhatsApp.</p>
+            </div>
+            <span class="report-badge" id="report-source-badge">Menunggu Excel</span>
+        </div>
+        <div class="report-controls">
+            <div class="report-field"><label>Tanggal Produksi</label><select id="report-date" onchange="syncReportShiftOptions()"><option value="">Upload & proses Excel dahulu</option></select></div>
+            <div class="report-field"><label>Shift</label><select id="report-shift"><option value="">—</option></select></div>
+            <button type="button" class="report-load-btn" onclick="renderReportLines()">Muat Data Shift</button>
+        </div>
+        <div class="report-workspace">
+            <div class="report-lines" id="report-lines">
+                <div class="report-empty">Konverter akan aktif setelah file Excel OEE diproses. Data OEE tetap dapat diperbarui ke Supabase seperti biasa.</div>
+            </div>
+            <div class="report-preview">
+                <div class="report-preview-head"><strong>Preview Pesan WhatsApp</strong><span>Siap copy-paste</span></div>
+                <textarea id="wa-report-output" readonly placeholder="Ringkasan laporan akan tampil di sini..."></textarea>
+                <div class="report-actions">
+                    <button type="button" class="report-generate-btn" onclick="generateWhatsAppReport()">Generate Ringkasan</button>
+                    <button type="button" class="report-copy-btn" onclick="copyWhatsAppReport()">Copy WhatsApp</button>
+                    <button type="button" class="report-clear-btn" onclick="clearReportDraftsForSelection()">Bersihkan Input Downtime</button>
+                </div>
+                <div class="report-helper"><b>Catatan:</b> Target OEE, Target PCS, Output, SKU dan Speed SAP dibaca otomatis bila tersedia pada sheet DATA. Field target/Speed SAP tetap dapat dikoreksi sebelum generate.</div>
+                <div class="report-status" id="report-status"></div>
+            </div>
+        </div>
+    </section>
+
     <div class="section-title">Rekapitulasi OEE</div>
     <div class="kpi-grid summary-grid">
         <div class="kpi-card weekly"><div class="kpi-label">Weekly OEE · Sun–Sat</div><div class="kpi-value kpi-empty" id="val-weekly-oee">—</div><div class="kpi-date" id="date-weekly-oee"></div><span class="target-badge">Target: ≥ 55%</span></div>
@@ -896,6 +973,8 @@ let chartResizeTimer=null;
 let chartHoverKey='';
 let chartHitAreas=[];
 let chartEventsBound=false;
+let oeeReportRows=[];
+let reportDrafts={};
 const HARI=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
 const BULAN_ID=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 
@@ -928,6 +1007,8 @@ function handleFile(file) {
     document.getElementById('btn-save').disabled = true;
     document.getElementById('warning-badge').classList.remove('show');
     parsedData = null;
+    oeeReportRows = [];
+    resetReportConverter('Menunggu file diproses');
 }
 
 // ── Konversi serial date Excel ke string YYYY-MM-DD ──
@@ -1003,6 +1084,141 @@ function getOEEVal(cell) {
     }
     return null;
 }
+
+
+function normalizeDataHeader(v){return String(v??'').trim().toUpperCase().replace(/[^A-Z0-9%]+/g,' ').replace(/\s+/g,' ').trim()}
+function parseNumberLoose(v){
+    if(v===null||v===undefined||v==='')return null;
+    if(typeof v==='number')return Number.isFinite(v)?v:null;
+    let s=String(v).trim();if(!s)return null;
+    s=s.replace(/\s/g,'');
+    if(/^[-+]?\d{1,3}(\.\d{3})+(,\d+)?$/.test(s))s=s.replace(/\./g,'').replace(',','.');
+    else if(/^[-+]?\d+(,\d+)$/.test(s))s=s.replace(',','.');
+    else s=s.replace(/,/g,'');
+    const n=Number(s.replace('%',''));return Number.isFinite(n)?n:null;
+}
+function parsePercentLoose(v){
+    if(v===null||v===undefined||v==='')return null;
+    const hadPct=String(v).includes('%');const n=parseNumberLoose(v);if(n===null)return null;
+    if(!hadPct&&Math.abs(n)<=1)return +(n*100).toFixed(2);
+    return +n.toFixed(2);
+}
+function parseShiftNum(v){const m=String(v??'').toUpperCase().match(/(?:SHIFT\s*)?([123])/);return m?Number(m[1]):null}
+function reportText(v){return String(v??'').trim()}
+function findHeaderIndex(headers,aliases){
+    const normalizedAliases=aliases.map(normalizeDataHeader);
+    for(let i=0;i<headers.length;i++)if(normalizedAliases.includes(headers[i]))return i;
+    for(let i=0;i<headers.length;i++)if(headers[i]&&normalizedAliases.some(a=>headers[i].includes(a)||a.includes(headers[i])))return i;
+    return -1;
+}
+function parseReportRowsFromDataSheet(wsData){
+    if(!wsData||!wsData['!ref'])return[];
+    const aoa=XLSX.utils.sheet_to_json(wsData,{header:1,raw:true,defval:''});
+    let headerRow=-1,headers=[];
+    for(let r=0;r<Math.min(8,aoa.length);r++){
+        const h=(aoa[r]||[]).map(normalizeDataHeader);
+        const dateIx=findHeaderIndex(h,['DATE','TANGGAL','PRODUCTION DATE']);
+        const targetIx=findHeaderIndex(h,['TARGET PCS','TARGET OUTPUT PCS','TARGET OUTPUT','TARGET 100%']);
+        const outputIx=findHeaderIndex(h,['OUTPUT PCS','ACTUAL OUTPUT PCS','OUTPUT','HASIL OUTPUT']);
+        if(dateIx>=0 && (targetIx>=0||outputIx>=0)){headerRow=r;headers=h;break;}
+    }
+    if(headerRow<0){headerRow=2;headers=(aoa[headerRow]||[]).map(normalizeDataHeader)}
+    const ix={
+        date:findHeaderIndex(headers,['DATE','TANGGAL','PRODUCTION DATE']),
+        shift:findHeaderIndex(headers,['SHIFT','SHIFT PRODUKSI']),
+        machine:findHeaderIndex(headers,['MESIN','MACHINE','LINE','MESIN LINE','PRODUCTION LINE','LINE MESIN']),
+        sku:findHeaderIndex(headers,['SKU','SKU DESCRIPTION','PRODUCT','PRODUCT DESCRIPTION','MATERIAL DESCRIPTION','FG DESCRIPTION','NAMA PRODUK']),
+        material:findHeaderIndex(headers,['MATERIAL','MATERIAL CODE','MATERIAL NO','MAT CODE','SKU CODE']),
+        target:findHeaderIndex(headers,['TARGET PCS','TARGET OUTPUT PCS','TARGET OUTPUT','TARGET 100%','TARGET PCS 100%']),
+        output:findHeaderIndex(headers,['OUTPUT PCS','ACTUAL OUTPUT PCS','ACTUAL OUTPUT','OUTPUT','HASIL OUTPUT']),
+        targetOee:findHeaderIndex(headers,['TARGET OEE','OEE TARGET','TARGET %','TARGET PERCENT','PERSEN OEE','% OEE']),
+        speedSap:findHeaderIndex(headers,['SPEED SAP','SAP SPEED','STANDARD SPEED','SPEED STANDARD','STD SPEED','SPEED']),
+    };
+    if(ix.date<0)ix.date=2;if(ix.target<0)ix.target=8;if(ix.output<0)ix.output=9;
+    const rows=[];
+    for(let r=headerRow+1;r<aoa.length;r++){
+        const row=aoa[r]||[];const tanggal=excelDateToStr(row[ix.date]);if(!tanggal)continue;
+        const targetPcs=parseNumberLoose(row[ix.target])||0,outputPcs=parseNumberLoose(row[ix.output])||0;
+        const shift=ix.shift>=0?parseShiftNum(row[ix.shift]):null;
+        const mesin=ix.machine>=0?reportText(row[ix.machine]):'';
+        const sku=ix.sku>=0?reportText(row[ix.sku]):'';
+        const material=ix.material>=0?reportText(row[ix.material]):'';
+        const targetOee=ix.targetOee>=0?parsePercentLoose(row[ix.targetOee]):null;
+        const speedSap=ix.speedSap>=0?reportText(row[ix.speedSap]):'';
+        if(!mesin && !sku && !targetPcs && !outputPcs)continue;
+        rows.push({tanggal,shift,mesin,sku,material,targetPcs,outputPcs,targetOee,speedSap,sourceRow:r+1});
+    }
+    return rows;
+}
+function normalizeLineKey(v){return String(v??'').toUpperCase().replace(/[^A-Z0-9]+/g,' ' ).replace(/\s+/g,' ').trim()}
+function enrichReportRows(rows,allLineRows){
+    return rows.map(r=>{
+        let target=r.targetOee;
+        if((target===null||target===undefined)&&r.shift&&r.mesin){
+            const mk=normalizeLineKey(r.mesin);
+            const candidates=(allLineRows||[]).filter(x=>x.tanggal===r.tanggal&&Number(x.shift)===Number(r.shift));
+            let hit=candidates.find(x=>normalizeLineKey(x.mesin)===mk);
+            if(!hit)hit=candidates.find(x=>{const k=normalizeLineKey(x.mesin);return mk&&k&&(mk.includes(k)||k.includes(mk))});
+            if(hit)target=Number(hit.target||OEE_TARGET);
+        }
+        if(target===null||target===undefined)target=OEE_TARGET;
+        return {...r,targetOee:target};
+    });
+}
+function aggregateReportRows(rows){
+    const map=new Map();
+    rows.forEach((r,i)=>{
+        const machine=r.mesin||'MESIN / LINE';const sku=r.sku||r.material||'—';
+        const key=[r.tanggal,r.shift||'',normalizeLineKey(machine),normalizeLineKey(sku)].join('|');
+        if(!map.has(key))map.set(key,{...r,mesin:machine,sku,targetPcs:0,outputPcs:0,_speeds:[],_targets:[],_rows:[]});
+        const o=map.get(key);o.targetPcs+=Number(r.targetPcs||0);o.outputPcs+=Number(r.outputPcs||0);if(r.speedSap)o._speeds.push(r.speedSap);if(Number.isFinite(Number(r.targetOee)))o._targets.push(Number(r.targetOee));o._rows.push(r.sourceRow||i+1);
+    });
+    return [...map.values()].map(o=>({...o,speedSap:o._speeds.find(Boolean)||'',targetOee:o._targets.length?o._targets[0]:OEE_TARGET,sourceRows:o._rows})).sort((a,b)=>a.tanggal.localeCompare(b.tanggal)||(a.shift||0)-(b.shift||0)||a.mesin.localeCompare(b.mesin));
+}
+function reportDraftKey(r){return [r.tanggal,r.shift||'',r.mesin,r.sku].join('||')}
+function loadReportDraft(key){try{return JSON.parse(localStorage.getItem('oee-wa:'+key)||'{}')}catch{return{}}}
+function saveReportDraft(key,field,value){const d=loadReportDraft(key);d[field]=value;localStorage.setItem('oee-wa:'+key,JSON.stringify(d))}
+function resetReportConverter(label='Menunggu Excel'){
+    const badge=document.getElementById('report-source-badge');if(badge)badge.textContent=label;
+    const ds=document.getElementById('report-date'),ss=document.getElementById('report-shift'),lines=document.getElementById('report-lines'),out=document.getElementById('wa-report-output');
+    if(ds)ds.innerHTML='<option value="">Upload & proses Excel dahulu</option>';if(ss)ss.innerHTML='<option value="">—</option>';if(lines)lines.innerHTML='<div class="report-empty">Konverter akan aktif setelah file Excel OEE diproses. Data OEE tetap dapat diperbarui ke Supabase seperti biasa.</div>';if(out)out.value='';
+}
+function initReportConverter(){
+    const dateSel=document.getElementById('report-date');if(!dateSel)return;
+    const dates=[...new Set(oeeReportRows.map(r=>r.tanggal))].sort();dateSel.innerHTML='';dates.forEach(d=>dateSel.add(new Option(fmtDate(d),d)));
+    if(dates.length)dateSel.value=dates[dates.length-1];
+    document.getElementById('report-source-badge').textContent=`DATA · ${oeeReportRows.length} record`;
+    syncReportShiftOptions();renderReportLines();
+}
+function syncReportShiftOptions(){
+    const date=document.getElementById('report-date')?.value||'';const sel=document.getElementById('report-shift');if(!sel)return;
+    const shifts=[...new Set(oeeReportRows.filter(r=>r.tanggal===date&&r.shift).map(r=>Number(r.shift)))].sort();sel.innerHTML='';if(!shifts.length)sel.add(new Option('Shift tidak terbaca',''));else shifts.forEach(s=>sel.add(new Option('Shift '+s,String(s))));
+}
+function currentReportSelection(){const date=document.getElementById('report-date')?.value||'';const shift=Number(document.getElementById('report-shift')?.value||0);return{date,shift,rows:oeeReportRows.filter(r=>r.tanggal===date&&(!shift||Number(r.shift)===shift))}}
+function fmtReportNum(v){const n=Number(v);if(!Number.isFinite(n))return'—';return n.toLocaleString('id-ID',{minimumFractionDigits:Number.isInteger(n)?0:1,maximumFractionDigits:2})}
+function escapeHtml(v){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+function renderReportLines(){
+    const {rows}=currentReportSelection(),wrap=document.getElementById('report-lines');if(!wrap)return;
+    if(!rows.length){wrap.innerHTML='<div class="report-empty">Tidak ada baris produksi untuk tanggal/shift ini. Jika kolom Shift atau Mesin pada sheet DATA menggunakan nama berbeda, field tetap bisa disesuaikan pada parser.</div>';return}
+    wrap.innerHTML=rows.map((r,i)=>{const key=reportDraftKey(r),d=loadReportDraft(key),target=Number(d.targetOee??r.targetOee??OEE_TARGET),speedSap=d.speedSap??r.speedSap??'',speedActual=d.speedActual??'',downtime=d.downtime??'',include=d.include!==false,targetCustom=Number(r.targetPcs||0)*(target/100);return `
+      <div class="report-line-card" data-report-key="${escapeHtml(key)}">
+        <div class="report-line-top"><div class="report-line-title"><strong>${escapeHtml(r.mesin)}</strong><span>SKU: ${escapeHtml(r.sku||'—')}</span></div><label class="report-include"><input type="checkbox" ${include?'checked':''} onchange="saveReportDraft('${escapeHtml(key)}','include',this.checked)"> Sertakan</label></div>
+        <div class="report-metrics"><div class="report-metric"><span>Target 100%</span><b>${fmtReportNum(r.targetPcs)} Pcs</b></div><div class="report-metric"><span>Target ${fmtReportNum(target)}%</span><b>${fmtReportNum(targetCustom)} Pcs</b></div><div class="report-metric"><span>Output</span><b>${fmtReportNum(r.outputPcs)} Pcs</b></div><div class="report-metric"><span>Actual OEE</span><b>${r.targetPcs?fmtReportNum(r.outputPcs/r.targetPcs*100)+'%':'—'}</b></div></div>
+        <div class="report-edit-grid"><div class="report-field"><label>Target OEE (%)</label><input type="number" step="0.01" value="${escapeHtml(target)}" oninput="saveReportDraft('${escapeHtml(key)}','targetOee',this.value)"></div><div class="report-field"><label>Speed SAP</label><input type="text" value="${escapeHtml(speedSap)}" oninput="saveReportDraft('${escapeHtml(key)}','speedSap',this.value)"></div><div class="report-field"><label>Speed Actual</label><input type="text" placeholder="contoh: 80-85" value="${escapeHtml(speedActual)}" oninput="saveReportDraft('${escapeHtml(key)}','speedActual',this.value)"></div><div class="report-field"><label>Material / Kode (opsional)</label><input type="text" value="${escapeHtml(r.material||'')}" readonly></div></div>
+        <label class="textarea-label">Top 3 Downtime / Catatan Downtime</label><textarea placeholder="Contoh:\n15.00-15.27 : vacum tes verif QC\n16.00-16.03 : ganti roll\n17.32-17.45 : coding putus" oninput="saveReportDraft('${escapeHtml(key)}','downtime',this.value)">${escapeHtml(downtime)}</textarea>
+      </div>`}).join('');
+}
+function formatReportDate(dateStr){const d=dateFromStr(dateStr);return `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getFullYear()).slice(-2)}`}
+function generateWhatsAppReport(){
+    const {date,shift,rows}=currentReportSelection(),output=document.getElementById('wa-report-output');if(!date||!rows.length){setReportStatus('warn','Pilih tanggal dan shift yang memiliki data produksi.');return}
+    const blocks=[];
+    rows.forEach(r=>{const d=loadReportDraft(reportDraftKey(r));if(d.include===false)return;const target=Number(d.targetOee??r.targetOee??OEE_TARGET),targetCustom=Number(r.targetPcs||0)*(target/100),speedSap=String(d.speedSap??r.speedSap??'').trim()||'—',speedActual=String(d.speedActual??'').trim()||'—',downtime=String(d.downtime??'').trim()||'1. ...\n2. ...\n3. ...';blocks.push(`${r.mesin}\nSKU : ${r.sku||'—'}\nTarget OEE - 100% : ${fmtReportNum(r.targetPcs)} Pcs\nTarget OEE - ${fmtReportNum(target)}% : ${fmtReportNum(targetCustom)} Pcs\nHasil Output      : ${fmtReportNum(r.outputPcs)} Pcs\nSpeed SAP :${speedSap}\nSpeed Actual:${speedActual}\nTop 3 Downtime\n${downtime}`)});
+    if(!blocks.length){setReportStatus('warn','Tidak ada line yang dicentang untuk disertakan.');return}
+    output.value=`Report OEE shift ${shift||'-'} tgl ${formatReportDate(date)}\n${blocks.join('\n\n')}`;setReportStatus('ok',`${blocks.length} line berhasil dikonversi menjadi laporan WhatsApp.`);
+}
+async function copyWhatsAppReport(){const el=document.getElementById('wa-report-output');if(!el?.value.trim())generateWhatsAppReport();if(!el?.value.trim())return;try{await navigator.clipboard.writeText(el.value);setReportStatus('ok','Laporan berhasil disalin. Tinggal paste ke grup WhatsApp.')}catch{el.focus();el.select();document.execCommand('copy');setReportStatus('ok','Laporan berhasil disalin. Tinggal paste ke grup WhatsApp.')}}
+function clearReportDraftsForSelection(){const {rows}=currentReportSelection();rows.forEach(r=>localStorage.removeItem('oee-wa:'+reportDraftKey(r)));document.getElementById('wa-report-output').value='';renderReportLines();setReportStatus('ok','Input manual untuk tanggal/shift ini sudah dibersihkan.')}
+function setReportStatus(type,msg){const el=document.getElementById('report-status');if(!el)return;el.className=`report-status show ${type}`;el.textContent=msg}
 
 function prosesExcel() {
     const file = window._pendingFile;
@@ -1107,6 +1323,9 @@ function prosesExcel() {
                 }
             }
 
+            // Raw DATA untuk konverter laporan WhatsApp. Header dibaca fleksibel agar tetap kompatibel saat posisi kolom berubah.
+            let reportRowsRaw = parseReportRowsFromDataSheet(wsData);
+
             for (let c = 3; c <= maxColD; c++) {
                 const tglCell = cell(wsDaily, 1, c); // row 2 = index 1
                 if (!tglCell || tglCell.v === undefined) continue;
@@ -1176,6 +1395,10 @@ function prosesExcel() {
                 });
             }
 
+            // Siapkan data konverter WhatsApp. Target OEE yang tidak ada di DATA dicoba dilengkapi dari OEE SHIFTLY per line/shift.
+            reportRowsRaw = enrichReportRows(reportRowsRaw, allLineRows);
+            oeeReportRows = aggregateReportRows(reportRowsRaw);
+
             // Data per-line utk preview kartu (hanya tanggal terakhir)
             const perLineData = [];
             MESIN_ROWS.forEach(m => {
@@ -1201,11 +1424,13 @@ function prosesExcel() {
                 all_shiftly: allShiftlyRows,
                 all_daily  : allDailyRows,
                 all_line   : allLineRows,
+                report_rows: oeeReportRows,
             };
 
             tampilkanData(parsedData);
+            initReportConverter();
             setStatus('active',
-                `✅ Data berhasil dibaca: ${tanggalUnikShiftly.length} hari shiftly, ${tanggalUnikDaily.length} hari daily. ` +
+                `✅ Data berhasil dibaca: ${tanggalUnikShiftly.length} hari shiftly, ${tanggalUnikDaily.length} hari daily, ${oeeReportRows.length} record siap konversi WA. ` +
                 `Tanggal terakhir: ${fmtDate(lastShiftDate)}`);
 
             const btnSave = document.getElementById('btn-save');
