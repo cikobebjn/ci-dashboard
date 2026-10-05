@@ -2091,7 +2091,7 @@ body::after {
                     <div class="variance-chart-title-row">
                         <div>
                             <div class="variance-chart-title">Grafik Variance</div>
-                            <div class="variance-chart-note">Grafik mengikuti seluruh filter Variance. Bar dan Line membandingkan periode. Pada Pareto, item otomatis diurutkan dari nilai positif terbesar sesuai metrik yang dipilih (% Var Value, % Var Qty, atau Variance Value). Garis kumulatif memakai metrik yang sama terhadap seluruh item positif, sehingga Pareto % Qty dan % Value tidak lagi memakai denominator Variance Value. Titik Top 10 tidak harus berakhir di 100% karena denominator tetap seluruh item positif.</div>
+                            <div class="variance-chart-note">Grafik mengikuti seluruh filter Variance. Bar dan Line membandingkan periode. Pada Pareto, Variance Value menampilkan nilai over dalam Rupiah. Untuk % Var Value dan % Var Qty, bar menampilkan kontribusi masing-masing item terhadap total over (0–100%), bukan rasio item mentah yang dapat melonjak di atas 100% saat target sangat kecil. Garis menunjukkan kumulatif Pareto dan batas 80%. Top 10 tidak harus berakhir di 100% karena denominator tetap seluruh item over positif.</div>
                         </div>
                         <button type="button" class="variance-chart-download" onclick="downloadVarianceChart()" title="Export chart as PNG for presentation">
                             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v11m0 0 4-4m-4 4-4-4M5 15v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -3302,35 +3302,43 @@ function varianceParetoData(){
     const rows=varianceRowsAcrossSelectedPeriods();
     const meta=varianceChartMetricMeta();
 
-    // Pareto harus konsisten dengan metrik yang sedang dipilih.
-    // Variance Value  -> urut berdasarkan Variance Value positif.
-    // % Var Value     -> urut berdasarkan % Variance Value positif.
-    // % Var Qty       -> urut berdasarkan % Variance Qty positif.
-    // Garis kumulatif memakai denominator SELURUH item positif pada metrik yang sama,
-    // sehingga bar selalu menurun dan garis benar-benar merepresentasikan metrik aktif.
+    // Pareto persen tidak memakai rasio item mentah sebagai tinggi bar.
+    // Rasio item seperti (Actual-Target)/Target dapat >100% bahkan ribuan persen
+    // ketika target item sangat kecil. Untuk Pareto, yang benar adalah KONTRIBUSI
+    // tiap item terhadap total over pada basis yang dipilih.
+    // - Variance Value : bar = nilai over (Rp), kumulatif = kontribusi over value.
+    // - % Var Value    : bar = kontribusi over value (% dari seluruh over value).
+    // - % Var Qty      : bar = kontribusi over qty (% dari seluruh over qty).
+    const basisLabel = varianceChartMetric==='pctQty' ? 'Over Qty' : 'Over Value';
     const allPositiveItems=varianceAggregate(rows,'short_text')
-        .map(item=>({
-            ...item,
-            paretoValue:Number(item.metric?.[meta.key])
-        }))
-        .filter(item=>Number.isFinite(item.paretoValue) && item.paretoValue>0)
-        .sort((a,b)=>b.paretoValue-a.paretoValue);
+        .map(item=>{
+            const m=item.metric||{};
+            const overValue=Math.max(0,Number(m.varianceValue)||0);
+            const overQty=Math.max(0,(Number(m.actualQty)||0)-(Number(m.targetQty)||0));
+            const basisValue=varianceChartMetric==='pctQty' ? overQty : overValue;
+            return {...item,basisValue,rawMetricValue:Number(m?.[meta.key])};
+        })
+        .filter(item=>Number.isFinite(item.basisValue) && item.basisValue>0)
+        .sort((a,b)=>b.basisValue-a.basisValue);
 
-    const totalPositive=allPositiveItems.reduce((s,item)=>s+item.paretoValue,0);
+    const totalPositive=allPositiveItems.reduce((s,item)=>s+item.basisValue,0);
     const items=allPositiveItems.slice(0,10);
     let cumulativePositive=0;
 
     return items.map((item,index)=>{
-        cumulativePositive += item.paretoValue;
+        cumulativePositive += item.basisValue;
+        const contribution=totalPositive>0 ? item.basisValue/totalPositive : 0;
         return {
             no:index+1,
             label:item.name,
-            value:item.paretoValue,
+            value:meta.type==='pct' ? contribution : item.basisValue,
+            rawMetricValue:item.rawMetricValue,
             metric:item.metric,
             metricKey:meta.key,
-            metricLabel:meta.label,
+            metricLabel:meta.type==='pct' ? `Kontribusi ${basisLabel}` : meta.label,
+            rawMetricLabel:meta.label,
             metricType:meta.type,
-            contribution:totalPositive>0 ? item.paretoValue/totalPositive : 0,
+            contribution,
             cumulative:totalPositive>0 ? cumulativePositive/totalPositive : 0,
         };
     });
@@ -3504,7 +3512,9 @@ function renderVarianceChartPareto(ctx, cssWidth, cssHeight, paretoData, meta){
     const isMobile=window.innerWidth<=640;
     const margin=isMobile ? {top:22,right:44,bottom:56,left:60} : {top:28,right:64,bottom:50,left:76};
     const values=paretoData.map(d=>d.value);
-    let max=Math.max(meta.type==='pct'?0.01:1,...values)*1.16;
+    // Mode persen memakai skala tetap 0-100% agar outlier rasio item tidak
+    // membuat bar lain menghilang. value untuk mode persen sudah berupa share 0..1.
+    const max=meta.type==='pct' ? 1 : Math.max(1,...values)*1.16;
     const { plotW, plotH, yFor } = drawVarianceChartAxes(ctx, cssWidth, cssHeight, margin, 0, max, meta.type, true);
     const band=plotW/Math.max(1,paretoData.length);
     const barW=Math.min(isMobile?38:50, Math.max(isMobile?12:16,band*(isMobile?0.42:0.48)));
@@ -3519,13 +3529,28 @@ function renderVarianceChartPareto(ctx, cssWidth, cssHeight, paretoData, meta){
     paretoData.forEach((item,idx)=>{
         const x=margin.left+band*idx+(band-barW)/2;
         const y=yFor(item.value), bottom=margin.top+plotH;
+        const barH=Math.max(3,bottom-y);
         const hovered=varianceChartHoverKey===`pareto:${item.no}`;
         ctx.save();
         if(hovered){ ctx.shadowColor='rgba(79,70,229,.26)'; ctx.shadowBlur=16; }
         ctx.fillStyle=varianceChartPrimaryGradient(ctx,y,bottom,hovered);
-        ctx.beginPath(); ctx.roundRect(x,y,barW,Math.max(3,bottom-y),[8,8,0,0]); ctx.fill(); ctx.restore();
-        ctx.textAlign='center'; ctx.textBaseline='bottom'; ctx.fillStyle='#3730a3'; ctx.font=(hovered?'800 ':'700 ')+'10px Inter, sans-serif';
-        ctx.fillText(fmtVarianceShort(item.value,meta.type),x+barW/2,y-7);
+        ctx.beginPath(); ctx.roundRect(x,y,barW,barH,[8,8,0,0]); ctx.fill(); ctx.restore();
+
+        // Label bar: pada bar tinggi diletakkan di dalam bar dengan teks putih agar
+        // tidak bertabrakan dengan label kumulatif; bar kecil tetap diberi label di atas.
+        const barLabel=fmtVarianceShort(item.value,meta.type);
+        ctx.textAlign='center';
+        ctx.font=(hovered?'900 ':'800 ')+'10px Inter, sans-serif';
+        if(barH>=28){
+            ctx.textBaseline='top';
+            ctx.fillStyle='#ffffff';
+            ctx.fillText(barLabel,x+barW/2,y+7);
+        }else{
+            ctx.textBaseline='bottom';
+            ctx.fillStyle='#1e3a8a';
+            ctx.fillText(barLabel,x+barW/2,y-7);
+        }
+
         ctx.textBaseline='top'; ctx.fillStyle='#475569'; ctx.font='800 10px Inter, sans-serif';
         ctx.fillText(String(item.no),x+barW/2,cssHeight-margin.bottom+18);
         varianceChartHitAreas.push({key:`pareto:${item.no}`,type:'pareto',item,x:x-8,y:margin.top,w:barW+16,h:plotH+8});
@@ -3540,8 +3565,25 @@ function renderVarianceChartPareto(ctx, cssWidth, cssHeight, paretoData, meta){
             if(hovered){ ctx.fillStyle='rgba(124,58,237,.12)'; ctx.beginPath(); ctx.arc(p.x,p.y,11,0,Math.PI*2); ctx.fill(); }
             ctx.fillStyle='#8b5cf6'; ctx.beginPath(); ctx.arc(p.x,p.y,hovered?6:4.5,0,Math.PI*2); ctx.fill();
             ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.stroke();
-            ctx.fillStyle='#6d28d9'; ctx.font='700 9px Inter, sans-serif'; ctx.textAlign='center'; ctx.textBaseline='bottom';
-            ctx.fillText((p.item.cumulative*100).toFixed(0)+'%',p.x,p.y-7);
+
+            // Label kumulatif memakai pill putih supaya kontras terhadap bar/garis.
+            const txt=(p.item.cumulative*100).toFixed(0)+'%';
+            ctx.font=(hovered?'900 ':'800 ')+'9px Inter, sans-serif';
+            const tw=ctx.measureText(txt).width;
+            const padX=5, pillH=16, pillW=tw+padX*2;
+            const cx=Math.min(cssWidth-margin.right-pillW/2,Math.max(margin.left+pillW/2,p.x));
+            const cy=Math.max(margin.top+pillH/2+1,p.y-18);
+            ctx.save();
+            ctx.fillStyle='rgba(255,255,255,.96)';
+            ctx.strokeStyle='rgba(124,58,237,.22)';
+            ctx.lineWidth=1;
+            ctx.beginPath();
+            ctx.roundRect(cx-pillW/2,cy-pillH/2,pillW,pillH,7);
+            ctx.fill(); ctx.stroke();
+            ctx.fillStyle='#6d28d9';
+            ctx.textAlign='center'; ctx.textBaseline='middle';
+            ctx.fillText(txt,cx,cy+.2);
+            ctx.restore();
         });
     }
 }
@@ -3568,7 +3610,12 @@ function varianceTooltipHtml(hit){
     if(hit.type==='pareto'){
         const label=hit.item.metricLabel||varianceChartMetricMeta().label;
         const type=hit.item.metricType||varianceChartMetricMeta().type;
-        return `<strong>${escapeHtml(hit.item.label)}</strong><div class="variance-chart-tooltip-grid"><span>${escapeHtml(label)}</span><span>${escapeHtml(fmtVarianceShort(hit.item.value,type))}</span><span>Kontribusi ${escapeHtml(label)}</span><span>${((hit.item.contribution||0)*100).toFixed(1)}%</span><span>Kumulatif ${escapeHtml(label)}</span><span>${(hit.item.cumulative*100).toFixed(0)}%</span><span>Rank ${escapeHtml(label)}</span><span>#${hit.item.no}</span></div>`;
+        const rawLabel=hit.item.rawMetricLabel||'';
+        const rawValue=hit.item.rawMetricValue;
+        const rawRow=(type==='pct' && Number.isFinite(rawValue))
+            ? `<span>Rasio ${escapeHtml(rawLabel)}</span><span>${escapeHtml(fmtVarianceShort(rawValue,'pct'))}</span>`
+            : '';
+        return `<strong>${escapeHtml(hit.item.label)}</strong><div class="variance-chart-tooltip-grid"><span>${escapeHtml(label)}</span><span>${escapeHtml(fmtVarianceShort(hit.item.value,type))}</span>${rawRow}<span>Kontribusi total over</span><span>${((hit.item.contribution||0)*100).toFixed(1)}%</span><span>Kumulatif Pareto</span><span>${(hit.item.cumulative*100).toFixed(0)}%</span><span>Rank</span><span>#${hit.item.no}</span></div>`;
     }
     const m=hit.item.metric||{};
     return `<strong>${escapeHtml(hit.item.label)}</strong><div class="variance-chart-tooltip-grid"><span>Variance Value</span><span>${escapeHtml(fmtVarianceShort(m.varianceValue,'money'))}</span><span>% Variance Value</span><span>${escapeHtml(fmtVarianceShort(m.pctValue,'pct'))}</span><span>% Variance Qty</span><span>${escapeHtml(fmtVarianceShort(m.pctQty,'pct'))}</span><span>Kelompok data</span><span>${(hit.item.rows||[]).length.toLocaleString('id-ID')}</span></div>`;
@@ -3646,8 +3693,10 @@ function renderVarianceChart(){
     const typeLabel=varianceChartType==='line'?'Line Trend':(varianceChartType==='pareto'?'Pareto':'Bar Chart');
     const periodLabel=(variancePeriod==='monthly'?'Bulanan':'Mingguan')+' · '+varianceSelectedPeriodKeys().length+' periode';
     if(legend){
+        const paretoBarLabel=varianceChartMetric==='pctQty' ? 'Kontribusi Over Qty' : (varianceChartMetric==='pctValue' ? 'Kontribusi Over Value' : 'Variance Value');
+        const paretoCumLabel=varianceChartMetric==='pctQty' ? 'Kumulatif Over Qty' : 'Kumulatif Over Value';
         const visualLegend=varianceChartType==='pareto'
-            ? `<span><i class="variance-chart-swatch" style="background:linear-gradient(135deg,#2563eb,#7c3aed)"></i>${escapeHtml(meta.label)}</span><span><i class="variance-chart-swatch" style="background:#7c3aed"></i>Kumulatif ${escapeHtml(meta.label)}</span><span><i class="variance-chart-swatch" style="background:#f59e0b"></i>Batas 80%</span>`
+            ? `<span><i class="variance-chart-swatch" style="background:linear-gradient(135deg,#2563eb,#7c3aed)"></i>${escapeHtml(paretoBarLabel)}</span><span><i class="variance-chart-swatch" style="background:#7c3aed"></i>${escapeHtml(paretoCumLabel)}</span><span><i class="variance-chart-swatch" style="background:#f59e0b"></i>Batas 80%</span>`
             : '<span><i class="variance-chart-swatch" style="background:linear-gradient(135deg,#2563eb,#7c3aed)"></i>Variance (+)</span><span><i class="variance-chart-swatch" style="background:#16a34a"></i>Saving (-)</span>';
         legend.innerHTML=visualLegend+`<span class="variance-chart-meta-pill">${escapeHtml(typeLabel)}</span><span class="variance-chart-meta-pill">${escapeHtml(meta.label)}</span><span class="variance-chart-meta-pill">${escapeHtml(periodLabel)}</span>`;
     }
