@@ -159,8 +159,14 @@ async function fullReplaceVariance(){
    st.textContent=`Sinkronisasi & verifikasi selesai: ${totalActual.toLocaleString('id-ID')} kelompok data, ${weekChecks.length}/${totalWeeks} week dan ${monthChecks.length}/${totalMonths} bulan tersimpan lengkap dari ${sourceFile}.`;
  }catch(e){
    st.className='status err';
-   const schemaHint=/bulan|column/i.test(String(e.message||''))?' Jalankan update_variance_monthly_support.sql di Supabase SQL Editor, lalu sinkronkan ulang workbook.':'';
-   st.textContent='Sinkronisasi belum terverifikasi: '+e.message+'.'+schemaHint+' Jika proses terhenti setelah pengosongan tabel, klik sinkronkan kembali menggunakan workbook yang sama.';
+   const errMsg=String(e.message||'');
+   let schemaHint='';
+   if(/variance_weekly_detail_uq|duplicate key|23505/i.test(errMsg)){
+     schemaHint=' Constraint database lama belum memasukkan Work Center/Mesin. Jalankan fix_variance_work_center_constraint.sql di Supabase SQL Editor, kemudian sinkronkan ulang workbook yang sama.';
+   }else if(/bulan|column/i.test(errMsg)){
+     schemaHint=' Jalankan update_variance_monthly_support.sql di Supabase SQL Editor, lalu sinkronkan ulang workbook.';
+   }
+   st.textContent='Sinkronisasi belum terverifikasi: '+errMsg+'.'+schemaHint+' Jika proses terhenti setelah pengosongan tabel, klik sinkronkan kembali menggunakan workbook yang sama.';
  }finally{btn.disabled=false;btn.textContent='🔄 REPLACE DATABASE DENGAN SEMUA DATA EXCEL';}
 }
 async function fetchAllVarianceHistory(){
