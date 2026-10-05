@@ -3536,12 +3536,20 @@ function renderVarianceChartPareto(ctx, cssWidth, cssHeight, paretoData, meta){
         ctx.fillStyle=varianceChartPrimaryGradient(ctx,y,bottom,hovered);
         ctx.beginPath(); ctx.roundRect(x,y,barW,barH,[8,8,0,0]); ctx.fill(); ctx.restore();
 
-        // Label bar: pada bar tinggi diletakkan di dalam bar dengan teks putih agar
-        // tidak bertabrakan dengan label kumulatif; bar kecil tetap diberi label di atas.
+        // Label bar:
+        // - Variance Value (Rupiah) selalu diletakkan di ATAS bar dengan warna gelap,
+        //   karena teks seperti "Rp 666.5 Jt" lebih lebar dari bar dan akan tampak
+        //   terpotong bila memakai teks putih di dalam bar.
+        // - Mode persen tetap memakai label putih di dalam bar tinggi agar tidak
+        //   bertabrakan dengan label kumulatif Pareto yang berada pada koordinat sama.
         const barLabel=fmtVarianceShort(item.value,meta.type);
         ctx.textAlign='center';
         ctx.font=(hovered?'900 ':'800 ')+'10px Inter, sans-serif';
-        if(barH>=28){
+        if(meta.type==='money'){
+            ctx.textBaseline='bottom';
+            ctx.fillStyle='#173b7a';
+            ctx.fillText(barLabel,x+barW/2,Math.max(margin.top+11,y-7));
+        }else if(barH>=28){
             ctx.textBaseline='top';
             ctx.fillStyle='#ffffff';
             ctx.fillText(barLabel,x+barW/2,y+7);
