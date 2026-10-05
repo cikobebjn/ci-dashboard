@@ -54,6 +54,16 @@ button,select,input{font-family:Arial,sans-serif}
 .card-shell{border:1px solid rgba(222,231,243,.96);background:var(--surface);box-shadow:var(--shadow);backdrop-filter:blur(14px)}
 .upload-card{padding:24px;margin-bottom:16px;border-radius:22px}.upload-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:16px}.upload-head h3{margin:0;color:var(--ink);font-size:17px}.upload-head p{margin:5px 0 0;color:#8a98aa;font-size:11px;line-height:1.45}
 .drop-zone{position:relative;padding:30px 24px;overflow:hidden;border:1.5px dashed #b9d8cf;border-radius:17px;color:#60718a;background:linear-gradient(145deg,#f9fffc,#f5f9fc);text-align:center;cursor:pointer;font-size:13px;transition:.22s ease}.drop-zone:hover,.drop-zone.dragover{border-color:#58c89a;color:var(--success);background:#f4fcf8;box-shadow:0 0 0 4px rgba(22,160,101,.07),0 14px 28px rgba(31,120,84,.08);transform:translateY(-1px)}.drop-zone input{display:none}.drop-icon{margin-bottom:7px;font-size:31px}#file-name{margin-top:10px;color:#42536b;font-size:12px;font-weight:700}.warning-badge{display:none;margin-top:12px;padding:11px 13px;border:1px solid #f4cf72;border-radius:12px;color:#8a5b06;background:#fff9e8;font-size:12px;line-height:1.5}.warning-badge.show{display:block}
+
+/* Validasi scope file Tonase sebelum database diperbarui */
+.scope-validation{display:none;margin-top:12px;padding:14px 15px;border:1px solid #dfe7f1;border-radius:15px;background:#f8fafc;box-shadow:0 7px 18px rgba(26,63,114,.04)}
+.scope-validation.show{display:block}.scope-validation.ok{border-color:#b9e7cf;background:#f2fbf6}.scope-validation.error{border-color:#fecaca;background:#fff6f6}
+.scope-validation-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.scope-validation-title{color:#26364d;font-size:12px;font-weight:850}.scope-validation-sub{margin-top:3px;color:#8090a5;font-size:10px;line-height:1.4}
+.scope-status{flex:0 0 auto;padding:5px 9px;border-radius:999px;font-size:9px;font-weight:850;letter-spacing:.04em;text-transform:uppercase}.scope-status.ok{color:#087a4b;background:#dff7e9}.scope-status.error{color:#b91c1c;background:#fee2e2}
+.scope-type-list{display:flex;flex-wrap:wrap;gap:7px;margin-top:11px}.scope-chip{display:inline-flex;align-items:center;gap:5px;padding:6px 9px;border:1px solid #dbe4ef;border-radius:999px;color:#53657d;background:#fff;font-size:10px;font-weight:800}.scope-chip.ok{border-color:#b7e4ca;color:#087a4b;background:#effbf5}.scope-chip.missing{border-color:#fecaca;color:#b91c1c;background:#fff1f2}.scope-chip.extra{color:#315b90;background:#f2f7ff}
+.scope-meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:11px}.scope-meta-box{padding:9px 10px;border:1px solid rgba(218,227,238,.9);border-radius:10px;background:rgba(255,255,255,.72)}.scope-meta-box span{display:block;color:#8a98aa;font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.05em}.scope-meta-box strong{display:block;margin-top:4px;color:#334155;font-size:11px}
+.scope-message{margin-top:10px;padding-top:9px;border-top:1px solid rgba(215,224,235,.85);color:#5e6f85;font-size:10.5px;line-height:1.45}.scope-validation.error .scope-message{color:#991b1b}.scope-validation.ok .scope-message{color:#166534}
+@media(max-width:720px){.scope-validation-head{flex-direction:column}.scope-meta{grid-template-columns:1fr}.scope-status{align-self:flex-start}}
 .btn-upload,.btn-save{min-height:42px;padding:10px 16px;border:0;border-radius:12px;color:#fff;cursor:pointer;font-size:12px;font-weight:700;transition:.18s ease}.btn-upload{display:none;background:linear-gradient(135deg,#263a5e,#172740);box-shadow:0 9px 20px rgba(24,39,67,.17)}.btn-upload.visible{display:inline-block}.btn-save{background:linear-gradient(135deg,#16a065,#0d8a57);box-shadow:0 9px 20px rgba(22,160,101,.22)}.btn-upload:hover,.btn-save:hover:not(:disabled){transform:translateY(-1px)}.btn-save:disabled{cursor:not-allowed;opacity:.55;box-shadow:none}
 .status-bar{min-height:46px;display:flex;align-items:center;gap:10px;margin-bottom:20px;padding:11px 16px;border:1px solid rgba(222,231,243,.96);border-radius:15px;color:var(--muted);background:rgba(255,255,255,.88);font-size:12px;box-shadow:var(--shadow-sm)}.status-dot{width:9px;height:9px;flex:0 0 auto;border-radius:50%;background:#cbd4e1;box-shadow:0 0 0 5px rgba(203,212,225,.25)}.status-dot.active{background:var(--success);box-shadow:0 0 0 5px rgba(22,160,101,.12)}.status-bar.loading{color:var(--primary)}.status-bar.loading .status-dot{background:var(--primary);box-shadow:0 0 0 5px rgba(18,104,232,.12)}.status-bar.error{color:var(--danger)}.status-bar.error .status-dot{background:var(--danger);box-shadow:0 0 0 5px rgba(239,68,68,.12)}
 
@@ -275,6 +285,22 @@ button,select,input{font-family:Arial,sans-serif}
             <div style="font-size:11px;margin-top:5px;color:#9ca3af;">Format: Report Production Order Header + Text</div>
         </div>
         <div id="file-name"></div>
+        <div class="scope-validation" id="scope-validation" aria-live="polite">
+            <div class="scope-validation-head">
+                <div>
+                    <div class="scope-validation-title">Validasi Scope Tonase</div>
+                    <div class="scope-validation-sub">File wajib memuat Order Type B103, B403, dan B703 sebelum dapat disimpan.</div>
+                </div>
+                <span class="scope-status" id="scope-status">Belum diperiksa</span>
+            </div>
+            <div class="scope-type-list" id="scope-type-list"></div>
+            <div class="scope-meta">
+                <div class="scope-meta-box"><span>Rentang Data</span><strong id="scope-range">—</strong></div>
+                <div class="scope-meta-box"><span>Baris Tonase Positif</span><strong id="scope-rows">—</strong></div>
+                <div class="scope-meta-box"><span>Total Terbaca</span><strong id="scope-total">—</strong></div>
+            </div>
+            <div class="scope-message" id="scope-message">Klik Proses Excel untuk menjalankan validasi.</div>
+        </div>
         <div class="warning-badge" id="warning-badge">⚠️ <strong>Perhatian:</strong> Menyimpan file baru akan menghapus data tonase lama dan menggantinya dengan data terbaru.</div>
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px;">
             <button class="btn-upload" id="btn-proses" onclick="prosesExcel()">Proses Excel</button>
@@ -350,6 +376,7 @@ let chartHoverIndex=-1;
 let chartHitBars=[];
 const HARI=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
 const BULAN_ID=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+const REQUIRED_ORDER_TYPES=['B103','B403','B703'];
 
 function toggleMenu(){const s=document.getElementById('sidebar');if(!s)return;s.classList.toggle('open');s.style.left='';}
 
@@ -359,7 +386,22 @@ document.querySelectorAll('#sidebar a').forEach(a=>a.addEventListener('click',()
 }));
 function handleDrag(e,over){e.preventDefault();document.getElementById('drop-zone').classList.toggle('dragover',over)}
 function handleDrop(e){e.preventDefault();handleDrag(e,false);const f=e.dataTransfer.files[0];if(f)handleFile(f)}
-function handleFile(file){if(!file)return;document.getElementById('file-name').textContent='📄 '+file.name;document.getElementById('btn-proses').classList.add('visible');window._pendingFile=file;setStatus('default','File siap diproses: '+file.name);document.getElementById('btn-save').style.display='none';document.getElementById('btn-save').disabled=true;document.getElementById('warning-badge').classList.remove('show');parsedData=null}
+function resetScopeValidation(){
+    const panel=document.getElementById('scope-validation');if(!panel)return;
+    panel.className='scope-validation';document.getElementById('scope-status').className='scope-status';document.getElementById('scope-status').textContent='Belum diperiksa';
+    document.getElementById('scope-type-list').innerHTML='';document.getElementById('scope-range').textContent='—';document.getElementById('scope-rows').textContent='—';document.getElementById('scope-total').textContent='—';document.getElementById('scope-message').textContent='Klik Proses Excel untuk menjalankan validasi.';
+}
+function renderScopeValidation(validation){
+    const panel=document.getElementById('scope-validation'),status=document.getElementById('scope-status'),list=document.getElementById('scope-type-list');if(!panel||!status||!list)return;
+    panel.className='scope-validation show '+(validation.scopeComplete?'ok':'error');status.className='scope-status '+(validation.scopeComplete?'ok':'error');status.textContent=validation.scopeComplete?'Scope Lengkap':'Scope Tidak Lengkap';
+    const detected=new Set(validation.orderTypes||[]);const requiredHtml=REQUIRED_ORDER_TYPES.map(t=>`<span class="scope-chip ${detected.has(t)?'ok':'missing'}">${detected.has(t)?'✓':'✕'} ${t}</span>`).join('');
+    const extras=(validation.orderTypes||[]).filter(t=>!REQUIRED_ORDER_TYPES.includes(t)).map(t=>`<span class="scope-chip extra">+ ${t}</span>`).join('');list.innerHTML=requiredHtml+extras;
+    document.getElementById('scope-range').textContent=validation.firstDate&&validation.lastDate?`${fmtDate(validation.firstDate)} – ${fmtDate(validation.lastDate)}`:'—';
+    document.getElementById('scope-rows').textContent=Number(validation.positiveRows||0).toLocaleString('id-ID')+' baris';document.getElementById('scope-total').textContent=fmtTon(validation.total||0)+' ton';
+    if(validation.scopeComplete){document.getElementById('scope-message').textContent=`Order Type terbaca: ${(validation.orderTypes||[]).join(', ')}. Scope sesuai standar dan file aman untuk diperbarui ke database.`;}
+    else{document.getElementById('scope-message').textContent=`Import diblokir. Order Type yang belum ditemukan: ${(validation.missingTypes||[]).join(', ')}. Periksa kembali filter/export SAP sebelum memperbarui database.`;}
+}
+function handleFile(file){if(!file)return;document.getElementById('file-name').textContent='📄 '+file.name;document.getElementById('btn-proses').classList.add('visible');window._pendingFile=file;setStatus('default','File siap diproses: '+file.name);document.getElementById('btn-save').style.display='none';document.getElementById('btn-save').disabled=true;document.getElementById('warning-badge').classList.remove('show');resetScopeValidation();parsedData=null}
 
 function excelDateToStr(v){
     if(!v&&v!==0)return null;
@@ -382,22 +424,34 @@ function startOfSundayWeek(dateStr){const d=dateFromStr(dateStr);d.setDate(d.get
 function weekNumberSunday(dateStr){const d=dateFromStr(dateStr);const year=d.getFullYear();const jan1=new Date(year,0,1);const dayOfYear=Math.floor((d-jan1)/86400000)+1;return Math.floor((dayOfYear+jan1.getDay()-1)/7)+1}
 
 function prosesExcel(){
-    const file=window._pendingFile;if(!file)return;setStatus('loading','Membaca file Excel...');
+    const file=window._pendingFile;if(!file)return;setStatus('loading','Membaca file Excel dan memvalidasi scope Order Type...');
     const reader=new FileReader();
     reader.onload=function(e){try{
         const wb=XLSX.read(e.target.result,{type:'array',raw:true,cellDates:false,cellFormula:true});
         const ws=wb.Sheets['Data'];if(!ws)throw new Error('Sheet "Data" tidak ditemukan');
-        const range=XLSX.utils.decode_range(ws['!ref']);const getCell=(r,c)=>ws[XLSX.utils.encode_cell({r,c})];const dailyMap={};
-        for(let r=3;r<=range.e.r;r++){
-            const tglCell=getCell(r,3),tonCell=getCell(r,33);if(!tglCell||tglCell.v===undefined)continue;
-            const tglStr=excelDateToStr(tglCell.v);if(!tglStr)continue;const ton=tonCell?(parseFloat(tonCell.v)||0):0;dailyMap[tglStr]=(dailyMap[tglStr]||0)+ton;
+        const range=XLSX.utils.decode_range(ws['!ref']);const getCell=(r,c)=>ws[XLSX.utils.encode_cell({r,c})];
+        const headerRow=2,headerMap={};
+        for(let c=range.s.c;c<=range.e.c;c++){const cell=getCell(headerRow,c);const h=String(cell?.v??'').trim().toUpperCase().replace(/\s+/g,' ');if(h&&!Object.prototype.hasOwnProperty.call(headerMap,h))headerMap[h]=c;}
+        const orderTypeCol=headerMap['ORDER TYPE'],dateCol=headerMap['SCHEDULE START DATE'],tonaseCol=headerMap['TONASE'];
+        const missingHeaders=[];if(orderTypeCol===undefined)missingHeaders.push('Order Type');if(dateCol===undefined)missingHeaders.push('Schedule Start Date');if(tonaseCol===undefined)missingHeaders.push('Tonase');
+        if(missingHeaders.length)throw new Error('Kolom wajib tidak ditemukan: '+missingHeaders.join(', '));
+
+        const dailyMap={},orderTypeCounts={},allTypes=new Set();let positiveRows=0,firstDate=null,lastDate=null;
+        for(let r=headerRow+1;r<=range.e.r;r++){
+            const orderType=String(getCell(r,orderTypeCol)?.v??'').trim().toUpperCase();if(orderType){allTypes.add(orderType);orderTypeCounts[orderType]=(orderTypeCounts[orderType]||0)+1;}
+            const tglCell=getCell(r,dateCol),tonCell=getCell(r,tonaseCol);if(!tglCell||tglCell.v===undefined)continue;
+            const tglStr=excelDateToStr(tglCell.v);if(!tglStr)continue;const ton=tonCell?(parseFloat(tonCell.v)||0):0;if(ton<=0)continue;
+            positiveRows++;dailyMap[tglStr]=(dailyMap[tglStr]||0)+ton;if(!firstDate||tglStr<firstDate)firstDate=tglStr;if(!lastDate||tglStr>lastDate)lastDate=tglStr;
         }
         const rows=Object.entries(dailyMap).filter(([,v])=>v>0).sort(([a],[b])=>a.localeCompare(b)).map(([tanggal,tonase])=>({tanggal,tonase:+tonase.toFixed(3)}));
-        if(!rows.length)throw new Error('Tidak ada data tonase ditemukan');
-        const total=+rows.reduce((s,r)=>s+r.tonase,0).toFixed(3);parsedData={rows,total};
-        tampilkanData(parsedData);setStatus('active',`Berhasil dibaca. ${rows.length} hari data, total ${fmtTon(total)} ton`);
-        const btn=document.getElementById('btn-save');btn.style.display='inline-block';btn.disabled=false;btn.textContent='Perbarui Data Supabase';document.getElementById('warning-badge').classList.add('show');
-    }catch(err){setStatus('error','Gagal membaca Excel: '+err.message);console.error(err)}};
+        if(!rows.length)throw new Error('Tidak ada data tonase positif ditemukan');
+        const total=+rows.reduce((s,r)=>s+r.tonase,0).toFixed(3);const orderTypes=[...allTypes].sort();const missingTypes=REQUIRED_ORDER_TYPES.filter(t=>!allTypes.has(t));const scopeComplete=missingTypes.length===0;
+        const validation={orderTypes,orderTypeCounts,missingTypes,scopeComplete,positiveRows,firstDate,lastDate,total};parsedData={rows,total,validation};
+        tampilkanData(parsedData);renderScopeValidation(validation);
+        const btn=document.getElementById('btn-save');btn.style.display='inline-block';btn.disabled=!scopeComplete;btn.textContent=scopeComplete?'Perbarui Data Supabase':'Scope Belum Lengkap';
+        if(scopeComplete){setStatus('active',`Validasi OK. ${rows.length} hari data · ${fmtTon(total)} ton · Order Type: ${orderTypes.join(', ')}`);document.getElementById('warning-badge').classList.add('show');}
+        else{setStatus('error',`Scope tidak lengkap. Order Type belum ditemukan: ${missingTypes.join(', ')}. Database tidak akan diperbarui.`);document.getElementById('warning-badge').classList.remove('show');}
+    }catch(err){resetScopeValidation();setStatus('error','Gagal membaca Excel: '+err.message);console.error(err)}};
     reader.readAsArrayBuffer(file);
 }
 
@@ -661,7 +715,9 @@ function exportTonaseExcel(){
 function setStatus(type,msg){const bar=document.getElementById('status-bar'),dot=document.getElementById('status-dot'),text=document.getElementById('status-text');bar.className='status-bar '+(type==='loading'?'loading':type==='error'?'error':'');dot.className='status-dot '+(type==='active'?'active':'');text.textContent=msg}
 
 async function simpanKeSupabase(){
-    if(!parsedData)return;const btn=document.getElementById('btn-save');btn.disabled=true;btn.textContent='Memperbarui...';setStatus('loading','Menghapus data lama & menyimpan data baru...');
+    if(!parsedData)return;
+    if(!parsedData.validation?.scopeComplete){setStatus('error',`Import diblokir. Scope Order Type wajib: ${REQUIRED_ORDER_TYPES.join(', ')}.`);return;}
+    const btn=document.getElementById('btn-save');btn.disabled=true;btn.textContent='Memperbarui...';setStatus('loading','Validasi scope OK. Menghapus data lama & menyimpan data baru...');
     try{const{error:e1}=await db.from('tonase_harian').delete().gte('tanggal','2000-01-01');if(e1)throw e1;const rows=parsedData.rows.map(r=>({tanggal:r.tanggal,tonase:r.tonase}));const chunk=500;for(let i=0;i<rows.length;i+=chunk){const{error}=await db.from('tonase_harian').insert(rows.slice(i,i+chunk));if(error)throw error}setStatus('active',`Tersimpan. ${rows.length} hari data berhasil diperbarui.`);btn.textContent='Diperbarui';document.getElementById('warning-badge').classList.remove('show');await loadFromSupabase()}catch(err){setStatus('error','Gagal memperbarui: '+err.message);btn.disabled=false;btn.textContent='Perbarui Data Supabase';console.error(err)}
 }
 
