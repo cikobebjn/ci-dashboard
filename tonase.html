@@ -6,6 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tonase Produksi | Bojonegoro Monitoring</title>
+<meta name="ui-version" content="modern-output-tabs-v2">
 <style>
 :root{
     --primary:#1268e8;--primary-dark:#0748ad;--primary-soft:#eaf3ff;--accent:#7c3aed;
@@ -76,6 +77,22 @@ button,select,input{font-family:Arial,sans-serif}
 .btn-export-tonase{height:38px;display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:0 14px;border:0;border-radius:11px;background:linear-gradient(135deg,#1268e8,#174fb6);color:#fff;font-size:10px;font-weight:800;cursor:pointer;box-shadow:0 8px 18px rgba(18,104,232,.20);transition:.18s ease}.btn-export-tonase:hover{transform:translateY(-1px);filter:brightness(1.04);box-shadow:0 11px 22px rgba(18,104,232,.25)}.btn-export-tonase:active{transform:translateY(0)}.btn-export-tonase svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .chart-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:12px}.chart-summary-box{padding:11px 13px;border:1px solid #edf1f6;border-radius:13px;background:#fafcff}.chart-summary-box span{display:block;color:#8a98aa;font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.05em}.chart-summary-box strong{display:block;margin-top:5px;color:#23324a;font-size:17px}.chart-summary-box small{margin-left:4px;color:#8a98aa;font-size:10px;font-weight:600}
 .chart-wrap{position:relative;height:360px;border:1px solid #edf1f6;border-radius:16px;background:linear-gradient(180deg,#fff,#fbfdff);padding:10px;overflow:hidden}.chart-wrap canvas{width:100%;height:100%;display:block;cursor:crosshair}.chart-empty{height:100%;display:grid;place-items:center;color:#9aa6b6;font-size:12px}.chart-tooltip{position:absolute;z-index:5;min-width:190px;max-width:250px;padding:11px 12px;border:1px solid rgba(210,219,232,.95);border-radius:12px;background:rgba(255,255,255,.97);box-shadow:0 14px 34px rgba(31,52,84,.16);backdrop-filter:blur(10px);pointer-events:none;opacity:0;transform:translateY(4px);transition:opacity .12s ease,transform .12s ease;color:#334155}.chart-tooltip.show{opacity:1;transform:translateY(0)}.chart-tooltip .tt-title{font-size:11px;font-weight:850;color:#1e293b;margin-bottom:5px}.chart-tooltip .tt-period{font-size:9px;color:#8a98aa;margin-bottom:8px}.chart-tooltip .tt-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-top:5px;margin-top:5px;border-top:1px solid #eef2f6;font-size:9px;color:#64748b}.chart-tooltip .tt-row strong{font-size:11px;color:#1268e8}.chart-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:10px;color:#93a0b1;font-size:9px}.legend-dot{display:inline-block;width:9px;height:9px;margin-right:5px;border-radius:50%;background:linear-gradient(135deg,#1268e8,#7c3aed)}
+
+
+/* ===== Modern monthly output table ===== */
+.output-card{margin-bottom:22px;padding:0;overflow:hidden;border:1px solid rgba(218,228,241,.96);border-radius:24px;background:rgba(255,255,255,.96);box-shadow:0 20px 52px rgba(28,63,116,.10)}
+.output-head{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:19px 21px 16px;border-bottom:1px solid #edf2f7;background:linear-gradient(180deg,#ffffff 0%,#fbfdff 100%)}
+.output-title-wrap{display:flex;align-items:center;gap:12px;min-width:0}.output-title-icon{width:42px;height:42px;flex:0 0 42px;display:grid;place-items:center;border-radius:13px;background:linear-gradient(135deg,#e8f2ff,#edf0ff);color:#1268e8;box-shadow:inset 0 0 0 1px rgba(18,104,232,.08)}.output-title-icon svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.output-head h3{margin:0;color:#20314a;font-size:18px;letter-spacing:-.02em}.output-head p{margin:4px 0 0;color:#8a99ad;font-size:10.5px;line-height:1.45}
+.output-toolbar{display:flex;align-items:flex-end;gap:9px;flex:0 0 auto}.output-toolbar .filter-box select{min-width:118px;height:40px;border-radius:12px;font-size:11px}.output-toolbar .filter-box label{font-size:8px}
+.output-controls{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 20px 12px;background:#fff}.output-tabs{display:inline-flex;gap:4px;padding:4px;border:1px solid #e5ebf3;border-radius:14px;background:#f7f9fc}.output-tab{min-width:78px;height:34px;padding:0 14px;border:0;border-radius:10px;background:transparent;color:#718096;font-size:10px;font-weight:850;cursor:pointer;transition:.18s ease}.output-tab:hover{color:#2f5f9f;background:#eef5ff}.output-tab.active{color:#fff;background:linear-gradient(135deg,#1268e8,#5b58e8);box-shadow:0 7px 16px rgba(18,104,232,.22)}
+.output-unit{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border:1px solid #e5edf7;border-radius:999px;background:#f8fbff;color:#55708f;font-size:9px;font-weight:800}.output-unit::before{content:'';width:6px;height:6px;border-radius:50%;background:#1268e8;box-shadow:0 0 0 4px rgba(18,104,232,.09)}
+.output-kpis{display:grid;grid-template-columns:1.2fr repeat(3,1fr);gap:10px;padding:0 20px 14px}.output-kpi{position:relative;overflow:hidden;min-height:76px;padding:13px 14px;border:1px solid #e8eef6;border-radius:15px;background:linear-gradient(180deg,#fff,#fbfdff)}.output-kpi::after{content:'';position:absolute;width:72px;height:72px;right:-30px;bottom:-37px;border-radius:50%;background:rgba(18,104,232,.06)}.output-kpi.primary{border-color:#d7e8ff;background:linear-gradient(135deg,#eff6ff,#f8fbff)}.output-kpi-label{position:relative;z-index:1;display:block;color:#8a99ad;font-size:8px;font-weight:850;letter-spacing:.07em;text-transform:uppercase}.output-kpi-value{position:relative;z-index:1;display:block;margin-top:6px;color:#21344d;font-size:19px;font-weight:850;letter-spacing:-.02em;font-variant-numeric:tabular-nums}.output-kpi.primary .output-kpi-value{color:#0d63c8}.output-kpi-sub{position:relative;z-index:1;display:block;margin-top:2px;color:#9aa8b8;font-size:8px}
+.output-table-shell{margin:0 20px 0;border:1px solid #e7edf5;border-radius:16px;background:#fff;overflow:hidden}.output-scroll{overflow:auto;scrollbar-width:thin;scrollbar-color:#cfd9e6 transparent}.output-scroll::-webkit-scrollbar{height:8px}.output-scroll::-webkit-scrollbar-thumb{background:#cfd9e6;border-radius:999px}.output-table{width:100%;min-width:1120px;border-collapse:separate;border-spacing:0;font-size:10px}
+.output-table th,.output-table td{height:39px;padding:8px 10px;border-bottom:1px solid #edf2f7;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}.output-table thead th{position:sticky;top:0;z-index:3;background:#f4f7fb;color:#6d7d92;font-size:8.8px;font-weight:850;text-align:center;letter-spacing:.025em}.output-table thead th:first-child{left:0;z-index:5;text-align:left;padding-left:15px}.output-table tbody td:first-child{position:sticky;left:0;z-index:2;text-align:left;padding-left:15px;background:#fff;color:#43556d;font-weight:780}.output-table tbody tr:nth-child(even):not(.output-total) td{background:#fbfcfe}.output-table tbody tr:nth-child(even):not(.output-total) td:first-child{background:#fbfcfe}.output-table tbody tr:hover:not(.output-total) td{background:#f5f9ff}.output-table tbody tr:hover:not(.output-total) td:first-child{background:#f5f9ff}.output-table td.output-value{color:#3e516a}.output-table tr.output-total td{background:linear-gradient(180deg,#eef6ff,#e9f3ff);color:#173b68;font-weight:850;border-bottom:0;border-top:1px solid #d9e8fb}.output-table tr.output-total td:first-child{background:linear-gradient(180deg,#e6f2ff,#e2efff);color:#0f5fb8}.output-table .output-ytd,.output-table .output-ytd-cell{position:sticky;right:0;z-index:4;border-left:1px solid #dbe8f8;box-shadow:-8px 0 18px rgba(30,72,126,.04)}.output-table thead .output-ytd{background:linear-gradient(135deg,#1679dd,#5a5ce9);color:#fff}.output-table td.output-ytd-cell{background:#f0f7ff;color:#0c63bf;font-weight:850}.output-table tr.output-total td.output-ytd-cell{background:linear-gradient(135deg,#dceeff,#e5ebff);color:#064f9f}.output-table .output-latest{background:#fff9e8!important;color:#8c5d0a!important}.output-table thead .output-latest{background:#f7ecd0!important;color:#76500e!important}.output-empty{text-align:center!important;color:#98a6b8!important;padding:28px!important;background:#fff!important}
+.output-note{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:11px 20px 14px;color:#8a98aa;font-size:8.5px;line-height:1.45}.output-note strong{color:#52647d}.output-source-badge{display:inline-flex;align-items:center;gap:5px;padding:5px 8px;border-radius:999px;background:#eef5ff;color:#315b90;font-weight:850}.output-source-badge::before{content:'';width:5px;height:5px;border-radius:50%;background:#16a065}
+@media(max-width:920px){.output-head{align-items:flex-start}.output-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:720px){.output-head{flex-direction:column;padding:16px}.output-toolbar{width:100%}.output-toolbar .filter-box{width:100%}.output-controls{padding:12px 15px;align-items:flex-start;flex-direction:column}.output-tabs{width:100%}.output-tab{flex:1;min-width:0}.output-kpis{grid-template-columns:1fr 1fr;padding:0 15px 12px}.output-table-shell{margin:0 15px}.output-note{padding:10px 15px 12px}.output-title-icon{width:38px;height:38px;flex-basis:38px}.output-head h3{font-size:16px}}
 
 .table-card{padding:0;overflow:hidden;margin-bottom:24px;border:1px solid rgba(222,231,243,.96);border-radius:20px;background:rgba(255,255,255,.94);box-shadow:var(--shadow)}.table-card h4{margin:0;padding:18px 20px;border-bottom:1px solid #edf1f6;color:#2e4059;background:rgba(250,252,255,.72);font-size:14px}.table-scroll{overflow-x:auto}table{width:100%;min-width:620px;border-collapse:separate;border-spacing:0;font-size:12px}th{padding:12px 15px;border-bottom:1px solid #dfe7f1;background:#f7f9fc;color:#708097;font-size:10px;font-weight:700;text-align:left;text-transform:uppercase;letter-spacing:.055em}td{padding:12px 15px;border-bottom:1px solid #eef2f7;color:#405168;background:rgba(255,255,255,.72)}tbody tr:hover td{background:#f9fbff}tbody tr:last-child td{border-bottom:0}td.ton-val{color:var(--ink);font-weight:700}
 
@@ -347,6 +364,55 @@ button,select,input{font-family:Arial,sans-serif}
         <div class="chart-foot"><span><i class="legend-dot"></i>Tonase produksi</span><span id="chart-range-label"></span></div>
     </section>
 
+    <section class="output-card" id="output-card">
+        <div class="output-head">
+            <div class="output-title-wrap">
+                <div class="output-title-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="M4 19V9"></path><path d="M10 19V5"></path><path d="M16 19v-7"></path><path d="M22 19V3"></path></svg>
+                </div>
+                <div>
+                    <h3>Output Bulanan per Gedung</h3>
+                    <p>Ringkasan output produksi bulanan dengan tampilan fokus per metrik.</p>
+                </div>
+            </div>
+            <div class="output-toolbar">
+                <div class="filter-box"><label>Tahun</label><select id="output-year" onchange="handleOutputYearChange()"><option value="">—</option></select></div>
+            </div>
+        </div>
+        <div class="output-controls">
+            <div class="output-tabs" role="tablist" aria-label="Pilih metrik output">
+                <button type="button" class="output-tab active" data-metric="ton" onclick="handleOutputMetricChange('ton')">TON</button>
+                <button type="button" class="output-tab" data-metric="pcs" onclick="handleOutputMetricChange('pcs')">PCS</button>
+                <button type="button" class="output-tab" data-metric="ctn" onclick="handleOutputMetricChange('ctn')">CTN</button>
+            </div>
+            <span class="output-unit" id="output-unit">Satuan: Ton</span>
+        </div>
+        <div class="output-kpis" id="output-kpis">
+            <div class="output-kpi primary"><span class="output-kpi-label">YTD Total</span><strong class="output-kpi-value">—</strong><small class="output-kpi-sub">Menunggu data</small></div>
+            <div class="output-kpi"><span class="output-kpi-label">Gd 4</span><strong class="output-kpi-value">—</strong><small class="output-kpi-sub">YTD</small></div>
+            <div class="output-kpi"><span class="output-kpi-label">Gd 6</span><strong class="output-kpi-value">—</strong><small class="output-kpi-sub">YTD</small></div>
+            <div class="output-kpi"><span class="output-kpi-label">Gd 7</span><strong class="output-kpi-value">—</strong><small class="output-kpi-sub">YTD</small></div>
+        </div>
+        <div class="output-table-shell">
+            <div class="output-scroll">
+                <table class="output-table" id="tbl-output">
+                    <thead id="output-head-row">
+                        <tr>
+                            <th>Gedung</th>
+                            <th>Jan</th><th>Feb</th><th>Mar</th><th>Apr</th><th>May</th><th>Jun</th><th>Jul</th><th>Aug</th><th>Sep</th><th>Oct</th><th>Nov</th><th>Des</th>
+                            <th class="output-ytd" id="output-ytd-title">YTD</th>
+                        </tr>
+                    </thead>
+                    <tbody id="output-body"><tr><td colspan="14" class="output-empty">Import file Excel Tonase untuk menampilkan output per gedung.</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+        <div class="output-note">
+            <span><strong>Mapping gedung:</strong> Gd 4 = B403 · Gd 6 = B103 · Gd 7 = B703</span>
+            <span class="output-source-badge" id="output-source">Menunggu file Excel</span>
+        </div>
+    </section>
+
     <section class="table-card">
         <h4>Rincian Tonase per Hari</h4>
         <div class="table-scroll">
@@ -377,6 +443,11 @@ let chartHitBars=[];
 const HARI=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
 const BULAN_ID=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 const REQUIRED_ORDER_TYPES=['B103','B403','B703'];
+const ORDER_TYPE_TO_GEDUNG={B403:'Gd 4',B103:'Gd 6',B703:'Gd 7'};
+const OUTPUT_GEDUNG=['Gd 4','Gd 6','Gd 7'];
+let outputSummaryRows=[];
+let outputSelectedYear=null;
+let outputActiveMetric='ton';
 
 function toggleMenu(){const s=document.getElementById('sidebar');if(!s)return;s.classList.toggle('open');s.style.left='';}
 
@@ -419,6 +490,9 @@ function addDaysStr(s,n){const d=dateFromStr(s);d.setDate(d.getDate()+n);return 
 function fmtDate(d){if(!d)return'';try{return dateFromStr(d).toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'})}catch{return d}}
 function fmtDateShort(d){if(!d)return'';return dateFromStr(d).toLocaleDateString('id-ID',{day:'2-digit',month:'short'})}
 function fmtTon(v){return Number(v||0).toLocaleString('id-ID',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function fmtOutputTon(v){return Number(v||0).toLocaleString('en-US',{minimumFractionDigits:1,maximumFractionDigits:1})}
+function fmtOutputInt(v){return Math.round(Number(v)||0).toLocaleString('en-US')}
+function safeNum(v){const n=typeof v==='number'?v:parseFloat(String(v??'').replace(/,/g,''));return Number.isFinite(n)?n:0}
 
 function startOfSundayWeek(dateStr){const d=dateFromStr(dateStr);d.setDate(d.getDate()-d.getDay());return localDateToStr(d)}
 function weekNumberSunday(dateStr){const d=dateFromStr(dateStr);const year=d.getFullYear();const jan1=new Date(year,0,1);const dayOfYear=Math.floor((d-jan1)/86400000)+1;return Math.floor((dayOfYear+jan1.getDay()-1)/7)+1}
@@ -433,26 +507,110 @@ function prosesExcel(){
         const headerRow=2,headerMap={};
         for(let c=range.s.c;c<=range.e.c;c++){const cell=getCell(headerRow,c);const h=String(cell?.v??'').trim().toUpperCase().replace(/\s+/g,' ');if(h&&!Object.prototype.hasOwnProperty.call(headerMap,h))headerMap[h]=c;}
         const orderTypeCol=headerMap['ORDER TYPE'],dateCol=headerMap['SCHEDULE START DATE'],tonaseCol=headerMap['TONASE'];
+        const grQtyCol=headerMap['GR QTY'],orderQtyCol=headerMap['ORDER QTY'],baseQtyCol=headerMap['QTY IN BASE OUM'];
         const missingHeaders=[];if(orderTypeCol===undefined)missingHeaders.push('Order Type');if(dateCol===undefined)missingHeaders.push('Schedule Start Date');if(tonaseCol===undefined)missingHeaders.push('Tonase');
         if(missingHeaders.length)throw new Error('Kolom wajib tidak ditemukan: '+missingHeaders.join(', '));
+        const outputHeadersComplete=grQtyCol!==undefined&&orderQtyCol!==undefined&&baseQtyCol!==undefined;
 
-        const dailyMap={},orderTypeCounts={},allTypes=new Set();let positiveRows=0,firstDate=null,lastDate=null;
+        const dailyMap={},outputMap={},orderTypeCounts={},allTypes=new Set();let positiveRows=0,firstDate=null,lastDate=null;
         for(let r=headerRow+1;r<=range.e.r;r++){
             const orderType=String(getCell(r,orderTypeCol)?.v??'').trim().toUpperCase();if(orderType){allTypes.add(orderType);orderTypeCounts[orderType]=(orderTypeCounts[orderType]||0)+1;}
             const tglCell=getCell(r,dateCol),tonCell=getCell(r,tonaseCol);if(!tglCell||tglCell.v===undefined)continue;
             const tglStr=excelDateToStr(tglCell.v);if(!tglStr)continue;const ton=tonCell?(parseFloat(tonCell.v)||0):0;if(ton<=0)continue;
             positiveRows++;dailyMap[tglStr]=(dailyMap[tglStr]||0)+ton;if(!firstDate||tglStr<firstDate)firstDate=tglStr;if(!lastDate||tglStr>lastDate)lastDate=tglStr;
+
+            const gedung=ORDER_TYPE_TO_GEDUNG[orderType];
+            if(gedung&&outputHeadersComplete){
+                const dt=dateFromStr(tglStr),year=dt.getFullYear(),month=dt.getMonth()+1,key=`${year}-${String(month).padStart(2,'0')}-${gedung}`;
+                const grQty=safeNum(getCell(r,grQtyCol)?.v),orderQty=safeNum(getCell(r,orderQtyCol)?.v),baseQty=safeNum(getCell(r,baseQtyCol)?.v);
+                const pcs=orderQty>0?grQty*(baseQty/orderQty):0;
+                if(!outputMap[key])outputMap[key]={year,month,gedung,ton:0,ctn:0,pcs:0};
+                outputMap[key].ton+=ton;outputMap[key].ctn+=grQty;outputMap[key].pcs+=pcs;
+            }
         }
         const rows=Object.entries(dailyMap).filter(([,v])=>v>0).sort(([a],[b])=>a.localeCompare(b)).map(([tanggal,tonase])=>({tanggal,tonase:+tonase.toFixed(3)}));
         if(!rows.length)throw new Error('Tidak ada data tonase positif ditemukan');
         const total=+rows.reduce((s,r)=>s+r.tonase,0).toFixed(3);const orderTypes=[...allTypes].sort();const missingTypes=REQUIRED_ORDER_TYPES.filter(t=>!allTypes.has(t));const scopeComplete=missingTypes.length===0;
-        const validation={orderTypes,orderTypeCounts,missingTypes,scopeComplete,positiveRows,firstDate,lastDate,total};parsedData={rows,total,validation};
-        tampilkanData(parsedData);renderScopeValidation(validation);
+        const outputRows=Object.values(outputMap).sort((a,b)=>a.year-b.year||a.month-b.month||OUTPUT_GEDUNG.indexOf(a.gedung)-OUTPUT_GEDUNG.indexOf(b.gedung)).map(o=>({...o,ton:+o.ton.toFixed(3),ctn:+o.ctn.toFixed(3),pcs:+o.pcs.toFixed(3)}));
+        const validation={orderTypes,orderTypeCounts,missingTypes,scopeComplete,positiveRows,firstDate,lastDate,total,outputHeadersComplete};parsedData={rows,total,validation,outputRows};
+        outputSummaryRows=outputRows;saveOutputSummaryCache(outputRows,file.name);tampilkanData(parsedData);renderScopeValidation(validation);
         const btn=document.getElementById('btn-save');btn.style.display='inline-block';btn.disabled=!scopeComplete;btn.textContent=scopeComplete?'Perbarui Data Supabase':'Scope Belum Lengkap';
         if(scopeComplete){setStatus('active',`Validasi OK. ${rows.length} hari data · ${fmtTon(total)} ton · Order Type: ${orderTypes.join(', ')}`);document.getElementById('warning-badge').classList.add('show');}
         else{setStatus('error',`Scope tidak lengkap. Order Type belum ditemukan: ${missingTypes.join(', ')}. Database tidak akan diperbarui.`);document.getElementById('warning-badge').classList.remove('show');}
     }catch(err){resetScopeValidation();setStatus('error','Gagal membaca Excel: '+err.message);console.error(err)}};
     reader.readAsArrayBuffer(file);
+}
+
+function saveOutputSummaryCache(rows,fileName){
+    try{localStorage.setItem('bojonegoro_output_summary_v1',JSON.stringify({savedAt:new Date().toISOString(),fileName:fileName||'',rows:rows||[]}))}catch(e){console.warn('Output summary cache tidak dapat disimpan',e)}
+}
+function loadOutputSummaryCache(){
+    try{const raw=localStorage.getItem('bojonegoro_output_summary_v1');if(!raw)return false;const obj=JSON.parse(raw);if(!Array.isArray(obj?.rows)||!obj.rows.length)return false;outputSummaryRows=obj.rows;const badge=document.getElementById('output-source');if(badge)badge.textContent=obj.fileName?`Cache: ${obj.fileName}`:'Cache browser';populateOutputYears();renderOutputTable();return true}catch(e){console.warn('Output summary cache tidak dapat dimuat',e);return false}
+}
+function populateOutputYears(){
+    const sel=document.getElementById('output-year');if(!sel)return;
+    const years=[...new Set((outputSummaryRows||[]).map(r=>Number(r.year)).filter(Number.isFinite))].sort((a,b)=>b-a);
+    const previous=Number(sel.value)||outputSelectedYear;
+    sel.innerHTML='';
+    if(!years.length){sel.add(new Option('—',''));outputSelectedYear=null;return}
+    years.forEach(y=>sel.add(new Option(String(y),String(y))));
+    outputSelectedYear=years.includes(previous)?previous:years[0];sel.value=String(outputSelectedYear);
+}
+function handleOutputYearChange(){const sel=document.getElementById('output-year');outputSelectedYear=Number(sel?.value)||null;renderOutputTable()}
+function handleOutputMetricChange(metric){
+    if(!['ton','pcs','ctn'].includes(metric))return;
+    outputActiveMetric=metric;
+    document.querySelectorAll('.output-tab').forEach(btn=>btn.classList.toggle('active',btn.dataset.metric===metric));
+    renderOutputTable();
+}
+function outputMetricValue(year,month,gedung,key){
+    const row=(outputSummaryRows||[]).find(r=>Number(r.year)===year&&Number(r.month)===month&&r.gedung===gedung);return row?Number(row[key]||0):null;
+}
+function outputYtdValue(year,gedung,key){
+    let total=0,has=false;
+    for(let month=1;month<=12;month++){
+        const value=outputMetricValue(year,month,gedung,key);
+        if(value!==null){total+=value;has=true;}
+    }
+    return has?total:null;
+}
+function renderOutputKpis(year,metric){
+    const wrap=document.getElementById('output-kpis');if(!wrap)return;
+    const unit=metric.key==='ton'?'ton':metric.key;
+    const values=OUTPUT_GEDUNG.map(g=>({gedung:g,value:outputYtdValue(year,g,metric.key)}));
+    const available=values.filter(x=>x.value!==null);
+    const total=available.length?available.reduce((s,x)=>s+x.value,0):null;
+    const cards=[{label:'YTD Total',value:total,primary:true,sub:`Akumulasi ${year}`},...values.map(x=>({label:x.gedung,value:x.value,primary:false,sub:`YTD ${year}`}))];
+    wrap.innerHTML=cards.map(c=>`<div class="output-kpi ${c.primary?'primary':''}"><span class="output-kpi-label">${c.label}</span><strong class="output-kpi-value">${c.value===null?'—':metric.fmt(c.value)}</strong><small class="output-kpi-sub">${c.value===null?'Belum ada data':c.sub+' · '+unit}</small></div>`).join('');
+}
+function renderOutputTable(){
+    const body=document.getElementById('output-body'),ytdTitle=document.getElementById('output-ytd-title'),unitEl=document.getElementById('output-unit'),head=document.getElementById('output-head-row');if(!body)return;
+    const metrics={ton:{key:'ton',label:'Ton',fmt:fmtOutputTon},pcs:{key:'pcs',label:'Pcs',fmt:fmtOutputInt},ctn:{key:'ctn',label:'Ctn',fmt:fmtOutputInt}};
+    const metric=metrics[outputActiveMetric]||metrics.ton;
+    if(unitEl)unitEl.textContent=`Satuan: ${metric.label}`;
+    document.querySelectorAll('.output-tab').forEach(btn=>btn.classList.toggle('active',btn.dataset.metric===metric.key));
+    if(!outputSummaryRows?.length){body.innerHTML='<tr><td colspan="14" class="output-empty">Data Output Ton/Pcs/Ctn belum tersedia. Import file Excel Tonase terbaru.</td></tr>';if(ytdTitle)ytdTitle.textContent='YTD';renderOutputKpis(new Date().getFullYear(),metric);return}
+    if(!outputSelectedYear)populateOutputYears();const year=outputSelectedYear||Math.max(...outputSummaryRows.map(r=>Number(r.year)||0));
+    if(ytdTitle)ytdTitle.textContent=`YTD ${year}`;
+    let latestMonth=0;
+    for(let month=1;month<=12;month++)if(OUTPUT_GEDUNG.some(g=>outputMetricValue(year,month,g,metric.key)!==null))latestMonth=month;
+    if(head){head.querySelectorAll('th').forEach((th,i)=>th.classList.toggle('output-latest',latestMonth>0&&i===latestMonth));}
+    let html='';
+    [...OUTPUT_GEDUNG,'Total'].forEach(gedung=>{
+        const isTotal=gedung==='Total';
+        html+=`<tr class="${isTotal?'output-total':''}"><td>${gedung}</td>`;
+        let ytd=0,hasYtd=false;
+        for(let month=1;month<=12;month++){
+            let value=null;
+            if(isTotal){const vals=OUTPUT_GEDUNG.map(g=>outputMetricValue(year,month,g,metric.key)).filter(v=>v!==null);if(vals.length)value=vals.reduce((a,b)=>a+b,0)}
+            else value=outputMetricValue(year,month,gedung,metric.key);
+            if(value!==null){ytd+=value;hasYtd=true;}
+            html+=`<td class="output-value ${latestMonth===month?'output-latest':''}">${value===null?'—':metric.fmt(value)}</td>`;
+        }
+        html+=`<td class="output-ytd-cell">${hasYtd?metric.fmt(ytd):'—'}</td></tr>`;
+    });
+    body.innerHTML=html;
+    renderOutputKpis(year,metric);
 }
 
 function computeWeeklyKpi(rows){
@@ -484,6 +642,8 @@ function tampilkanData(d){
     const tbody=document.getElementById('tbl-body');tbody.innerHTML='';[...rows].reverse().forEach(row=>{const dt=dateFromStr(row.tanggal);const tr=document.createElement('tr');tr.innerHTML=`<td>${fmtDate(row.tanggal)}</td><td>${HARI[dt.getDay()]}</td><td class="ton-val" style="text-align:right;">${Number(row.tonase).toFixed(3)}</td>`;tbody.appendChild(tr)});
     const total=rows.reduce((s,r)=>s+r.tonase,0);const trTotal=document.createElement('tr');trTotal.innerHTML=`<td colspan="2" style="font-weight:800;color:#059669;background:#f0fdf4;">TOTAL DATA TERSEDIA</td><td class="ton-val" style="text-align:right;color:#059669;font-size:14px;background:#f0fdf4;">${Number(total).toFixed(3)}</td>`;tbody.appendChild(trTotal);
 
+    if(Array.isArray(d.outputRows)){outputSummaryRows=d.outputRows;const badge=document.getElementById('output-source');if(badge)badge.textContent='Sumber: Excel terbaru';populateOutputYears();renderOutputTable();}
+    else if(outputSummaryRows?.length){populateOutputYears();renderOutputTable();}
     chartSeries.weekly=buildWeeklySeries(rows);chartSeries.monthly=buildMonthlySeries(rows);initChartRanges();populateChartSelectors();renderTonaseChart();
 }
 
@@ -728,6 +888,7 @@ async function loadFromSupabase(){
     setStatus('loading','Memuat data tonase dari Supabase...');try{const rows=await loadAllTonase();if(!rows.length){setStatus('default','Belum ada data. Import Excel untuk memulai.');return}const clean=rows.map(r=>({tanggal:r.tanggal,tonase:+r.tonase})).sort((a,b)=>a.tanggal.localeCompare(b.tanggal));const total=clean.reduce((s,r)=>s+r.tonase,0);tampilkanData({rows:clean,total});const last=clean[clean.length-1];setStatus('active',`Data dimuat sampai ${fmtDate(last.tanggal)} · ${clean.length} hari produksi tersedia`)}catch(err){setStatus('error','Gagal memuat: '+err.message);console.error(err)}
 }
 window.addEventListener('resize',()=>{clearTimeout(chartResizeTimer);chartResizeTimer=setTimeout(()=>{if(currentData)renderTonaseChart()},120)});
+loadOutputSummaryCache();
 loadFromSupabase();
 </script>
 </body>
