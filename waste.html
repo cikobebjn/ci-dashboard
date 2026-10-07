@@ -134,7 +134,7 @@ body::after{width:320px;height:320px;right:-130px;top:32%;background:rgba(124,58
 /* ===== Waste trend chart ===== */
 .chart-card{margin-bottom:24px;padding:22px;border:1px solid rgba(222,231,243,.96);border-radius:22px;background:rgba(255,255,255,.94);box-shadow:var(--shadow);backdrop-filter:blur(14px)}
 .chart-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:14px}.chart-title h3{margin:0;color:#24334a;font-size:18px;letter-spacing:-.015em}.chart-title p{margin:5px 0 0;color:#91a0b3;font-size:11px;line-height:1.45}.chart-controls{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:flex-end;gap:8px}.period-toggle,.metric-toggle{display:inline-flex;padding:4px;border:1px solid #e4e9f1;border-radius:13px;background:#f7f9fc}.period-toggle button,.metric-toggle button{min-height:34px;padding:7px 13px;border:0;border-radius:9px;background:transparent;color:#64748b;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;cursor:pointer}.period-toggle button.active,.metric-toggle button.active{color:#fff;background:linear-gradient(135deg,#1268e8,#7c3aed);box-shadow:0 7px 16px rgba(18,104,232,.18)}
-.filter-box{display:flex;flex-direction:column;gap:4px}.filter-box label{color:#8a98aa;font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.06em}.filter-box select{min-width:125px;height:38px;padding:0 34px 0 11px;border:1px solid #e4e9f1;border-radius:11px;background:#fff;color:#334155;font-size:10px;font-weight:700;outline:none}.filter-box select:focus{border-color:#b9d3fa;box-shadow:0 0 0 3px rgba(18,104,232,.08)}.btn-reset-chart{height:38px;padding:0 13px;border:1px solid #e4e9f1;border-radius:11px;background:#fff;color:#64748b;font-size:10px;font-weight:800;cursor:pointer}.btn-reset-chart:hover{background:#f8fafc;color:#334155}
+.filter-box{display:flex;flex-direction:column;gap:4px}.filter-box label{color:#8a98aa;font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.06em}.filter-box select{min-width:125px;height:38px;padding:0 34px 0 11px;border:1px solid #e4e9f1;border-radius:11px;background:#fff;color:#334155;font-size:10px;font-weight:700;outline:none}.filter-box select:focus{border-color:#b9d3fa;box-shadow:0 0 0 3px rgba(18,104,232,.08)}.line-filter select{min-width:190px}.btn-reset-chart{height:38px;padding:0 13px;border:1px solid #e4e9f1;border-radius:11px;background:#fff;color:#64748b;font-size:10px;font-weight:800;cursor:pointer}.btn-reset-chart:hover{background:#f8fafc;color:#334155}
 .chart-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:12px}.chart-summary-box{padding:11px 13px;border:1px solid #edf1f6;border-radius:13px;background:#fafcff}.chart-summary-box span{display:block;color:#8a98aa;font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.05em}.chart-summary-box strong{display:block;margin-top:5px;color:#23324a;font-size:17px}.chart-summary-box small{margin-left:4px;color:#8a98aa;font-size:10px;font-weight:600}
 .chart-wrap{position:relative;height:360px;border:1px solid #edf1f6;border-radius:16px;background:linear-gradient(180deg,#fff,#fbfdff);padding:10px;overflow:hidden}.chart-wrap canvas{width:100%;height:100%;display:block;cursor:crosshair}.chart-empty{height:100%;display:grid;place-items:center;color:#9aa6b6;font-size:12px}.chart-tooltip{position:absolute;z-index:5;min-width:205px;max-width:270px;padding:11px 12px;border:1px solid rgba(210,219,232,.95);border-radius:12px;background:rgba(255,255,255,.98);box-shadow:0 14px 34px rgba(31,52,84,.16);backdrop-filter:blur(10px);pointer-events:none;opacity:0;transform:translateY(4px);transition:opacity .12s ease,transform .12s ease;color:#334155}.chart-tooltip.show{opacity:1;transform:translateY(0)}.chart-tooltip .tt-title{font-size:11px;font-weight:850;color:#1e293b;margin-bottom:5px}.chart-tooltip .tt-period{font-size:9px;color:#8a98aa;margin-bottom:8px}.chart-tooltip .tt-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-top:5px;margin-top:5px;border-top:1px solid #eef2f6;font-size:9px;color:#64748b}.chart-tooltip .tt-row strong{font-size:11px;color:#1268e8}.chart-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:10px;color:#93a0b1;font-size:9px}.legend-dot{display:inline-block;width:9px;height:9px;margin-right:5px;border-radius:50%;background:linear-gradient(135deg,#1268e8,#7c3aed)}
 
@@ -409,6 +409,7 @@ body::after{width:320px;height:320px;right:-130px;top:32%;background:rgba(124,58
                     <button type="button" id="waste-weekly-btn" class="active" onclick="switchWasteChartMode('weekly')">Weekly</button>
                     <button type="button" id="waste-monthly-btn" onclick="switchWasteChartMode('monthly')">Monthly</button>
                 </div>
+                <div class="filter-box line-filter"><label>Line</label><select id="waste-chart-line" onchange="handleWasteChartLineChange(this.value)"></select></div>
                 <div class="filter-box"><label>Dari</label><select id="waste-chart-from" onchange="handleWasteChartRangeChange('from')"></select></div>
                 <div class="filter-box"><label>Sampai</label><select id="waste-chart-to" onchange="handleWasteChartRangeChange('to')"></select></div>
                 <button type="button" class="btn-reset-chart" onclick="resetWasteChartRange()">Reset Periode</button>
@@ -520,22 +521,9 @@ async function loadKPI() {
         .order('tanggal', { ascending: false })
         .limit(50);
 
-    if (!data || data.length === 0) return;
-
-    // Ambil tanggal terbaru
-    const lastDate = data[0].tanggal;
-    const todayRows = data.filter(r => r.tanggal === lastDate);
-
-    const totalKemasan = todayRows.reduce((s, r) => s + (r.waste_kemasan || 0), 0);
-    const totalSFG     = todayRows.reduce((s, r) => s + (r.waste_sfg || 0), 0);
-    const totalKarton  = todayRows.reduce((s, r) => s + (r.waste_karton || 0), 0);
-
-    const fmtTgl = fmtDate(lastDate);
-
-    // Ambil batas atas dari Supabase (jumlah semua mesin × 3 shift), fallback ke MESIN_LIST kalau kosong
     const { data: batasRows } = await db.from('waste_batas').select('*');
-    let batasKemasan, batasSfg, batasKarton;
 
+    let batasKemasan, batasSfg, batasKarton;
     if (batasRows && batasRows.length > 0) {
         batasKemasan = batasRows.reduce((s, b) => s + (b.batas_kemasan || 0), 0) * 3;
         batasSfg     = batasRows.reduce((s, b) => s + (b.batas_sfg || 0), 0) * 3;
@@ -553,9 +541,33 @@ async function loadKPI() {
     document.querySelector('#kpi-karton').closest('.kpi-card').querySelector('.kpi-target').textContent =
         `Batas: ${batasKarton.toFixed(0)} Pcs/hari`;
 
+    if (!data || data.length === 0) {
+        setKPIEmpty('Belum ada data');
+        return;
+    }
+
+    const lastDate = data[0].tanggal;
+    const todayRows = data.filter(r => r.tanggal === lastDate);
+
+    const totalKemasan = todayRows.reduce((s, r) => s + (r.waste_kemasan || 0), 0);
+    const totalSFG     = todayRows.reduce((s, r) => s + (r.waste_sfg || 0), 0);
+    const totalKarton  = todayRows.reduce((s, r) => s + (r.waste_karton || 0), 0);
+    const fmtTgl = fmtDate(lastDate);
+
     setKPI('kpi-kemasan', 'kpi-date-kemasan', totalKemasan, 'Kg', batasKemasan, fmtTgl);
     setKPI('kpi-sfg',     'kpi-date-sfg',     totalSFG,     'Kg', batasSfg,  fmtTgl);
     setKPI('kpi-karton',  'kpi-date-karton',  totalKarton,  'Pcs', batasKarton, fmtTgl);
+}
+
+function setKPIEmpty(message) {
+    ['kpi-kemasan','kpi-sfg','kpi-karton'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.textContent = '—'; el.className = 'kpi-val'; }
+    });
+    ['kpi-date-kemasan','kpi-date-sfg','kpi-date-karton'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = message;
+    });
 }
 
 function setKPI(valId, dateId, val, unit, batas, tgl) {
@@ -567,6 +579,7 @@ function setKPI(valId, dateId, val, unit, batas, tgl) {
 
 // ── State filter ──
 let filterState = { bulan: '', shift: '' };
+let wasteChartLine = '';
 let allRiwayatData = [];
 let wasteChartRows = [];
 let wasteChartMode = 'weekly';
@@ -576,6 +589,28 @@ let wasteChartRange = { weekly: {from:0,to:0}, monthly: {from:0,to:0} };
 let wasteChartHoverIndex = -1;
 let wasteChartHitBars = [];
 let wasteChartResizeTimer = null;
+
+function getActiveLineLabel() {
+    if (!wasteChartLine) return 'Semua Line';
+    const line = MESIN_LIST.find(m => m.id === wasteChartLine);
+    return line ? line.nama : wasteChartLine;
+}
+
+function populateWasteChartLineFilter() {
+    const select = document.getElementById('waste-chart-line');
+    if (!select) return;
+    select.innerHTML = '';
+    select.add(new Option('Semua Line', ''));
+    MESIN_LIST.forEach(m => select.add(new Option(m.nama, m.id)));
+    select.value = wasteChartLine;
+}
+
+async function handleWasteChartLineChange(lineId) {
+    wasteChartLine = lineId || '';
+    setStatus('loading', `Memuat grafik: ${getActiveLineLabel()}...`);
+    await loadWasteChartData();
+    setStatus('active', `Grafik aktif: ${getActiveLineLabel()}`);
+}
 
 
 function terapkanFilter() {
@@ -605,7 +640,6 @@ async function loadRiwayat() {
     if (filterState.shift) {
         query = query.eq('shift', parseInt(filterState.shift));
     }
-
     const { data, error } = await query.limit(500);
     allRiwayatData = data || [];
 
@@ -681,7 +715,9 @@ function buildWasteMonthlySeries(rows){
 async function loadAllWasteForChart(){
     const all=[]; const size=1000;
     for(let from=0;;from+=size){
-        const {data,error}=await db.from('waste_shiftly').select('tanggal,waste_kemasan,waste_sfg,waste_karton').order('tanggal',{ascending:true}).range(from,from+size-1);
+        let query=db.from('waste_shiftly').select('tanggal,mesin_id,mesin_nama,waste_kemasan,waste_sfg,waste_karton');
+        if(wasteChartLine) query=query.eq('mesin_id',wasteChartLine);
+        const {data,error}=await query.order('tanggal',{ascending:true}).range(from,from+size-1);
         if(error) throw error;
         if(data?.length) all.push(...data);
         if(!data || data.length<size) break;
@@ -752,7 +788,7 @@ function renderWasteChart(){
 }
 function updateWasteChartSummary(data){
     const meta=wasteMetricMeta(),key=meta.field.replace('waste_',''),values=data.map(d=>Number(d[key])||0),total=values.reduce((s,v)=>s+v,0),avg=data.length?total/data.length:0,peak=data.length?data.reduce((a,b)=>(Number(a[key])||0)>(Number(b[key])||0)?a:b):null;
-    document.getElementById('waste-chart-total').innerHTML=data.length?`${wasteFmtNumber(total)}<small> ${meta.unit}</small>`:'—';document.getElementById('waste-chart-average').innerHTML=data.length?`${wasteFmtNumber(avg)}<small> ${meta.unit}</small>`:'—';document.getElementById('waste-chart-peak').innerHTML=peak?`${peak.label}<small> · ${wasteFmtNumber(peak[key])} ${meta.unit}</small>`:'—';document.getElementById('waste-chart-legend').textContent=meta.label;document.getElementById('waste-chart-range-label').textContent=data.length?`${wasteChartMode==='weekly'?'Weekly · Sunday–Saturday':'Monthly'} · ${data[0].label} s.d. ${data[data.length-1].label}`:'';
+    document.getElementById('waste-chart-total').innerHTML=data.length?`${wasteFmtNumber(total)}<small> ${meta.unit}</small>`:'—';document.getElementById('waste-chart-average').innerHTML=data.length?`${wasteFmtNumber(avg)}<small> ${meta.unit}</small>`:'—';document.getElementById('waste-chart-peak').innerHTML=peak?`${peak.label}<small> · ${wasteFmtNumber(peak[key])} ${meta.unit}</small>`:'—';document.getElementById('waste-chart-legend').textContent=meta.label;document.getElementById('waste-chart-range-label').textContent=data.length?`${getActiveLineLabel()} · ${wasteChartMode==='weekly'?'Weekly · Sunday–Saturday':'Monthly'} · ${data[0].label} s.d. ${data[data.length-1].label}`:'';
 }
 window.addEventListener('resize',()=>{clearTimeout(wasteChartResizeTimer);wasteChartResizeTimer=setTimeout(renderWasteChart,120);});
 
@@ -1359,6 +1395,7 @@ document.getElementById('filter-bulan').value = bulanIni;
 filterState.bulan = bulanIni;
 
 async function init() {
+    populateWasteChartLineFilter();
     setStatus('loading', 'Memuat data...');
     await Promise.all([loadKPI(), loadRiwayat(), loadWasteChartData()]);
     setStatus('active', 'Data berhasil dimuat');
