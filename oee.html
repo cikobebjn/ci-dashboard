@@ -775,6 +775,38 @@ body{
 @media(max-width:980px){.report-workspace{grid-template-columns:1fr}.report-preview{position:static}.report-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:640px){.report-card{padding:15px;border-radius:18px}.report-head{flex-direction:column}.report-controls{grid-template-columns:1fr}.report-load-btn{width:100%}.report-edit-grid{grid-template-columns:1fr}.report-metrics{grid-template-columns:1fr 1fr}.report-actions{grid-template-columns:1fr}.report-clear-btn{grid-column:auto}#wa-report-output{min-height:330px}}
 
+
+
+/* ===== OEE Gedung & Line filter integrated into chart ===== */
+.chart-card .chart-head{display:block;}
+.chart-card .chart-title{margin-bottom:14px;}
+.chart-card .chart-controls{
+    display:grid;
+    grid-template-columns:auto minmax(135px,155px) minmax(210px,1fr) minmax(130px,150px) minmax(130px,150px) auto auto auto;
+    gap:8px;
+    align-items:end;
+    justify-content:stretch;
+}
+.chart-card .chart-controls .period-toggle{align-self:end;}
+.chart-card .chart-controls .filter-box{min-width:0;}
+.chart-card .chart-controls .filter-box select{width:100%;min-width:0;}
+.chart-card .chart-controls .line-filter{min-width:210px;}
+.chart-card .chart-controls .btn-reset-chart,.chart-card .chart-controls .btn-export-oee{white-space:nowrap;justify-content:center;}
+@media(max-width:1280px){
+    .chart-card .chart-controls{grid-template-columns:auto minmax(130px,1fr) minmax(190px,1.4fr) minmax(125px,1fr) minmax(125px,1fr);}
+    .chart-card .chart-controls .btn-reset-scope,.chart-card .chart-controls .btn-reset-chart,.chart-card .chart-controls .btn-export-oee{width:100%;}
+}
+@media(max-width:900px){
+    .chart-card .chart-controls{grid-template-columns:1fr 1fr;}
+    .chart-card .chart-controls .period-toggle{grid-column:1/-1;width:100%;}
+    .chart-card .chart-controls .period-toggle button{flex:1;}
+    .chart-card .chart-controls .line-filter{min-width:0;}
+}
+@media(max-width:640px){
+    .chart-card .chart-controls{grid-template-columns:1fr;}
+    .chart-card .chart-controls .period-toggle{grid-column:auto;}
+}
+
 </style>
 </head>
 <body>
@@ -827,8 +859,8 @@ body{
         </div>
         <div class="hero-target">
             <span>Target OEE</span>
-            <strong>≥ 55%</strong>
-            <small>Daily · Weekly · Monthly</small>
+            <strong id="hero-target-value">≥ 55%</strong>
+            <small id="hero-target-note">Daily · Weekly · Monthly</small>
         </div>
     </section>
 
@@ -893,12 +925,14 @@ body{
         </div>
     </section>
 
+
+
     <div class="section-title">Rekapitulasi OEE</div>
     <div class="kpi-grid summary-grid">
         <div class="kpi-card weekly"><div class="kpi-label">Weekly OEE · Sun–Sat</div><div class="kpi-value kpi-empty" id="val-weekly-oee">—</div><div class="kpi-date" id="date-weekly-oee"></div><span class="target-badge">Target: ≥ 55%</span></div>
         <div class="kpi-card monthly"><div class="kpi-label">Monthly OEE</div><div class="kpi-value kpi-empty" id="val-monthly-oee">—</div><div class="kpi-date" id="date-monthly-oee"></div><span class="target-badge">Target: ≥ 55%</span></div>
         <div class="kpi-card daily"><div class="kpi-label">OEE Hari Terakhir</div><div class="kpi-value kpi-empty" id="val-daily">—</div><div class="kpi-date" id="date-daily"></div><span class="target-badge">Target: ≥ 55%</span></div>
-        <div class="kpi-card target"><div class="kpi-label">Target OEE</div><div class="kpi-value good">55.00%</div><div class="kpi-date">Standar capaian Bojonegoro</div><span class="target-badge">Minimum target</span></div>
+        <div class="kpi-card target"><div class="kpi-label">Target OEE</div><div class="kpi-value good" id="val-active-target">55.00%</div><div class="kpi-date" id="date-active-target">Standar capaian Bojonegoro</div><span class="target-badge" id="badge-active-target">Minimum target</span></div>
     </div>
 
     <div class="section-title">OEE Shiftly — Hari Terakhir</div>
@@ -912,15 +946,18 @@ body{
         <div class="chart-head">
             <div class="chart-title">
                 <h3>Grafik OEE Produksi</h3>
-                <p>Weekly menggunakan periode <strong>Minggu–Sabtu</strong>. Monthly menggunakan agregasi bulan kalender. OEE dihitung berbobot volume dari total output terhadap total target.</p>
+                <p>Weekly menggunakan periode <strong>Minggu–Sabtu</strong>. Monthly menggunakan agregasi bulan kalender.</p>
             </div>
             <div class="chart-controls">
                 <div class="period-toggle">
                     <button type="button" id="chart-weekly-btn" class="active" onclick="switchChartMode('weekly')">Weekly</button>
                     <button type="button" id="chart-monthly-btn" onclick="switchChartMode('monthly')">Monthly</button>
                 </div>
+                <div class="filter-box scope-inline-filter"><label>Gedung</label><select id="filter-gedung" onchange="handleOeeGedungChange()"><option value="">Semua Gedung</option></select></div>
+                <div class="filter-box scope-inline-filter line-filter"><label>Line</label><select id="filter-line" onchange="handleOeeLineChange()"><option value="">Semua Line</option></select></div>
                 <div class="filter-box"><label>Dari</label><select id="chart-from" onchange="handleChartRangeChange('from')"></select></div>
                 <div class="filter-box"><label>Sampai</label><select id="chart-to" onchange="handleChartRangeChange('to')"></select></div>
+                <button type="button" class="btn-reset-chart btn-reset-scope" onclick="resetOeeScope()">Reset Gedung/Line</button>
                 <button type="button" class="btn-reset-chart" onclick="resetChartRange()">Reset Periode</button>
                 <button type="button" class="btn-export-oee" onclick="exportOeeExcel()" title="Export data OEE sesuai periode aktif"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg><span>Export Excel</span></button>
             </div>
@@ -931,7 +968,7 @@ body{
             <div class="chart-summary-box"><span>Target Tercapai</span><strong id="chart-target-hit">—</strong></div>
         </div>
         <div class="chart-wrap" id="chart-wrap"><canvas id="oee-chart"></canvas><div class="oee-chart-tooltip" id="oee-chart-tooltip"></div></div>
-        <div class="chart-foot"><span><i class="legend-dot legend-good"></i>≥ 55% &nbsp;&nbsp; <i class="legend-dot legend-low"></i>&lt; 55% &nbsp;&nbsp; <i class="legend-dot legend-target"></i>Target 55%</span><span class="chart-live-note">Arahkan kursor ke grafik</span><span id="chart-range-label"></span></div>
+        <div class="chart-foot"><span><i class="legend-dot legend-good"></i><span id="chart-good-legend">≥ 55%</span> &nbsp;&nbsp; <i class="legend-dot legend-low"></i><span id="chart-low-legend">&lt; 55%</span> &nbsp;&nbsp; <i class="legend-dot legend-target"></i><span id="chart-target-legend">Target 55%</span></span><span class="chart-live-note">Arahkan kursor ke grafik</span><span id="chart-range-label"></span></div>
     </section>
 
     <div class="section-title">OEE per Line — Hari Terakhir</div>
@@ -975,6 +1012,20 @@ let chartHitAreas=[];
 let chartEventsBound=false;
 let oeeReportRows=[];
 let reportDrafts={};
+let oeeScope={gedung:'',line:''};
+let scopeDailyRows=[];
+const OEE_LINE_MASTER=[
+    {gedung:'Gd 6',line:'BOATO'},
+    {gedung:'Gd 6',line:'LINE 1A - FILLING CF (4 MSN)'},
+    {gedung:'Gd 6',line:'LINE 1B - FILLING BOPACK (3 MSN)'},
+    {gedung:'Gd 6',line:'LINE 2 - FILLING CF (12 MSN)'},
+    {gedung:'Gd 7',line:'LINE 4 - FILLING SW'},
+    {gedung:'Gd 7',line:'LINE 5A - FILLING BOOSTAR (5 MSN)'},
+    {gedung:'Gd 7',line:'LINE 5B - FILLING SW (1 MSN)'},
+    {gedung:'Gd 7',line:'Line 6 - Filling Dried Noodle (2Mesin)'},
+    {gedung:'Gd 4',line:'LINE 7 - FILLING SW'},
+];
+const OEE_LINE_BY_KEY=new Map(OEE_LINE_MASTER.map(x=>[normalizeLineKey(x.line),x]));
 const HARI=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
 const BULAN_ID=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 
@@ -1059,7 +1110,7 @@ function buildMonthlySeries(rows){
 }
 function computeWeeklyOee(rows){if(!rows.length)return null;const last=rows[rows.length-1].tanggal,start=startOfSundayWeek(last),end=addDaysStr(start,6),selected=rows.filter(r=>r.tanggal>=start&&r.tanggal<=end);const m=aggregateOee(selected);return m?{...m,start,end}:null}
 function computeMonthlyOee(rows){if(!rows.length)return null;const d=dateFromStr(rows[rows.length-1].tanggal),y=d.getFullYear(),mth=d.getMonth(),selected=rows.filter(r=>{const x=dateFromStr(r.tanggal);return x.getFullYear()===y&&x.getMonth()===mth});const m=aggregateOee(selected);return m?{...m,year:y,month:mth}:null}
-function setOeeKpi(valId,dateId,data,label){const val=data?.oee;setVal(valId,dateId,val,label)}
+function setOeeKpi(valId,dateId,data,label,target=activeOeeTarget()){const val=data?.oee;setVal(valId,dateId,val,label,target)}
 
 // ── Baca nilai OEE dari cell (cached value, bukan formula) ──
 function getOEEVal(cell) {
@@ -1151,6 +1202,67 @@ function parseReportRowsFromDataSheet(wsData){
     return rows;
 }
 function normalizeLineKey(v){return String(v??'').toUpperCase().replace(/[^A-Z0-9]+/g,' ' ).replace(/\s+/g,' ').trim()}
+function canonicalLineName(v){const hit=OEE_LINE_BY_KEY.get(normalizeLineKey(v));return hit?hit.line:''}
+function gedungForLine(v){const hit=OEE_LINE_BY_KEY.get(normalizeLineKey(v));return hit?hit.gedung:''}
+function canonicalLineRows(rows){return (rows||[]).map(r=>{const line=canonicalLineName(r.line||r.mesin);if(!line)return null;return {...r,line,mesin:line,gedung:r.gedung||gedungForLine(line)}}).filter(Boolean)}
+function scopedLineRows(){let rows=canonicalLineRows(currentOeeData?.all_line||[]);if(oeeScope.gedung)rows=rows.filter(r=>r.gedung===oeeScope.gedung);if(oeeScope.line)rows=rows.filter(r=>normalizeLineKey(r.line)===normalizeLineKey(oeeScope.line));return rows}
+function aggregateScopedLineRows(rows){
+    const valid=(rows||[]).filter(r=>Number.isFinite(Number(r.oee)));
+    if(!valid.length)return null;
+    const weighted=valid.filter(r=>Number(r.target_pcs)>0&&Number.isFinite(Number(r.output_pcs)));
+    if(weighted.length===valid.length&&weighted.length){const target=weighted.reduce((a,r)=>a+Number(r.target_pcs||0),0),output=weighted.reduce((a,r)=>a+Number(r.output_pcs||0),0);if(target>0)return{oee:+(output/target*100).toFixed(2),target,output,count:valid.length,weighted:true}}
+    const avg=valid.reduce((a,r)=>a+Number(r.oee||0),0)/valid.length;return{oee:+avg.toFixed(2),target:null,output:null,count:valid.length,weighted:false};
+}
+function getScopedDailyRows(){
+    if(!currentOeeData)return[];
+    if(!oeeScope.gedung&&!oeeScope.line)return(currentOeeData.all_daily||[]).slice().sort((a,b)=>a.tanggal.localeCompare(b.tanggal));
+    const map=new Map();scopedLineRows().forEach(r=>{if(!map.has(r.tanggal))map.set(r.tanggal,[]);map.get(r.tanggal).push(r)});
+    return [...map.entries()].sort((a,b)=>a[0].localeCompare(b[0])).map(([tanggal,rows])=>{const m=aggregateScopedLineRows(rows);return m?{tanggal,oee:m.oee,target_pcs:m.target,output_pcs:m.output,_weighted:m.weighted}:null}).filter(Boolean);
+}
+function activeOeeTarget(){
+    if(oeeScope.line){const rows=canonicalLineRows(currentOeeData?.all_line||[]).filter(r=>normalizeLineKey(r.line)===normalizeLineKey(oeeScope.line)&&Number(r.target)>0).sort((a,b)=>String(a.tanggal).localeCompare(String(b.tanggal)));if(rows.length)return Number(rows[rows.length-1].target)}
+    return OEE_TARGET;
+}
+function currentScopeLabel(){if(oeeScope.line)return`${oeeScope.gedung?oeeScope.gedung+' · ':''}${oeeScope.line}`;if(oeeScope.gedung)return`${oeeScope.gedung} · Semua Line`;return'Seluruh pabrik'}
+function scopeHasExactWeights(){if(!oeeScope.gedung&&!oeeScope.line)return true;const rows=scopedLineRows().filter(r=>Number.isFinite(Number(r.oee)));return !!rows.length&&rows.every(r=>Number(r.target_pcs)>0&&Number.isFinite(Number(r.output_pcs)))}
+function refreshOeeScopeOptions(){
+    const g=document.getElementById('filter-gedung'),l=document.getElementById('filter-line');if(!g||!l)return;
+    const buildings=[...new Set(OEE_LINE_MASTER.map(x=>x.gedung))].sort();g.innerHTML='<option value="">Semua Gedung</option>'+buildings.map(x=>`<option value="${x}">${x}</option>`).join('');g.value=oeeScope.gedung;
+    const options=OEE_LINE_MASTER.filter(x=>!oeeScope.gedung||x.gedung===oeeScope.gedung);if(oeeScope.line&&!options.some(x=>normalizeLineKey(x.line)===normalizeLineKey(oeeScope.line)))oeeScope.line='';
+    l.innerHTML='<option value="">Semua Line</option>'+options.map(x=>`<option value="${escapeHtml(x.line)}">${escapeHtml(x.line)}</option>`).join('');l.value=oeeScope.line;
+}
+function handleOeeGedungChange(){oeeScope.gedung=document.getElementById('filter-gedung')?.value||'';refreshOeeScopeOptions();renderDashboardByScope()}
+function handleOeeLineChange(){oeeScope.line=document.getElementById('filter-line')?.value||'';const hit=OEE_LINE_BY_KEY.get(normalizeLineKey(oeeScope.line));if(hit&&oeeScope.gedung&&hit.gedung!==oeeScope.gedung)oeeScope.line='';renderDashboardByScope()}
+function resetOeeScope(){oeeScope={gedung:'',line:''};refreshOeeScopeOptions();renderDashboardByScope()}
+function updateScopeTargetUi(){
+    const target=activeOeeTarget(),lineSpecific=!!oeeScope.line,label=currentScopeLabel();
+    const active=document.getElementById('scope-active-label');if(active)active.textContent=label;
+    const method=document.getElementById('scope-method-label');if(method){const exact=scopeHasExactWeights();method.classList.toggle('approx',!exact);method.textContent=(!oeeScope.gedung&&!oeeScope.line)?'OEE total pabrik · berbobot volume':exact?'Agregasi berbobot Target PCS / Output PCS':'Agregasi OEE line-shift · jalankan migrasi SQL untuk bobot volume';}
+    const val=document.getElementById('val-active-target');if(val)val.textContent=target.toFixed(2)+'%';
+    const date=document.getElementById('date-active-target');if(date)date.textContent=lineSpecific?'Target line dari workbook OEE':'Standar capaian Bojonegoro';
+    const badge=document.getElementById('badge-active-target');if(badge)badge.textContent=lineSpecific?'Target line aktif':'Minimum target';
+    const hero=document.getElementById('hero-target-value');if(hero)hero.textContent='≥ '+target.toLocaleString('id-ID',{maximumFractionDigits:2})+'%';
+    const heroNote=document.getElementById('hero-target-note');if(heroNote)heroNote.textContent=lineSpecific?'Target line terpilih':'Daily · Weekly · Monthly';
+    const good=document.getElementById('chart-good-legend'),low=document.getElementById('chart-low-legend'),targetLegend=document.getElementById('chart-target-legend');if(good)good.textContent=`≥ ${target}%`;if(low)low.textContent=`< ${target}%`;if(targetLegend)targetLegend.textContent=`Target ${target}%`;
+}
+function scopeShiftSummary(){
+    if(!currentOeeData)return{date:null,shift1:null,shift2:null,shift3:null};
+    if(!oeeScope.gedung&&!oeeScope.line){const rows=(currentOeeData.all_shiftly||[]);const date=rows.length?rows[rows.length-1].tanggal:currentOeeData.date;const by={};rows.filter(r=>r.tanggal===date).forEach(r=>{const n=parseShiftNum(r.shift);if(n)by[n]=Number(r.oee)});return{date,shift1:by[1]??currentOeeData.shift1??null,shift2:by[2]??currentOeeData.shift2??null,shift3:by[3]??currentOeeData.shift3??null}}
+    const rows=scopedLineRows();const date=rows.length?rows.reduce((m,r)=>r.tanggal>m?r.tanggal:m,rows[0].tanggal):null;const out={date,shift1:null,shift2:null,shift3:null};[1,2,3].forEach(sh=>{const m=aggregateScopedLineRows(rows.filter(r=>r.tanggal===date&&Number(r.shift)===sh));out[`shift${sh}`]=m?.oee??null});return out;
+}
+function buildPerLineDisplay(rows,tanggal){
+    let data=canonicalLineRows(rows).filter(r=>r.tanggal===tanggal);if(oeeScope.gedung)data=data.filter(r=>r.gedung===oeeScope.gedung);if(oeeScope.line)data=data.filter(r=>normalizeLineKey(r.line)===normalizeLineKey(oeeScope.line));
+    const by=new Map();data.forEach(r=>{if(!by.has(r.line))by.set(r.line,{mesin:r.line,gedung:r.gedung,target:Number(r.target||OEE_TARGET),shift1:null,shift2:null,shift3:null});const o=by.get(r.line);o[`shift${Number(r.shift)}`]=Number(r.oee)});
+    return OEE_LINE_MASTER.filter(x=>by.has(x.line)).map(x=>by.get(x.line));
+}
+function renderDashboardByScope(){
+    if(!currentOeeData)return;refreshOeeScopeOptions();updateScopeTargetUi();const target=activeOeeTarget();
+    const shifts=scopeShiftSummary();setVal('val-s1','date-s1',shifts.shift1,fmtDate(shifts.date),target);setVal('val-s2','date-s2',shifts.shift2,fmtDate(shifts.date),target);setVal('val-s3','date-s3',shifts.shift3,fmtDate(shifts.date),target);
+    scopeDailyRows=getScopedDailyRows();const lastDaily=scopeDailyRows.length?scopeDailyRows[scopeDailyRows.length-1]:null;setVal('val-daily','date-daily',lastDaily?.oee??null,lastDaily?fmtDate(lastDaily.tanggal):'',target);
+    if(scopeDailyRows.length){const weekly=computeWeeklyOee(scopeDailyRows),monthly=computeMonthlyOee(scopeDailyRows);setOeeKpi('val-weekly-oee','date-weekly-oee',weekly,weekly?`${fmtDate(weekly.start)} – ${fmtDate(weekly.end)}`:'',target);setOeeKpi('val-monthly-oee','date-monthly-oee',monthly,monthly?`${BULAN_ID[monthly.month]} ${monthly.year}`:'',target);chartSeries.weekly=buildWeeklySeries(scopeDailyRows);chartSeries.monthly=buildMonthlySeries(scopeDailyRows);initChartRanges();populateChartSelectors();renderOeeChart()}else{setVal('val-weekly-oee','date-weekly-oee',null,'',target);setVal('val-monthly-oee','date-monthly-oee',null,'',target);chartSeries={weekly:[],monthly:[]};populateChartSelectors();renderOeeChart()}
+    const lineRows=scopedLineRows(),lineDate=lineRows.length?lineRows.reduce((m,r)=>r.tanggal>m?r.tanggal:m,lineRows[0].tanggal):shifts.date;tampilkanPerLine(buildPerLineDisplay(currentOeeData.all_line||[],lineDate),lineDate);
+}
+
 function enrichReportRows(rows,allLineRows){
     return rows.map(r=>{
         let target=r.targetOee;
@@ -1305,6 +1417,7 @@ function prosesExcel() {
             // Kolom: C=DATE(idx2), I=TARGET PCS(idx8), J=OUTPUT PCS(idx9)
             // ══════════════════════════════
             const dailyPcs = {}; // { tanggal: { target, output } }
+            const linePcsShift = {}; // { tanggal|shift|line: { target, output } } untuk filter OEE gedung/line
             const wsData = wb.Sheets['DATA'];
             if (wsData && wsData['!ref']) {
                 const rangeData = XLSX.utils.decode_range(wsData['!ref']);
@@ -1320,6 +1433,14 @@ function prosesExcel() {
                     if (!dailyPcs[tglStrD]) dailyPcs[tglStrD] = { target: 0, output: 0 };
                     dailyPcs[tglStrD].target += targetV;
                     dailyPcs[tglStrD].output += outputV;
+                    const shiftNumD = parseShiftNum(cell(wsData, r, 3)?.v); // kolom D = SHIFT
+                    const canonicalLineD = canonicalLineName(cell(wsData, r, 17)?.v); // kolom R = LINE
+                    if (shiftNumD && canonicalLineD) {
+                        const lk = `${tglStrD}|${shiftNumD}|${normalizeLineKey(canonicalLineD)}`;
+                        if (!linePcsShift[lk]) linePcsShift[lk] = { target: 0, output: 0 };
+                        linePcsShift[lk].target += targetV;
+                        linePcsShift[lk].output += outputV;
+                    }
                 }
             }
 
@@ -1389,9 +1510,8 @@ function prosesExcel() {
                     const s2 = getOEEVal(cell(wsShiftly, m.row, c + 1));
                     const s3 = getOEEVal(cell(wsShiftly, m.row, c + 2));
                     const target = targetPerMesin[m.row];
-                    if (s1 !== null) allLineRows.push({ tanggal: tglStr, shift: 1, mesin: m.nama, target, oee: s1 });
-                    if (s2 !== null) allLineRows.push({ tanggal: tglStr, shift: 2, mesin: m.nama, target, oee: s2 });
-                    if (s3 !== null) allLineRows.push({ tanggal: tglStr, shift: 3, mesin: m.nama, target, oee: s3 });
+                    const addLineRow=(shift,oee)=>{if(oee===null)return;const canonical=canonicalLineName(m.nama);const pcs=canonical?linePcsShift[`${tglStr}|${shift}|${normalizeLineKey(canonical)}`]:null;allLineRows.push({tanggal:tglStr,shift,mesin:m.nama,target,oee,gedung:canonical?gedungForLine(canonical):'',target_pcs:pcs?pcs.target:null,output_pcs:pcs?pcs.output:null})};
+                    addLineRow(1,s1);addLineRow(2,s2);addLineRow(3,s3);
                 });
             }
 
@@ -1400,15 +1520,7 @@ function prosesExcel() {
             oeeReportRows = aggregateReportRows(reportRowsRaw);
 
             // Data per-line utk preview kartu (hanya tanggal terakhir)
-            const perLineData = [];
-            MESIN_ROWS.forEach(m => {
-                const rowsIni = allLineRows.filter(r => r.tanggal === lastShiftDate && r.mesin === m.nama);
-                if (rowsIni.length > 0) {
-                    const byShift = {};
-                    rowsIni.forEach(r => { byShift[`shift${r.shift}`] = r.oee; });
-                    perLineData.push({ mesin: m.nama, target: rowsIni[0].target, shift1: byShift.shift1 ?? null, shift2: byShift.shift2 ?? null, shift3: byShift.shift3 ?? null });
-                }
-            });
+            const perLineData = buildPerLineDisplay(allLineRows,lastShiftDate);
 
             const tanggalUnikShiftly = [...new Set(allShiftlyRows.map(r => r.tanggal))].sort();
             const tanggalUnikDaily   = [...new Set(allDailyRows.map(r => r.tanggal))].sort();
@@ -1449,21 +1561,8 @@ function prosesExcel() {
 
 function tampilkanData(d) {
     currentOeeData=d;
-    setVal('val-s1','date-s1',d.shift1,fmtDate(d.date));
-    setVal('val-s2','date-s2',d.shift2,fmtDate(d.date));
-    setVal('val-s3','date-s3',d.shift3,fmtDate(d.date));
-    setVal('val-daily','date-daily',d.daily_oee,fmtDate(d.daily_date));
-
-    const daily=(d.all_daily||[]).slice().sort((a,b)=>a.tanggal.localeCompare(b.tanggal));
-    if(daily.length){
-        const weekly=computeWeeklyOee(daily),monthly=computeMonthlyOee(daily);
-        setOeeKpi('val-weekly-oee','date-weekly-oee',weekly,weekly?`${fmtDate(weekly.start)} – ${fmtDate(weekly.end)}`:'');
-        setOeeKpi('val-monthly-oee','date-monthly-oee',monthly,monthly?`${BULAN_ID[monthly.month]} ${monthly.year}`:'');
-        chartSeries.weekly=buildWeeklySeries(daily);
-        chartSeries.monthly=buildMonthlySeries(daily);
-        initChartRanges();populateChartSelectors();renderOeeChart();
-    }
-    if (d.per_line) tampilkanPerLine(d.per_line, d.date);
+    refreshOeeScopeOptions();
+    renderDashboardByScope();
 }
 
 function tampilkanPerLine(lines, tanggal) {
@@ -1502,7 +1601,7 @@ function tampilkanPerLine(lines, tanggal) {
     trFoot.innerHTML = `
         <td colspan="5" style="padding:8px 16px; font-size:11px; color:#9ca3af;
             background:#f9fafb; border-top:2px solid #e5e7eb;">
-            Data tanggal: ${fmtDate(tanggal)} &nbsp;·&nbsp;
+            Data tanggal: ${fmtDate(tanggal)} &nbsp;·&nbsp; Scope: ${currentScopeLabel()} &nbsp;·&nbsp;
             <span style="color:#16a34a;">■</span> ≥ target &nbsp;
             <span style="color:#dc2626;">■</span> &lt; target
         </td>
@@ -1510,14 +1609,14 @@ function tampilkanPerLine(lines, tanggal) {
     tbody.appendChild(trFoot);
 }
 
-function setVal(valId, dateId, val, date) {
+function setVal(valId, dateId, val, date, target=activeOeeTarget()) {
     const el = document.getElementById(valId);
     const de = document.getElementById(dateId);
-    if (val === null || val === undefined) {
+    if (val === null || val === undefined || !Number.isFinite(Number(val))) {
         el.textContent = '—'; el.className = 'kpi-value kpi-empty'; de.textContent = ''; return;
     }
-    el.textContent = val.toFixed(2) + '%';
-    el.className = 'kpi-value ' + (val >= OEE_TARGET ? 'good' : 'low');
+    el.textContent = Number(val).toFixed(2) + '%';
+    el.className = 'kpi-value ' + (Number(val) >= Number(target) ? 'good' : 'low');
     de.textContent = date;
 }
 
@@ -1541,9 +1640,9 @@ function handleChartRangeChange(changed){const data=chartSeries[chartMode];if(!d
 function resetChartRange(){const n=chartSeries[chartMode].length;if(!n)return;const visible=chartMode==='weekly'?Math.min(8,n):Math.min(6,n);chartRange[chartMode]={from:Math.max(0,n-visible),to:n-1};chartHoverKey='';populateChartSelectors();renderOeeChart()}
 function selectedChartSeries(){const data=chartSeries[chartMode];if(!data.length)return[];const r=chartRange[chartMode];return data.slice(Math.max(0,r.from),Math.min(data.length-1,r.to)+1)}
 function selectedDailyRowsForChart(){
-    if(!currentOeeData?.all_daily?.length)return[];const periods=selectedChartSeries();if(!periods.length)return[];
-    if(chartMode==='weekly'){const starts=new Set(periods.map(p=>p.start));return currentOeeData.all_daily.filter(r=>starts.has(startOfSundayWeek(r.tanggal)))}
-    const months=new Set(periods.map(p=>p.key));return currentOeeData.all_daily.filter(r=>{const d=dateFromStr(r.tanggal);return months.has(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`)})
+    if(!scopeDailyRows?.length)return[];const periods=selectedChartSeries();if(!periods.length)return[];
+    if(chartMode==='weekly'){const starts=new Set(periods.map(p=>p.start));return scopeDailyRows.filter(r=>starts.has(startOfSundayWeek(r.tanggal)))}
+    const months=new Set(periods.map(p=>p.key.replace(/^m-/,'')));return scopeDailyRows.filter(r=>{const d=dateFromStr(r.tanggal);return months.has(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`)})
 }
 function updateOeeChartTooltip(hit){
     const tip=document.getElementById('oee-chart-tooltip');
@@ -1551,15 +1650,16 @@ function updateOeeChartTooltip(hit){
     if(!tip||!wrap)return;
     if(!hit){tip.classList.remove('show');tip.innerHTML='';return;}
     const d=hit.item;
-    const diff=Number(d.value||0)-OEE_TARGET;
-    const status=d.value>=OEE_TARGET?'Target tercapai':'Di bawah target';
+    const target=activeOeeTarget();
+    const diff=Number(d.value||0)-target;
+    const status=d.value>=target?'Target tercapai':'Di bawah target';
     const targetPcs=Number.isFinite(Number(d.target))&&d.target!==null?Math.round(Number(d.target)).toLocaleString('id-ID'):'—';
     const outputPcs=Number.isFinite(Number(d.output))&&d.output!==null?Math.round(Number(d.output)).toLocaleString('id-ID'):'—';
     tip.innerHTML=`
         <div class="oee-tip-title">${d.label}</div>
         <div class="oee-tip-sub">${d.detail||''}</div>
         <div class="oee-tip-row"><span class="oee-tip-key">OEE</span><span class="oee-tip-val">${Number(d.value||0).toLocaleString('id-ID',{minimumFractionDigits:2,maximumFractionDigits:2})}%</span></div>
-        <div class="oee-tip-row"><span class="oee-tip-key">Target</span><span class="oee-tip-val">${OEE_TARGET}%</span></div>
+        <div class="oee-tip-row"><span class="oee-tip-key">Target</span><span class="oee-tip-val">${target}%</span></div>
         <div class="oee-tip-row"><span class="oee-tip-key">Vs Target</span><span class="oee-tip-val ${diff>=0?'oee-tip-good':'oee-tip-low'}">${diff>0?'+':''}${diff.toLocaleString('id-ID',{minimumFractionDigits:2,maximumFractionDigits:2})} pt</span></div>
         <div class="oee-tip-row"><span class="oee-tip-key">Status</span><span class="oee-tip-val ${diff>=0?'oee-tip-good':'oee-tip-low'}">${status}</span></div>
         <div class="oee-tip-row"><span class="oee-tip-key">Output PCS</span><span class="oee-tip-val">${outputPcs}</span></div>
@@ -1615,7 +1715,8 @@ function renderOeeChart(){
     const mobile=window.innerWidth<=720;
     const margin={top:30,right:18,bottom:58,left:mobile?50:62};
     const plotW=cssW-margin.left-margin.right,plotH=cssH-margin.top-margin.bottom;
-    const maxData=Math.max(...data.map(d=>Number(d.value)||0),OEE_TARGET);
+    const target=activeOeeTarget();
+    const maxData=Math.max(...data.map(d=>Number(d.value)||0),target);
     const yMax=Math.max(100,Math.ceil((maxData*1.10)/10)*10);
     const yMin=0;
     const yFor=v=>margin.top+plotH-((Number(v||0)-yMin)/(yMax-yMin))*plotH;
@@ -1630,9 +1731,9 @@ function renderOeeChart(){
     }
 
     // Target line
-    const targetY=yFor(OEE_TARGET);
+    const targetY=yFor(target);
     ctx.save();ctx.strokeStyle='#f59e0b';ctx.lineWidth=2;ctx.setLineDash([7,6]);ctx.beginPath();ctx.moveTo(margin.left,targetY);ctx.lineTo(cssW-margin.right,targetY);ctx.stroke();ctx.restore();
-    ctx.fillStyle='#b77905';ctx.font='700 9px Arial, sans-serif';ctx.textAlign='right';ctx.textBaseline='bottom';ctx.fillText('Target 55%',cssW-margin.right,targetY-5);
+    ctx.fillStyle='#b77905';ctx.font='700 9px Arial, sans-serif';ctx.textAlign='right';ctx.textBaseline='bottom';ctx.fillText(`Target ${target}%`,cssW-margin.right,targetY-5);
 
     // Soft area under trend
     const area=ctx.createLinearGradient(0,margin.top,0,margin.top+plotH);
@@ -1654,7 +1755,7 @@ function renderOeeChart(){
 
     // Points and labels
     data.forEach((d,i)=>{
-        const xx=xFor(i),yy=yFor(d.value),good=Number(d.value)>=OEE_TARGET,hovered=i===activeIndex;
+        const xx=xFor(i),yy=yFor(d.value),good=Number(d.value)>=target,hovered=i===activeIndex;
         if(hovered){ctx.beginPath();ctx.arc(xx,yy,11,0,Math.PI*2);ctx.fillStyle=good?'rgba(22,160,101,.13)':'rgba(239,68,68,.12)';ctx.fill();}
         ctx.beginPath();ctx.arc(xx,yy,hovered?5.8:4.3,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();ctx.strokeStyle=good?'#16a065':'#ef4444';ctx.lineWidth=hovered?3:2.2;ctx.stroke();
         ctx.fillStyle=good?'#118454':'#d9363e';ctx.font=(hovered?'800 ':'700 ')+(mobile?'9px':'10px')+' Arial, sans-serif';ctx.textAlign='center';ctx.textBaseline='bottom';ctx.fillText(`${Number(d.value).toLocaleString('id-ID',{maximumFractionDigits:1})}%`,xx,yy-9);
@@ -1671,7 +1772,7 @@ function renderOeeChart(){
 }
 
 function updateChartSummary(data){
-    const selectedRows=selectedDailyRowsForChart(),overall=aggregateOee(selectedRows),peak=data.length?data.reduce((a,b)=>a.value>b.value?a:b):null,hits=data.filter(d=>d.value>=OEE_TARGET).length;
+    const target=activeOeeTarget(),selectedRows=selectedDailyRowsForChart(),overall=aggregateOee(selectedRows),peak=data.length?data.reduce((a,b)=>a.value>b.value?a:b):null,hits=data.filter(d=>d.value>=target).length;
     document.getElementById('chart-average').innerHTML=overall?`${overall.oee.toLocaleString('id-ID',{minimumFractionDigits:2,maximumFractionDigits:2})}<small>%</small>`:'—';
     document.getElementById('chart-peak').innerHTML=peak?`${peak.label}<small> · ${peak.value.toLocaleString('id-ID',{maximumFractionDigits:2})}%</small>`:'—';
     document.getElementById('chart-target-hit').innerHTML=data.length?`${hits} / ${data.length}<small> periode</small>`:'—';
@@ -1679,18 +1780,18 @@ function updateChartSummary(data){
 }
 function selectedDateRangeSet(){return new Set(selectedDailyRowsForChart().map(r=>r.tanggal))}
 function exportOeeExcel(){
-    if(!currentOeeData?.all_daily?.length){alert('Belum ada data OEE untuk diexport.');return}const periods=selectedChartSeries();if(!periods.length){alert('Pilih periode terlebih dahulu.');return}
-    const daily=selectedDailyRowsForChart(),dateSet=new Set(daily.map(r=>r.tanggal));
-    const summaryRows=periods.map(p=>({'Mode':chartMode==='weekly'?'Weekly (Sun-Sat)':'Monthly','Periode':p.label,'OEE (%)':Number(Number(p.value||0).toFixed(2)),'Target (%)':OEE_TARGET,'Status':Number(p.value)>=OEE_TARGET?'Achieved':'Below Target','Target PCS':p.target===null?'':Number(p.target||0),'Output PCS':p.output===null?'':Number(p.output||0),'Hari Data':p.count||0}));
-    const dailyRows=daily.map(r=>({'Tanggal':r.tanggal,'Hari':HARI[dateFromStr(r.tanggal).getDay()],'OEE (%)':Number(Number(r.oee||0).toFixed(2)),'Target PCS':r.target_pcs??'','Output PCS':r.output_pcs??'','Status':Number(r.oee)>=OEE_TARGET?'Achieved':'Below Target'}));
-    const shiftRows=(currentOeeData.all_shiftly||[]).filter(r=>dateSet.has(r.tanggal)).map(r=>({'Tanggal':r.tanggal,'Shift':r.shift,'OEE (%)':Number(Number(r.oee||0).toFixed(2)),'Target (%)':OEE_TARGET,'Status':Number(r.oee)>=OEE_TARGET?'Achieved':'Below Target'}));
-    const lineRows=(currentOeeData.all_line||[]).filter(r=>dateSet.has(r.tanggal)).map(r=>({'Tanggal':r.tanggal,'Shift':r.shift,'Mesin / Line':r.mesin,'OEE (%)':Number(Number(r.oee||0).toFixed(2)),'Target (%)':Number(r.target||OEE_TARGET),'Status':Number(r.oee)>=Number(r.target||OEE_TARGET)?'Achieved':'Below Target'}));
-    const overall=aggregateOee(daily),metadata=[['BOJONEGORO OEE EXPORT',''],['Mode',chartMode==='weekly'?'Weekly (Minggu-Sabtu)':'Monthly'],['Periode',`${periods[0].label} s.d. ${periods[periods.length-1].label}`],['OEE Periode (%)',overall?overall.oee:''],['Target OEE (%)',OEE_TARGET],['Jumlah Periode',periods.length],['Jumlah Hari Data',daily.length]];
-    const wb=XLSX.utils.book_new(),wsSummary=XLSX.utils.aoa_to_sheet(metadata);XLSX.utils.sheet_add_aoa(wsSummary,[[]],{origin:-1});XLSX.utils.sheet_add_json(wsSummary,summaryRows,{origin:-1,skipHeader:false});wsSummary['!cols']=[{wch:24},{wch:24},{wch:14},{wch:14},{wch:18},{wch:16},{wch:16},{wch:12}];XLSX.utils.book_append_sheet(wb,wsSummary,'Summary');
+    if(!scopeDailyRows?.length){alert('Belum ada data OEE untuk diexport pada filter aktif.');return}const periods=selectedChartSeries();if(!periods.length){alert('Pilih periode terlebih dahulu.');return}
+    const target=activeOeeTarget(),daily=selectedDailyRowsForChart(),dateSet=new Set(daily.map(r=>r.tanggal));
+    const summaryRows=periods.map(p=>({'Mode':chartMode==='weekly'?'Weekly (Sun-Sat)':'Monthly','Periode':p.label,'OEE (%)':Number(Number(p.value||0).toFixed(2)),'Target (%)':target,'Status':Number(p.value)>=target?'Achieved':'Below Target','Target PCS':p.target===null?'':Number(p.target||0),'Output PCS':p.output===null?'':Number(p.output||0),'Hari Data':p.count||0}));
+    const dailyRows=daily.map(r=>({'Tanggal':r.tanggal,'Hari':HARI[dateFromStr(r.tanggal).getDay()],'OEE (%)':Number(Number(r.oee||0).toFixed(2)),'Target PCS':r.target_pcs??'','Output PCS':r.output_pcs??'','Status':Number(r.oee)>=target?'Achieved':'Below Target'}));
+    const shiftRows=(!oeeScope.gedung&&!oeeScope.line?(currentOeeData.all_shiftly||[]):scopedLineRows()).filter(r=>dateSet.has(r.tanggal)).map(r=>({'Tanggal':r.tanggal,'Gedung':r.gedung||'','Shift':r.shift,'Mesin / Line':r.line||r.mesin||'','OEE (%)':Number(Number(r.oee||0).toFixed(2)),'Target (%)':oeeScope.line?target:Number(r.target||OEE_TARGET),'Target PCS':r.target_pcs??'','Output PCS':r.output_pcs??''}));
+    const lineRows=scopedLineRows().filter(r=>dateSet.has(r.tanggal)).map(r=>({'Tanggal':r.tanggal,'Gedung':r.gedung||gedungForLine(r.mesin),'Shift':r.shift,'Mesin / Line':r.line||r.mesin,'OEE (%)':Number(Number(r.oee||0).toFixed(2)),'Target (%)':Number(r.target||OEE_TARGET),'Target PCS':r.target_pcs??'','Output PCS':r.output_pcs??'','Status':Number(r.oee)>=Number(r.target||OEE_TARGET)?'Achieved':'Below Target'}));
+    const overall=aggregateOee(daily),metadata=[['BOJONEGORO OEE EXPORT',''],['Scope',currentScopeLabel()],['Gedung',oeeScope.gedung||'Semua Gedung'],['Line',oeeScope.line||'Semua Line'],['Metode',scopeHasExactWeights()?'Berbobot Target PCS / Output PCS':'Rata-rata OEE line-shift'],['Mode',chartMode==='weekly'?'Weekly (Minggu-Sabtu)':'Monthly'],['Periode',`${periods[0].label} s.d. ${periods[periods.length-1].label}`],['OEE Periode (%)',overall?overall.oee:''],['Target OEE (%)',target],['Jumlah Periode',periods.length],['Jumlah Hari Data',daily.length]];
+    const wb=XLSX.utils.book_new(),wsSummary=XLSX.utils.aoa_to_sheet(metadata);XLSX.utils.sheet_add_aoa(wsSummary,[[]],{origin:-1});XLSX.utils.sheet_add_json(wsSummary,summaryRows,{origin:-1,skipHeader:false});wsSummary['!cols']=[{wch:28},{wch:38},{wch:14},{wch:14},{wch:18},{wch:16},{wch:16},{wch:12}];XLSX.utils.book_append_sheet(wb,wsSummary,'Summary');
     const wsDaily=XLSX.utils.json_to_sheet(dailyRows);wsDaily['!cols']=[{wch:14},{wch:12},{wch:12},{wch:16},{wch:16},{wch:18}];XLSX.utils.book_append_sheet(wb,wsDaily,'Daily OEE');
-    if(shiftRows.length){const wsShift=XLSX.utils.json_to_sheet(shiftRows);wsShift['!cols']=[{wch:14},{wch:12},{wch:12},{wch:12},{wch:18}];XLSX.utils.book_append_sheet(wb,wsShift,'Shiftly OEE')}
-    if(lineRows.length){const wsLine=XLSX.utils.json_to_sheet(lineRows);wsLine['!cols']=[{wch:14},{wch:10},{wch:38},{wch:12},{wch:12},{wch:18}];XLSX.utils.book_append_sheet(wb,wsLine,'Per Line')}
-    const first=periods[0].label.replace(/[^A-Za-z0-9_-]+/g,'_'),last=periods[periods.length-1].label.replace(/[^A-Za-z0-9_-]+/g,'_');XLSX.writeFile(wb,`OEE_Bojonegoro_${chartMode==='weekly'?'Weekly':'Monthly'}_${first}_to_${last}.xlsx`)
+    if(shiftRows.length){const wsShift=XLSX.utils.json_to_sheet(shiftRows);wsShift['!cols']=[{wch:14},{wch:10},{wch:10},{wch:38},{wch:12},{wch:12},{wch:16},{wch:16}];XLSX.utils.book_append_sheet(wb,wsShift,'Shiftly OEE')}
+    if(lineRows.length){const wsLine=XLSX.utils.json_to_sheet(lineRows);wsLine['!cols']=[{wch:14},{wch:10},{wch:10},{wch:38},{wch:12},{wch:12},{wch:16},{wch:16},{wch:18}];XLSX.utils.book_append_sheet(wb,wsLine,'Per Line')}
+    const first=periods[0].label.replace(/[^A-Za-z0-9_-]+/g,'_'),last=periods[periods.length-1].label.replace(/[^A-Za-z0-9_-]+/g,'_'),scope=(oeeScope.line||oeeScope.gedung||'All').replace(/[^A-Za-z0-9_-]+/g,'_');XLSX.writeFile(wb,`OEE_Bojonegoro_${scope}_${chartMode==='weekly'?'Weekly':'Monthly'}_${first}_to_${last}.xlsx`)
 }
 
 function setStatus(type, msg) {
@@ -1715,12 +1816,12 @@ async function loadFromSupabase() {
         if(!dailyRows.length && !shiftRows.length){setStatus('default','Belum ada data. Import Excel untuk memulai.');return}
         const cleanDaily=dailyRows.map(r=>({...r,oee:r.oee===null?null:Number(r.oee),target_pcs:r.target_pcs===null||r.target_pcs===undefined?null:Number(r.target_pcs),output_pcs:r.output_pcs===null||r.output_pcs===undefined?null:Number(r.output_pcs)})).sort((a,b)=>a.tanggal.localeCompare(b.tanggal));
         const cleanShift=shiftRows.map(r=>({...r,oee:Number(r.oee)})).sort((a,b)=>a.tanggal.localeCompare(b.tanggal));
-        const cleanLine=lineRows.map(r=>({...r,oee:Number(r.oee),target:Number(r.target||OEE_TARGET),shift:Number(r.shift)})).sort((a,b)=>a.tanggal.localeCompare(b.tanggal));
+        const cleanLine=lineRows.map(r=>({...r,oee:Number(r.oee),target:Number(r.target||OEE_TARGET),shift:Number(r.shift),gedung:r.gedung||gedungForLine(r.mesin),target_pcs:r.target_pcs===null||r.target_pcs===undefined?null:Number(r.target_pcs),output_pcs:r.output_pcs===null||r.output_pcs===undefined?null:Number(r.output_pcs)})).sort((a,b)=>a.tanggal.localeCompare(b.tanggal));
         const lastShiftDate=cleanShift.length?cleanShift[cleanShift.length-1].tanggal:null,lastDailyDate=cleanDaily.length?cleanDaily[cleanDaily.length-1].tanggal:null;
         const byShift={};cleanShift.filter(r=>r.tanggal===lastShiftDate).forEach(r=>{byShift[r.shift]=r.oee});
         const lastDaily=cleanDaily.filter(r=>r.tanggal===lastDailyDate).slice(-1)[0];
-        const lastLineDate=cleanLine.length?cleanLine[cleanLine.length-1].tanggal:lastShiftDate,mesinMap={};cleanLine.filter(r=>r.tanggal===lastLineDate).forEach(r=>{if(!mesinMap[r.mesin])mesinMap[r.mesin]={mesin:r.mesin,target:r.target,shift1:null,shift2:null,shift3:null};mesinMap[r.mesin][`shift${r.shift}`]=r.oee});
-        const d={date:lastShiftDate,shift1:byShift['SHIFT 1']??null,shift2:byShift['SHIFT 2']??null,shift3:byShift['SHIFT 3']??null,daily_date:lastDailyDate,daily_oee:lastDaily?.oee??null,per_line:Object.values(mesinMap),all_shiftly:cleanShift,all_daily:cleanDaily,all_line:cleanLine};
+        const lastLineDate=cleanLine.length?cleanLine[cleanLine.length-1].tanggal:lastShiftDate;
+        const d={date:lastShiftDate,shift1:byShift['SHIFT 1']??null,shift2:byShift['SHIFT 2']??null,shift3:byShift['SHIFT 3']??null,daily_date:lastDailyDate,daily_oee:lastDaily?.oee??null,per_line:buildPerLineDisplay(cleanLine,lastLineDate),all_shiftly:cleanShift,all_daily:cleanDaily,all_line:cleanLine};
         tampilkanData(d);const latest=lastDailyDate||lastShiftDate;setStatus('active',`Data dimuat sampai ${fmtDate(latest)} · ${cleanDaily.length} hari daily OEE tersedia`);
     } catch(err){setStatus('error','Gagal memuat data OEE: '+err.message);console.error(err)}
 }
@@ -1732,13 +1833,19 @@ async function simpanKeSupabase() {
         const allShiftly=parsedData.all_shiftly||[],allDaily=parsedData.all_daily||[],allLine=parsedData.all_line||[];
         for(const table of ['oee_shiftly','oee_shiftly_line','oee_daily']){const{error}=await db.from(table).delete().gte('tanggal','2000-01-01');if(error)throw error}
         if(allShiftly.length)await insertBatched('oee_shiftly',allShiftly);
-        if(allLine.length)await insertBatched('oee_shiftly_line',allLine);
+        let lineWeightedSaved=false;
+        if(allLine.length){
+            const baseRows=allLine.map(r=>({tanggal:r.tanggal,shift:Number(r.shift),mesin:r.mesin,target:Number(r.target||OEE_TARGET),oee:Number(r.oee)}));
+            const extendedRows=allLine.map((r,i)=>({...baseRows[i],gedung:r.gedung||gedungForLine(r.mesin)||null,target_pcs:r.target_pcs===null||r.target_pcs===undefined?null:Number(r.target_pcs),output_pcs:r.output_pcs===null||r.output_pcs===undefined?null:Number(r.output_pcs)}));
+            try{await insertBatched('oee_shiftly_line',extendedRows);lineWeightedSaved=true}catch(lineErr){const msg=String(lineErr?.message||lineErr||'');if(/gedung|target_pcs|output_pcs|schema cache|column/i.test(msg)){await insertBatched('oee_shiftly_line',baseRows)}else throw lineErr}
+        }
         if(allDaily.length)await insertBatched('oee_daily',allDaily);
-        const days=new Set(allDaily.map(r=>r.tanggal)).size;setStatus('active',`Database OEE diperbarui penuh. ${days} hari daily OEE dimuat dari workbook terbaru.`);btn.textContent='Diperbarui';document.getElementById('warning-badge').classList.remove('show');await loadFromSupabase();
+        const days=new Set(allDaily.map(r=>r.tanggal)).size;setStatus('active',`Database OEE diperbarui penuh. ${days} hari daily OEE dimuat dari workbook terbaru.${lineWeightedSaved?' Filter gedung/line tersimpan dengan bobot volume.':' Filter gedung/line aktif; jalankan SQL migrasi agar bobot volume per line ikut tersimpan permanen.'}`);btn.textContent='Diperbarui';document.getElementById('warning-badge').classList.remove('show');await loadFromSupabase();
     } catch(err){setStatus('error','Gagal memperbarui database OEE: '+err.message);btn.disabled=false;btn.textContent='Perbarui Data Supabase';console.error(err)}
 }
 
 window.addEventListener('resize',()=>{clearTimeout(chartResizeTimer);chartResizeTimer=setTimeout(()=>{if(currentOeeData)renderOeeChart()},120)});
+refreshOeeScopeOptions();
 loadFromSupabase();
 </script>
 </body>
