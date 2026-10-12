@@ -496,6 +496,32 @@ function safeNum(v){const n=typeof v==='number'?v:parseFloat(String(v??'').repla
 
 function startOfSundayWeek(dateStr){const d=dateFromStr(dateStr);d.setDate(d.getDate()-d.getDay());return localDateToStr(d)}
 function weekNumberSunday(dateStr){const d=dateFromStr(dateStr);const year=d.getFullYear();const jan1=new Date(year,0,1);const dayOfYear=Math.floor((d-jan1)/86400000)+1;return Math.floor((dayOfYear+jan1.getDay()-1)/7)+1}
+function buildWeeklyTonaseMap(rows){
+    const map=new Map();
+    (rows||[]).forEach(r=>{
+        if(!r?.tanggal)return;
+        const d=dateFromStr(r.tanggal),year=d.getFullYear(),week=weekNumberSunday(r.tanggal),key=`${year}-${week}`;
+        map.set(key,(map.get(key)||0)+safeNum(r.tonase));
+    });
+    return map;
+}
+async function syncCostMaterialWeeklyTonase(rows){
+    const weeklyMap=buildWeeklyTonaseMap(rows);
+    if(!weeklyMap.size)return{matched:0,updated:0};
+    const {data,error}=await db.from('cost_material_weekly').select('tahun,minggu_ke,tonase');
+    if(error)throw new Error('Cost Material tidak dapat dibaca untuk sinkronisasi tonase: '+error.message);
+    const targets=(data||[]).filter(r=>weeklyMap.has(`${Number(r.tahun)}-${Number(r.minggu_ke)}`));
+    let updated=0;
+    for(const r of targets){
+        const key=`${Number(r.tahun)}-${Number(r.minggu_ke)}`;
+        const liveTonase=Number(Number(weeklyMap.get(key)||0).toFixed(3));
+        if(Math.abs(safeNum(r.tonase)-liveTonase)<=0.0005)continue;
+        const {error:updateError}=await db.from('cost_material_weekly').update({tonase:liveTonase}).eq('tahun',Number(r.tahun)).eq('minggu_ke',Number(r.minggu_ke));
+        if(updateError)throw new Error(`Gagal sinkron tonase Cost Material W${r.minggu_ke}/${r.tahun}: ${updateError.message}`);
+        updated++;
+    }
+    return{matched:targets.length,updated};
+}
 
 function prosesExcel(){
     const file=window._pendingFile;if(!file)return;setStatus('loading','Membaca file Excel dan memvalidasi scope Order Type...');
@@ -877,8 +903,26 @@ function setStatus(type,msg){const bar=document.getElementById('status-bar'),dot
 async function simpanKeSupabase(){
     if(!parsedData)return;
     if(!parsedData.validation?.scopeComplete){setStatus('error',`Import diblokir. Scope Order Type wajib: ${REQUIRED_ORDER_TYPES.join(', ')}.`);return;}
-    const btn=document.getElementById('btn-save');btn.disabled=true;btn.textContent='Memperbarui...';setStatus('loading','Validasi scope OK. Menghapus data lama & menyimpan data baru...');
-    try{const{error:e1}=await db.from('tonase_harian').delete().gte('tanggal','2000-01-01');if(e1)throw e1;const rows=parsedData.rows.map(r=>({tanggal:r.tanggal,tonase:r.tonase}));const chunk=500;for(let i=0;i<rows.length;i+=chunk){const{error}=await db.from('tonase_harian').insert(rows.slice(i,i+chunk));if(error)throw error}setStatus('active',`Tersimpan. ${rows.length} hari data berhasil diperbarui.`);btn.textContent='Diperbarui';document.getElementById('warning-badge').classList.remove('show');await loadFromSupabase()}catch(err){setStatus('error','Gagal memperbarui: '+err.message);btn.disabled=false;btn.textContent='Perbarui Data Supabase';console.error(err)}
+    const btn=document.getElementById('btn-save');btn.disabled=true;btn.textContent='Memperbarui...';setStatus('loading','Validasi scope OK. Menyimpan tonase dan menyinkronkan Cost Material...');
+    try{
+        const{error:e1}=await db.from('tonase_harian').delete().gte('tanggal','2000-01-01');if(e1)throw e1;
+        const rows=parsedData.rows.map(r=>({tanggal:r.tanggal,tonase:r.tonase}));
+        const chunk=500;
+        for(let i=0;i<rows.length;i+=chunk){const{error}=await db.from('tonase_harian').insert(rows.slice(i,i+chunk));if(error)throw error}
+
+        let syncInfo={matched:0,updated:0},syncError=null;
+        try{syncInfo=await syncCostMaterialWeeklyTonase(rows)}catch(err){syncError=err;console.error('Sinkronisasi Cost Material gagal:',err)}
+
+        document.getElementById('warning-badge').classList.remove('show');
+        await loadFromSupabase();
+        if(syncError){
+            setStatus('error',`Tonase tersimpan (${rows.length} hari), tetapi sinkronisasi Cost Material gagal: ${syncError.message}. Cost Material tetap akan membaca tonase live saat dibuka.`);
+            btn.disabled=false;btn.textContent='Coba Sinkron Ulang';
+        }else{
+            setStatus('active',`Tersimpan. ${rows.length} hari data diperbarui · ${syncInfo.matched} week Cost Material dicocokkan · ${syncInfo.updated} week tonase diperbarui otomatis.`);
+            btn.textContent='Diperbarui';
+        }
+    }catch(err){setStatus('error','Gagal memperbarui: '+err.message);btn.disabled=false;btn.textContent='Perbarui Data Supabase';console.error(err)}
 }
 
 async function loadAllTonase(){
