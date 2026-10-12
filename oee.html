@@ -1292,7 +1292,7 @@ function currentScopeLabel(){
 }
 function selectedScopeCardLabel(){
     const gedung=selectionBuildingNames(),line=selectedLines();
-    if(line.length){const lineText=line.map(shortOeeCompareLabel).join(' • ');return`${gedung.length?gedung.join(' + ')+' • ':''}${lineText}`}
+    if(line.length)return groupedLineScopeLabel(line);
     if(gedung.length)return gedung.join(' • ');
     return'';
 }
@@ -1304,6 +1304,16 @@ function shortOeeCompareLabel(label){
     const m=raw.match(/LINE\s*(\d+[A-Z]?)/i);
     if(m)return`Line ${m[1].toUpperCase()}`;
     return raw.length>20?raw.slice(0,19)+'…':raw;
+}
+function lineWithBuildingLabel(line,short=true){
+    const building=gedungForLine(line)||'';
+    const lineLabel=short?shortOeeCompareLabel(line):String(line||'');
+    return `${building?building+' · ':''}${lineLabel}`;
+}
+function groupedLineScopeLabel(lines){
+    const groups=new Map();
+    (lines||[]).forEach(line=>{const building=gedungForLine(line)||'Gedung ?';if(!groups.has(building))groups.set(building,[]);groups.get(building).push(shortOeeCompareLabel(line));});
+    return [...groups.entries()].map(([building,names])=>`${building}: ${names.join(', ')}`).join('  |  ');
 }
 function syncOeeSelectionState(){
     const buildings=selectedGedungs();
@@ -1814,7 +1824,7 @@ function updateOeeChartTooltip(hit){
         const rows=(d.values||[]).filter(v=>hasNumericOee(v.value));
         tip.innerHTML=`<div class="oee-tip-title">${escapeHtml(d.period?.label||'Periode')}</div><div class="oee-tip-sub">${escapeHtml(d.period?.detail||'Perbandingan OEE')}</div>`+rows.map(v=>{
             const diff=Number(v.value)-Number(v.target||OEE_TARGET),statusClass=diff>=0?'oee-tip-good':'oee-tip-low';
-            return `<div class="oee-tip-row"><span class="oee-tip-key"><i style="display:inline-block;width:9px;height:3px;border-radius:9px;background:${v.color};margin-right:6px;vertical-align:middle"></i>${escapeHtml(v.shortLabel||v.label)}</span><span class="oee-tip-val ${statusClass}">${Number(v.value).toLocaleString('id-ID',{minimumFractionDigits:1,maximumFractionDigits:2})}% <small style="opacity:.65">/ T ${Number(v.target||OEE_TARGET).toLocaleString('id-ID',{maximumFractionDigits:1})}%</small></span></div>`;
+            return `<div class="oee-tip-row"><span class="oee-tip-key"><i style="display:inline-block;width:9px;height:3px;border-radius:9px;background:${v.color};margin-right:6px;vertical-align:middle"></i>${escapeHtml(oeeCompareMode==='line'?`${v.gedung?`${v.gedung} · `:''}${v.shortLabel||v.label}`:(v.shortLabel||v.label))}</span><span class="oee-tip-val ${statusClass}">${Number(v.value).toLocaleString('id-ID',{minimumFractionDigits:1,maximumFractionDigits:2})}% <small style="opacity:.65">/ T ${Number(v.target||OEE_TARGET).toLocaleString('id-ID',{maximumFractionDigits:1})}%</small></span></div>`;
         }).join('');
         tip.classList.add('show');
         const w=wrap.clientWidth,h=wrap.clientHeight;let left=hit.x+18;if(left+tip.offsetWidth>w-10)left=hit.x-tip.offsetWidth-18;let top=Math.max(10,Math.min(h-tip.offsetHeight-10,hit.y-tip.offsetHeight/2));tip.style.left=Math.max(10,left)+'px';tip.style.top=top+'px';return;
@@ -1868,7 +1878,7 @@ function bindOeeChartHover(){
 function setChartFooterMode(compare,series=[]){
     const status=document.getElementById('chart-status-legend'),hint=document.getElementById('chart-compare-hint');
     if(status)status.style.display=compare?'none':'';
-    if(hint){hint.classList.toggle('show',compare);if(!compare)hint.textContent='';else if(oeeCompareMode==='building')hint.textContent=`Compare ${selectedGedungs().join(' • ')} · Target standar 55%`;else{const names=selectedLines().map(shortOeeCompareLabel);hint.textContent=`Compare ${names.length<=4?names.join(' • '):names.length+' Line'} · Target mengikuti masing-masing line`;}}
+    if(hint){hint.classList.toggle('show',compare);if(!compare)hint.textContent='';else if(oeeCompareMode==='building')hint.textContent=`Compare ${selectedGedungs().join(' • ')} · Target standar 55%`;else{const names=selectedLines().map(line=>lineWithBuildingLabel(line,true));hint.textContent=`Compare ${names.length<=4?names.join(' • '):names.length+' Line dari '+selectionBuildingNames().join(', ')} · Target mengikuti masing-masing line`;}}
 }
 function updateCompareChartSummary(periods,series){
     const avgLabel=document.getElementById('chart-average-label'),peakLabel=document.getElementById('chart-peak-label'),hitLabel=document.getElementById('chart-target-hit-label');
@@ -1877,29 +1887,49 @@ function updateCompareChartSummary(periods,series){
     const scores=series.map(s=>{const vals=s.points.filter(p=>hasNumericOee(p.value)).map(p=>Number(p.value));return{...s,avg:vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:null}}).filter(s=>s.avg!==null).sort((a,b)=>b.avg-a.avg);
     let hits=0,total=0;series.forEach(s=>s.points.forEach(p=>{if(hasNumericOee(p.value)){total++;if(Number(p.value)>=Number(s.target||OEE_TARGET))hits++;}}));
     document.getElementById('chart-average').innerHTML=overall?`${overall.oee.toLocaleString('id-ID',{minimumFractionDigits:2,maximumFractionDigits:2})}<small>%</small>`:'—';
-    document.getElementById('chart-peak').innerHTML=scores.length?`${escapeHtml(scores[0].shortLabel||scores[0].label)}<small> · ${scores[0].avg.toLocaleString('id-ID',{maximumFractionDigits:2})}%</small>`:'—';
+    document.getElementById('chart-peak').innerHTML=scores.length?`${escapeHtml(oeeCompareMode==='line'?`${scores[0].gedung?`${scores[0].gedung} · `:''}${scores[0].shortLabel||scores[0].label}`:(scores[0].shortLabel||scores[0].label))}<small> · ${scores[0].avg.toLocaleString('id-ID',{maximumFractionDigits:2})}%</small>`:'—';
     document.getElementById('chart-target-hit').innerHTML=total?`${hits} / ${total}<small> titik</small>`:'—';
     document.getElementById('chart-range-label').textContent=periods.length?`${oeeCompareMode==='building'?'Gedung terpilih':'Line terpilih'} · ${chartMode==='weekly'?'Weekly':'Monthly'} · ${periods[0].label} s.d. ${periods[periods.length-1].label}`:'';
 }
 function drawCompareLegend(ctx,series,cssW,marginLeft,right,top,itemW){
     const usable=cssW-marginLeft-right,cols=Math.max(1,Math.floor(usable/itemW));
-    series.forEach((s,i)=>{const col=i%cols,row=Math.floor(i/cols),x=marginLeft+col*itemW,y=top+row*22;ctx.strokeStyle=s.color;ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(x,y+6);ctx.lineTo(x+18,y+6);ctx.stroke();ctx.beginPath();ctx.arc(x+9,y+6,3.1,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();ctx.strokeStyle=s.color;ctx.lineWidth=2;ctx.stroke();ctx.fillStyle='#526075';ctx.font='700 9px Arial, sans-serif';ctx.textAlign='left';ctx.textBaseline='middle';const label=oeeCompareMode==='line'?`${s.shortLabel} · T ${Number(s.target||OEE_TARGET).toLocaleString('id-ID',{maximumFractionDigits:1})}%`:s.shortLabel;ctx.fillText(label,x+25,y+6,itemW-31);});
+    series.forEach((s,i)=>{const col=i%cols,row=Math.floor(i/cols),x=marginLeft+col*itemW,y=top+row*22;ctx.strokeStyle=s.color;ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(x,y+6);ctx.lineTo(x+18,y+6);ctx.stroke();ctx.beginPath();ctx.arc(x+9,y+6,3.1,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();ctx.strokeStyle=s.color;ctx.lineWidth=2;ctx.stroke();ctx.fillStyle='#526075';ctx.font='700 9px Arial, sans-serif';ctx.textAlign='left';ctx.textBaseline='middle';const label=oeeCompareMode==='line'?`${s.gedung?`${s.gedung} · `:''}${s.shortLabel} · T ${Number(s.target||OEE_TARGET).toLocaleString('id-ID',{maximumFractionDigits:1})}%`:s.shortLabel;ctx.fillText(label,x+25,y+6,itemW-31);});
+}
+function drawOeeTargetLabel(ctx,text,rightX,topY){
+    ctx.save();
+    ctx.font='700 9px Arial, sans-serif';
+    const lineW=22,gap=6,textW=Math.ceil(ctx.measureText(text).width);
+    const startX=rightX-lineW-gap-textW;
+    const y=topY+10;
+    ctx.strokeStyle='#f59e0b';
+    ctx.lineWidth=2;
+    ctx.setLineDash([5,4]);
+    ctx.beginPath();
+    ctx.moveTo(startX,y);
+    ctx.lineTo(startX+lineW,y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='#a16207';
+    ctx.textAlign='left';
+    ctx.textBaseline='middle';
+    ctx.fillText(text,startX+lineW+gap,y+.5);
+    ctx.restore();
 }
 function renderOeeCompareChart(){
     const wrap=document.getElementById('chart-wrap'),canvas=document.getElementById('oee-chart'),periods=selectedChartSeries(),series=selectedCompareSeries();if(!wrap||!canvas)return;
     const dpr=Math.max(1,Math.min(2,window.devicePixelRatio||1)),cssW=Math.max(320,wrap.clientWidth-20),cssH=Math.max(270,wrap.clientHeight-18);canvas.style.width=cssW+'px';canvas.style.height=cssH+'px';canvas.width=Math.round(cssW*dpr);canvas.height=Math.round(cssH*dpr);
     const ctx=canvas.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,cssW,cssH);chartHitAreas=[];setChartFooterMode(true,series);
     if(!periods.length||!series.length){ctx.fillStyle='#94a3b8';ctx.font='12px Arial, sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('Belum ada data untuk pilihan yang dibandingkan.',cssW/2,cssH/2);updateCompareChartSummary([],[]);updateOeeChartTooltip(null);return;}
-    const mobile=window.innerWidth<=720,itemW=oeeCompareMode==='building'?(mobile?110:150):(mobile?98:125),legendCols=Math.max(1,Math.floor((cssW-(mobile?62:80))/itemW)),legendRows=Math.ceil(series.length/legendCols),legendH=legendRows*22;
-    const margin={top:24+legendH,right:18,bottom:58,left:mobile?50:62},plotW=cssW-margin.left-margin.right,plotH=cssH-margin.top-margin.bottom;
+    const mobile=window.innerWidth<=720,itemW=oeeCompareMode==='building'?(mobile?110:150):(mobile?145:185),legendCols=Math.max(1,Math.floor((cssW-(mobile?62:80))/itemW)),legendRows=Math.ceil(series.length/legendCols),legendH=legendRows*22;
+    const margin={top:24+legendH,right:mobile?28:24,bottom:58,left:mobile?50:62},plotW=cssW-margin.left-margin.right,plotH=cssH-margin.top-margin.bottom;
     const allVals=[];series.forEach(s=>s.points.forEach(p=>{if(hasNumericOee(p.value))allVals.push(Number(p.value));}));const targetVals=oeeCompareMode==='line'?series.map(s=>Number(s.target||OEE_TARGET)):[OEE_TARGET];const maxData=Math.max(...allVals,...targetVals,100),yMax=Math.max(100,Math.ceil((maxData*1.08)/10)*10),yMin=0;
     const yFor=v=>margin.top+plotH-((Number(v||0)-yMin)/(yMax-yMin))*plotH,xFor=i=>margin.left+(periods.length===1?plotW/2:i*(plotW/(periods.length-1)));
     drawCompareLegend(ctx,series,cssW,margin.left,margin.right,10,itemW);
     ctx.strokeStyle='#e8edf4';ctx.lineWidth=1;ctx.fillStyle='#8492a6';ctx.font=(mobile?'9px':'10px')+' Arial, sans-serif';ctx.textBaseline='middle';ctx.textAlign='right';for(let i=0;i<=5;i++){const value=yMax-(yMax/5*i),yy=margin.top+plotH/5*i;ctx.beginPath();ctx.moveTo(margin.left,yy);ctx.lineTo(cssW-margin.right,yy);ctx.stroke();ctx.fillText(`${Math.round(value)}%`,margin.left-8,yy)}
-    if(oeeCompareMode==='building'){const targetY=yFor(OEE_TARGET);ctx.save();ctx.strokeStyle='#f59e0b';ctx.lineWidth=2;ctx.setLineDash([7,6]);ctx.beginPath();ctx.moveTo(margin.left,targetY);ctx.lineTo(cssW-margin.right,targetY);ctx.stroke();ctx.restore();ctx.fillStyle='#b77905';ctx.font='700 9px Arial, sans-serif';ctx.textAlign='right';ctx.textBaseline='bottom';ctx.fillText(`Target ${OEE_TARGET}%`,cssW-margin.right,targetY-5)}
+    if(oeeCompareMode==='building'){const targetY=yFor(OEE_TARGET);ctx.save();ctx.strokeStyle='#f59e0b';ctx.lineWidth=2;ctx.setLineDash([7,6]);ctx.beginPath();ctx.moveTo(margin.left,targetY);ctx.lineTo(cssW-margin.right,targetY);ctx.stroke();ctx.restore();drawOeeTargetLabel(ctx,`Target ${OEE_TARGET}%`,cssW-10,margin.top)}
     const activeIndex=periods.findIndex(p=>p.key===chartHoverKey||p.label===chartHoverKey);if(activeIndex>=0){const xx=xFor(activeIndex);ctx.save();ctx.strokeStyle='rgba(18,104,232,.22)';ctx.lineWidth=1.5;ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(xx,margin.top);ctx.lineTo(xx,margin.top+plotH);ctx.stroke();ctx.restore()}
-    series.forEach((s,si)=>{ctx.strokeStyle=s.color;ctx.lineWidth=2.6;ctx.lineJoin='round';ctx.lineCap='round';let open=false;ctx.beginPath();s.points.forEach((p,i)=>{if(!hasNumericOee(p.value)){open=false;return}const xx=xFor(i),yy=yFor(p.value);if(!open){ctx.moveTo(xx,yy);open=true}else ctx.lineTo(xx,yy)});ctx.stroke();s.points.forEach((p,i)=>{if(!hasNumericOee(p.value))return;const xx=xFor(i),yy=yFor(p.value),hit=Number(p.value)>=Number(s.target||OEE_TARGET);ctx.beginPath();ctx.arc(xx,yy,4.5,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();ctx.strokeStyle=s.color;ctx.lineWidth=2.3;ctx.stroke();ctx.beginPath();ctx.arc(xx,yy,1.7,0,Math.PI*2);ctx.fillStyle=hit?'#16a065':'#ef4444';ctx.fill();if(series.length<=3){ctx.fillStyle=s.color;ctx.font='700 '+(mobile?'8px':'9px')+' Arial, sans-serif';ctx.textAlign='center';ctx.textBaseline='bottom';const offset=10+(si%3)*11;ctx.fillText(`${Number(p.value).toLocaleString('id-ID',{maximumFractionDigits:1})}%`,xx,yy-offset)}})});
-    periods.forEach((p,i)=>{const xx=xFor(i);ctx.fillStyle='#60718a';ctx.font='700 '+(mobile?'8px':'9px')+' Arial, sans-serif';ctx.textAlign='center';ctx.textBaseline='top';ctx.fillText(p.label,xx,margin.top+plotH+15);const values=series.map(s=>({label:s.label,shortLabel:s.shortLabel,color:s.color,target:s.target,value:s.points[i]?.value}));chartHitAreas.push({key:p.key,item:{compare:true,period:p,values},x:xx,y:margin.top+plotH/2,r:18})});
+    series.forEach((s,si)=>{ctx.strokeStyle=s.color;ctx.lineWidth=2.6;ctx.lineJoin='round';ctx.lineCap='round';let open=false;ctx.beginPath();s.points.forEach((p,i)=>{if(!hasNumericOee(p.value)){open=false;return}const xx=xFor(i),yy=yFor(p.value);if(!open){ctx.moveTo(xx,yy);open=true}else ctx.lineTo(xx,yy)});ctx.stroke();s.points.forEach((p,i)=>{if(!hasNumericOee(p.value))return;const xx=xFor(i),yy=yFor(p.value),hit=Number(p.value)>=Number(s.target||OEE_TARGET);ctx.beginPath();ctx.arc(xx,yy,4.5,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();ctx.strokeStyle=s.color;ctx.lineWidth=2.3;ctx.stroke();ctx.beginPath();ctx.arc(xx,yy,1.7,0,Math.PI*2);ctx.fillStyle=hit?'#16a065':'#ef4444';ctx.fill();if(series.length<=3){ctx.fillStyle=s.color;ctx.font='700 '+(mobile?'8px':'9px')+' Arial, sans-serif';ctx.textAlign=i===0?'left':i===periods.length-1?'right':'center';ctx.textBaseline='bottom';const offset=10+(si%3)*11,labelX=i===0?xx+5:i===periods.length-1?xx-5:xx;ctx.fillText(`${Number(p.value).toLocaleString('id-ID',{maximumFractionDigits:1})}%`,labelX,yy-offset)}})});
+    periods.forEach((p,i)=>{const xx=xFor(i);ctx.fillStyle='#60718a';ctx.font='700 '+(mobile?'8px':'9px')+' Arial, sans-serif';ctx.textAlign=i===0?'left':i===periods.length-1?'right':'center';ctx.textBaseline='top';const labelX=i===0?xx+2:i===periods.length-1?xx-2:xx;ctx.fillText(p.label,labelX,margin.top+plotH+15);const values=series.map(s=>({label:s.label,shortLabel:s.shortLabel,gedung:s.gedung||'',color:s.color,target:s.target,value:s.points[i]?.value}));chartHitAreas.push({key:p.key,item:{compare:true,period:p,values},x:xx,y:margin.top+plotH/2,r:18})});
     ctx.strokeStyle='#cfd8e6';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(margin.left,margin.top+plotH);ctx.lineTo(cssW-margin.right,margin.top+plotH);ctx.stroke();updateCompareChartSummary(periods,series);bindOeeChartHover();if(activeIndex>=0)updateOeeChartTooltip(chartHitAreas[activeIndex]);else updateOeeChartTooltip(null);
 }
 
@@ -1923,7 +1953,7 @@ function renderOeeChart(){
     }
 
     const mobile=window.innerWidth<=720;
-    const margin={top:30,right:18,bottom:58,left:mobile?50:62};
+    const margin={top:30,right:mobile?28:24,bottom:58,left:mobile?50:62};
     const plotW=cssW-margin.left-margin.right,plotH=cssH-margin.top-margin.bottom;
     const target=activeOeeTarget();
     const maxData=Math.max(...data.map(d=>Number(d.value)||0),target);
@@ -1943,7 +1973,7 @@ function renderOeeChart(){
     // Target line
     const targetY=yFor(target);
     ctx.save();ctx.strokeStyle='#f59e0b';ctx.lineWidth=2;ctx.setLineDash([7,6]);ctx.beginPath();ctx.moveTo(margin.left,targetY);ctx.lineTo(cssW-margin.right,targetY);ctx.stroke();ctx.restore();
-    ctx.fillStyle='#b77905';ctx.font='700 9px Arial, sans-serif';ctx.textAlign='right';ctx.textBaseline='bottom';ctx.fillText(`Target ${target}%`,cssW-margin.right,targetY-5);
+    drawOeeTargetLabel(ctx,`Target ${target}%`,cssW-10,margin.top);
 
     // Soft area under trend
     const area=ctx.createLinearGradient(0,margin.top,0,margin.top+plotH);
@@ -1968,8 +1998,8 @@ function renderOeeChart(){
         const xx=xFor(i),yy=yFor(d.value),good=Number(d.value)>=target,hovered=i===activeIndex;
         if(hovered){ctx.beginPath();ctx.arc(xx,yy,11,0,Math.PI*2);ctx.fillStyle=good?'rgba(22,160,101,.13)':'rgba(239,68,68,.12)';ctx.fill();}
         ctx.beginPath();ctx.arc(xx,yy,hovered?5.8:4.3,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();ctx.strokeStyle=good?'#16a065':'#ef4444';ctx.lineWidth=hovered?3:2.2;ctx.stroke();
-        ctx.fillStyle=good?'#118454':'#d9363e';ctx.font=(hovered?'800 ':'700 ')+(mobile?'9px':'10px')+' Arial, sans-serif';ctx.textAlign='center';ctx.textBaseline='bottom';ctx.fillText(`${Number(d.value).toLocaleString('id-ID',{maximumFractionDigits:1})}%`,xx,yy-9);
-        ctx.fillStyle='#60718a';ctx.font='700 '+(mobile?'8px':'9px')+' Arial, sans-serif';ctx.textBaseline='top';ctx.fillText(d.label,xx,margin.top+plotH+15);
+        ctx.fillStyle=good?'#118454':'#d9363e';ctx.font=(hovered?'800 ':'700 ')+(mobile?'9px':'10px')+' Arial, sans-serif';ctx.textAlign=i===0?'left':i===data.length-1?'right':'center';ctx.textBaseline='bottom';const pointLabelX=i===0?xx+5:i===data.length-1?xx-5:xx;ctx.fillText(`${Number(d.value).toLocaleString('id-ID',{maximumFractionDigits:1})}%`,pointLabelX,yy-9);
+        ctx.fillStyle='#60718a';ctx.font='700 '+(mobile?'8px':'9px')+' Arial, sans-serif';ctx.textAlign=i===0?'left':i===data.length-1?'right':'center';ctx.textBaseline='top';const axisLabelX=i===0?xx+2:i===data.length-1?xx-2:xx;ctx.fillText(d.label,axisLabelX,margin.top+plotH+15);
         const key=d.key||d.label;chartHitAreas.push({key,item:d,x:xx,y:yy,r:18});
     });
 
@@ -2039,9 +2069,10 @@ async function exportOeeSlide(){
         const scopeValue=selectedScopeCardLabel();
         const hasSelectedScope=!!scopeValue;
         if(hasSelectedScope){
-            slide.addShape(pptx.ShapeType.roundRect,{x:9.50,y:0.34,w:3.05,h:0.68,rectRadius:0.06,fill:{color:'EAF3FF'},line:{color:'C9DFFF',pt:1}});
-            slide.addText('SCOPE AKTIF',{x:9.72,y:0.44,w:2.55,h:0.13,fontFace:'Arial',fontSize:7.5,bold:true,color:'617895',charSpacing:0.8});
-            slide.addText(scopeValue,{x:9.72,y:0.60,w:2.55,h:0.25,fontFace:'Arial',fontSize:scopeValue.length>28?8.5:11,bold:true,color:'24334A',fit:'shrink',valign:'mid'});
+            const scopeIsLine=selectedLines().length>0;
+            slide.addShape(pptx.ShapeType.roundRect,{x:9.35,y:0.30,w:3.20,h:scopeIsLine?0.78:0.68,rectRadius:0.06,fill:{color:'EAF3FF'},line:{color:'C9DFFF',pt:1}});
+            slide.addText('SCOPE AKTIF',{x:9.57,y:0.40,w:2.78,h:0.13,fontFace:'Arial',fontSize:7.5,bold:true,color:'617895',charSpacing:0.8});
+            slide.addText(scopeValue,{x:9.57,y:0.56,w:2.78,h:scopeIsLine?0.38:0.25,fontFace:'Arial',fontSize:scopeIsLine?(scopeValue.length>55?7.3:8.7):(scopeValue.length>28?8.5:11),bold:true,color:'24334A',fit:'shrink',valign:'mid',breakLine:false});
         }
         const cards=[
             {title:'OEE Periode Terpilih',value:avgText,fill:'EEF7FF',line:'D6E7FF'},
