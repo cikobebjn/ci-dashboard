@@ -560,6 +560,28 @@ async function fetchTonaseWeekly(){
   all.forEach(r=>{if(!r.tanggal)return;const w=weekInfo(String(r.tanggal).slice(0,10));const k=`${w.year}-${w.week}`;map.set(k,(map.get(k)||0)+num(r.tonase));});
   return map;
 }
+function applyLiveTonaseToCostRows(rows,tonaseMap){
+  let refreshed=0;
+  const merged=(rows||[]).map(r=>{
+    const key=`${Number(r.tahun)}-${Number(r.minggu_ke)}`;
+    if(!tonaseMap?.has(key))return r;
+    const liveTonase=Number(Number(tonaseMap.get(key)||0).toFixed(3));
+    const changed=Math.abs(num(r.tonase)-liveTonase)>0.0005;
+    if(changed)refreshed++;
+    return {...r,tonase:liveTonase,_tonaseChanged:changed};
+  });
+  return {rows:merged,refreshed};
+}
+async function repairStoredCostTonase(rows){
+  let updated=0;
+  for(const r of (rows||[])){
+    if(!r?._tonaseChanged)continue;
+    const {error}=await db.from('cost_material_weekly').update({tonase:Number(r.tonase)||0}).eq('tahun',Number(r.tahun)).eq('minggu_ke',Number(r.minggu_ke));
+    if(error)throw error;
+    updated++;
+  }
+  return updated;
+}
 function aggregateSap(rows,tonaseMap){
   const weekly=new Map(), audit=new Map();
   rows.forEach(r=>{
@@ -812,8 +834,26 @@ window.addEventListener('resize',()=>{clearTimeout(trendResizeTimer);trendResize
 
 async function loadHistory(){
   const body=document.getElementById('history-body'),sum=document.getElementById('history-summary');
-  try{const {data,error}=await db.from('cost_material_weekly').select('*').order('tahun',{ascending:false}).order('minggu_ke',{ascending:false});if(error)throw error;const rows=data||[];historyRows=rows;ensureTrendRangeDefaults();syncTrendRangeControls();if(rows.length&&num(rows[0].target_cost_per_ton))detectedTarget=num(rows[0].target_cost_per_ton);sum.innerHTML=rows.length?`<span>Database Cost Material aktif.</span><b>${rows.length} week</b>`:'<span>Belum ada data Cost Material.</span><b>0 week</b>';body.innerHTML=rows.length?rows.map(r=>{const m=rowMetric(r),target=num(r.target_cost_per_ton)||TARGET_COST_DEFAULT;return`<tr><td>Week ${r.minggu_ke} / ${r.tahun}</td><td>${fmtTon(r.tonase)}</td><td class="${m.costTon<=target?'good':'low'}">${fmtRp(m.costTon)}/ton</td><td>${fmtRp(target)}/ton</td></tr>`}).join(''):'<tr><td colspan="4" class="history-empty">Belum ada data</td></tr>';renderTrendChart()}
-  catch(e){historyRows=[];sum.innerHTML='<span>Riwayat tidak dapat dimuat.</span><b>Error</b>';body.innerHTML=`<tr><td colspan="4" class="history-empty">${e.message}</td></tr>`;renderTrendChart()}
+  try{
+    const {data,error}=await db.from('cost_material_weekly').select('*').order('tahun',{ascending:false}).order('minggu_ke',{ascending:false});
+    if(error)throw error;
+    const storedRows=data||[];
+    let tonaseMap=null;
+    try{tonaseMap=await fetchTonaseWeekly()}catch(tonErr){console.warn('Tonase live tidak dapat dimuat; memakai tonase tersimpan.',tonErr)}
+
+    let rows=storedRows;
+    let refreshed=0;
+    if(tonaseMap){const live=applyLiveTonaseToCostRows(storedRows,tonaseMap);rows=live.rows;refreshed=live.refreshed}
+
+    historyRows=rows;ensureTrendRangeDefaults();syncTrendRangeControls();
+    if(rows.length&&num(rows[0].target_cost_per_ton))detectedTarget=num(rows[0].target_cost_per_ton);
+    sum.innerHTML=rows.length?`<span>Database Cost Material aktif${refreshed?` · ${refreshed} week memakai tonase live terbaru`:''}.</span><b>${rows.length} week</b>`:'<span>Belum ada data Cost Material.</span><b>0 week</b>';
+    body.innerHTML=rows.length?rows.map(r=>{const m=rowMetric(r),target=num(r.target_cost_per_ton)||TARGET_COST_DEFAULT;return`<tr><td>Week ${r.minggu_ke} / ${r.tahun}</td><td>${fmtTon(r.tonase)}</td><td class="${m.costTon<=target?'good':'low'}">${fmtRp(m.costTon)}/ton</td><td>${fmtRp(target)}/ton</td></tr>`}).join(''):'<tr><td colspan="4" class="history-empty">Belum ada data</td></tr>';
+    renderTrendChart();
+
+    // Best effort: perbaiki cache tonase lama tanpa mengganggu tampilan bila RLS menolak update.
+    if(refreshed){repairStoredCostTonase(rows).catch(err=>console.warn('Cache tonase Cost Material belum dapat diperbarui otomatis:',err))}
+  }catch(e){historyRows=[];sum.innerHTML='<span>Riwayat tidak dapat dimuat.</span><b>Error</b>';body.innerHTML=`<tr><td colspan="4" class="history-empty">${e.message}</td></tr>`;renderTrendChart()}
 }
 loadHistory();
 </script>
