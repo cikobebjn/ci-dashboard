@@ -2093,9 +2093,9 @@ body::after {
                             <div class="variance-chart-title">Grafik Variance</div>
                             <div class="variance-chart-note">Grafik mengikuti seluruh filter Variance. Bar dan Line membandingkan periode. Pada Pareto, Variance Value menampilkan nilai over dalam Rupiah. Untuk % Var Value dan % Var Qty, bar menampilkan kontribusi masing-masing item terhadap total over (0–100%), bukan rasio item mentah yang dapat melonjak di atas 100% saat target sangat kecil. Garis menunjukkan kumulatif Pareto dan batas 80%. Top 10 tidak harus berakhir di 100% karena denominator tetap seluruh item over positif.</div>
                         </div>
-                        <button type="button" class="variance-chart-download" onclick="downloadVarianceChart()" title="Export chart as PNG for presentation">
-                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v11m0 0 4-4m-4 4-4-4M5 15v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                            <span>Export PNG</span>
+                        <button type="button" class="variance-chart-download" id="variance-chart-export-slide" onclick="exportVarianceSlide()" title="Export grafik ke 1 slide PowerPoint">
+                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="4" y="4" width="16" height="12" rx="2" stroke-width="2"/><path d="M8 20h8M12 16v4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            <span>Export Slide</span>
                         </button>
                     </div>
                     <div class="variance-chart-toolbar">
@@ -2298,6 +2298,7 @@ body::after {
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
 <script>
 const SUPABASE_URL = 'https://bmnhtxalfsfaefacgtpm.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_VItBKenz-q2sYz7MsibODA_nYtLXv9Q';
@@ -3759,7 +3760,7 @@ function varianceExportFilterLabel(){
     return parts.length ? parts.join(' | ') : 'All Data';
 }
 
-function downloadVarianceChart(){
+async function exportVarianceSlide(){
     const source=document.getElementById('variance-chart-canvas');
     if(!source){ alert('Grafik belum tersedia untuk di-download.'); return; }
 
@@ -4041,12 +4042,40 @@ function downloadVarianceChart(){
 
     const periodPart=variancePeriod==='monthly'?'monthly':'weekly';
     const metricPart=(varianceChartMetric||'variance').replace(/[^a-z0-9_-]/gi,'');
-    const link=document.createElement('a');
-    link.href=exportCanvas.toDataURL('image/png');
-    link.download=`variance-${periodPart}-${varianceChartType}-${metricPart}-ppt.png`;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
+
+    if(typeof PptxGenJS==='undefined'){
+        alert('Library PowerPoint belum termuat. Pastikan koneksi internet aktif lalu refresh halaman.');
+        return;
+    }
+
+    const exportBtn=document.getElementById('variance-chart-export-slide');
+    const exportBtnHtml=exportBtn?exportBtn.innerHTML:'';
+    if(exportBtn){ exportBtn.disabled=true; exportBtn.innerHTML='<span>Menyiapkan Slide...</span>'; }
+
+    try{
+        const pptx=new PptxGenJS();
+        pptx.layout='LAYOUT_WIDE';
+        pptx.author='PT Kobe Boga Utama';
+        pptx.company='PT Kobe Boga Utama';
+        pptx.subject='Variance Analysis';
+        pptx.title=`${modeLabel} Variance Analysis - ${meta.label}`;
+        pptx.lang='id-ID';
+
+        const slide=pptx.addSlide();
+        slide.background={color:'FFFFFF'};
+        slide.addImage({
+            data:exportCanvas.toDataURL('image/png'),
+            x:0, y:0, w:13.333, h:7.5
+        });
+
+        const fileName=`variance-${periodPart}-${varianceChartType}-${metricPart}-slide.pptx`;
+        await pptx.writeFile({fileName});
+    }catch(err){
+        console.error(err);
+        alert('Gagal export slide PowerPoint: '+(err?.message||err));
+    }finally{
+        if(exportBtn){ exportBtn.disabled=false; exportBtn.innerHTML=exportBtnHtml; }
+    }
 }
 window.addEventListener('resize',()=>{
     clearTimeout(varianceChartResizeTimer);
