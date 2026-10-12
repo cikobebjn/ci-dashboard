@@ -777,12 +777,14 @@ body{
 
 
 
-/* ===== OEE Gedung & Line filter integrated into chart ===== */
+/* ===== OEE Gedung & Line checklist filter integrated into chart ===== */
 .chart-card .chart-head{display:block;}
 .chart-card .chart-title{margin-bottom:14px;}
 .chart-card .chart-controls{
+    position:relative;
+    z-index:40;
     display:grid;
-    grid-template-columns:auto minmax(135px,155px) minmax(210px,1fr) minmax(130px,150px) minmax(130px,150px) auto auto auto auto;
+    grid-template-columns:auto minmax(150px,175px) minmax(235px,1fr) minmax(130px,150px) minmax(130px,150px) auto auto auto auto;
     gap:8px;
     align-items:end;
     justify-content:stretch;
@@ -790,10 +792,45 @@ body{
 .chart-card .chart-controls .period-toggle{align-self:end;}
 .chart-card .chart-controls .filter-box{min-width:0;}
 .chart-card .chart-controls .filter-box select{width:100%;min-width:0;}
-.chart-card .chart-controls .line-filter{min-width:210px;}
+.chart-card .chart-controls .line-filter{min-width:235px;}
 .chart-card .chart-controls .btn-reset-chart,.chart-card .chart-controls .btn-export-oee,.chart-card .chart-controls .btn-export-slide{white-space:nowrap;justify-content:center;}
+
+.scope-multi{position:relative;width:100%;}
+.scope-multi-btn{
+    width:100%;height:38px;display:flex;align-items:center;justify-content:space-between;gap:8px;
+    padding:0 10px 0 11px;border:1px solid #e4e9f1;border-radius:11px;background:#fff;color:#334155;
+    font-size:10px;font-weight:700;cursor:pointer;outline:none;text-align:left;transition:.16s ease;
+}
+.scope-multi-btn:hover{border-color:#cdd9e8;background:#fbfdff;}
+.scope-multi.open .scope-multi-btn{border-color:#8dbcf8;box-shadow:0 0 0 3px rgba(18,104,232,.08);}
+.scope-multi-btn.has-selection{border-color:#b9d3fa;background:#f7fbff;color:#155bb5;}
+.scope-multi-label{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.scope-multi-count{display:none;flex:0 0 auto;min-width:18px;height:18px;padding:0 5px;align-items:center;justify-content:center;border-radius:999px;background:#e7f1ff;color:#1268e8;font-size:8px;font-weight:850;}
+.scope-multi-btn.has-selection .scope-multi-count{display:inline-flex;}
+.scope-multi-caret{flex:0 0 auto;color:#64748b;font-size:10px;transition:transform .16s ease;}
+.scope-multi.open .scope-multi-caret{transform:rotate(180deg);}
+.scope-multi-menu{
+    display:none;position:absolute;z-index:25000;top:calc(100% + 6px);left:0;width:max(100%,230px);max-width:390px;
+    padding:7px;border:1px solid #dfe7f1;border-radius:12px;background:#fff;box-shadow:0 20px 45px rgba(30,64,110,.20);
+}
+.line-filter .scope-multi-menu{width:max(100%,350px);}
+.scope-multi.open .scope-multi-menu{display:block;}
+.scope-multi-menu-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 5px 7px;margin-bottom:5px;border-bottom:1px solid #edf1f6;}
+.scope-multi-menu-head strong{color:#60718a;font-size:8px;font-weight:850;text-transform:uppercase;letter-spacing:.06em;}
+.scope-multi-actions{display:flex;align-items:center;gap:4px;}
+.scope-multi-action{min-height:25px;padding:4px 7px;border:1px solid #e1e8f1;border-radius:7px;background:#f8fafc;color:#64748b;font-size:7.5px;font-weight:800;cursor:pointer;}
+.scope-multi-action:hover{background:#edf5ff;border-color:#cfe1fb;color:#155bb5;}
+.scope-multi-options{max-height:285px;overflow:auto;padding:1px;}
+.scope-multi-group-title{padding:7px 7px 4px;color:#94a3b8;font-size:7.5px;font-weight:850;text-transform:uppercase;letter-spacing:.07em;}
+.scope-multi-option{display:flex;align-items:flex-start;gap:8px;padding:8px 8px;border-radius:8px;color:#405067;font-size:9.5px;line-height:1.3;cursor:pointer;}
+.scope-multi-option:hover{background:#f3f8ff;}
+.scope-multi-option input{flex:0 0 auto;margin:1px 0 0;accent-color:#1268e8;cursor:pointer;}
+.scope-multi-option span{min-width:0;overflow-wrap:anywhere;}
+.scope-multi-option small{display:block;margin-top:2px;color:#9aa7b8;font-size:7.5px;}
+.scope-multi-empty{padding:13px 8px;color:#9ca3af;font-size:9px;text-align:center;}
+
 @media(max-width:1280px){
-    .chart-card .chart-controls{grid-template-columns:auto minmax(130px,1fr) minmax(190px,1.4fr) minmax(125px,1fr) minmax(125px,1fr);}
+    .chart-card .chart-controls{grid-template-columns:auto minmax(145px,1fr) minmax(210px,1.5fr) minmax(125px,1fr) minmax(125px,1fr);}
     .chart-card .chart-controls .btn-reset-scope,.chart-card .chart-controls .btn-reset-chart,.chart-card .chart-controls .btn-export-oee,.chart-card .chart-controls .btn-export-slide{width:100%;}
 }
 @media(max-width:900px){
@@ -801,12 +838,15 @@ body{
     .chart-card .chart-controls .period-toggle{grid-column:1/-1;width:100%;}
     .chart-card .chart-controls .period-toggle button{flex:1;}
     .chart-card .chart-controls .line-filter{min-width:0;}
+    .scope-multi-menu,.line-filter .scope-multi-menu{width:100%;max-width:none;}
 }
 @media(max-width:640px){
     .chart-card .chart-controls{grid-template-columns:1fr;}
     .chart-card .chart-controls .period-toggle{grid-column:auto;}
 }
-
+.chart-compare-hint{display:none;align-items:center;gap:6px;color:#64748b;font-weight:750;}
+.chart-compare-hint.show{display:inline-flex;}
+.chart-compare-hint::before{content:'';width:12px;height:3px;border-radius:999px;background:linear-gradient(90deg,#1268e8,#7c3aed,#16a065,#f97316);}
 </style>
 </head>
 <body>
@@ -946,15 +986,15 @@ body{
         <div class="chart-head">
             <div class="chart-title">
                 <h3>Grafik OEE Produksi</h3>
-                <p>Weekly menggunakan periode <strong>Minggu–Sabtu</strong>. Monthly menggunakan agregasi bulan kalender.</p>
+                <p>Weekly menggunakan periode <strong>Minggu–Sabtu</strong>. Monthly menggunakan agregasi bulan kalender. Centang beberapa Gedung atau Line untuk membandingkan pada grafik yang sama.</p>
             </div>
             <div class="chart-controls">
                 <div class="period-toggle">
                     <button type="button" id="chart-weekly-btn" class="active" onclick="switchChartMode('weekly')">Weekly</button>
                     <button type="button" id="chart-monthly-btn" onclick="switchChartMode('monthly')">Monthly</button>
                 </div>
-                <div class="filter-box scope-inline-filter"><label>Gedung</label><select id="filter-gedung" onchange="handleOeeGedungChange()"><option value="">Semua Gedung</option></select></div>
-                <div class="filter-box scope-inline-filter line-filter"><label>Line</label><select id="filter-line" onchange="handleOeeLineChange()"><option value="">Semua Line</option></select></div>
+                <div class="filter-box scope-inline-filter"><label>Gedung</label><div class="scope-multi" id="filter-gedung-multi"><button type="button" class="scope-multi-btn" id="filter-gedung-btn" onclick="toggleOeeMulti('gedung',event)" aria-haspopup="true" aria-expanded="false"><span class="scope-multi-label" id="filter-gedung-label">Semua Gedung</span><span class="scope-multi-count" id="filter-gedung-count">0</span><span class="scope-multi-caret">▼</span></button><div class="scope-multi-menu" id="filter-gedung-menu" onclick="event.stopPropagation()"></div></div></div>
+                <div class="filter-box scope-inline-filter line-filter"><label>Line</label><div class="scope-multi" id="filter-line-multi"><button type="button" class="scope-multi-btn" id="filter-line-btn" onclick="toggleOeeMulti('line',event)" aria-haspopup="true" aria-expanded="false"><span class="scope-multi-label" id="filter-line-label">Semua Line</span><span class="scope-multi-count" id="filter-line-count">0</span><span class="scope-multi-caret">▼</span></button><div class="scope-multi-menu" id="filter-line-menu" onclick="event.stopPropagation()"></div></div></div>
                 <div class="filter-box"><label>Dari</label><select id="chart-from" onchange="handleChartRangeChange('from')"></select></div>
                 <div class="filter-box"><label>Sampai</label><select id="chart-to" onchange="handleChartRangeChange('to')"></select></div>
                 <button type="button" class="btn-reset-chart btn-reset-scope" onclick="resetOeeScope()">Reset Gedung/Line</button>
@@ -964,12 +1004,12 @@ body{
             </div>
         </div>
         <div class="chart-summary">
-            <div class="chart-summary-box"><span>OEE Periode Terpilih</span><strong id="chart-average">—</strong></div>
-            <div class="chart-summary-box"><span>Periode Tertinggi</span><strong id="chart-peak">—</strong></div>
-            <div class="chart-summary-box"><span>Target Tercapai</span><strong id="chart-target-hit">—</strong></div>
+            <div class="chart-summary-box"><span id="chart-average-label">OEE Periode Terpilih</span><strong id="chart-average">—</strong></div>
+            <div class="chart-summary-box"><span id="chart-peak-label">Periode Tertinggi</span><strong id="chart-peak">—</strong></div>
+            <div class="chart-summary-box"><span id="chart-target-hit-label">Target Tercapai</span><strong id="chart-target-hit">—</strong></div>
         </div>
         <div class="chart-wrap" id="chart-wrap"><canvas id="oee-chart"></canvas><div class="oee-chart-tooltip" id="oee-chart-tooltip"></div></div>
-        <div class="chart-foot"><span><i class="legend-dot legend-good"></i><span id="chart-good-legend">≥ 55%</span> &nbsp;&nbsp; <i class="legend-dot legend-low"></i><span id="chart-low-legend">&lt; 55%</span> &nbsp;&nbsp; <i class="legend-dot legend-target"></i><span id="chart-target-legend">Target 55%</span></span><span class="chart-live-note">Arahkan kursor ke grafik</span><span id="chart-range-label"></span></div>
+        <div class="chart-foot"><span id="chart-status-legend"><i class="legend-dot legend-good"></i><span id="chart-good-legend">≥ 55%</span> &nbsp;&nbsp; <i class="legend-dot legend-low"></i><span id="chart-low-legend">&lt; 55%</span> &nbsp;&nbsp; <i class="legend-dot legend-target"></i><span id="chart-target-legend">Target 55%</span></span><span class="chart-compare-hint" id="chart-compare-hint"></span><span class="chart-live-note">Arahkan kursor ke grafik</span><span id="chart-range-label"></span></div>
     </section>
 
     <div class="section-title">OEE per Line — Hari Terakhir</div>
@@ -1015,7 +1055,10 @@ let chartEventsBound=false;
 let oeeReportRows=[];
 let reportDrafts={};
 let oeeScope={gedung:'',line:''};
+let oeeCompareMode='trend';
+let oeeFilterSelection={gedung:[],line:[]};
 let scopeDailyRows=[];
+const OEE_COMPARE_COLORS=['#1268e8','#7c3aed','#16a065','#f97316','#db2777','#0891b2','#b77905','#64748b','#e5484d'];
 const OEE_LINE_MASTER=[
     {gedung:'Gd 6',line:'BOATO'},
     {gedung:'Gd 6',line:'LINE 1A - FILLING CF (4 MSN)'},
@@ -1207,7 +1250,14 @@ function normalizeLineKey(v){return String(v??'').toUpperCase().replace(/[^A-Z0-
 function canonicalLineName(v){const hit=OEE_LINE_BY_KEY.get(normalizeLineKey(v));return hit?hit.line:''}
 function gedungForLine(v){const hit=OEE_LINE_BY_KEY.get(normalizeLineKey(v));return hit?hit.gedung:''}
 function canonicalLineRows(rows){return (rows||[]).map(r=>{const line=canonicalLineName(r.line||r.mesin);if(!line)return null;return {...r,line,mesin:line,gedung:r.gedung||gedungForLine(line)}}).filter(Boolean)}
-function scopedLineRows(){let rows=canonicalLineRows(currentOeeData?.all_line||[]);if(oeeScope.gedung)rows=rows.filter(r=>r.gedung===oeeScope.gedung);if(oeeScope.line)rows=rows.filter(r=>normalizeLineKey(r.line)===normalizeLineKey(oeeScope.line));return rows}
+function scopedLineRows(){
+    let rows=canonicalLineRows(currentOeeData?.all_line||[]);
+    const selectedLines=new Set((oeeFilterSelection.line||[]).map(normalizeLineKey));
+    const selectedGedungs=new Set(oeeFilterSelection.gedung||[]);
+    if(selectedLines.size)rows=rows.filter(r=>selectedLines.has(normalizeLineKey(r.line)));
+    else if(selectedGedungs.size)rows=rows.filter(r=>selectedGedungs.has(r.gedung));
+    return rows;
+}
 function aggregateScopedLineRows(rows){
     const valid=(rows||[]).filter(r=>Number.isFinite(Number(r.oee)));
     if(!valid.length)return null;
@@ -1217,43 +1267,151 @@ function aggregateScopedLineRows(rows){
 }
 function getScopedDailyRows(){
     if(!currentOeeData)return[];
-    if(!oeeScope.gedung&&!oeeScope.line)return(currentOeeData.all_daily||[]).slice().sort((a,b)=>a.tanggal.localeCompare(b.tanggal));
+    if(!(oeeFilterSelection.gedung||[]).length&&!(oeeFilterSelection.line||[]).length)return(currentOeeData.all_daily||[]).slice().sort((a,b)=>a.tanggal.localeCompare(b.tanggal));
     const map=new Map();scopedLineRows().forEach(r=>{if(!map.has(r.tanggal))map.set(r.tanggal,[]);map.get(r.tanggal).push(r)});
     return [...map.entries()].sort((a,b)=>a[0].localeCompare(b[0])).map(([tanggal,rows])=>{const m=aggregateScopedLineRows(rows);return m?{tanggal,oee:m.oee,target_pcs:m.target,output_pcs:m.output,_weighted:m.weighted}:null}).filter(Boolean);
 }
 function activeOeeTarget(){
-    if(oeeScope.line){const rows=canonicalLineRows(currentOeeData?.all_line||[]).filter(r=>normalizeLineKey(r.line)===normalizeLineKey(oeeScope.line)&&Number(r.target)>0).sort((a,b)=>String(a.tanggal).localeCompare(String(b.tanggal)));if(rows.length)return Number(rows[rows.length-1].target)}
+    const lines=oeeFilterSelection.line||[];
+    if(lines.length===1){const key=normalizeLineKey(lines[0]);const rows=canonicalLineRows(currentOeeData?.all_line||[]).filter(r=>normalizeLineKey(r.line)===key&&Number(r.target)>0).sort((a,b)=>String(a.tanggal).localeCompare(String(b.tanggal)));if(rows.length)return Number(rows[rows.length-1].target)}
     return OEE_TARGET;
 }
-function currentScopeLabel(){if(oeeScope.line)return`${oeeScope.gedung?oeeScope.gedung+' · ':''}${oeeScope.line}`;if(oeeScope.gedung)return`${oeeScope.gedung} · Semua Line`;return'Seluruh pabrik'}
-function scopeHasExactWeights(){if(!oeeScope.gedung&&!oeeScope.line)return true;const rows=scopedLineRows().filter(r=>Number.isFinite(Number(r.oee)));return !!rows.length&&rows.every(r=>Number(r.target_pcs)>0&&Number.isFinite(Number(r.output_pcs)))}
-function refreshOeeScopeOptions(){
-    const g=document.getElementById('filter-gedung'),l=document.getElementById('filter-line');if(!g||!l)return;
-    const buildings=[...new Set(OEE_LINE_MASTER.map(x=>x.gedung))].sort();g.innerHTML='<option value="">Semua Gedung</option>'+buildings.map(x=>`<option value="${x}">${x}</option>`).join('');g.value=oeeScope.gedung;
-    const options=OEE_LINE_MASTER.filter(x=>!oeeScope.gedung||x.gedung===oeeScope.gedung);if(oeeScope.line&&!options.some(x=>normalizeLineKey(x.line)===normalizeLineKey(oeeScope.line)))oeeScope.line='';
-    l.innerHTML='<option value="">Semua Line</option>'+options.map(x=>`<option value="${escapeHtml(x.line)}">${escapeHtml(x.line)}</option>`).join('');l.value=oeeScope.line;
+function selectedGedungs(){return (oeeFilterSelection.gedung||[]).slice()}
+function selectedLines(){return (oeeFilterSelection.line||[]).slice()}
+function selectionBuildingNames(){
+    const explicit=selectedGedungs();if(explicit.length)return explicit;
+    return [...new Set(selectedLines().map(gedungForLine).filter(Boolean))];
 }
-function handleOeeGedungChange(){oeeScope.gedung=document.getElementById('filter-gedung')?.value||'';refreshOeeScopeOptions();renderDashboardByScope()}
-function handleOeeLineChange(){oeeScope.line=document.getElementById('filter-line')?.value||'';const hit=OEE_LINE_BY_KEY.get(normalizeLineKey(oeeScope.line));if(hit&&oeeScope.gedung&&hit.gedung!==oeeScope.gedung)oeeScope.line='';renderDashboardByScope()}
-function resetOeeScope(){oeeScope={gedung:'',line:''};refreshOeeScopeOptions();renderDashboardByScope()}
+function currentScopeLabel(){
+    const gedung=selectedGedungs(),line=selectedLines();
+    if(line.length>1)return`Compare Line · ${line.length} line dipilih`;
+    if(line.length===1)return`${gedungForLine(line[0])||''}${gedungForLine(line[0])?' · ':''}${line[0]}`;
+    if(gedung.length>1)return`Compare Gedung · ${gedung.join(', ')}`;
+    if(gedung.length===1)return`${gedung[0]} · Semua Line`;
+    return'Seluruh pabrik';
+}
+function selectedScopeCardLabel(){
+    const gedung=selectionBuildingNames(),line=selectedLines();
+    if(line.length){const lineText=line.map(shortOeeCompareLabel).join(' • ');return`${gedung.length?gedung.join(' + ')+' • ':''}${lineText}`}
+    if(gedung.length)return gedung.join(' • ');
+    return'';
+}
+function scopeHasExactWeights(){if(!selectedGedungs().length&&!selectedLines().length)return true;const rows=scopedLineRows().filter(r=>Number.isFinite(Number(r.oee)));return !!rows.length&&rows.every(r=>Number(r.target_pcs)>0&&Number.isFinite(Number(r.output_pcs)))}
+function hasNumericOee(v){return v!==null&&v!==undefined&&v!==''&&Number.isFinite(Number(v))}
+function shortOeeCompareLabel(label){
+    const raw=String(label||'');
+    if(normalizeLineKey(raw)==='BOATO')return'BOATO';
+    const m=raw.match(/LINE\s*(\d+[A-Z]?)/i);
+    if(m)return`Line ${m[1].toUpperCase()}`;
+    return raw.length>20?raw.slice(0,19)+'…':raw;
+}
+function syncOeeSelectionState(){
+    const buildings=selectedGedungs();
+    if(buildings.length){const allowed=new Set(OEE_LINE_MASTER.filter(x=>buildings.includes(x.gedung)).map(x=>normalizeLineKey(x.line)));oeeFilterSelection.line=selectedLines().filter(x=>allowed.has(normalizeLineKey(x)))}
+    const lines=selectedLines();
+    if(lines.length>1){
+        oeeCompareMode='line';const lineBuildings=[...new Set(lines.map(gedungForLine).filter(Boolean))];oeeScope={gedung:lineBuildings.length===1?lineBuildings[0]:'',line:''};
+    }else if(lines.length===1){
+        oeeCompareMode='trend';oeeScope={gedung:gedungForLine(lines[0])||'',line:lines[0]};
+    }else if(buildings.length>1){
+        oeeCompareMode='building';oeeScope={gedung:'',line:''};
+    }else if(buildings.length===1){
+        oeeCompareMode='trend';oeeScope={gedung:buildings[0],line:''};
+    }else{
+        oeeCompareMode='trend';oeeScope={gedung:'',line:''};
+    }
+}
+function scopeMultiButtonText(kind){
+    const values=kind==='gedung'?selectedGedungs():selectedLines();
+    if(!values.length)return kind==='gedung'?'Semua Gedung':'Semua Line';
+    if(values.length===1)return values[0];
+    return kind==='gedung'?`${values.length} Gedung dipilih`:`${values.length} Line dipilih`;
+}
+function scopeMultiHeader(kind){return kind==='gedung'?'Pilih Gedung':'Pilih Line'}
+function scopeMultiActionHeader(kind){
+    return `<div class="scope-multi-menu-head"><strong>${scopeMultiHeader(kind)}</strong><div class="scope-multi-actions"><button type="button" class="scope-multi-action" onclick="selectAllOeeMulti('${kind}',event)">Pilih semua</button><button type="button" class="scope-multi-action" onclick="clearOeeMulti('${kind}',event)">Reset</button></div></div>`;
+}
+function refreshOeeScopeOptions(){
+    syncOeeSelectionState();
+    const gedungValues=selectedGedungs(),lineValues=selectedLines();
+    const buildings=[...new Set(OEE_LINE_MASTER.map(x=>x.gedung))].sort();
+    const gedungMenu=document.getElementById('filter-gedung-menu'),lineMenu=document.getElementById('filter-line-menu');
+    const gedungLabel=document.getElementById('filter-gedung-label'),lineLabel=document.getElementById('filter-line-label');
+    const gedungBtn=document.getElementById('filter-gedung-btn'),lineBtn=document.getElementById('filter-line-btn');
+    const gedungCount=document.getElementById('filter-gedung-count'),lineCount=document.getElementById('filter-line-count');
+    if(gedungMenu){gedungMenu.innerHTML=scopeMultiActionHeader('gedung')+`<div class="scope-multi-options">${buildings.map(x=>`<label class="scope-multi-option"><input type="checkbox" value="${escapeHtml(x)}" ${gedungValues.includes(x)?'checked':''} onchange="handleOeeMultiCheck('gedung',this.value,this.checked)"><span>${escapeHtml(x)}</span></label>`).join('')}</div>`}
+    const lineOptions=OEE_LINE_MASTER.filter(x=>!gedungValues.length||gedungValues.includes(x.gedung));
+    if(lineMenu){
+        const grouped=[...new Set(lineOptions.map(x=>x.gedung))].sort().map(g=>`<div class="scope-multi-group-title">${escapeHtml(g)}</div>`+lineOptions.filter(x=>x.gedung===g).map(x=>`<label class="scope-multi-option"><input type="checkbox" value="${escapeHtml(x.line)}" ${lineValues.some(v=>normalizeLineKey(v)===normalizeLineKey(x.line))?'checked':''} onchange="handleOeeMultiCheck('line',this.value,this.checked)"><span>${escapeHtml(x.line)}<small>${escapeHtml(x.gedung)}</small></span></label>`).join('')).join('');
+        lineMenu.innerHTML=scopeMultiActionHeader('line')+`<div class="scope-multi-options">${grouped||'<div class="scope-multi-empty">Tidak ada line untuk Gedung terpilih.</div>'}</div>`;
+    }
+    if(gedungLabel)gedungLabel.textContent=scopeMultiButtonText('gedung');if(lineLabel)lineLabel.textContent=scopeMultiButtonText('line');
+    if(gedungCount)gedungCount.textContent=String(gedungValues.length);if(lineCount)lineCount.textContent=String(lineValues.length);
+    if(gedungBtn){gedungBtn.classList.toggle('has-selection',gedungValues.length>0);gedungBtn.setAttribute('aria-expanded',String(document.getElementById('filter-gedung-multi')?.classList.contains('open')||false))}
+    if(lineBtn){lineBtn.classList.toggle('has-selection',lineValues.length>0);lineBtn.setAttribute('aria-expanded',String(document.getElementById('filter-line-multi')?.classList.contains('open')||false))}
+}
+function toggleOeeMulti(kind,event){
+    event?.stopPropagation();const current=document.getElementById(`filter-${kind}-multi`);if(!current)return;const willOpen=!current.classList.contains('open');document.querySelectorAll('.scope-multi.open').forEach(x=>x.classList.remove('open'));if(willOpen)current.classList.add('open');const btn=document.getElementById(`filter-${kind}-btn`);if(btn)btn.setAttribute('aria-expanded',String(willOpen));
+}
+function handleOeeMultiCheck(kind,value,checked){
+    const list=kind==='gedung'?selectedGedungs():selectedLines();const same=(a,b)=>kind==='line'?normalizeLineKey(a)===normalizeLineKey(b):a===b;
+    const next=list.filter(x=>!same(x,value));if(checked&&!list.some(x=>same(x,value)))next.push(value);oeeFilterSelection[kind]=next;if(kind==='gedung')oeeFilterSelection.line=[];syncOeeSelectionState();chartHoverKey='';refreshOeeScopeOptions();renderDashboardByScope();
+}
+function selectAllOeeMulti(kind,event){
+    event?.stopPropagation();if(kind==='gedung'){oeeFilterSelection.gedung=[...new Set(OEE_LINE_MASTER.map(x=>x.gedung))].sort();oeeFilterSelection.line=[]}else{oeeFilterSelection.line=OEE_LINE_MASTER.filter(x=>!selectedGedungs().length||selectedGedungs().includes(x.gedung)).map(x=>x.line)}syncOeeSelectionState();chartHoverKey='';refreshOeeScopeOptions();renderDashboardByScope();
+}
+function clearOeeMulti(kind,event){event?.stopPropagation();oeeFilterSelection[kind]=[];syncOeeSelectionState();chartHoverKey='';refreshOeeScopeOptions();renderDashboardByScope()}
+function resetOeeScope(){oeeFilterSelection={gedung:[],line:[]};syncOeeSelectionState();chartHoverKey='';refreshOeeScopeOptions();renderDashboardByScope()}
+document.addEventListener('click',e=>{if(!e.target.closest('.scope-multi')){document.querySelectorAll('.scope-multi.open').forEach(x=>{x.classList.remove('open');const kind=x.id.includes('gedung')?'gedung':'line';document.getElementById(`filter-${kind}-btn`)?.setAttribute('aria-expanded','false')})}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.scope-multi.open').forEach(x=>{x.classList.remove('open');x.querySelector('.scope-multi-btn')?.setAttribute('aria-expanded','false')})});
+function dailyRowsFromLineRows(rows){
+    const map=new Map();(rows||[]).forEach(r=>{if(!map.has(r.tanggal))map.set(r.tanggal,[]);map.get(r.tanggal).push(r)});
+    return [...map.entries()].sort((a,b)=>a[0].localeCompare(b[0])).map(([tanggal,dayRows])=>{const m=aggregateScopedLineRows(dayRows);return m?{tanggal,oee:m.oee,target_pcs:m.target,output_pcs:m.output,_weighted:m.weighted}:null}).filter(Boolean);
+}
+function latestTargetForLineRows(rows){
+    const valid=(rows||[]).filter(r=>Number(r.target)>0).sort((a,b)=>String(a.tanggal).localeCompare(String(b.tanggal)));
+    return valid.length?Number(valid[valid.length-1].target):OEE_TARGET;
+}
+function compareOeeGroups(){
+    const all=canonicalLineRows(currentOeeData?.all_line||[]);
+    if(oeeCompareMode==='building'){
+        const allBuildings=[...new Set(OEE_LINE_MASTER.map(x=>x.gedung))].sort();const chosen=selectedGedungs().length?selectedGedungs():allBuildings;
+        return chosen.map(gedung=>{const i=allBuildings.indexOf(gedung),rows=all.filter(r=>r.gedung===gedung);return{key:`building-${gedung}`,label:gedung,shortLabel:gedung,color:OEE_COMPARE_COLORS[(i<0?0:i)%OEE_COMPARE_COLORS.length],target:OEE_TARGET,daily:dailyRowsFromLineRows(rows),rawRows:rows}}).filter(x=>x.daily.length);
+    }
+    if(oeeCompareMode==='line'){
+        const chosenKeys=new Set(selectedLines().map(normalizeLineKey));const master=OEE_LINE_MASTER.filter(x=>chosenKeys.size?chosenKeys.has(normalizeLineKey(x.line)):(!selectedGedungs().length||selectedGedungs().includes(x.gedung)));
+        return master.map(m=>{const i=OEE_LINE_MASTER.findIndex(x=>normalizeLineKey(x.line)===normalizeLineKey(m.line)),rows=all.filter(r=>normalizeLineKey(r.line)===normalizeLineKey(m.line));return{key:`line-${normalizeLineKey(m.line)}`,label:m.line,shortLabel:shortOeeCompareLabel(m.line),gedung:m.gedung,color:OEE_COMPARE_COLORS[(i<0?0:i)%OEE_COMPARE_COLORS.length],target:latestTargetForLineRows(rows),daily:dailyRowsFromLineRows(rows),rawRows:rows}}).filter(x=>x.daily.length);
+    }
+    return[];
+}
+function selectedCompareSeries(){
+    if(oeeCompareMode==='trend')return[];
+    const periods=selectedChartSeries();if(!periods.length)return[];
+    const build=chartMode==='weekly'?buildWeeklySeries:buildMonthlySeries;
+    return compareOeeGroups().map(group=>{
+        const full=build(group.daily),byKey=new Map(full.map(p=>[p.key,p]));
+        const points=periods.map(period=>{const p=byKey.get(period.key);return p?{...p}:{key:period.key,label:period.label,detail:period.detail,value:null,target:null,output:null,count:0}});
+        return{...group,points};
+    }).filter(s=>s.points.some(p=>hasNumericOee(p.value)));
+}
 function updateScopeTargetUi(){
-    const target=activeOeeTarget(),lineSpecific=!!oeeScope.line,label=currentScopeLabel();
+    const target=activeOeeTarget(),lineSpecific=selectedLines().length===1,label=currentScopeLabel(),isLineCompare=oeeCompareMode==='line';
     const active=document.getElementById('scope-active-label');if(active)active.textContent=label;
-    const method=document.getElementById('scope-method-label');if(method){const exact=scopeHasExactWeights();method.classList.toggle('approx',!exact);method.textContent=(!oeeScope.gedung&&!oeeScope.line)?'OEE total pabrik · berbobot volume':exact?'Agregasi berbobot Target PCS / Output PCS':'Agregasi OEE line-shift · jalankan migrasi SQL untuk bobot volume';}
-    const val=document.getElementById('val-active-target');if(val)val.textContent=target.toFixed(2)+'%';
-    const date=document.getElementById('date-active-target');if(date)date.textContent=lineSpecific?'Target line dari workbook OEE':'Standar capaian Bojonegoro';
-    const badge=document.getElementById('badge-active-target');if(badge)badge.textContent=lineSpecific?'Target line aktif':'Minimum target';
-    const hero=document.getElementById('hero-target-value');if(hero)hero.textContent='≥ '+target.toLocaleString('id-ID',{maximumFractionDigits:2})+'%';
-    const heroNote=document.getElementById('hero-target-note');if(heroNote)heroNote.textContent=lineSpecific?'Target line terpilih':'Daily · Weekly · Monthly';
+    const method=document.getElementById('scope-method-label');if(method){const exact=scopeHasExactWeights();method.classList.toggle('approx',!exact);method.textContent=(!selectedGedungs().length&&!selectedLines().length)?'OEE total pabrik · berbobot volume':exact?'Agregasi berbobot Target PCS / Output PCS':'Agregasi OEE line-shift · jalankan migrasi SQL untuk bobot volume';}
+    const val=document.getElementById('val-active-target');if(val)val.textContent=isLineCompare?'Multi':target.toFixed(2)+'%';
+    const date=document.getElementById('date-active-target');if(date)date.textContent=isLineCompare?'Target mengikuti masing-masing line':lineSpecific?'Target line dari workbook OEE':'Standar capaian Bojonegoro';
+    const badge=document.getElementById('badge-active-target');if(badge)badge.textContent=isLineCompare?'Target per line':lineSpecific?'Target line aktif':'Minimum target';
+    const hero=document.getElementById('hero-target-value');if(hero)hero.textContent=isLineCompare?'Per Line':'≥ '+target.toLocaleString('id-ID',{maximumFractionDigits:2})+'%';
+    const heroNote=document.getElementById('hero-target-note');if(heroNote)heroNote.textContent=isLineCompare?'Target sesuai workbook masing-masing line':lineSpecific?'Target line terpilih':'Daily · Weekly · Monthly';
     const good=document.getElementById('chart-good-legend'),low=document.getElementById('chart-low-legend'),targetLegend=document.getElementById('chart-target-legend');if(good)good.textContent=`≥ ${target}%`;if(low)low.textContent=`< ${target}%`;if(targetLegend)targetLegend.textContent=`Target ${target}%`;
 }
 function scopeShiftSummary(){
     if(!currentOeeData)return{date:null,shift1:null,shift2:null,shift3:null};
-    if(!oeeScope.gedung&&!oeeScope.line){const rows=(currentOeeData.all_shiftly||[]);const date=rows.length?rows[rows.length-1].tanggal:currentOeeData.date;const by={};rows.filter(r=>r.tanggal===date).forEach(r=>{const n=parseShiftNum(r.shift);if(n)by[n]=Number(r.oee)});return{date,shift1:by[1]??currentOeeData.shift1??null,shift2:by[2]??currentOeeData.shift2??null,shift3:by[3]??currentOeeData.shift3??null}}
+    if(!selectedGedungs().length&&!selectedLines().length){const rows=(currentOeeData.all_shiftly||[]);const date=rows.length?rows[rows.length-1].tanggal:currentOeeData.date;const by={};rows.filter(r=>r.tanggal===date).forEach(r=>{const n=parseShiftNum(r.shift);if(n)by[n]=Number(r.oee)});return{date,shift1:by[1]??currentOeeData.shift1??null,shift2:by[2]??currentOeeData.shift2??null,shift3:by[3]??currentOeeData.shift3??null}}
     const rows=scopedLineRows();const date=rows.length?rows.reduce((m,r)=>r.tanggal>m?r.tanggal:m,rows[0].tanggal):null;const out={date,shift1:null,shift2:null,shift3:null};[1,2,3].forEach(sh=>{const m=aggregateScopedLineRows(rows.filter(r=>r.tanggal===date&&Number(r.shift)===sh));out[`shift${sh}`]=m?.oee??null});return out;
 }
 function buildPerLineDisplay(rows,tanggal){
-    let data=canonicalLineRows(rows).filter(r=>r.tanggal===tanggal);if(oeeScope.gedung)data=data.filter(r=>r.gedung===oeeScope.gedung);if(oeeScope.line)data=data.filter(r=>normalizeLineKey(r.line)===normalizeLineKey(oeeScope.line));
+    let data=canonicalLineRows(rows).filter(r=>r.tanggal===tanggal);const chosenLines=new Set(selectedLines().map(normalizeLineKey)),chosenGedungs=new Set(selectedGedungs());if(chosenLines.size)data=data.filter(r=>chosenLines.has(normalizeLineKey(r.line)));else if(chosenGedungs.size)data=data.filter(r=>chosenGedungs.has(r.gedung));
     const by=new Map();data.forEach(r=>{if(!by.has(r.line))by.set(r.line,{mesin:r.line,gedung:r.gedung,target:Number(r.target||OEE_TARGET),shift1:null,shift2:null,shift3:null});const o=by.get(r.line);o[`shift${Number(r.shift)}`]=Number(r.oee)});
     return OEE_LINE_MASTER.filter(x=>by.has(x.line)).map(x=>by.get(x.line));
 }
@@ -1652,6 +1810,15 @@ function updateOeeChartTooltip(hit){
     if(!tip||!wrap)return;
     if(!hit){tip.classList.remove('show');tip.innerHTML='';return;}
     const d=hit.item;
+    if(d?.compare){
+        const rows=(d.values||[]).filter(v=>hasNumericOee(v.value));
+        tip.innerHTML=`<div class="oee-tip-title">${escapeHtml(d.period?.label||'Periode')}</div><div class="oee-tip-sub">${escapeHtml(d.period?.detail||'Perbandingan OEE')}</div>`+rows.map(v=>{
+            const diff=Number(v.value)-Number(v.target||OEE_TARGET),statusClass=diff>=0?'oee-tip-good':'oee-tip-low';
+            return `<div class="oee-tip-row"><span class="oee-tip-key"><i style="display:inline-block;width:9px;height:3px;border-radius:9px;background:${v.color};margin-right:6px;vertical-align:middle"></i>${escapeHtml(v.shortLabel||v.label)}</span><span class="oee-tip-val ${statusClass}">${Number(v.value).toLocaleString('id-ID',{minimumFractionDigits:1,maximumFractionDigits:2})}% <small style="opacity:.65">/ T ${Number(v.target||OEE_TARGET).toLocaleString('id-ID',{maximumFractionDigits:1})}%</small></span></div>`;
+        }).join('');
+        tip.classList.add('show');
+        const w=wrap.clientWidth,h=wrap.clientHeight;let left=hit.x+18;if(left+tip.offsetWidth>w-10)left=hit.x-tip.offsetWidth-18;let top=Math.max(10,Math.min(h-tip.offsetHeight-10,hit.y-tip.offsetHeight/2));tip.style.left=Math.max(10,left)+'px';tip.style.top=top+'px';return;
+    }
     const target=activeOeeTarget();
     const diff=Number(d.value||0)-target;
     const status=d.value>=target?'Target tercapai':'Di bawah target';
@@ -1698,7 +1865,48 @@ function bindOeeChartHover(){
     });
 }
 
+function setChartFooterMode(compare,series=[]){
+    const status=document.getElementById('chart-status-legend'),hint=document.getElementById('chart-compare-hint');
+    if(status)status.style.display=compare?'none':'';
+    if(hint){hint.classList.toggle('show',compare);if(!compare)hint.textContent='';else if(oeeCompareMode==='building')hint.textContent=`Compare ${selectedGedungs().join(' • ')} · Target standar 55%`;else{const names=selectedLines().map(shortOeeCompareLabel);hint.textContent=`Compare ${names.length<=4?names.join(' • '):names.length+' Line'} · Target mengikuti masing-masing line`;}}
+}
+function updateCompareChartSummary(periods,series){
+    const avgLabel=document.getElementById('chart-average-label'),peakLabel=document.getElementById('chart-peak-label'),hitLabel=document.getElementById('chart-target-hit-label');
+    if(avgLabel)avgLabel.textContent='OEE Gabungan';if(peakLabel)peakLabel.textContent=oeeCompareMode==='building'?'Gedung Tertinggi':'Line Tertinggi';if(hitLabel)hitLabel.textContent='Titik Target Tercapai';
+    const overall=aggregateOee(selectedDailyRowsForChart());
+    const scores=series.map(s=>{const vals=s.points.filter(p=>hasNumericOee(p.value)).map(p=>Number(p.value));return{...s,avg:vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:null}}).filter(s=>s.avg!==null).sort((a,b)=>b.avg-a.avg);
+    let hits=0,total=0;series.forEach(s=>s.points.forEach(p=>{if(hasNumericOee(p.value)){total++;if(Number(p.value)>=Number(s.target||OEE_TARGET))hits++;}}));
+    document.getElementById('chart-average').innerHTML=overall?`${overall.oee.toLocaleString('id-ID',{minimumFractionDigits:2,maximumFractionDigits:2})}<small>%</small>`:'—';
+    document.getElementById('chart-peak').innerHTML=scores.length?`${escapeHtml(scores[0].shortLabel||scores[0].label)}<small> · ${scores[0].avg.toLocaleString('id-ID',{maximumFractionDigits:2})}%</small>`:'—';
+    document.getElementById('chart-target-hit').innerHTML=total?`${hits} / ${total}<small> titik</small>`:'—';
+    document.getElementById('chart-range-label').textContent=periods.length?`${oeeCompareMode==='building'?'Gedung terpilih':'Line terpilih'} · ${chartMode==='weekly'?'Weekly':'Monthly'} · ${periods[0].label} s.d. ${periods[periods.length-1].label}`:'';
+}
+function drawCompareLegend(ctx,series,cssW,marginLeft,right,top,itemW){
+    const usable=cssW-marginLeft-right,cols=Math.max(1,Math.floor(usable/itemW));
+    series.forEach((s,i)=>{const col=i%cols,row=Math.floor(i/cols),x=marginLeft+col*itemW,y=top+row*22;ctx.strokeStyle=s.color;ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(x,y+6);ctx.lineTo(x+18,y+6);ctx.stroke();ctx.beginPath();ctx.arc(x+9,y+6,3.1,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();ctx.strokeStyle=s.color;ctx.lineWidth=2;ctx.stroke();ctx.fillStyle='#526075';ctx.font='700 9px Arial, sans-serif';ctx.textAlign='left';ctx.textBaseline='middle';const label=oeeCompareMode==='line'?`${s.shortLabel} · T ${Number(s.target||OEE_TARGET).toLocaleString('id-ID',{maximumFractionDigits:1})}%`:s.shortLabel;ctx.fillText(label,x+25,y+6,itemW-31);});
+}
+function renderOeeCompareChart(){
+    const wrap=document.getElementById('chart-wrap'),canvas=document.getElementById('oee-chart'),periods=selectedChartSeries(),series=selectedCompareSeries();if(!wrap||!canvas)return;
+    const dpr=Math.max(1,Math.min(2,window.devicePixelRatio||1)),cssW=Math.max(320,wrap.clientWidth-20),cssH=Math.max(270,wrap.clientHeight-18);canvas.style.width=cssW+'px';canvas.style.height=cssH+'px';canvas.width=Math.round(cssW*dpr);canvas.height=Math.round(cssH*dpr);
+    const ctx=canvas.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,cssW,cssH);chartHitAreas=[];setChartFooterMode(true,series);
+    if(!periods.length||!series.length){ctx.fillStyle='#94a3b8';ctx.font='12px Arial, sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('Belum ada data untuk pilihan yang dibandingkan.',cssW/2,cssH/2);updateCompareChartSummary([],[]);updateOeeChartTooltip(null);return;}
+    const mobile=window.innerWidth<=720,itemW=oeeCompareMode==='building'?(mobile?110:150):(mobile?98:125),legendCols=Math.max(1,Math.floor((cssW-(mobile?62:80))/itemW)),legendRows=Math.ceil(series.length/legendCols),legendH=legendRows*22;
+    const margin={top:24+legendH,right:18,bottom:58,left:mobile?50:62},plotW=cssW-margin.left-margin.right,plotH=cssH-margin.top-margin.bottom;
+    const allVals=[];series.forEach(s=>s.points.forEach(p=>{if(hasNumericOee(p.value))allVals.push(Number(p.value));}));const targetVals=oeeCompareMode==='line'?series.map(s=>Number(s.target||OEE_TARGET)):[OEE_TARGET];const maxData=Math.max(...allVals,...targetVals,100),yMax=Math.max(100,Math.ceil((maxData*1.08)/10)*10),yMin=0;
+    const yFor=v=>margin.top+plotH-((Number(v||0)-yMin)/(yMax-yMin))*plotH,xFor=i=>margin.left+(periods.length===1?plotW/2:i*(plotW/(periods.length-1)));
+    drawCompareLegend(ctx,series,cssW,margin.left,margin.right,10,itemW);
+    ctx.strokeStyle='#e8edf4';ctx.lineWidth=1;ctx.fillStyle='#8492a6';ctx.font=(mobile?'9px':'10px')+' Arial, sans-serif';ctx.textBaseline='middle';ctx.textAlign='right';for(let i=0;i<=5;i++){const value=yMax-(yMax/5*i),yy=margin.top+plotH/5*i;ctx.beginPath();ctx.moveTo(margin.left,yy);ctx.lineTo(cssW-margin.right,yy);ctx.stroke();ctx.fillText(`${Math.round(value)}%`,margin.left-8,yy)}
+    if(oeeCompareMode==='building'){const targetY=yFor(OEE_TARGET);ctx.save();ctx.strokeStyle='#f59e0b';ctx.lineWidth=2;ctx.setLineDash([7,6]);ctx.beginPath();ctx.moveTo(margin.left,targetY);ctx.lineTo(cssW-margin.right,targetY);ctx.stroke();ctx.restore();ctx.fillStyle='#b77905';ctx.font='700 9px Arial, sans-serif';ctx.textAlign='right';ctx.textBaseline='bottom';ctx.fillText(`Target ${OEE_TARGET}%`,cssW-margin.right,targetY-5)}
+    const activeIndex=periods.findIndex(p=>p.key===chartHoverKey||p.label===chartHoverKey);if(activeIndex>=0){const xx=xFor(activeIndex);ctx.save();ctx.strokeStyle='rgba(18,104,232,.22)';ctx.lineWidth=1.5;ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(xx,margin.top);ctx.lineTo(xx,margin.top+plotH);ctx.stroke();ctx.restore()}
+    series.forEach((s,si)=>{ctx.strokeStyle=s.color;ctx.lineWidth=2.6;ctx.lineJoin='round';ctx.lineCap='round';let open=false;ctx.beginPath();s.points.forEach((p,i)=>{if(!hasNumericOee(p.value)){open=false;return}const xx=xFor(i),yy=yFor(p.value);if(!open){ctx.moveTo(xx,yy);open=true}else ctx.lineTo(xx,yy)});ctx.stroke();s.points.forEach((p,i)=>{if(!hasNumericOee(p.value))return;const xx=xFor(i),yy=yFor(p.value),hit=Number(p.value)>=Number(s.target||OEE_TARGET);ctx.beginPath();ctx.arc(xx,yy,4.5,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();ctx.strokeStyle=s.color;ctx.lineWidth=2.3;ctx.stroke();ctx.beginPath();ctx.arc(xx,yy,1.7,0,Math.PI*2);ctx.fillStyle=hit?'#16a065':'#ef4444';ctx.fill();if(series.length<=3){ctx.fillStyle=s.color;ctx.font='700 '+(mobile?'8px':'9px')+' Arial, sans-serif';ctx.textAlign='center';ctx.textBaseline='bottom';const offset=10+(si%3)*11;ctx.fillText(`${Number(p.value).toLocaleString('id-ID',{maximumFractionDigits:1})}%`,xx,yy-offset)}})});
+    periods.forEach((p,i)=>{const xx=xFor(i);ctx.fillStyle='#60718a';ctx.font='700 '+(mobile?'8px':'9px')+' Arial, sans-serif';ctx.textAlign='center';ctx.textBaseline='top';ctx.fillText(p.label,xx,margin.top+plotH+15);const values=series.map(s=>({label:s.label,shortLabel:s.shortLabel,color:s.color,target:s.target,value:s.points[i]?.value}));chartHitAreas.push({key:p.key,item:{compare:true,period:p,values},x:xx,y:margin.top+plotH/2,r:18})});
+    ctx.strokeStyle='#cfd8e6';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(margin.left,margin.top+plotH);ctx.lineTo(cssW-margin.right,margin.top+plotH);ctx.stroke();updateCompareChartSummary(periods,series);bindOeeChartHover();if(activeIndex>=0)updateOeeChartTooltip(chartHitAreas[activeIndex]);else updateOeeChartTooltip(null);
+}
+
 function renderOeeChart(){
+    if(oeeCompareMode!=='trend'){renderOeeCompareChart();return;}
+    setChartFooterMode(false);
+    const avgLabel=document.getElementById('chart-average-label'),peakLabel=document.getElementById('chart-peak-label'),hitLabel=document.getElementById('chart-target-hit-label');if(avgLabel)avgLabel.textContent='OEE Periode Terpilih';if(peakLabel)peakLabel.textContent='Periode Tertinggi';if(hitLabel)hitLabel.textContent='Target Tercapai';
     const wrap=document.getElementById('chart-wrap');
     const canvas=document.getElementById('oee-chart');
     const data=selectedChartSeries();
@@ -1808,6 +2016,7 @@ async function exportOeeSlide(){
         if(!canvas)throw new Error('Canvas grafik tidak ditemukan.');
         const chartImage=canvas.toDataURL('image/png');
         const scopeLabel=currentScopeLabel();
+        const slideTitle=oeeCompareMode==='building'?'Perbandingan OEE per Gedung':oeeCompareMode==='line'?'Perbandingan OEE per Line':'Grafik OEE Produksi';
         const modeLabel=chartMode==='weekly'?'Weekly (Minggu–Sabtu)':'Monthly';
         const periodLabel=`${periods[0].label} s.d. ${periods[periods.length-1].label}`;
         const target=activeOeeTarget();
@@ -1819,21 +2028,20 @@ async function exportOeeSlide(){
         pptx.layout='LAYOUT_WIDE';
         pptx.author='OpenAI';
         pptx.company='OpenAI';
-        pptx.subject='Grafik OEE Produksi';
-        pptx.title=`Grafik OEE Produksi - ${scopeLabel}`;
+        pptx.subject=slideTitle;
+        pptx.title=`${slideTitle} - ${scopeLabel}`;
         pptx.lang='id-ID';
         const slide=pptx.addSlide();
         slide.background={color:'F8FAFC'};
         slide.addShape(pptx.ShapeType.rect,{x:0.18,y:0.18,w:12.95,h:7.1,fill:{color:'FFFFFF'},line:{color:'E6EDF7',pt:1},radius:0.18,shadow:{type:'outer',color:'CBD5E1',blur:1,angle:45,distance:1,opacity:0.12}});
-        slide.addText('Grafik OEE Produksi',{x:0.45,y:0.36,w:5.6,h:0.32,fontFace:'Arial',fontSize:20,bold:true,color:'24334A'});
+        slide.addText(slideTitle,{x:0.45,y:0.36,w:5.9,h:0.32,fontFace:'Arial',fontSize:20,bold:true,color:'24334A'});
         slide.addText(`Mode: ${modeLabel}   •   Periode: ${periodLabel}`,{x:0.45,y:0.68,w:8.3,h:0.24,fontFace:'Arial',fontSize:9,color:'6B7A90'});
-        const selectedGedung=oeeScope.gedung||(oeeScope.line?gedungForLine(oeeScope.line):'');
-        const hasSelectedScope=!!(selectedGedung||oeeScope.line);
+        const scopeValue=selectedScopeCardLabel();
+        const hasSelectedScope=!!scopeValue;
         if(hasSelectedScope){
             slide.addShape(pptx.ShapeType.roundRect,{x:9.50,y:0.34,w:3.05,h:0.68,rectRadius:0.06,fill:{color:'EAF3FF'},line:{color:'C9DFFF',pt:1}});
             slide.addText('SCOPE AKTIF',{x:9.72,y:0.44,w:2.55,h:0.13,fontFace:'Arial',fontSize:7.5,bold:true,color:'617895',charSpacing:0.8});
-            const scopeValue=oeeScope.line?`${selectedGedung}  •  ${oeeScope.line}`:selectedGedung;
-            slide.addText(scopeValue,{x:9.72,y:0.60,w:2.55,h:0.25,fontFace:'Arial',fontSize:oeeScope.line?9:11,bold:true,color:'24334A',fit:'shrink',valign:'mid'});
+            slide.addText(scopeValue,{x:9.72,y:0.60,w:2.55,h:0.25,fontFace:'Arial',fontSize:scopeValue.length>28?8.5:11,bold:true,color:'24334A',fit:'shrink',valign:'mid'});
         }
         const cards=[
             {title:'OEE Periode Terpilih',value:avgText,fill:'EEF7FF',line:'D6E7FF'},
@@ -1850,11 +2058,12 @@ async function exportOeeSlide(){
         slide.addImage({data:chartImage,x:0.52,y:1.95,w:12.28,h:3.85});
 
         slide.addShape(pptx.ShapeType.line,{x:0.45,y:5.98,w:12.25,h:0,line:{color:'E5EBF3',pt:1}});
-        slide.addText(`Target aktif: ≥ ${Number(target).toLocaleString('id-ID',{minimumFractionDigits:2,maximumFractionDigits:2})}%`,{x:0.48,y:6.07,w:2.3,h:0.18,fontFace:'Arial',fontSize:8,color:'B77905',bold:true});
+        const targetFooter=oeeCompareMode==='line'?'Target mengikuti masing-masing line':`Target aktif: ≥ ${Number(target).toLocaleString('id-ID',{minimumFractionDigits:2,maximumFractionDigits:2})}%`;
+        slide.addText(targetFooter,{x:0.48,y:6.07,w:3.4,h:0.18,fontFace:'Arial',fontSize:8,color:'B77905',bold:true});
         slide.addText(`Diexport: ${exportTime}`,{x:9.2,y:6.07,w:3.45,h:0.18,fontFace:'Arial',fontSize:8,color:'94A3B8',align:'right'});
 
-        const first=safeFileToken(periods[0].label),last=safeFileToken(periods[periods.length-1].label),scope=safeFileToken(oeeScope.line||oeeScope.gedung||'All');
-        await pptx.writeFile({fileName:`OEE_Grafik_${scope}_${chartMode==='weekly'?'Weekly':'Monthly'}_${first}_to_${last}.pptx`});
+        const first=safeFileToken(periods[0].label),last=safeFileToken(periods[periods.length-1].label),scope=safeFileToken(oeeCompareMode==='building'?`Compare_Gedung_${selectedGedungs().join('_')}`:oeeCompareMode==='line'?`Compare_Line_${selectedLines().map(shortOeeCompareLabel).join('_')}`:(selectedLines()[0]||selectedGedungs()[0]||'All'));
+        await pptx.writeFile({fileName:`OEE_${scope}_${chartMode==='weekly'?'Weekly':'Monthly'}_${first}_to_${last}.pptx`});
     }catch(err){
         console.error(err);
         alert('Gagal export slide PowerPoint: '+(err?.message||err));
@@ -1863,18 +2072,21 @@ async function exportOeeSlide(){
     }
 }
 function exportOeeExcel(){
-    if(!scopeDailyRows?.length){alert('Belum ada data OEE untuk diexport pada filter aktif.');return}const periods=selectedChartSeries();if(!periods.length){alert('Pilih periode terlebih dahulu.');return}
-    const target=activeOeeTarget(),daily=selectedDailyRowsForChart(),dateSet=new Set(daily.map(r=>r.tanggal));
-    const summaryRows=periods.map(p=>({'Mode':chartMode==='weekly'?'Weekly (Sun-Sat)':'Monthly','Periode':p.label,'OEE (%)':Number(Number(p.value||0).toFixed(2)),'Target (%)':target,'Status':Number(p.value)>=target?'Achieved':'Below Target','Target PCS':p.target===null?'':Number(p.target||0),'Output PCS':p.output===null?'':Number(p.output||0),'Hari Data':p.count||0}));
+    if(!scopeDailyRows?.length){alert('Belum ada data OEE untuk diexport pada filter aktif.');return}
+    const periods=selectedChartSeries();if(!periods.length){alert('Pilih periode terlebih dahulu.');return}
+    const target=activeOeeTarget(),daily=selectedDailyRowsForChart(),dateSet=new Set(daily.map(r=>r.tanggal)),compareSeries=selectedCompareSeries();
+    const summaryRows=oeeCompareMode==='trend'
+        ? periods.map(p=>({'Mode':chartMode==='weekly'?'Weekly (Sun-Sat)':'Monthly','Periode':p.label,'OEE (%)':Number(Number(p.value||0).toFixed(2)),'Target (%)':target,'Status':Number(p.value)>=target?'Achieved':'Below Target','Target PCS':p.target===null?'':Number(p.target||0),'Output PCS':p.output===null?'':Number(p.output||0),'Hari Data':p.count||0}))
+        : periods.flatMap((p,idx)=>compareSeries.map(s=>({'Mode':chartMode==='weekly'?'Weekly (Sun-Sat)':'Monthly','Periode':p.label,'Compare':oeeCompareMode==='building'?'Gedung':'Line','Gedung':oeeCompareMode==='building'?s.label:(s.gedung||''),'Line':oeeCompareMode==='line'?s.label:'','OEE (%)':hasNumericOee(s.points[idx]?.value)?Number(Number(s.points[idx].value).toFixed(2)):'','Target (%)':Number(s.target||OEE_TARGET),'Status':hasNumericOee(s.points[idx]?.value)?(Number(s.points[idx].value)>=Number(s.target||OEE_TARGET)?'Achieved':'Below Target'):'No Data'})));
     const dailyRows=daily.map(r=>({'Tanggal':r.tanggal,'Hari':HARI[dateFromStr(r.tanggal).getDay()],'OEE (%)':Number(Number(r.oee||0).toFixed(2)),'Target PCS':r.target_pcs??'','Output PCS':r.output_pcs??'','Status':Number(r.oee)>=target?'Achieved':'Below Target'}));
-    const shiftRows=(!oeeScope.gedung&&!oeeScope.line?(currentOeeData.all_shiftly||[]):scopedLineRows()).filter(r=>dateSet.has(r.tanggal)).map(r=>({'Tanggal':r.tanggal,'Gedung':r.gedung||'','Shift':r.shift,'Mesin / Line':r.line||r.mesin||'','OEE (%)':Number(Number(r.oee||0).toFixed(2)),'Target (%)':oeeScope.line?target:Number(r.target||OEE_TARGET),'Target PCS':r.target_pcs??'','Output PCS':r.output_pcs??''}));
+    const shiftRows=(!selectedGedungs().length&&!selectedLines().length?(currentOeeData.all_shiftly||[]):scopedLineRows()).filter(r=>dateSet.has(r.tanggal)).map(r=>({'Tanggal':r.tanggal,'Gedung':r.gedung||'','Shift':r.shift,'Mesin / Line':r.line||r.mesin||'','OEE (%)':Number(Number(r.oee||0).toFixed(2)),'Target (%)':selectedLines().length===1?target:Number(r.target||OEE_TARGET),'Target PCS':r.target_pcs??'','Output PCS':r.output_pcs??''}));
     const lineRows=scopedLineRows().filter(r=>dateSet.has(r.tanggal)).map(r=>({'Tanggal':r.tanggal,'Gedung':r.gedung||gedungForLine(r.mesin),'Shift':r.shift,'Mesin / Line':r.line||r.mesin,'OEE (%)':Number(Number(r.oee||0).toFixed(2)),'Target (%)':Number(r.target||OEE_TARGET),'Target PCS':r.target_pcs??'','Output PCS':r.output_pcs??'','Status':Number(r.oee)>=Number(r.target||OEE_TARGET)?'Achieved':'Below Target'}));
-    const overall=aggregateOee(daily),metadata=[['BOJONEGORO OEE EXPORT',''],['Scope',currentScopeLabel()],['Gedung',oeeScope.gedung||'Semua Gedung'],['Line',oeeScope.line||'Semua Line'],['Metode',scopeHasExactWeights()?'Berbobot Target PCS / Output PCS':'Rata-rata OEE line-shift'],['Mode',chartMode==='weekly'?'Weekly (Minggu-Sabtu)':'Monthly'],['Periode',`${periods[0].label} s.d. ${periods[periods.length-1].label}`],['OEE Periode (%)',overall?overall.oee:''],['Target OEE (%)',target],['Jumlah Periode',periods.length],['Jumlah Hari Data',daily.length]];
-    const wb=XLSX.utils.book_new(),wsSummary=XLSX.utils.aoa_to_sheet(metadata);XLSX.utils.sheet_add_aoa(wsSummary,[[]],{origin:-1});XLSX.utils.sheet_add_json(wsSummary,summaryRows,{origin:-1,skipHeader:false});wsSummary['!cols']=[{wch:28},{wch:38},{wch:14},{wch:14},{wch:18},{wch:16},{wch:16},{wch:12}];XLSX.utils.book_append_sheet(wb,wsSummary,'Summary');
+    const overall=aggregateOee(daily),metadata=[['BOJONEGORO OEE EXPORT',''],['Analisis',oeeCompareMode==='building'?'Compare Gedung':oeeCompareMode==='line'?'Compare Line':'Trend Normal'],['Scope',currentScopeLabel()],['Gedung',selectedGedungs().length?selectedGedungs().join('; '):'Semua Gedung'],['Line',selectedLines().length?selectedLines().join('; '):'Semua Line'],['Metode',scopeHasExactWeights()?'Berbobot Target PCS / Output PCS':'Rata-rata OEE line-shift'],['Mode',chartMode==='weekly'?'Weekly (Minggu-Sabtu)':'Monthly'],['Periode',`${periods[0].label} s.d. ${periods[periods.length-1].label}`],['OEE Gabungan (%)',overall?overall.oee:''],['Jumlah Periode',periods.length],['Jumlah Hari Data',daily.length]];
+    const wb=XLSX.utils.book_new(),wsSummary=XLSX.utils.aoa_to_sheet(metadata);XLSX.utils.sheet_add_aoa(wsSummary,[[]],{origin:-1});XLSX.utils.sheet_add_json(wsSummary,summaryRows,{origin:-1,skipHeader:false});wsSummary['!cols']=[{wch:28},{wch:26},{wch:16},{wch:12},{wch:38},{wch:14},{wch:14},{wch:18},{wch:16},{wch:16},{wch:12}];XLSX.utils.book_append_sheet(wb,wsSummary,oeeCompareMode==='trend'?'Summary':'Comparison');
     const wsDaily=XLSX.utils.json_to_sheet(dailyRows);wsDaily['!cols']=[{wch:14},{wch:12},{wch:12},{wch:16},{wch:16},{wch:18}];XLSX.utils.book_append_sheet(wb,wsDaily,'Daily OEE');
     if(shiftRows.length){const wsShift=XLSX.utils.json_to_sheet(shiftRows);wsShift['!cols']=[{wch:14},{wch:10},{wch:10},{wch:38},{wch:12},{wch:12},{wch:16},{wch:16}];XLSX.utils.book_append_sheet(wb,wsShift,'Shiftly OEE')}
     if(lineRows.length){const wsLine=XLSX.utils.json_to_sheet(lineRows);wsLine['!cols']=[{wch:14},{wch:10},{wch:10},{wch:38},{wch:12},{wch:12},{wch:16},{wch:16},{wch:18}];XLSX.utils.book_append_sheet(wb,wsLine,'Per Line')}
-    const first=periods[0].label.replace(/[^A-Za-z0-9_-]+/g,'_'),last=periods[periods.length-1].label.replace(/[^A-Za-z0-9_-]+/g,'_'),scope=(oeeScope.line||oeeScope.gedung||'All').replace(/[^A-Za-z0-9_-]+/g,'_');XLSX.writeFile(wb,`OEE_Bojonegoro_${scope}_${chartMode==='weekly'?'Weekly':'Monthly'}_${first}_to_${last}.xlsx`)
+    const first=periods[0].label.replace(/[^A-Za-z0-9_-]+/g,'_'),last=periods[periods.length-1].label.replace(/[^A-Za-z0-9_-]+/g,'_'),scope=(oeeCompareMode==='building'?`Compare_Gedung_${selectedGedungs().join('_')}`:oeeCompareMode==='line'?`Compare_Line_${selectedLines().map(shortOeeCompareLabel).join('_')}`:(selectedLines()[0]||selectedGedungs()[0]||'All')).replace(/[^A-Za-z0-9_-]+/g,'_');XLSX.writeFile(wb,`OEE_Bojonegoro_${scope}_${chartMode==='weekly'?'Weekly':'Monthly'}_${first}_to_${last}.xlsx`)
 }
 
 function setStatus(type, msg) {
