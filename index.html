@@ -1849,6 +1849,12 @@ body::after {
     .sidebar a{min-height:37px !important;font-size:11.5px !important;}
 }
 
+
+.energy-kpi-grid{grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:16px}
+.energy-electric{--card-soft:#fff6db}.energy-gas{--card-soft:#fff0e6}.energy-gas-mmbtu{--card-soft:#e8f5ff}
+.energy-kpi-grid .card::before{height:4px!important;background:linear-gradient(90deg,#f59e0b,#f97316)}
+.energy-kpi-grid .value{font-size:30px}.energy-kpi-grid a:hover{border-color:#fbbf24}
+@media(max-width:850px){.energy-kpi-grid{grid-template-columns:1fr}}
 </style>
 <!-- VARIANCE MULTISELECT SEARCH V3 + SELECT VISIBLE RESULTS -->
 </head>
@@ -1872,6 +1878,7 @@ body::after {
             <a href="tonase.html">Tonase</a>
             <a href="waste.html">Waste</a>
             <a href="cost-material.html">Cost Material / Ton</a>
+            <a href="energy.html">⚡ Energy (Listrik & Gas)</a>
             <a href="input-variance.html">Variance</a>
         </div>
         <div class="sidebar-section">
@@ -2029,6 +2036,14 @@ body::after {
             <span class="target-badge" id="cost-target-badge">Target: ≤ Rp 28.000/ton</span>
             <table class="waste-detail-table" id="cost-detail-table"><tbody></tbody></table>
         </div>
+    </div>
+
+
+    <div class="sec-title">⚡ Monitoring Energy <span style="color:#94a3b8;font-weight:400;text-transform:none"> · sesuai filter tanggal</span></div>
+    <div class="kpi-grid energy-kpi-grid">
+      <a href="energy.html" class="card energy-electric" style="text-decoration:none;display:block"><h3>⚡ Konsumsi Listrik</h3><div class="value" id="energy-elec">—</div><div class="card-date" id="energy-elec-date">Data belum dimuat</div><div class="card-sub" id="energy-elec-detail">Total WBP + LWBP · seluruh daya</div></a>
+      <a href="energy.html" class="card energy-gas" style="text-decoration:none;display:block"><h3>🔥 Konsumsi Gas</h3><div class="value" id="energy-gas">—</div><div class="card-date" id="energy-gas-date">Data belum dimuat</div><div class="card-sub" id="energy-gas-detail">PRS GD 6&amp;7 + GD 4 · Nm³</div></a>
+      <a href="energy.html" class="card energy-gas-mmbtu" style="text-decoration:none;display:block"><h3>🔥 Energi Gas MMBTU</h3><div class="value" id="energy-mmbtu">—</div><div class="card-date" id="energy-mmbtu-date">Data belum dimuat</div><div class="card-sub" id="energy-mmbtu-detail">Sesuai kolom MMBTU sumber</div></a>
     </div>
 
     <div class="card variance-card variance-card-full">
@@ -2471,6 +2486,7 @@ function gantiRentang() {
     }
 
     loadData(startDate, endDate);
+    loadEnergyCards(startDate,endDate);
 }
 
 function keTanggalTerakhir() {
@@ -4785,6 +4801,22 @@ function exportExcel() {
     }
 }
 
+
+// Energy cards: Supabase data only; each new upload replaces energy_daily atomically.
+async function loadEnergyCards(s,e){
+ const set=(id,val,sub)=>{const a=document.getElementById(id),b=document.getElementById(id+'-date');if(a)a.textContent=val;if(b)b.textContent=sub};
+ if(!s||!e)return;
+ const {data,error}=await db.from('energy_daily').select('tanggal,electricity_kwh,gas_nm3,gas_mmbtu,gas_mmbtu_partial').gte('tanggal',s).lte('tanggal',e).order('tanggal');
+ if(error){['energy-elec','energy-gas','energy-mmbtu'].forEach(id=>set(id,'—','Setup SQL Energy diperlukan'));return;}
+ const n=(data||[]).length, f=v=>v.toLocaleString('id-ID',{maximumFractionDigits:2});
+ const tot=(k)=> (data||[]).reduce((t,r)=>t+(Number(r[k])||0),0);
+ const unit=x=>x+' ';
+ set('energy-elec',n?f(tot('electricity_kwh'))+' kWh':'—',n?fmtRange(s,e):'Belum ada data');
+ set('energy-gas',n?f(tot('gas_nm3'))+' Nm³':'—',n?fmtRange(s,e):'Belum ada data');
+ const partial=(data||[]).some(r=>r.gas_mmbtu_partial);
+ set('energy-mmbtu',n?f(tot('gas_mmbtu'))+' MMBTU':'—',n?(partial?'MMBTU sebagian belum tersedia · '+fmtRange(s,e):fmtRange(s,e)):'Belum ada data');
+}
+
 // ── Init: cari tanggal terakhir dari waste_shiftly, set date picker (satu hari), lalu load ──
 async function init() {
     const { data: lastWaste } = await db
@@ -4804,6 +4836,7 @@ async function init() {
     }
 
     loadData(startDate, endDate);
+    loadEnergyCards(startDate,endDate);
     loadVarianceCard();
     loadOeeCard();
 }
