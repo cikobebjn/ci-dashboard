@@ -4802,19 +4802,73 @@ function exportExcel() {
 }
 
 
-// Energy cards: Supabase data only; each new upload replaces energy_daily atomically.
-async function loadEnergyCards(s,e){
- const set=(id,val,sub)=>{const a=document.getElementById(id),b=document.getElementById(id+'-date');if(a)a.textContent=val;if(b)b.textContent=sub};
- if(!s||!e)return;
- const {data,error}=await db.from('energy_daily').select('tanggal,electricity_kwh,gas_nm3,gas_mmbtu,gas_mmbtu_partial').gte('tanggal',s).lte('tanggal',e).order('tanggal');
- if(error){['energy-elec','energy-gas','energy-mmbtu'].forEach(id=>set(id,'—','Setup SQL Energy diperlukan'));return;}
- const n=(data||[]).length, f=v=>v.toLocaleString('id-ID',{maximumFractionDigits:2});
- const tot=(k)=> (data||[]).reduce((t,r)=>t+(Number(r[k])||0),0);
- const unit=x=>x+' ';
- set('energy-elec',n?f(tot('electricity_kwh'))+' kWh':'—',n?fmtRange(s,e):'Belum ada data');
- set('energy-gas',n?f(tot('gas_nm3'))+' Nm³':'—',n?fmtRange(s,e):'Belum ada data');
- const partial=(data||[]).some(r=>r.gas_mmbtu_partial);
- set('energy-mmbtu',n?f(tot('gas_mmbtu'))+' MMBTU':'—',n?(partial?'MMBTU sebagian belum tersedia · '+fmtRange(s,e):fmtRange(s,e)):'Belum ada data');
+// Energy cards: mengikuti filter Index; tanggal tanpa pemakaian tidak diganti secara diam-diam.
+// Bila periode terpilih semuanya nol, tunjukkan tanggal konsumsi positif terakhir sebagai referensi.
+let energyRequestSeq = 0;
+async function loadEnergyCards(s, e) {
+  const requestId = ++energyRequestSeq;
+  const ids = ['energy-elec', 'energy-gas', 'energy-mmbtu'];
+  const fmt = value => Number(value).toLocaleString('id-ID', {maximumFractionDigits:2});
+  const set = (id, value, date, detail) => {
+    const main = document.getElementById(id);
+    const caption = document.getElementById(id + '-date');
+    const note = document.getElementById(id + '-detail');
+    if (main) main.textContent = value;
+    if (caption) caption.textContent = date;
+    if (note) note.textContent = detail;
+  };
+  const config = [
+    {id:'energy-elec', field:'electricity_kwh', unit:'kWh', detail:'Total WBP + LWBP · seluruh daya'},
+    {id:'energy-gas', field:'gas_nm3', unit:'Nm³', detail:'PRS GD 6&7 + GD 4 · Nm³'},
+    {id:'energy-mmbtu', field:'gas_mmbtu', unit:'MMBTU', detail:'Sesuai kolom MMBTU sumber'}
+  ];
+  if (!s || !e) return;
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = 'Memuat…';
+  });
+  try {
+    const {data, error} = await db.from('energy_daily')
+      .select('tanggal,electricity_kwh,gas_nm3,gas_mmbtu,gas_mmbtu_partial')
+      .gte('tanggal', s).lte('tanggal', e).order('tanggal', {ascending:true});
+    if (requestId !== energyRequestSeq) return;
+    if (error) throw error;
+    const rows = data || [];
+    const period = fmtRange(s, e);
+    const sums = Object.fromEntries(config.map(c => [c.field,
+      rows.reduce((total,row) => total + (Number(row[c.field]) || 0), 0)]));
+    const needsLastActive = config.some(c => sums[c.field] === 0);
+    let recent = [];
+    if (needsLastActive) {
+      // Hanya tanggal SEBELUM periode terpilih untuk mencegah mengutip data masa depan.
+      const result = await db.from('energy_daily')
+        .select('tanggal,electricity_kwh,gas_nm3,gas_mmbtu')
+        .lt('tanggal', s).order('tanggal', {ascending:false}).limit(370);
+      if (requestId !== energyRequestSeq) return;
+      if (!result.error) recent = result.data || [];
+      else console.warn('Gagal membaca riwayat Energy:', result.error.message);
+    }
+    for (const c of config) {
+      const total = sums[c.field];
+      const partial = c.field === 'gas_mmbtu' && rows.some(r => r.gas_mmbtu_partial);
+      const note = c.detail + (partial ? ' · MMBTU parsial' : '');
+      if (!rows.length) {
+        const previous = recent.find(r => Number(r[c.field]) > 0);
+        set(c.id, '—', 'Tidak ada data: ' + period,
+          previous ? 'Terakhir aktif ' + previous.tanggal + ': ' + fmt(previous[c.field]) + ' ' + c.unit : note);
+      } else if (total > 0) {
+        set(c.id, fmt(total) + ' ' + c.unit, period, note);
+      } else {
+        const previous = recent.find(r => Number(r[c.field]) > 0);
+        set(c.id, '0 ' + c.unit, period,
+          previous ? '0 pada periode ini · Terakhir aktif ' + previous.tanggal + ': ' + fmt(previous[c.field]) + ' ' + c.unit : '0 pada periode ini · ' + note);
+      }
+    }
+  } catch (err) {
+    if (requestId !== energyRequestSeq) return;
+    console.error('Gagal membaca energy_daily:', err);
+    ids.forEach(id => set(id, '—', 'Gagal mengambil data', 'Periksa izin SELECT tabel energy_daily / koneksi Supabase'));
+  }
 }
 
 // ── Init: cari tanggal terakhir dari waste_shiftly, set date picker (satu hari), lalu load ──
