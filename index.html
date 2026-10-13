@@ -1855,6 +1855,46 @@ body::after {
 .energy-kpi-grid .card::before{height:4px!important;background:linear-gradient(90deg,#f59e0b,#f97316)}
 .energy-kpi-grid .value{font-size:30px}.energy-kpi-grid a:hover{border-color:#fbbf24}
 @media(max-width:850px){.energy-kpi-grid{grid-template-columns:1fr}}
+
+/* Gas-per-ton indicator linked to existing production/energy tables */
+.gas-ton-card{margin:0 0 19px;padding:22px 24px;--card-soft:#e9f7f1;}
+.gas-ton-card::before{height:4px!important;background:linear-gradient(90deg,#059669,#14b8a6)!important}
+.gas-ton-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.gas-ton-overline{color:#0f766e;font-size:10px;font-weight:850;letter-spacing:.07em}
+.gas-ton-head h2{margin:5px 0;font-size:24px;letter-spacing:-.035em}
+.gas-ton-help,.gas-ton-period,.gas-ton-footnote{color:#64748b;font-size:11px}
+.gas-ton-toggle .period-btn.active{background:linear-gradient(135deg,#059669,#0f766e);color:#fff}
+.gas-ton-main{padding:13px 0}
+.gas-ton-figure{font-size:36px;font-weight:850;letter-spacing:-.04em;color:#0f766e}
+.gas-ton-figure .unit{font-size:15px;font-weight:650;color:#64748b;letter-spacing:0}
+.gas-ton-breakdown{font-size:11px;color:#475569;margin-top:5px}
+.gas-ton-subgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:5px 0 12px}
+.gas-ton-footnote{border-top:1px solid #e5ebf3;padding-top:11px;line-height:1.55}
+@media(max-width:640px){.gas-ton-card{padding:17px}.gas-ton-subgrid{grid-template-columns:1fr}.gas-ton-figure{font-size:30px}}
+
+/* Energy: 4 compact equal-width cards, including Gas/Ton */
+.energy-kpi-grid{grid-template-columns:repeat(4,minmax(0,1fr));align-items:stretch;margin-bottom:16px}
+.energy-kpi-grid > .card{min-width:0;min-height:190px;padding:17px 18px}
+.energy-kpi-grid .value{font-size:clamp(20px,2.1vw,29px)}
+.energy-kpi-grid .gas-ton-card{margin:0;--card-soft:#e9f7f1;display:flex;flex-direction:column;gap:4px}
+.energy-kpi-grid .gas-ton-card::before{height:4px!important;background:linear-gradient(90deg,#059669,#14b8a6)!important}
+.energy-kpi-grid .gas-ton-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:5px;margin-bottom:3px}
+.energy-kpi-grid .gas-ton-head h3{margin:0}
+.energy-kpi-grid .gas-ton-toggle{margin:0;padding:2px;gap:1px}
+.energy-kpi-grid .gas-ton-toggle .period-btn{padding:4px 5px;min-height:23px;font-size:7px;letter-spacing:0}
+.energy-kpi-grid .gas-ton-figure{font-size:clamp(21px,2.1vw,29px);font-weight:850;line-height:1.15;letter-spacing:-.03em;color:#0f766e}
+.energy-kpi-grid .gas-ton-figure .unit{font-size:12px;font-weight:650;color:#64748b;white-space:nowrap}
+.energy-kpi-grid .gas-ton-period,.energy-kpi-grid .card-date{font-size:10px}
+.energy-kpi-grid .gas-ton-breakdown{font-size:9px;line-height:1.35;margin-top:1px;color:#64748b}
+.energy-kpi-grid .gas-ton-subgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;margin-top:auto;margin-bottom:0}
+.energy-kpi-grid .gas-ton-mini{min-width:0;border:1px solid #e3eaf2;background:#f7fafc;border-radius:8px;padding:6px}
+.energy-kpi-grid .gas-ton-mini span{display:block;font-size:8px;color:#64748b;font-weight:750}
+.energy-kpi-grid .gas-ton-mini b{display:block;margin-top:3px;font-size:12px;color:#0f766e;white-space:nowrap}
+.energy-kpi-grid .gas-ton-mini b span{display:inline;font-size:8px;font-weight:600}
+.energy-kpi-grid .gas-ton-mini small{display:block;font-size:7px;color:#94a3b8;line-height:1.3}
+.energy-kpi-grid .gas-ton-footnote{border:0;padding:0;margin-top:4px;font-size:8px;line-height:1.35;color:#94a3b8}
+@media(max-width:1150px){.energy-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:640px){.energy-kpi-grid{grid-template-columns:1fr}.energy-kpi-grid > .card{min-height:156px}}
 </style>
 <!-- VARIANCE MULTISELECT SEARCH V3 + SELECT VISIBLE RESULTS -->
 </head>
@@ -2044,7 +2084,25 @@ body::after {
       <a href="energy.html" class="card energy-electric" style="text-decoration:none;display:block"><h3>⚡ Konsumsi Listrik</h3><div class="value" id="energy-elec">—</div><div class="card-date" id="energy-elec-date">Data belum dimuat</div><div class="card-sub" id="energy-elec-detail">Total WBP + LWBP · seluruh daya</div></a>
       <a href="energy.html" class="card energy-gas" style="text-decoration:none;display:block"><h3>🔥 Konsumsi Gas</h3><div class="value" id="energy-gas">—</div><div class="card-date" id="energy-gas-date">Data belum dimuat</div><div class="card-sub" id="energy-gas-detail">PRS GD 6&amp;7 + GD 4 · Nm³</div></a>
       <a href="energy.html" class="card energy-gas-mmbtu" style="text-decoration:none;display:block"><h3>🔥 Energi Gas MMBTU</h3><div class="value" id="energy-mmbtu">—</div><div class="card-date" id="energy-mmbtu-date">Data belum dimuat</div><div class="card-sub" id="energy-mmbtu-detail">Sesuai kolom MMBTU sumber</div></a>
+      <div class="card gas-ton-card" id="gas-ton-card">
+        <div class="gas-ton-head">
+          <h3>⚖️ Gas / Ton</h3>
+          <div class="cost-period-toggle gas-ton-toggle" role="group" aria-label="Pilih periode gas per ton">
+            <button type="button" class="period-btn active" id="gas-ton-btn-weekly" onclick="switchGasTonPeriod('weekly')">Mingguan</button>
+            <button type="button" class="period-btn" id="gas-ton-btn-monthly" onclick="switchGasTonPeriod('monthly')">Bulanan</button>
+          </div>
+        </div>
+        <div class="gas-ton-figure" id="gas-ton-value">Memuat…</div>
+        <div class="card-date" id="gas-ton-period">Memeriksa data</div>
+        <div class="gas-ton-breakdown" id="gas-ton-breakdown"></div>
+        <div class="gas-ton-subgrid">
+          <div class="gas-ton-mini"><span>Weekly · Minggu–Sabtu</span><b id="gas-ton-weekly-value">—</b><small id="gas-ton-weekly-dates">—</small></div>
+          <div class="gas-ton-mini"><span>Month-to-Date</span><b id="gas-ton-mtd-value">—</b><small id="gas-ton-mtd-dates">—</small></div>
+        </div>
+        <div class="gas-ton-footnote" id="gas-ton-status">(MMBTU × 21,5) ÷ tonase produksi</div>
+      </div>
     </div>
+
 
     <div class="card variance-card variance-card-full">
             <div class="variance-head">
@@ -4871,6 +4929,76 @@ async function loadEnergyCards(s, e) {
   }
 }
 
+
+// Gas / ton = (MMBTU * 21.5 kg) / tonase produksi. Periode sama untuk pembilang/penyebut.
+let gasTonPeriod = 'weekly';
+let gasTonSummary = null;
+let gasTonLoadSeq = 0;
+const GAS_KG_PER_MMBTU = 21.5; // Faktor operasional yang diminta, bukan konversi fisika universal.
+const gasTonFmt = n => Number(n).toLocaleString('id-ID',{maximumFractionDigits:2,minimumFractionDigits:2});
+function switchGasTonPeriod(period) {
+  gasTonPeriod = period === 'monthly' ? 'monthly' : 'weekly';
+  document.querySelectorAll('.gas-ton-toggle .period-btn').forEach(b=>b.classList.toggle('active',b.id==='gas-ton-btn-'+gasTonPeriod));
+  renderGasTon();
+}
+function renderGasTon() {
+  if (!gasTonSummary) return;
+  const picked = gasTonSummary[gasTonPeriod];
+  const setText=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  const label = v => v && v.ton > 0 ? gasTonFmt(v.ratio)+' kg/ton' : '—';
+  const mini = v => v && v.ton > 0 ? gasTonFmt(v.ratio)+' kg/ton' : '—';
+  const panel=document.getElementById('gas-ton-value');
+  if(panel)panel.innerHTML=picked && picked.ton > 0 ? `${gasTonFmt(picked.ratio)}<span class="unit"> kg/ton</span>` : '—';
+  setText('gas-ton-period', picked ? fmtRange(picked.start,picked.end) : 'Tidak ada periode');
+  setText('gas-ton-breakdown', picked && picked.ton > 0 ? `${gasTonFmt(picked.mmbtu)} MMBTU × 21,5 ÷ ${gasTonFmt(picked.ton)} ton` : 'Belum ada tonase produksi pada periode ini; rasio tidak dapat dihitung.');
+  setText('gas-ton-weekly-dates',fmtRange(gasTonSummary.weekly.start,gasTonSummary.weekly.end));
+  setText('gas-ton-mtd-dates',fmtRange(gasTonSummary.mtd.start,gasTonSummary.mtd.end));
+  const wk=document.getElementById('gas-ton-weekly-value');
+  const mtd=document.getElementById('gas-ton-mtd-value');
+  if(wk)wk.innerHTML=gasTonSummary.weekly.ton>0 ? gasTonFmt(gasTonSummary.weekly.ratio)+'<span>kg/ton</span>' : '—';
+  if(mtd)mtd.innerHTML=gasTonSummary.mtd.ton>0 ? gasTonFmt(gasTonSummary.mtd.ratio)+'<span>kg/ton</span>' : '—';
+  const partial=[gasTonSummary.weekly,gasTonSummary.monthly,gasTonSummary.mtd].some(v=>v.partial);
+  setText('gas-ton-status',partial ? 'Catatan: sebagian MMBTU sumber ditandai parsial; tinjau kelengkapan Energy sebelum interpretasi efisiensi.' : 'Rasio total MMBTU × 21,5 dibagi total tonase produksi. Minggu dimulai Minggu dan berakhir Sabtu; MTD sampai tanggal produksi terbaru.');
+}
+async function loadGasTonCard() {
+  const seq=++gasTonLoadSeq;
+  try {
+    // Sama dengan ringkasan Tonase: anchor pada tanggal produksi terbaru, tidak mengikuti tanggal Waste.
+    const {data: latest,error: latestError}=await db.from('tonase_harian').select('tanggal').order('tanggal',{ascending:false}).limit(1).single();
+    if(latestError)throw latestError;
+    if(!latest?.tanggal)throw new Error('Belum ada tonase produksi');
+    const anchor=latest.tanggal;
+    const week=sundayWeekRange(anchor);
+    const monthStart=anchor.slice(0,7)+'-01';
+    const monthEnd=(()=>{const [y,m]=anchor.slice(0,7).split('-').map(Number);const d=new Date(y,m,0);return `${y}-${String(m).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;})();
+    const earliest=[week.start,monthStart].sort()[0];
+    const latestEnd=[week.end,monthEnd].sort().at(-1);
+    const [tonResult, gasResult]=await Promise.all([
+      db.from('tonase_harian').select('tanggal,tonase').gte('tanggal',earliest).lte('tanggal',latestEnd).order('tanggal',{ascending:true}).limit(2000),
+      db.from('energy_daily').select('tanggal,gas_mmbtu,gas_mmbtu_partial').gte('tanggal',earliest).lte('tanggal',latestEnd).order('tanggal',{ascending:true}).limit(2000)
+    ]);
+    if(seq!==gasTonLoadSeq)return;
+    if(tonResult.error)throw tonResult.error;
+    if(gasResult.error)throw gasResult.error;
+    const tonRows=tonResult.data||[],gasRows=gasResult.data||[];
+    const build=(start,end)=>{
+      const selectedTon=tonRows.filter(r=>r.tanggal>=start&&r.tanggal<=end);
+      const selectedGas=gasRows.filter(r=>r.tanggal>=start&&r.tanggal<=end);
+      const ton=selectedTon.reduce((a,r)=>a+(Number(r.tonase)||0),0);
+      const mmbtu=selectedGas.reduce((a,r)=>a+(Number(r.gas_mmbtu)||0),0);
+      return {start,end,ton,mmbtu,ratio:ton>0?mmbtu*GAS_KG_PER_MMBTU/ton:null,partial:selectedGas.some(r=>r.gas_mmbtu_partial)};
+    };
+    gasTonSummary={weekly:build(week.start,week.end),monthly:build(monthStart,monthEnd),mtd:build(monthStart,anchor)};
+    renderGasTon();
+  }catch(err){
+    if(seq!==gasTonLoadSeq)return;
+    console.error('Gagal menghitung Gas/ton:',err);
+    const el=document.getElementById('gas-ton-value');if(el)el.textContent='—';
+    const desc=document.getElementById('gas-ton-period');if(desc)desc.textContent='Data tidak tersedia';
+    const note=document.getElementById('gas-ton-status');if(note)note.textContent='Gagal membaca Energy atau Tonase dari Supabase: '+(err?.message||err);
+  }
+}
+
 // ── Init: cari tanggal terakhir dari waste_shiftly, set date picker (satu hari), lalu load ──
 async function init() {
     const { data: lastWaste } = await db
@@ -4891,6 +5019,7 @@ async function init() {
 
     loadData(startDate, endDate);
     loadEnergyCards(startDate,endDate);
+    loadGasTonCard();
     loadVarianceCard();
     loadOeeCard();
 }
