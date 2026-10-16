@@ -1937,6 +1937,14 @@ body::after {
 @media(max-width:640px){.energy-kpi-grid .gas-ton-head{flex-direction:row;align-items:center}.energy-kpi-grid .gas-ton-toggle .period-btn{font-size:9px;padding:5px 8px;min-height:30px}}
 </style>
 <!-- VARIANCE MULTISELECT SEARCH V3 + SELECT VISIBLE RESULTS -->
+<style id="energy-target-color-fix">
+/* Keep decorative corners clipped without an internal scroll offset. */
+.energy-kpi-grid #kwh-ton-card{overflow:clip}
+/* Data-quality notes must not override red/green target colors. */
+.energy-kpi-grid .energy-provisional-mark{margin-left:2px;font-size:9px;line-height:0;color:inherit}
+.energy-kpi-grid .gas-ton-footnote.energy-provisional-note{color:#92400e;font-size:9px;line-height:1.4}
+</style>
+<meta name="energy-target-revision" content="wtd-mtd-ratio-color-fix-v2">
 </head>
 <body>
 
@@ -5088,8 +5096,8 @@ function buildEnergyPeriodSummary(tonRows, energyRows, start, end) {
 // WTD starts on Sunday; MTD starts on day 1. Both end on the latest date
 // with valid electricity AND tonnage, at or before the production anchor.
 // Do not divide by tonnage recorded after the electricity reporting cutoff.
-// Null/blank trailing rows are NOT zero consumption. Interior gaps still
-// fail the existing completeness check rather than producing a false green.
+// Null/blank trailing rows are NOT zero consumption. Interior gaps are kept
+// as completeness warnings. WTD/MTD colors are provisional when gaps exist.
 function buildElectricityToDateSummaries(tonRows, energyRows, anchor) {
   const groupByDate=rows=>{
     const groups=new Map();
@@ -5138,6 +5146,23 @@ function energyRatioIssue(summary, kind) {
   return '';
 }
 
+// Target color and data completeness are separate decisions.
+// Electricity WTD/MTD may show a provisional comparison when a numeric ratio
+// exists. Missing/invalid ratios, zero tonnage and failed loads stay neutral.
+// Daily energy and Gas keep their existing strict completeness requirements.
+function assessEnergyRatioTarget(summary, kind, allowProvisional=false, loading=false, failure='') {
+  const gas=kind==='gas';
+  const value=summary?.[gas?'ratio':'kwhRatio'];
+  const issue=failure||energyRatioIssue(summary,kind);
+  const usable=!!summary&&summary.tonValid&&hasEnergyNumber(summary.ton)&&Number(summary.ton)>0&&
+    (gas?summary.hasGas:summary.hasKwh)&&validEnergyRatio(value)&&value>=0&&
+    !(kind==='kwh'&&summary.toDate&&!summary.cutoff);
+  const provisional=!loading&&!failure&&allowProvisional&&kind==='kwh'&&usable&&!summary.kwhComplete;
+  const scored=!loading&&!failure&&usable&&(!issue||provisional);
+  return {value:scored?value:null,scored,provisional:scored&&provisional,
+    issue:issue||(!usable?'Rasio belum dapat dihitung':'')};
+}
+
 function setEnergyRatioState(cardId,statusId,ratio,target){
   const card=document.getElementById(cardId),status=document.getElementById(statusId);
   const valid=validEnergyRatio(ratio);
@@ -5174,7 +5199,8 @@ function renderEnergyRatioCard(kind){
   const value=picked?.[metric];
   const loading=daily?dailyEnergyPhase==='loading':!summaries&&!gasTonSummaryError;
   const failure=daily?dailyEnergyError:gasTonSummaryError;
-  const issue=failure||energyRatioIssue(picked,kind);
+  const assessment=assessEnergyRatioTarget(picked,kind,!gas&&!daily,loading,failure);
+  const issue=assessment.issue;
   document.querySelectorAll('#'+id+'-card .period-btn').forEach(button=>{
     const active=button.id===id+'-btn-'+mode;
     button.classList.toggle('active',active);
@@ -5186,9 +5212,13 @@ function renderEnergyRatioCard(kind){
     panel.setAttribute('aria-busy',String(loading));
     panel.innerHTML=loading?'Memuat\u2026':validEnergyRatio(value)?`${gasTonFmt(value)}<span class="unit"> ${unit}</span>`:'\u2014';
   }
-  setEnergyRatioState(id+'-card',id+'-target-status',!loading&&!issue?value:null,target);
+  // Grade the unrounded ratio; an incomplete WTD/MTD is labeled, not uncolored.
+  setEnergyRatioState(id+'-card',id+'-target-status',assessment.value,target);
   if(loading)setText('target-status','Memuat data');
-  else if(issue)setText('target-status','\u2014 Belum dapat dinilai');
+  else if(assessment.provisional){
+    const status=document.getElementById(id+'-target-status');
+    if(status)status.textContent+=' \u00b7 sementara';
+  }else if(!assessment.scored)setText('target-status','\u2014 Belum dapat dinilai');
   const start=picked?.start||(daily?dailyEnergyRange.start:null);
   const end=picked?.end||(daily?dailyEnergyRange.end:null);
   const label=daily?(isRange?'Rentang dipilih':'Harian'):
@@ -5197,29 +5227,43 @@ function renderEnergyRatioCard(kind){
   setText('breakdown',loading?'Membaca konsumsi dan tonase pada periode yang sama':validEnergyRatio(value)?
     (gas?`${gasTonFmt(picked.mmbtu)} MMBTU \u00d7 21,5 \u00f7 ${gasTonFmt(picked.ton)} ton`:
          `${gasTonFmt(picked.kwh)} kWh \u00f7 ${gasTonFmt(picked.ton)} ton`):issue);
+  let hasProvisionalMini=false;
   for(const key of ['weekly','mtd']){
     const period=summaries?.[key];
     setText(key+'-dates',period?fmtRange(period.start,period.end):gasTonSummaryError?'Tidak tersedia':'Memuat data');
     const mini=document.getElementById(id+'-'+key+'-value');
     const miniVal=period?.[metric];
+    const miniAssessment=assessEnergyRatioTarget(period,kind,!gas,false,gasTonSummaryError);
+    hasProvisionalMini=hasProvisionalMini||miniAssessment.provisional;
     if(mini){
-      mini.innerHTML=validEnergyRatio(miniVal)?`${gasTonFmt(miniVal)}<span>${unit}</span>`:'\u2014';
-      mini.title=energyRatioIssue(period,kind)||'Dibandingkan dengan target '+target+' '+unit+
-        (!gas&&period?.cutoff?' | Data listrik dan tonase sampai '+fmtDate(period.cutoff):'');
+      const mark=miniAssessment.provisional?'<sup class="energy-provisional-mark" title="Penilaian sementara: data listrik/tonase belum lengkap">*</sup>':'';
+      mini.innerHTML=validEnergyRatio(miniVal)?`${gasTonFmt(miniVal)}<span> ${unit}</span>${mark}`:'\u2014';
+      const status=miniAssessment.scored?(miniVal<=target?'Sesuai target':'Melebihi target'):'Belum dapat dinilai';
+      mini.title=miniAssessment.scored?status+' | Target '+target+' '+unit+
+        (miniAssessment.provisional?' | Penilaian sementara: data listrik/tonase belum lengkap':'')+
+        (!gas&&period?.cutoff?' | Data sampai '+fmtDate(period.cutoff):''):miniAssessment.issue;
+      mini.setAttribute('aria-label',(validEnergyRatio(miniVal)?gasTonFmt(miniVal)+' '+unit+'; ':'')+mini.title);
+      mini.dataset.targetScoring=miniAssessment.provisional?'provisional':miniAssessment.scored?'complete':'unavailable';
     }
-    colorEnergyRatioMini(mini,!energyRatioIssue(period,kind)?miniVal:null,target);
+    colorEnergyRatioMini(mini,miniAssessment.value,target);
   }
-  setText('status',loading?'Target dinilai setelah data selesai dimuat.':issue?issue:
+  let note=loading?'Target dinilai setelah data selesai dimuat.':assessment.provisional?
+    '* Penilaian sementara: data listrik/tonase belum lengkap.':issue?issue:
     daily?(isRange?'Akumulasi konsumsi \u00f7 akumulasi tonase; bukan rata-rata rasio harian.':
       'Acuan harian memakai target per ton yang sama, tidak dibagi 7.'):
     gas?'Periode mengikuti data tonase terbaru. Minggu: Minggu\u2013Sabtu.':
     'WTD mulai Minggu. Konsumsi dan tonase s.d. '+fmtDate(picked.cutoff)+
-      (picked.cutoff<picked.referenceDate?'; data setelahnya belum ikut.':'.'));
+      (picked.cutoff<picked.referenceDate?'; data setelahnya belum ikut.':'.');
+  if(hasProvisionalMini&&!assessment.provisional&&!loading)note+=' * WTD/MTD: penilaian sementara.';
+  setText('status',note);
+  const footnote=document.getElementById(id+'-status');
+  if(footnote)footnote.classList.toggle('energy-provisional-note',assessment.provisional||hasProvisionalMini);
   if(!gas){
     const card=document.getElementById(id+'-card');
     if(card){
       card.dataset.periodMode=mode;
       card.dataset.cutoff=daily?(picked?.end||''):(picked?.cutoff||'');
+      card.dataset.targetScoring=assessment.provisional?'provisional':assessment.scored?'complete':'unavailable';
     }
   }
 }
