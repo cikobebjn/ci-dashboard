@@ -2156,8 +2156,8 @@ body::after {
           <h3>⚡ Listrik / Ton</h3>
           <div class="cost-period-toggle gas-ton-toggle kwh-ton-toggle" role="group" aria-label="Pilih periode listrik per ton">
             <button type="button" class="period-btn active" id="kwh-ton-btn-daily" aria-pressed="true" onclick="switchKwhTonPeriod('daily')">Harian</button>
-            <button type="button" class="period-btn" id="kwh-ton-btn-weekly" aria-pressed="false" onclick="switchKwhTonPeriod('weekly')">Mingguan</button>
-            <button type="button" class="period-btn" id="kwh-ton-btn-monthly" aria-pressed="false" onclick="switchKwhTonPeriod('monthly')">Bulanan</button>
+            <button type="button" class="period-btn" id="kwh-ton-btn-weekly" aria-pressed="false" onclick="switchKwhTonPeriod('weekly')" title="Week-to-Date: Minggu sampai tanggal data listrik dan tonase tersedia">WTD</button>
+            <button type="button" class="period-btn" id="kwh-ton-btn-monthly" aria-pressed="false" onclick="switchKwhTonPeriod('monthly')" title="Month-to-Date: tanggal 1 sampai tanggal data listrik dan tonase tersedia">MTD</button>
           </div>
         </div>
         <div class="gas-ton-figure" id="kwh-ton-value">Memuat…</div>
@@ -2165,10 +2165,10 @@ body::after {
         <div class="card-date" id="kwh-ton-period">Memeriksa data</div>
         <div class="gas-ton-breakdown" id="kwh-ton-breakdown"></div>
         <div class="gas-ton-subgrid">
-          <div class="gas-ton-mini"><span>Weekly · Minggu–Sabtu</span><b id="kwh-ton-weekly-value">—</b><small id="kwh-ton-weekly-dates">—</small></div>
+          <div class="gas-ton-mini"><span>Week-to-Date</span><b id="kwh-ton-weekly-value">—</b><small id="kwh-ton-weekly-dates">—</small></div>
           <div class="gas-ton-mini"><span>Month-to-Date</span><b id="kwh-ton-mtd-value">—</b><small id="kwh-ton-mtd-dates">—</small></div>
         </div>
-        <div class="gas-ton-footnote" id="kwh-ton-status">Total kWh ÷ total tonase produksi</div>
+        <div class="gas-ton-footnote" id="kwh-ton-status">Total kWh ÷ tonase pada tanggal yang sama. WTD mulai Minggu.</div>
       </div>
     </div>
 
@@ -5041,11 +5041,13 @@ async function loadEnergyCards(s, e) {
 
 
 // Gas/ton = MMBTU x 21.5 kg / tonase. Listrik/ton = kWh / tonase.
-// Daily follows the Index date filter. Existing weekly/monthly/MTD anchors remain unchanged.
+// Daily follows the Index date filter. Gas retains its existing periods.
+// Electricity WTD / MTD ends at the latest jointly available electricity / production date.
 // The supplied per-ton targets are reused as daily benchmarks, not divided by 7.
 let gasTonPeriod='daily';
 let kwhTonPeriod='daily';
 let gasTonSummary=null;
+let kwhTonSummary=null; // Electricity has its own aligned WTD / MTD cutoff.
 let gasTonSummaryError='';
 let gasTonLoadSeq=0;
 const GAS_KG_PER_MMBTU=21.5; // Operational factor supplied by the user; not a universal conversion.
@@ -5083,8 +5085,51 @@ function buildEnergyPeriodSummary(tonRows, energyRows, start, end) {
     gasComplete:gas.complete&&!partial,kwhComplete:electricity.complete};
 }
 
+// WTD starts on Sunday; MTD starts on day 1. Both end on the latest date
+// with valid electricity AND tonnage, at or before the production anchor.
+// Do not divide by tonnage recorded after the electricity reporting cutoff.
+// Null/blank trailing rows are NOT zero consumption. Interior gaps still
+// fail the existing completeness check rather than producing a false green.
+function buildElectricityToDateSummaries(tonRows, energyRows, anchor) {
+  const groupByDate=rows=>{
+    const groups=new Map();
+    for(const row of rows){
+      if(!row.tanggal||row.tanggal>anchor)continue;
+      if(!groups.has(row.tanggal))groups.set(row.tanggal,[]);
+      groups.get(row.tanggal).push(row);
+    }
+    return groups;
+  };
+  const tonByDate=groupByDate(tonRows);
+  const energyByDate=groupByDate(energyRows);
+  const commonDates=[...energyByDate.keys()].filter(date=>{
+    const production=tonByDate.get(date);
+    return production?.length && production.every(row=>hasEnergyNumber(row.tonase)) &&
+      energyByDate.get(date).every(row=>hasEnergyNumber(row.electricity_kwh));
+  }).sort();
+  const cutoff=commonDates.length?commonDates[commonDates.length-1]:null;
+  const weekStart=sundayWeekRange(anchor).start;
+  const monthStart=anchor.slice(0,7)+'-01';
+  const build=(start,periodType)=>{
+    const end=cutoff&&cutoff>=start?cutoff:null;
+    const summary=buildEnergyPeriodSummary(tonRows,energyRows,start,end||anchor);
+    if(!end){
+      // Do not display a ratio with mismatched input dates when this period
+      // has no common reporting date (e.g. Sunday before the first upload).
+      summary.kwhRatio=null;
+      summary.kwhComplete=false;
+      summary.hasKwh=false;
+    }
+    return {...summary,toDate:true,periodType,cutoff:end,referenceDate:anchor};
+  };
+  const weekly=build(weekStart,'wtd');
+  const monthly=build(monthStart,'mtd');
+  return {weekly,monthly,mtd:monthly,cutoff,referenceDate:anchor};
+}
+
 function energyRatioIssue(summary, kind) {
   if(!summary)return 'Data belum tersedia';
+  if(kind==='kwh'&&summary.toDate&&!summary.cutoff)return 'Belum ada tanggal dengan data listrik dan tonase yang sama pada periode ini';
   if(!summary.tonValid)return 'Tonase kosong atau 0; belum dapat dinilai';
   const gas=kind==='gas';
   if(!(gas?summary.hasGas:summary.hasKwh))return 'Data '+(gas?'gas':'listrik')+' belum tersedia';
@@ -5119,14 +5164,15 @@ function renderEnergyRatioCard(kind){
   const mode=gas?gasTonPeriod:kwhTonPeriod;
   const daily=mode==='daily';
   const isRange=!!dailyEnergyRange.start&&dailyEnergyRange.start!==dailyEnergyRange.end;
-  const picked=daily?dailyEnergySummary:gasTonSummary?.[mode];
+  const summaries=gas?gasTonSummary:kwhTonSummary;
+  const picked=daily?dailyEnergySummary:summaries?.[mode];
   const metric=gas?'ratio':'kwhRatio';
   const unit=gas?'kg/ton':'kWh/ton';
   const target=gas?ENERGY_TARGET_GAS:ENERGY_TARGET_KWH;
   const setText=(suffix,value)=>{const el=document.getElementById(id+'-'+suffix);if(el)el.textContent=value;};
   const panel=document.getElementById(id+'-value');
   const value=picked?.[metric];
-  const loading=daily?dailyEnergyPhase==='loading':!gasTonSummary&&!gasTonSummaryError;
+  const loading=daily?dailyEnergyPhase==='loading':!summaries&&!gasTonSummaryError;
   const failure=daily?dailyEnergyError:gasTonSummaryError;
   const issue=failure||energyRatioIssue(picked,kind);
   document.querySelectorAll('#'+id+'-card .period-btn').forEach(button=>{
@@ -5145,26 +5191,37 @@ function renderEnergyRatioCard(kind){
   else if(issue)setText('target-status','\u2014 Belum dapat dinilai');
   const start=picked?.start||(daily?dailyEnergyRange.start:null);
   const end=picked?.end||(daily?dailyEnergyRange.end:null);
-  const label=daily?(isRange?'Rentang dipilih':'Harian'):mode==='weekly'?'Mingguan':'Bulanan';
+  const label=daily?(isRange?'Rentang dipilih':'Harian'):
+    gas?(mode==='weekly'?'Mingguan':'Bulanan'):(mode==='weekly'?'Week-to-Date':'Month-to-Date');
   setText('period',start?label+' \u00b7 '+fmtRange(start,end):'Menunggu periode');
   setText('breakdown',loading?'Membaca konsumsi dan tonase pada periode yang sama':validEnergyRatio(value)?
     (gas?`${gasTonFmt(picked.mmbtu)} MMBTU \u00d7 21,5 \u00f7 ${gasTonFmt(picked.ton)} ton`:
          `${gasTonFmt(picked.kwh)} kWh \u00f7 ${gasTonFmt(picked.ton)} ton`):issue);
   for(const key of ['weekly','mtd']){
-    const period=gasTonSummary?.[key];
+    const period=summaries?.[key];
     setText(key+'-dates',period?fmtRange(period.start,period.end):gasTonSummaryError?'Tidak tersedia':'Memuat data');
     const mini=document.getElementById(id+'-'+key+'-value');
     const miniVal=period?.[metric];
     if(mini){
       mini.innerHTML=validEnergyRatio(miniVal)?`${gasTonFmt(miniVal)}<span>${unit}</span>`:'\u2014';
-      mini.title=energyRatioIssue(period,kind)||'Dibandingkan dengan target '+target+' '+unit;
+      mini.title=energyRatioIssue(period,kind)||'Dibandingkan dengan target '+target+' '+unit+
+        (!gas&&period?.cutoff?' | Data listrik dan tonase sampai '+fmtDate(period.cutoff):'');
     }
     colorEnergyRatioMini(mini,!energyRatioIssue(period,kind)?miniVal:null,target);
   }
   setText('status',loading?'Target dinilai setelah data selesai dimuat.':issue?issue:
     daily?(isRange?'Akumulasi konsumsi \u00f7 akumulasi tonase; bukan rata-rata rasio harian.':
       'Acuan harian memakai target per ton yang sama, tidak dibagi 7.'):
-    'Periode mengikuti data tonase terbaru. Minggu: Minggu\u2013Sabtu.');
+    gas?'Periode mengikuti data tonase terbaru. Minggu: Minggu\u2013Sabtu.':
+    'WTD mulai Minggu. Konsumsi dan tonase s.d. '+fmtDate(picked.cutoff)+
+      (picked.cutoff<picked.referenceDate?'; data setelahnya belum ikut.':'.'));
+  if(!gas){
+    const card=document.getElementById(id+'-card');
+    if(card){
+      card.dataset.periodMode=mode;
+      card.dataset.cutoff=daily?(picked?.end||''):(picked?.cutoff||'');
+    }
+  }
 }
 function renderGasTon(){renderEnergyRatioCard('gas');}
 function renderKwhTon(){renderEnergyRatioCard('kwh');}
@@ -5227,11 +5284,13 @@ async function loadGasTonCard(){
     const tonRows=tonResult.data||[],energyRows=energyResult.data||[];
     const build=(start,end)=>buildEnergyPeriodSummary(tonRows,energyRows,start,end);
     gasTonSummary={weekly:build(week.start,week.end),monthly:build(monthStart,monthEnd),mtd:build(monthStart,anchor)};
+    kwhTonSummary=buildElectricityToDateSummaries(tonRows,energyRows,anchor);
     renderGasTon();renderKwhTon();
   }catch(err){
     if(seq!==gasTonLoadSeq)return;
     console.error('Gagal menghitung Energy/ton:',err);
     gasTonSummary=null;
+    kwhTonSummary=null;
     gasTonSummaryError='Ringkasan mingguan/bulanan belum terbaca. Periksa data Energy dan Tonase.';
     // A weekly/monthly error must not erase a valid daily reading.
     renderGasTon();renderKwhTon();
