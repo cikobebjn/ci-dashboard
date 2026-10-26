@@ -155,11 +155,11 @@ body.review-modal-open{overflow:hidden}
       <div class="machine-menu-footer"><button id="machine-all" type="button" class="btn btn-quiet btn-sm">Pilih semua</button><button id="machine-done" type="button" class="btn btn-primary btn-sm">Selesai</button></div>
     </div>
   </div><select id="mesin" class="hide" tabindex="-1" aria-hidden="true"><option value="">Semua mesin</option></select></div></div></div></div>
-<div class="stats"><div class="stat"><label>Issue pada Periode</label><strong id="kpi-issue">0</strong><small>Catatan SQCDP tersimpan</small></div><div class="stat"><label>Downtime TL</label><strong id="kpi-downtime">0</strong><small>Menit · khusus kategori D</small><small style="display:block;margin-top:5px">Durasi semua issue: <b id="kpi-total-duration">0</b> menit</small></div><div class="stat"><label>Outstanding</label><strong id="kpi-open" class="red">0</strong><small>Open / In Progress di line</small></div><div class="stat" id="oee-gedung-card"><label>OEE Gedung / Target</label><strong id="kpi-oee" style="font-size:21px;white-space:nowrap">— / —</strong><div id="oee-building-list" class="oee-building-list" hidden></div><small id="oee-note">Otomatis dari OEE Monitoring</small></div></div>
+<div class="stats"><div class="stat"><label>Issue pada Periode</label><strong id="kpi-issue">0</strong><small>Catatan SQCDP tersimpan</small></div><div class="stat"><label>Total Downtime TL</label><strong id="kpi-downtime">0</strong><small>Menit selesai · mesin berhenti Ya</small><small id="kpi-ongoing" style="display:block;margin-top:5px">0 downtime berlangsung</small></div><div class="stat"><label>Outstanding</label><strong id="kpi-open" class="red">0</strong><small>Open / In Progress di line</small></div><div class="stat" id="oee-gedung-card"><label>OEE Gedung / Target</label><strong id="kpi-oee" style="font-size:21px;white-space:nowrap">— / —</strong><div id="oee-building-list" class="oee-building-list" hidden></div><small id="oee-note">Otomatis dari OEE Monitoring</small></div></div>
 
 <section class="card" id="downtime-monitor" aria-labelledby="downtime-heading" style="margin-bottom:18px">
   <div class="card-title">
-    <div><b id="downtime-heading">Downtime per Gedung</b><small>Top 5 mesin berdasarkan total durasi downtime (kategori D). Peringkat 1–3 ditandai merah.</small></div>
+    <div><b id="downtime-heading">Downtime per Gedung</b><small>Top 5 berdasarkan menit mesin berhenti (semua kategori SQCDP). Peringkat 1–3 merah.</small></div>
     <span class="downtime-filter-note" id="downtime-scope">Sesuai filter monitoring</span>
   </div>
   <div class="card-body"><div class="downtime-grid" id="downtime-by-gedung"></div></div>
@@ -250,7 +250,11 @@ function eventCard(e,{actions=false}={}){
 const status=e.status==='Closed'?'closed':e.status==='In Progress'?'progress':'open';
 const duration=Number(e.duration_minutes ?? e.downtime_minutes ?? 0);
 const timeLabel=e.time_start&&e.time_end?`${esc(e.time_start)}–${esc(e.time_end)}${e.time_end<e.time_start?' (+1 hari)':''}`:'';
-const durationLabel=Number.isFinite(duration)&&duration>0?`<span class="chip">${e.category==='D'?'Downtime':'Durasi'}: ${n(duration)} menit</span>`:'';
+const stopped=isMachineStopped(e);
+const durationLabel=stopped&&ongoingMachineStop(e)?'<span class="status progress">Mesin masih berhenti</span>':
+  stopped&&issueDurationMinutes(e)>0?`<span class="chip">Downtime ${n(issueDurationMinutes(e))} menit</span>`:
+  Number.isFinite(duration)&&duration>0?`<span class="chip">Durasi issue: ${n(duration)} menit · Mesin berjalan</span>`:
+  '<span class="chip">Mesin berjalan</span>';
 return `<article class="event"><span class="sq ${esc(e.category)}">${esc(e.category)}</span><div><div class="meta">${esc(dt(e.occurred_at))} · ${esc(e.mesin)} · ${esc(e.sku)}${timeLabel?' · Jam '+timeLabel:''}</div><h4>${esc(e.problem)}</h4>${e.action?`<p><b>Action:</b> ${esc(e.action)}</p>`:''}<div class="sqcdp"><span class="status ${status}">${esc(e.status)}</span>${durationLabel}${e.pic?`<span class="chip">PIC: ${esc(e.pic)}</span>`:''}${e.priority==='High'?'<span class="status open">Prioritas tinggi</span>':''}</div></div>${actions?`<div class="event-end"><button class="btn btn-soft btn-sm" data-edit="${esc(e.id)}" type="button">Update</button></div>`:''}</article>`}
 function getCtxMachines(c){return Array.isArray(c?.mesins)?c.mesins.filter(Boolean):(c?.mesin?[c.mesin]:[])}
 function issueMatchesMachines(e,c){const selected=getCtxMachines(c);if(!selected.length)return true;const issueNames=String(e.mesin||e.line||'').split(/[,;|]/).map(norm).filter(Boolean);return selected.some(m=>issueNames.includes(norm(m)))}
@@ -305,24 +309,30 @@ function scoped(){return filterIssues(ctx())}
 function scopedOutstanding(){return openIssues(ctx())}
 
 
-// Perhitungan hanya mengambil durasi issue Delivery (D). Jika downtime_minutes
-// belum tersedia pada data lama, duration_minutes digunakan sebagai cadangan.
-function downtimeMinutes(e){
-  if(norm(e.category)!=='D')return 0;
-  const raw=(e.downtime_minutes===null||e.downtime_minutes===undefined||e.downtime_minutes==='')
-    ? e.duration_minutes : e.downtime_minutes;
-  const value=Number(raw);
-  return Number.isFinite(value)&&value>0?value:0;
+// Mesin berhenti adalah atribut independen dari kategori SQCDP dan status action.
+// Catatan lama tanpa flag memakai kategori D, bukan semua durasi SQCDP.
+function isMachineStopped(e){
+  if(typeof e.machine_stopped==='boolean')return e.machine_stopped;
+  return norm(e.category)==='D';
+}
+function ongoingMachineStop(e){return isMachineStopped(e)&&!!e.time_start&&!e.time_end;}
+function issueDurationMinutes(e){
+  if(!isMachineStopped(e)||!e.time_end)return 0;
+  const duration=Number(e.duration_minutes);
+  if(Number.isFinite(duration)&&duration>0)return duration;
+  const fallback=Number(e.downtime_minutes);
+  return Number.isFinite(fallback)&&fallback>0?fallback:0;
 }
 function renderDowntimeByGedung(c){
-  // Filter tanggal/shift/gedung/mesin sama dengan monitoring utama;
-  // tombol status log tidak membatasi ranking downtime.
+  // Top 5 hanya menggunakan mesin berhenti Ya dan durasi final yang tercatat.
+  // Status Open tidak menghapus durasi; peristiwa aktif ditampilkan terpisah.
   const eligible=filterIssues(c);
   const buildings=c.gedung?[String(c.gedung)]:['4','6','7'];
   let totalAll=0;
   const html=buildings.map(g=>{
-    const list=eligible.filter(e=>String(e.gedung)===g && downtimeMinutes(e)>0);
-    const minutes=list.reduce((sum,e)=>sum+downtimeMinutes(e),0);
+    const running=eligible.filter(e=>String(e.gedung)===g && ongoingMachineStop(e));
+    const list=eligible.filter(e=>String(e.gedung)===g && issueDurationMinutes(e)>0);
+    const minutes=list.reduce((sum,e)=>sum+issueDurationMinutes(e),0);
     totalAll+=minutes;
     const machines=new Map();
     for(const issue of list){
@@ -330,7 +340,7 @@ function renderDowntimeByGedung(c){
       const key=norm(name);
       if(!machines.has(key))machines.set(key,{name,minutes:0,events:0});
       const machine=machines.get(key);
-      machine.minutes+=downtimeMinutes(issue);
+      machine.minutes+=issueDurationMinutes(issue);
       machine.events+=1;
     }
     const ranked=[...machines.values()].sort((a,b)=>b.minutes-a.minutes||b.events-a.events||a.name.localeCompare(b.name,'id')).slice(0,5);
@@ -349,14 +359,15 @@ function renderDowntimeByGedung(c){
     return `<article class="downtime-building">
       <div class="downtime-building-head"><div><h3>Gedung ${esc(g)}</h3>
         <div class="downtime-total">${n(minutes)} <small>menit</small></div>
-        <div class="downtime-count">${n(list.length)} kejadian downtime</div></div>
+        <div class="downtime-count">${n(list.length)} kejadian · ${n(running.length)} berlangsung</div></div>
         <span class="downtime-building-number">G${esc(g)}</span></div>
       <div class="downtime-rank-heading">Top 5 Mesin</div>
-      <div class="downtime-ranking">${ranks||'<div class="downtime-empty">Belum ada catatan downtime pada filter ini.</div>'}</div>
+      <div class="downtime-ranking">${ranks||'<div class="downtime-empty">Belum ada downtime selesai pada filter ini.</div>'}</div>
     </article>`;
   }).join('');
   $('downtime-by-gedung').innerHTML=html;
-  $('downtime-scope').textContent='Total '+n(totalAll)+' menit · '+(c.shift?'Shift '+c.shift:'Semua shift');
+  const ongoingCount=eligible.filter(ongoingMachineStop).length;
+  $('downtime-scope').textContent='Total '+n(totalAll)+' menit · '+n(ongoingCount)+' berlangsung · '+(c.shift?'Shift '+c.shift:'Semua shift');
 }
 
 
@@ -386,7 +397,7 @@ function previousMini(r){
   const note=clean(r.review_notes);
   return `<div class="prev-shift-record"><div class="row"><div><b>${reviewLabel(r)}</b><div class="minor">${esc(r.tl_serah||'TL penyerah tidak tercatat')} → ${esc(r.tl_terima||'TL penerima tidak tercatat')}</div></div>${reviewOpenTag(r)}</div>
     <p class="prev-shift-note">${esc(note||'Tidak ada catatan tambahan saat finalisasi.')}</p>
-    <div class="row"><span class="muted">${n(reviewIssueCount(r))} issue · ${n(r.downtime_total)} menit downtime</span><button class="btn btn-soft btn-sm" type="button" data-open-review="${esc(r.id)}">Lihat Review</button></div></div>`;
+    <div class="row"><span class="muted">${n(reviewIssueCount(r))} issue · ${n(r.downtime_total)} menit downtime saat finalisasi</span><button class="btn btn-soft btn-sm" type="button" data-open-review="${esc(r.id)}">Lihat Review</button></div></div>`;
 }
 function renderPreviousHandover(c){
   const slot=previousShift(c),box=$('previous-handover-body'),label=$('previous-shift-label');
@@ -417,7 +428,7 @@ function showReview(idValue,trigger){
   $('review-modal-heading').textContent=`Review Shift ${r.shift} · ${r.tanggal}`;
   $('review-modal-content').innerHTML=`<b style="font-size:13px;color:#193052">G${esc(r.gedung)} · ${esc(r.mesin||r.line||'Mesin tidak tercatat')}</b>
     <div class="review-meta"><span class="chip">TL penyerah: ${esc(r.tl_serah||'-')}</span><span class="chip">TL penerima: ${esc(r.tl_terima||'-')}</span><span class="chip">Finalisasi: ${esc(dt(r.reviewed_at))}</span></div>
-    <div class="review-facts"><div><b>${n(r.issues_count)}</b><small>Total issue saat finalisasi</small></div><div><b>${n(r.downtime_total)}</b><small>Menit downtime</small></div><div><b style="color:${reviewOpenCount(r)>0?'#c32c42':'#098661'}">${n(r.open_count)}</b><small>Outstanding saat finalisasi</small></div></div>
+    <div class="review-facts"><div><b>${n(r.issues_count)}</b><small>Total issue saat finalisasi</small></div><div><b>${n(r.downtime_total)}</b><small>Menit durasi saat finalisasi</small></div><div><b style="color:${reviewOpenCount(r)>0?'#c32c42':'#098661'}">${n(r.open_count)}</b><small>Outstanding saat finalisasi</small></div></div>
     <div class="muted">OEE aktual / target: ${oee(r.oee_actual)} / ${oee(r.oee_target)}</div>
     <div class="review-sub">Catatan yang Diserahkan untuk Shift Berikutnya</div><div class="review-note-full">${esc(clean(r.review_notes)||'Tidak ada catatan handover tambahan yang disimpan saat finalisasi.')}</div>
     <div class="review-sub">Detail Issue pada Shift Ini</div>
@@ -435,9 +446,9 @@ function closeReview(){
 }
 function onReviewButton(e){const btn=e.target.closest('[data-open-review]');if(btn)showReview(btn.dataset.openReview,btn)}
 
-function render(){const c=ctx();renderDowntimeByGedung(c);renderPreviousHandover(c);renderHistory();const filtered=scoped(),o=scopedOutstanding(),total=filtered.reduce((a,e)=>a+downtimeMinutes(e),0);$('kpi-issue').textContent=filtered.length;$('kpi-downtime').textContent=n(total);$('kpi-total-duration').textContent=n(filtered.reduce((a,e)=>a+Number(e.duration_minutes ?? e.downtime_minutes ?? 0),0));$('kpi-open').textContent=o.length;$('open-count-chip').textContent=o.length+' outstanding';$('list-count').textContent=filtered.length+' catatan';const catsCount=Object.fromEntries(Object.keys(cats).map(x=>[x,filtered.filter(e=>e.category===x).length]));$('category-totals').innerHTML=Object.entries(catsCount).map(([k,v])=>`<span class="chip"><b>${k}</b> ${v}</span>`).join('');const list=filtered.filter(e=>selectedStatus==='all'||e.status===selectedStatus);$('issue-list').innerHTML=list.length?list.map(x=>eventCard(x,{actions:true})).join(''):'<div class="empty">Belum ada issue pada filter ini. Gunakan tombol Form Input TL saat terjadi masalah.</div>';$('open-list').innerHTML=o.length?o.slice(0,25).map(x=>eventCard(x,{actions:true})).join(''):'<div class="empty">Tidak ada issue terbuka untuk area yang dipilih.</div>';
+function render(){const c=ctx();renderDowntimeByGedung(c);renderPreviousHandover(c);renderHistory();const filtered=scoped(),o=scopedOutstanding(),total=filtered.reduce((a,e)=>a+issueDurationMinutes(e),0);$('kpi-issue').textContent=filtered.length;$('kpi-downtime').textContent=n(total);$('kpi-ongoing').textContent=n(filtered.filter(ongoingMachineStop).length)+' downtime berlangsung';$('kpi-open').textContent=o.length;$('open-count-chip').textContent=o.length+' outstanding';$('list-count').textContent=filtered.length+' catatan';const catsCount=Object.fromEntries(Object.keys(cats).map(x=>[x,filtered.filter(e=>e.category===x).length]));$('category-totals').innerHTML=Object.entries(catsCount).map(([k,v])=>`<span class="chip"><b>${k}</b> ${v}</span>`).join('');const list=filtered.filter(e=>selectedStatus==='all'||e.status===selectedStatus);$('issue-list').innerHTML=list.length?list.map(x=>eventCard(x,{actions:true})).join(''):'<div class="empty">Belum ada issue pada filter ini. Gunakan tombol Form Input TL saat terjadi masalah.</div>';$('open-list').innerHTML=o.length?o.slice(0,25).map(x=>eventCard(x,{actions:true})).join(''):'<div class="empty">Tidak ada issue terbuka untuk area yang dipilih.</div>';
 const exact=hasContext(c)&&!!c.shift,cur=exact?filterIssues(c):[],open=exact?openIssues(c):[];
-const exactTotal=cur.reduce((a,e)=>a+Number(e.downtime_minutes||0),0);
+const exactTotal=cur.reduce((a,e)=>a+issueDurationMinutes(e),0);
 $('rev-issue').textContent=exact?n(cur.length):'—';$('rev-downtime').textContent=exact?n(exactTotal):'—';$('rev-out').textContent=exact?n(open.length):'—';
 $('rev-out').classList.toggle('has-open',exact&&open.length>0);
 $('review-prereq').style.display=exact?'none':'';
@@ -508,7 +519,7 @@ async function finalize(){
     for(let i=0;i<machines.length;i++){
       const machine=machines[i],perMachine={...c,mesin:machine,line:machine,mesins:[machine]};
       const old=existing[i],issues=filterIssues(perMachine),open=openIssues(perMachine);
-      const row={id:old?.id||id(),tanggal:c.tanggal,shift:Number(c.shift),gedung:c.gedung,line:machine,mesin:machine,tl_serah:sender,tl_terima:receiver,issues_count:issues.length,open_count:open.length,downtime_total:issues.reduce((v,e)=>v+downtimeMinutes(e),0),oee_actual:state.oee.actual,oee_target:state.oee.target,review_notes:notes,reviewed_at:now};
+      const row={id:old?.id||id(),tanggal:c.tanggal,shift:Number(c.shift),gedung:c.gedung,line:machine,mesin:machine,tl_serah:sender,tl_terima:receiver,issues_count:issues.length,open_count:open.length,downtime_total:issues.reduce((v,e)=>v+issueDurationMinutes(e),0),oee_actual:state.oee.actual,oee_target:state.oee.target,review_notes:notes,reviewed_at:now};
       await persist('reviews',row,!!old);success++;
     }
     try{await window.SHO_API.sync(true)}catch(syncError){console.warn('Serah terima tersimpan, sinkronisasi tampilan tertunda:',syncError)}
@@ -547,7 +558,7 @@ setup();
   const observer = new MutationObserver(removeLegacyImportButton);
   observer.observe(document.body, { childList:true, subtree:true });
 })();
-</script><script src="sho-online.js?v=20261026-restore-1" onerror="document.getElementById('sho-connection').textContent='File sinkronisasi tidak ditemukan';document.getElementById('sho-connection').className='pill warn';"></script><script id="sho-oee-from-admin">
+</script><script src="sho-online.js?v=20261027-machine-stop" onerror="document.getElementById('sho-connection').textContent='File sinkronisasi tidak ditemukan';document.getElementById('sho-connection').className='pill warn';"></script><script id="sho-oee-from-admin">
 /* OEE shift handover per gedung. Reads the SAME oee_shiftly_line records as oee.html.
    Machine selection is intentionally ignored for the OEE card. */
 (function () {
