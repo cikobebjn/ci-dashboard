@@ -59,6 +59,17 @@
 #shift-identity-card .machine-menu{top:calc(45px + 6px);z-index:50;max-width:100%;overflow:hidden}
 #shift-identity-card .machine-options{overscroll-behavior:contain}
 @media(max-width:740px){#shift-identity-card .machine-menu{max-height:min(330px,65vh)}#shift-identity-card .machine-options{max-height:min(265px,50vh)}}
+
+/* Multi mesin bebas dipilih; jika SKU berbeda, masing-masing mesin punya pilihan sendiri. */
+.sku-per-machine-wrap[hidden]{display:none!important}
+.sku-per-machine-wrap{margin-top:17px;padding:15px;border:1px solid #d8e8fc;border-radius:14px;background:#f7faff}
+.sku-per-machine-head{display:flex;flex-direction:column;gap:3px;margin-bottom:12px}
+.sku-per-machine-head strong{font-size:12px;color:#244b81}
+.sku-per-machine-head small{font-size:10px;color:#6b7f9e}
+.sku-per-machine-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+.sku-per-machine-item label{display:block;font-size:11px;font-weight:800;color:#435b7c;margin-bottom:5px}
+.sku-per-machine-item select{width:100%;background:#fff}
+@media(max-width:680px){.sku-per-machine-fields{grid-template-columns:1fr}}
 </style></head><body><header class="head"><div class="head-in"><div class="brand"><span class="mark">K</span><span><b>PT KOBE BOGA UTAMA</b><small>BOJONEGORO · SHIFT HAND OVER</small></span></div><div class="head-actions"><span id="sho-connection" class="pill warn" style="display:none!important" aria-hidden="true">Supabase: menghubungkan...</span></div></div></header><main class="wrap">
 <section class="hero"><div><div class="eyebrow">TEAM LEADER · INPUT REAL TIME</div><h1>Form Input TL</h1><p>Isi saat ada kejadian, kapan saja selama shift. Input berikutnya tidak akan menghapus catatan sebelumnya.</p></div><div class="hero-right"><button class="btn btn-white" id="back-to-review" type="button">← Kembali ke SHO Review</button><small>Catat issue dalam satu menit · v2 mobile</small></div></section>
 <div id="notice" class="notice" role="status" aria-live="polite"></div>
@@ -71,9 +82,9 @@
       <div class="machine-options" id="machine-options"></div>
     </div>
     <div class="machine-chips" id="machine-chips" aria-live="polite"></div>
-    <small id="machine-hint" class="machine-hint">Pilih satu atau beberapa mesin dengan SKU yang sama.</small>
+    <small id="machine-hint" class="machine-hint">Pilih satu atau beberapa mesin. SKU menyesuaikan mesin yang dipilih.</small>
   </div>
-</div><div class="field"><label for="sku">SKU / Produk *</label><select id="sku" required disabled><option value="">Memuat SKU dari Variance...</option></select><small id="sku-source-hint" class="sku-source-hint" role="status">Mengambil daftar SKU dari data Variance.</small><button type="button" id="sku-reload" class="sku-reload">Muat ulang SKU</button></div><div class="field"><label for="tl">Nama Team Leader *</label><input id="tl" maxlength="100" placeholder="Nama TL" required></div></div></div></div>
+</div><div class="field"><label for="sku">SKU / Produk *</label><select id="sku" required disabled><option value="">Memuat SKU dari Variance...</option></select><small id="sku-source-hint" class="sku-source-hint" role="status">Mengambil daftar SKU dari data Variance.</small><button type="button" id="sku-reload" class="sku-reload">Muat ulang SKU</button></div><div class="field"><label for="tl">Nama Team Leader *</label><input id="tl" maxlength="100" placeholder="Nama TL" required></div></div><div id="sku-per-machine-wrap" class="sku-per-machine-wrap" hidden><div class="sku-per-machine-head"><strong>SKU per Mesin</strong><small>Mesin yang dipilih tidak memiliki SKU yang sama. Pilih SKU untuk masing-masing mesin.</small></div><div id="sku-per-machine-fields" class="sku-per-machine-fields"></div></div></div></div>
 <div class="layout"><div class="stack"><section class="card"><div class="card-title"><div><b id="form-heading">Catat Issue Baru</b><small>Catat masalah, tindakan, waktu, dan PIC</small></div><span class="pill" id="form-tag">Input cepat</span></div><div class="card-body"><form id="quick-form"><div class="field"><label>Kategori SQCDP *</label><div class="cat-btns" id="category-btns"><button class="cat-btn" type="button" data-cat="S">S<small>Safety</small></button><button class="cat-btn" type="button" data-cat="Q">Q<small>Quality</small></button><button class="cat-btn" type="button" data-cat="C">C<small>Cost</small></button><button class="cat-btn active" type="button" data-cat="D">D<small>Delivery</small></button><button class="cat-btn" type="button" data-cat="P">P<small>People</small></button></div></div><div class="field" style="margin-top:15px"><label for="problem">Masalah / Kejadian *</label><textarea id="problem" maxlength="1200" required placeholder="Contoh: Mesin berhenti karena sensor error"></textarea></div><div class="field" style="margin-top:13px"><label for="action">Action / Tindakan *</label><textarea id="action" maxlength="1200" placeholder="Contoh: Koordinasi dengan tim Maintenance" required></textarea></div><section class="mandatory-details" id="extra" aria-label="Detail kejadian wajib">
   <div class="mandatory-title"><strong>Detail Kejadian</strong><span>Isi sesuai kondisi</span></div>
   <div class="form-row">
@@ -238,9 +249,10 @@ async function loadVarianceSkuMaster(){
     varianceSkuMaster.byMesin=byMesin;
     varianceSkuMaster.count=[...byGedung.values()].reduce((n,map)=>n+map.size,0);
     varianceSkuMaster.status='ready';
-    // Pulihkan SKU yang dipilih sebelumnya setelah proses membaca Variance selesai.
+    // Jangan menutup dropdown atau mereset pilihan mesin saat pemuatan SKU selesai.
     const ctx=curCtx();
-    cascade({...ctx,sku:ctx.sku|| (state.ctx.gedung===ctx.gedung ? state.ctx.sku : '')});
+    renderMachinePicker(true);
+    refreshSku(ctx.sku|| (state.ctx.gedung===ctx.gedung ? state.ctx.sku : ''));
     const gd=ctx.gedung;
     const count=byGedung.get(gd)?.size||0;
     skuHint(count?`${count} SKU tersedia untuk Gedung ${gd} dari data Variance.`:`Data Variance termuat (${varianceSkuMaster.count} SKU). Pilih gedung dan mesin.`, 'ready');
@@ -281,8 +293,8 @@ function initStorage(){
 
 </script><script>
 let category='D',editing=null,returnCtx=null,bridge=false,pending=new Map(),initialEdit=new URLSearchParams(location.search).get('edit')||'';
-let selectedMachines=[],pendingBatch=null;
-function curCtx(){return {tanggal:$('tanggal').value,shift:Number($('shift').value),gedung:$('gedung').value,line:selectedMachines[0]||'',mesin:selectedMachines[0]||'',mesins:[...selectedMachines],sku:$('sku').value,tl:clean($('tl').value)}}
+let selectedMachines=[],pendingBatch=null,perMachineSku={};
+function curCtx(){return {tanggal:$('tanggal').value,shift:Number($('shift').value),gedung:$('gedung').value,line:selectedMachines[0]||'',mesin:selectedMachines[0]||'',mesins:[...selectedMachines],sku:$('sku').value,skuPerMesin:{...perMachineSku},tl:clean($('tl').value)}}
 function commonSkus(machines=selectedMachines){
   if(!machines.length||varianceSkuMaster.status!=='ready')return [];
   const g=$('gedung').value;
@@ -300,67 +312,96 @@ function setMachineHint(message='',error=false){
   el.textContent=message||'Setiap mesin disimpan sebagai catatan tersendiri agar monitoring per mesin tetap akurat.';
   el.classList.toggle('warn',error);
 }
-function renderMachinePicker(){
+function renderMachinePicker(keepOptions=false){
   const g=$('gedung').value,all=machineList(g),btn=$('machine-trigger');
   $('mesin').value=selectedMachines[0]||'';
   btn.disabled=!all.length||!!editing;
   $('machine-trigger-text').textContent=!all.length?'Pilih gedung dahulu':!selectedMachines.length?'Pilih satu atau beberapa mesin':selectedMachines.length===1?selectedMachines[0]:selectedMachines.length+' mesin dipilih';
-  const list=$('machine-options');list.replaceChildren();
-  for(const name of all){
-    const label=document.createElement('label');label.className='machine-option';
-    const input=document.createElement('input');input.type='checkbox';input.className='machine-check';input.value=name;input.checked=selectedMachines.includes(name);input.disabled=!!editing;
-    const text=document.createElement('span');text.textContent=name;
-    label.append(input,text);list.append(label);
+  const list=$('machine-options');
+  // Jangan rekonstruksi checkbox setiap klik. Ini menjaga fokus, scroll, dan checkbox tetap stabil.
+  if(!keepOptions || list.children.length!==all.length){
+    const scroll=list.scrollTop;
+    list.replaceChildren();
+    for(const name of all){
+      const label=document.createElement('label');label.className='machine-option';
+      const input=document.createElement('input');input.type='checkbox';input.className='machine-check';input.value=name;input.checked=selectedMachines.includes(name);input.disabled=!!editing;
+      const txt=document.createElement('span');txt.textContent=name;
+      label.append(input,txt);list.append(label);
+    }
+    list.scrollTop=scroll;
+  }else{
+    list.querySelectorAll('.machine-check').forEach(input=>{input.checked=selectedMachines.includes(input.value);input.disabled=!!editing;});
   }
   const chips=$('machine-chips');chips.replaceChildren();
   for(const name of selectedMachines){const item=document.createElement('span');item.className='machine-chip';item.textContent=name;chips.append(item)}
   if(editing)setMachineHint('Mesin pada issue yang sudah tersimpan tidak dapat diubah saat update.');
+  else if(selectedMachines.length>1 && varianceSkuMaster.status==='ready' && !commonSkus().length)
+    setMachineHint(selectedMachines.length+' mesin dipilih. Atur SKU untuk tiap mesin pada bagian di bawah.');
   else if(selectedMachines.length>1)setMachineHint(selectedMachines.length+' mesin dipilih. Saat disimpan, tiap mesin mendapatkan catatan sendiri.');
   else setMachineHint();
+}
+function needsPerMachineSku(){return !editing&&varianceSkuMaster.status==='ready'&&selectedMachines.length>1&&commonSkus().length===0}
+function renderPerMachineSku(){
+  const wrap=$('sku-per-machine-wrap'),fields=$('sku-per-machine-fields');
+  const active=needsPerMachineSku();
+  wrap.hidden=!active;
+  fields.replaceChildren();
+  if(!active)return;
+  const g=$('gedung').value;
+  for(const machine of selectedMachines){
+    const item=document.createElement('div');item.className='sku-per-machine-item';
+    const label=document.createElement('label');label.textContent=machine+' *';
+    const sel=document.createElement('select');
+    sel.dataset.machine=machine;sel.setAttribute('aria-label','SKU untuk '+machine);
+    const items=skusFor(g,machine);
+    options(sel,items.length?'Pilih SKU / Produk':'SKU tidak tersedia',items,perMachineSku[machine]||'');
+    sel.required=true;
+    if(sel.value!==perMachineSku[machine])perMachineSku[machine]='';
+    sel.addEventListener('change',()=>{perMachineSku[machine]=sel.value;writeCtx()});
+    item.append(label,sel);fields.append(item);
+  }
 }
 function refreshSku(selected=''){
   const g=$('gedung').value;
   const status=varianceSkuMaster.status;
   const items=commonSkus();
-  // Editing riwayat yang SKU-nya sudah tidak terdapat di data Variance terbaru tetap mungkin.
   if(editing && selected && !items.some(x=>norm(x)===norm(selected)))items.push(selected);
-  const placeholder=!selectedMachines.length?'Pilih mesin dahulu':status==='loading'?'Memuat SKU dari Variance...':status==='error'?'SKU tidak dapat dimuat':items.length?'Pilih SKU / Produk':'Tidak ada SKU yang cocok';
-  options($('sku'),placeholder,items,selected);
-  $('sku').disabled=!selectedMachines.length || (!items.length || (status!=='ready'&&!editing));
-  const count=items.length;
+  const perMachine=needsPerMachineSku();
+  const placeholder=!selectedMachines.length?'Pilih mesin dahulu':status==='loading'?'Memuat SKU dari Variance...':status==='error'?'SKU tidak dapat dimuat':perMachine?'Pilih SKU masing-masing mesin di bawah':items.length?'Pilih SKU / Produk':'Tidak ada SKU yang cocok';
+  options($('sku'),placeholder,perMachine?[]:items,selected);
+  $('sku').disabled=perMachine||!selectedMachines.length||!items.length||(status!=='ready'&&!editing);
+  $('sku').required=!perMachine;
+  renderPerMachineSku();
   if(status==='ready'){
     const unmapped=selectedMachines.some(m=>!skuMachineHasMapping(g,m));
     skuHint(!selectedMachines.length ? `Pilih mesin untuk melihat SKU dari Variance (Gedung ${g||'—'}).`
-      :count?`${count} SKU dari Variance · ${unmapped?'daftar tingkat gedung':'sesuai Work Center'}.`
-      :'Tidak ada SKU cocok untuk mesin yang dipilih.','ready');
+      :perMachine?'SKU antarmesin berbeda. Isi SKU masing-masing mesin di bawah.'
+      :items.length?`${items.length} SKU dari Variance · ${unmapped?'daftar tingkat gedung':'sesuai Work Center'}.`
+      :'Tidak ada SKU untuk mesin yang dipilih.','ready');
   }
 }
 function applyCtx(v={}){
   $('tanggal').value=v.tanggal||today();$('shift').value=v.shift?String(v.shift):'';
   $('gedung').value=v.gedung||'';$('tl').value=v.tl||'';
+  perMachineSku=v.skuPerMesin&&typeof v.skuPerMesin==='object'?{...v.skuPerMesin}:{};
   cascade(v);
 }
 function cascade(preserve={}){
   const g=$('gedung').value,all=machineList(g);
-  const requested=Array.isArray(preserve.mesins)&&preserve.mesins.includes(preserve.mesin)?preserve.mesins:(preserve.mesin?[preserve.mesin]:[]);
-  selectedMachines=[];
-  for(const machine of requested){
-    if(all.includes(machine)&&!selectedMachines.includes(machine)&&(varianceSkuMaster.status!=='ready'||commonSkus([...selectedMachines,machine]).length||editing))selectedMachines.push(machine);
-  }
+  const requested=Array.isArray(preserve.mesins)&&preserve.mesins.length?preserve.mesins:(preserve.mesin?[preserve.mesin]:[]);
+  // Mesin tidak boleh hilang hanya karena SKU belum termuat atau berlainan.
+  selectedMachines=all.filter(machine=>requested.some(x=>machineKey(x)===machineKey(machine)));
+  perMachineSku=Object.fromEntries(Object.entries(perMachineSku).filter(([name])=>selectedMachines.includes(name)));
   renderMachinePicker();refreshSku(preserve.sku||'');setMachineMenu(false);
 }
 function machineChange(event){
   const target=event.target;
   if(!target.matches('.machine-check')||editing)return;
-  const machine=target.value;
-  const next=target.checked?[...selectedMachines,machine]:selectedMachines.filter(m=>m!==machine);
-  if(varianceSkuMaster.status==='ready'&&next.length&&!commonSkus(next).length){
-    target.checked=false;
-    setMachineHint('Mesin ini tidak memiliki SKU yang sama dengan pilihan sebelumnya. Pilih mesin dalam kelompok produk yang sesuai.',true);
-    return;
-  }
+  const next=target.checked?[...selectedMachines,target.value]:selectedMachines.filter(m=>m!==target.value);
   selectedMachines=machineList($('gedung').value).filter(m=>next.includes(m));
-  const oldSku=$('sku').value;renderMachinePicker();refreshSku(oldSku);writeCtx();
+  perMachineSku=Object.fromEntries(Object.entries(perMachineSku).filter(([name])=>selectedMachines.includes(name)));
+  const oldSku=$('sku').value;
+  renderMachinePicker(true);refreshSku(oldSku);writeCtx();
 }
 function writeCtx(){state.ctx=curCtx();write('ctx',state.ctx);if(location.protocol==='file:'&&window.opener&&!window.opener.closed)window.opener.postMessage({type:'SHO_CONTEXT',ctx:state.ctx},'*');render();loadOee(curCtx())}
 function validate(){
@@ -368,11 +409,20 @@ function validate(){
     if(!clean($(key).value)){notify('Lengkapi '+label+' terlebih dahulu.',true);$(key).focus();return false}
   }
   if(!selectedMachines.length){notify('Pilih minimal satu mesin.',true);$('machine-trigger').focus();return false}
-  for(const [key,label] of [['sku','SKU'],['tl','nama Team Leader']]){if(!clean($(key).value)){notify('Lengkapi '+label+' terlebih dahulu.',true);$(key).focus();return false}}
+  if(!clean($('tl').value)){notify('Lengkapi nama Team Leader terlebih dahulu.',true);$('tl').focus();return false}
   const c=curCtx();
   if(varianceSkuMaster.status!=='ready'&&!editing){notify('SKU dari Variance belum siap. Periksa informasi di bawah dropdown SKU.',true);return false}
-   if(selectedMachines.some(m=>!machineList(c.gedung).includes(m))||(!commonSkus().some(s=>norm(s)===norm(c.sku))&&!(editing&&norm(editing.sku)===norm(c.sku)))){
-    notify('SKU harus sesuai untuk semua mesin yang dipilih.',true);$('machine-trigger').focus();return false
+  if(selectedMachines.some(m=>!machineList(c.gedung).includes(m))){notify('Mesin yang dipilih tidak sesuai gedung.',true);return false}
+  if(needsPerMachineSku()){
+    for(const machine of selectedMachines){
+      const name=perMachineSku[machine]||'';
+      if(!name||!skusFor(c.gedung,machine).some(s=>norm(s)===norm(name))){
+        notify('Pilih SKU untuk mesin '+machine+' terlebih dahulu.',true);
+        [...$('sku-per-machine-fields').querySelectorAll('select')].find(el=>el.dataset.machine===machine)?.focus();return false;
+      }
+    }
+  }else if(!c.sku||(!commonSkus().some(s=>norm(s)===norm(c.sku))&&!(editing&&norm(editing.sku)===norm(c.sku)))){
+    notify('Pilih SKU yang sesuai untuk mesin yang dipilih.',true);$('sku').focus();return false;
   }
   return true;
 }
@@ -459,7 +509,7 @@ if(time_end&&finalDuration===null){notify('Jam mulai dan selesai harus berbeda d
 // Belum ada jam selesai: jangan mengarang durasi downtime.
 const duration=time_end?finalDuration:0;
 const old=editing,now=new Date().toISOString(),c=curCtx();
-const {mesins,...baseCtx}=c;
+const {mesins,skuPerMesin,...baseCtx}=c;
 const base={...baseCtx,category,problem,action,pic,priority:$('priority').value,status:$('issue-status').value,
  time_start,time_end,duration_minutes:duration,downtime_minutes:category==='D'?duration:0,
  occurred_at:old?.occurred_at||now,updated_at:now};
@@ -470,10 +520,10 @@ if(old){
   rows=[row];
 }else{
   // The same issue becomes one Supabase row per machine; single-machine review and filter stay intact.
-  const signature=JSON.stringify({baseCtx,category,problem,action,pic,priority:$('priority').value,status:$('issue-status').value,time_start,time_end,duration,machines:selectedMachines});
+  const signature=JSON.stringify({baseCtx,skuPerMesin:needsPerMachineSku()?Object.fromEntries(selectedMachines.map(m=>[m,perMachineSku[m]])):null,category,problem,action,pic,priority:$('priority').value,status:$('issue-status').value,time_start,time_end,duration,machines:selectedMachines});
   if(pendingBatch&&pendingBatch.signature===signature)rows=pendingBatch.rows;
   else{
-    rows=selectedMachines.map(machine=>({...base,line:machine,mesin:machine,id:id()}));
+    rows=selectedMachines.map(machine=>({...base,line:machine,mesin:machine,sku:needsPerMachineSku()?perMachineSku[machine]:base.sku,id:id()}));
     pendingBatch={signature,rows};
   }
   if(rows.length>1 && !confirm('Simpan issue ini untuk '+rows.length+' mesin ('+selectedMachines.join(', ')+')?\nSetiap mesin akan memiliki catatan dan durasi sendiri di SHO Review.'))return;
