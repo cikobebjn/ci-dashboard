@@ -1976,6 +1976,33 @@ body::after {
     .dor-policy-body{padding:13px 15px;font-size:13px;line-height:1.55;}
 }
 </style>
+<style id="top5-downtime-style">
+/* Top 5 downtime — sourced from OEE admin reports */
+.downtime-index-card{margin:20px 0 22px;padding:22px 23px;border:1px solid #dfe8f3;border-radius:22px;background:rgba(255,255,255,.94);box-shadow:0 14px 34px rgba(38,70,113,.08)}
+.downtime-index-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+.downtime-index-title{display:flex;align-items:center;gap:11px;min-width:0}
+.downtime-index-icon{width:40px;height:40px;flex:0 0 40px;display:grid;place-items:center;border-radius:13px;background:#eaf3ff;color:#125fc6;font-size:18px}
+.downtime-index-header h2{margin:0;color:#182741;font-size:18px;font-weight:850;letter-spacing:-.025em}
+.downtime-index-header p{margin:5px 0 0;color:#8190a4;font-size:11px;line-height:1.45}
+.downtime-index-total{text-align:right}
+.downtime-index-total strong{display:block;color:#25364b;font-size:23px;font-weight:850;letter-spacing:-.025em}
+.downtime-index-total span{display:block;margin-top:2px;color:#8290a2;font-size:9px}
+.downtime-top5-rows{display:grid;gap:9px}
+.downtime-top5-row{display:grid;grid-template-columns:36px minmax(0,1fr) minmax(85px,.85fr) minmax(80px,95px);align-items:center;gap:12px;padding:11px 13px;border:1px solid #e7edf5;border-radius:13px;background:#f9fbfe}
+.downtime-top5-row.critical{background:#fff4f4;border-color:#fecaca;box-shadow:inset 3px 0 0 #dc2626}
+.downtime-top5-rank{width:30px;height:30px;display:grid;place-items:center;border-radius:10px;background:#eaf1fa;color:#536885;font-size:13px;font-weight:850}
+.downtime-top5-row.critical .downtime-top5-rank{background:#dc2626;color:#fff}
+.downtime-top5-cause{min-width:0;color:#34465c;font-size:12px;font-weight:800;overflow-wrap:anywhere}
+.downtime-top5-row.critical .downtime-top5-cause,.downtime-top5-row.critical .downtime-top5-duration{color:#b91c1c}
+.downtime-top5-detail{display:block;margin-top:3px;color:#8191a4;font-size:9px;font-weight:550}
+.downtime-top5-track{height:7px;background:#e7edf5;border-radius:999px;overflow:hidden}
+.downtime-top5-fill{height:100%;border-radius:999px;background:#93a9c5}
+.downtime-top5-row.critical .downtime-top5-fill{background:#dc2626}
+.downtime-top5-duration{text-align:right;color:#34465c;font-size:14px;font-weight:850;white-space:nowrap}
+.downtime-top5-foot{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:13px;color:#8a96a7;font-size:9px;line-height:1.5}
+.downtime-top5-state{padding:23px 12px;border:1px dashed #d7e1ed;border-radius:13px;color:#8c9aad;background:#fbfdff;text-align:center;font-size:11px;line-height:1.6}
+@media(max-width:650px){.downtime-index-card{padding:16px;border-radius:17px}.downtime-index-header h2{font-size:16px}.downtime-index-total{text-align:left}.downtime-top5-row{grid-template-columns:30px minmax(0,1fr) minmax(75px,85px);gap:8px;padding:11px 9px}.downtime-top5-track{grid-column:2 / -1;grid-row:2}.downtime-top5-cause{font-size:11px}.downtime-top5-duration{font-size:12px}}
+</style>
 <!-- VARIANCE MULTISELECT SEARCH V3 + SELECT VISIBLE RESULTS -->
 <style id="energy-target-color-fix">
 /* Keep decorative corners clipped without an internal scroll offset. */
@@ -2320,6 +2347,22 @@ body::after {
         </div>
     </div>
 
+
+
+    <section class="downtime-index-card" id="top5-downtime" aria-label="Top 5 downtime produksi">
+        <div class="downtime-index-header">
+            <div class="downtime-index-title">
+                <div class="downtime-index-icon" aria-hidden="true">◷</div>
+                <div>
+                    <h2>Top 5 Downtime Produksi</h2>
+                    <p>Diurutkan dari total durasi terbesar · Top 3 ditandai merah · Sesuai rentang tanggal</p>
+                </div>
+            </div>
+            <div class="downtime-index-total" aria-live="polite"><strong id="downtime-total-minutes">—</strong><span id="downtime-total-events">Menunggu data downtime</span></div>
+        </div>
+        <div class="downtime-top5-rows" id="downtime-top5-rows" aria-live="polite"><div class="downtime-top5-state">Memuat data downtime...</div></div>
+        <div class="downtime-top5-foot"><span id="downtime-top5-period">Periode mengikuti filter tanggal di atas.</span><span>Sumber: OEE → Catatan Downtime tersimpan</span></div>
+    </section>
 
     <div class="sec-title">⚡ Monitoring Energy <span style="color:#94a3b8;font-weight:400;text-transform:none"> · sesuai filter tanggal</span></div>
     <div class="kpi-grid energy-kpi-grid">
@@ -2816,6 +2859,7 @@ function gantiRentang() {
 
     loadData(startDate, endDate);
     loadEnergyCards(startDate,endDate);
+    loadDowntimeTop5(startDate,endDate);
 }
 
 function keTanggalTerakhir() {
@@ -5535,6 +5579,86 @@ async function loadGasTonCard(){
   }
 }
 
+
+// Top 5 Downtime: alasan identik (abaikan huruf besar/spasi) digabung berdasarkan total menit.
+let downtimeTop5Request=0;
+function parseDowntimeIndexNotes(raw){
+    const events=[];
+    String(raw||'').split(/\r?\n/).forEach(value=>{
+        const line=value.trim().replace(/^\d+[.)]\s+/, '').trim();
+        const m=line.match(/^(\d{1,2})[.:](\d{2})\s*[-–—]\s*(\d{1,2})[.:](\d{2})\s*[:\-–—]?\s*(.+)$/);
+        if(!m)return;
+        const a=+m[1]*60 + +m[2],b=+m[3]*60 + +m[4];
+        if(+m[1]>23||+m[3]>23||+m[2]>59||+m[4]>59)return;
+        let minutes=b-a;
+        if(minutes<0)minutes+=1440;
+        if(minutes<1||minutes>720)return;
+        const reason=m[5].trim();if(reason)events.push({reason,minutes});
+    });
+    return events;
+}
+function formatDowntimeMinutes(total){
+    const minutes=Math.round(total),hours=Math.floor(minutes/60),rem=minutes%60;
+    return hours?`${hours} jam${rem?' '+rem+' mnt':''}`:`${minutes} mnt`;
+}
+function setDowntimeIndexState(message){
+    const rows=document.getElementById('downtime-top5-rows');
+    if(!rows)return;
+    rows.replaceChildren();const el=document.createElement('div');el.className='downtime-top5-state';el.textContent=message;rows.append(el);
+}
+async function loadDowntimeTop5(sDate,eDate){
+    const token=++downtimeTop5Request;
+    const total=document.getElementById('downtime-total-minutes');
+    const eventsLabel=document.getElementById('downtime-total-events');
+    const periodLabel=document.getElementById('downtime-top5-period');
+    if(periodLabel)periodLabel.textContent=sDate&&eDate?`Periode: ${sDate}${sDate===eDate?'':' s.d. '+eDate}`:'Pilih rentang tanggal untuk melihat downtime.';
+    if(!sDate||!eDate){setDowntimeIndexState('Pilih tanggal terlebih dahulu.');if(total)total.textContent='—';if(eventsLabel)eventsLabel.textContent='Tidak ada periode aktif';return}
+    if(total)total.textContent='...';if(eventsLabel)eventsLabel.textContent='Mengambil data online';
+    setDowntimeIndexState('Memuat Top 5 downtime dari laporan OEE...');
+    const reports=[];const step=1000;
+    try{
+        for(let i=0;i<100000;i+=step){
+            const {data,error}=await db.from('oee_downtime_reports')
+                .select('downtime_text')
+                .gte('tanggal',sDate).lte('tanggal',eDate).order('id',{ascending:true})
+                .range(i,i+step-1);
+            if(error)throw error;
+            if(token!==downtimeTop5Request)return;
+            reports.push(...(data||[]));
+            if(!data||data.length<step)break;
+        }
+        if(token!==downtimeTop5Request)return;
+        const map=new Map();let count=0,totalMin=0;
+        reports.forEach(row=>parseDowntimeIndexNotes(row.downtime_text).forEach(item=>{
+            const key=item.reason.toLocaleLowerCase('id-ID').replace(/\s+/g,' ').trim();
+            if(!map.has(key))map.set(key,{reason:item.reason,minutes:0,count:0});
+            const r=map.get(key);r.minutes+=item.minutes;r.count++;
+            count++;totalMin+=item.minutes;
+        }));
+        if(total)total.textContent=formatDowntimeMinutes(totalMin);
+        if(eventsLabel)eventsLabel.textContent=`${count} kejadian · ${map.size} penyebab`;
+        const ranking=[...map.values()].sort((a,b)=>b.minutes-a.minutes||b.count-a.count||a.reason.localeCompare(b.reason,'id')).slice(0,5);
+        const wrap=document.getElementById('downtime-top5-rows');
+        if(!ranking.length){setDowntimeIndexState('Belum ada downtime tersimpan untuk tanggal ini. Admin dapat menyimpan melalui halaman OEE.');return}
+        wrap.replaceChildren();
+        const max=ranking[0].minutes;
+        ranking.forEach((r,i)=>{
+            const item=document.createElement('div');item.className='downtime-top5-row'+(i<3?' critical':'');
+            const rank=document.createElement('div');rank.className='downtime-top5-rank';rank.textContent=String(i+1).padStart(2,'0');
+            const desc=document.createElement('div');desc.className='downtime-top5-cause';desc.textContent=r.reason;
+            const small=document.createElement('span');small.className='downtime-top5-detail';small.textContent=`${r.count} kejadian`;desc.appendChild(small);
+            const track=document.createElement('div');track.className='downtime-top5-track';
+            const fill=document.createElement('div');fill.className='downtime-top5-fill';fill.style.width=`${Math.max(2,100*r.minutes/max)}%`;track.appendChild(fill);
+            const duration=document.createElement('div');duration.className='downtime-top5-duration';duration.textContent=formatDowntimeMinutes(r.minutes);
+            item.append(rank,desc,track,duration);wrap.appendChild(item);
+        });
+    }catch(error){
+        if(token!==downtimeTop5Request)return;
+        if(total)total.textContent='—';if(eventsLabel)eventsLabel.textContent='Data belum tersedia';
+        setDowntimeIndexState('Top 5 belum bisa ditampilkan: '+error.message+'. Pastikan tabel Supabase sudah dibuat.');
+    }
+}
+
 // ── Init: cari tanggal terakhir dari waste_shiftly, set date picker (satu hari), lalu load ──
 async function init() {
     const { data: lastWaste } = await db
@@ -5555,6 +5679,7 @@ async function init() {
 
     loadData(startDate, endDate);
     loadEnergyCards(startDate,endDate);
+    loadDowntimeTop5(startDate,endDate);
     loadGasTonCard();
     loadVarianceCard();
     loadOeeCard();
