@@ -1935,6 +1935,46 @@ body::after {
 .energy-kpi-grid .gas-ton-figure[aria-busy="true"]{font-size:15px;color:#94a3b8}
 .energy-kpi-grid .card-date,.energy-kpi-grid .gas-ton-breakdown{overflow-wrap:anywhere}
 @media(max-width:640px){.energy-kpi-grid .gas-ton-head{flex-direction:row;align-items:center}.energy-kpi-grid .gas-ton-toggle .period-btn{font-size:9px;padding:5px 8px;min-height:30px}}
+
+/* ===== DOR: add full-text Quality & Food Safety + Halal Policy ===== */
+@media(min-width:1251px) {
+    .dor-values-grid {
+        grid-template-columns:minmax(0,.94fr) minmax(0,1.1fr) minmax(0,1.75fr);
+        gap:14px;
+    }
+    .dor-vm-card{padding-left:14px;padding-right:14px;}
+    .dor-vm-card .dor-card-band{margin-left:-14px;width:calc(100% + 0px);padding:0 14px;}
+    .dor-vm-text{font-size:clamp(16px,1.35vw,20px);padding:0 4px;}
+    .dor-core-card{padding-left:12px;padding-right:12px;}
+    .dor-core-card .dor-card-band{margin-left:-12px;width:calc(100% + 6px);padding:0 14px;}
+    .dor-core-item{padding:7px 9px;gap:7px;}
+    .dor-core-name{font-size:13px;}
+    .dor-core-id{font-size:10px;}
+}
+.dor-policy-stack{display:grid;grid-template-rows:minmax(0,1.6fr) minmax(0,1fr);gap:14px;min-width:0;}
+.dor-policy-card{
+    min-width:0;position:relative;overflow:hidden;
+    border:1px solid #e4eaf3;border-radius:20px;
+    background:linear-gradient(180deg,#fff 0%,#fbfcff 100%);
+}
+.dor-policy-card .dor-card-band{margin-bottom:0;width:calc(100% - 18px);font-size:clamp(12px,1.08vw,15px);padding-right:12px;line-height:1.25;}
+.dor-policy-card .dor-band-icon{flex:0 0 30px;}
+.dor-policy-body{padding:12px 18px 14px;color:#25324a;font-size:clamp(12px,1vw,14px);line-height:1.58;}
+.dor-policy-body p{margin:0;}
+.dor-policy-body p + p{margin-top:11px;}
+@media(min-width:901px) and (max-width:1250px) {
+    .dor-values-grid{grid-template-columns:minmax(0,.95fr) minmax(0,1.25fr);}
+    .dor-policy-stack{grid-column:1 / -1;grid-template-columns:1.4fr 1fr;grid-template-rows:auto;}
+}
+@media(max-width:900px) {
+    .dor-policy-stack{grid-template-columns:1fr;grid-template-rows:auto;}
+    .dor-policy-body{font-size:14px;}
+}
+@media(max-width:640px) {
+    .dor-policy-card{border-radius:17px;}
+    .dor-policy-card .dor-card-band{font-size:13px;}
+    .dor-policy-body{padding:13px 15px;font-size:13px;line-height:1.55;}
+}
 </style>
 <!-- VARIANCE MULTISELECT SEARCH V3 + SELECT VISIBLE RESULTS -->
 <style id="energy-target-color-fix">
@@ -1958,7 +1998,7 @@ body::after {
         <div class="sidebar-section">
             <span class="sidebar-section-label">Overview</span>
             <a href="index.html" class="active">Dashboard Utama</a>
-            <a href="#dor-opening">Visi, Misi &amp; Core Values</a>
+            <a href="#dor-opening">Komitmen &amp; Kebijakan KOBE</a>
         </div>
         <div class="sidebar-section">
             <span class="sidebar-section-label">Performance</span>
@@ -2014,13 +2054,13 @@ body::after {
     </section>
 
 
-    <section class="dor-opening" id="dor-opening" aria-label="DOR opening vision mission and core values">
+    <section class="dor-opening" id="dor-opening" aria-label="Pembukaan DOR: visi, misi, core values, kebijakan mutu dan kebijakan halal">
         <div class="dor-opening-head">
             <div>
                 <div class="dor-opening-kicker">Daily Operational Review Opening</div>
-                <h2>Visi, Misi & Core Values</h2>
+                <h2>Visi, Misi, Core Values &amp; Kebijakan</h2>
             </div>
-            <p class="dor-opening-sub">Pengingat arah dan nilai bersama sebelum pembahasan performa operasional harian.</p>
+            <p class="dor-opening-sub">Visi, misi, nilai inti, dan komitmen mutu serta halal untuk dibacakan pada pembukaan DOR.</p>
         </div>
 
         <div class="dor-values-grid">
@@ -2046,6 +2086,22 @@ body::after {
                     <div class="dor-core-item"><span class="dor-core-check">✓</span><div><span class="dor-core-name">Passion</span><span class="dor-core-id">Antusias</span></div></div>
                 </div>
             </article>
+
+            <div class="dor-policy-stack" aria-label="Kebijakan perusahaan untuk pembukaan DOR">
+                <article class="dor-policy-card quality">
+                    <div class="dor-card-band blue"><span class="dor-band-icon">◎</span><span>Kebijakan Mutu dan Keamanan Pangan</span></div>
+                    <div class="dor-policy-body">
+                        <p>Kami bertekad sepenuh hati untuk hanya menghasilkan produk yang halal, aman, bermutu dan berusaha mengurangi proses rework &amp; waste produk, serta memenuhi peraturan dan hukum yang berlaku bagi kepuasan pelanggan.</p>
+                        <p>Pemimpin dan karyawan bertanggung jawab bersama untuk mewujudkannya, dan senantiasa melakukan perbaikan berkesinambungan di segala bidang, serta mengembangkan budaya mutu dan keamanan pangan yang konsisten.</p>
+                    </div>
+                </article>
+                <article class="dor-policy-card halal">
+                    <div class="dor-card-band red"><span class="dor-band-icon">◎</span><span>Kebijakan Halal</span></div>
+                    <div class="dor-policy-body">
+                        <p>Kami bertekad untuk menghasilkan produk yang aman, baik dan halal sesuai dengan Syariat Islam dengan menjalankan Sistem Jaminan Halal.</p>
+                    </div>
+                </article>
+            </div>
         </div>
     </section>
 
