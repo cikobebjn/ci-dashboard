@@ -59,7 +59,56 @@ const state={ctx:read('ctx',{}),issues:read('issues',[]),reviews:read('reviews',
 const sameLine=(a,b)=>!!(a&&b&&a.gedung&&b.gedung&&a.gedung===b.gedung&&(a.mesin&&b.mesin?norm(a.mesin)===norm(b.mesin):a.line&&b.line&&norm(a.line)===norm(b.line)));
 const sameShift=(a,b)=>sameLine(a,b)&&a.tanggal===b.tanggal&&Number(a.shift)===Number(b.shift);
 const hasContext=c=>!!(c.tanggal&&c.shift&&c.gedung&&c.mesin);
-function notify(s,err=false){const el=$('notice');if(!el)return;el.className='notice show'+(err?' error':'');el.textContent=s;}
+function notify(s,err=false){
+  const el=$('notice');
+  if(el){el.className='notice show'+(err?' error':'');el.textContent=s;}
+  const message=String(s);
+  const saved=!err && /^(Issue berhasil tersimpan|Perubahan issue tersimpan)/.test(message);
+  const saveFailed=err && message.startsWith('Gagal menyimpan:');
+  if(!saved && !saveFailed)return;
+
+  // Notifikasi tetap terlihat saat TL berada di bagian bawah form.
+  let toast=document.getElementById('sho-save-toast');
+  if(!toast){
+    toast=document.createElement('div');
+    toast.id='sho-save-toast';
+    toast.setAttribute('role','status');
+    toast.setAttribute('aria-live','polite');
+    toast.style.cssText='position:fixed;z-index:9999;right:16px;bottom:calc(18px + env(safe-area-inset-bottom, 0px));width:min(430px,calc(100vw - 32px));padding:16px;box-sizing:border-box;border-radius:16px;display:none;gap:12px;align-items:flex-start;background:#fff;border:1px solid #ccebdc;box-shadow:0 15px 45px rgba(16,40,74,.23);font:13px/1.5 Inter,system-ui,sans-serif;color:#1f334e;';
+    document.body.appendChild(toast);
+  }
+  const icon=document.createElement('span');
+  icon.textContent=saved?'✓':'!';
+  icon.setAttribute('aria-hidden','true');
+  icon.style.cssText='display:grid;place-items:center;flex:0 0 32px;width:32px;height:32px;border-radius:50%;background:'+(saved?'#d8f7e8;color:#087b51':'#ffe4e6;color:#be123c')+';font-size:20px;font-weight:900;';
+  const content=document.createElement('div');
+  content.style.cssText='flex:1;min-width:0;';
+  const title=document.createElement('strong');
+  title.textContent=saved?(message.startsWith('Perubahan')?'Perubahan issue berhasil disimpan':'Issue berhasil disimpan'):'Issue gagal disimpan';
+  title.style.cssText='display:block;font-size:14px;color:'+(saved?'#087b51':'#be123c')+';';
+  const detail=document.createElement('div');
+  detail.textContent=saved?'Data tercatat di browser perangkat ini. Belum tersinkron antarperangkat.':message;
+  detail.style.cssText='font-size:12px;margin:4px 0 8px;color:#64748b;overflow-wrap:anywhere;';
+  content.append(title,detail);
+  if(saved){
+    const link=document.createElement('a');
+    link.href='sho.html';
+    link.textContent='Lihat SHO Review';
+    link.style.cssText='display:inline-block;color:#1268e8;font-size:12px;font-weight:800;text-decoration:none;';
+    content.append(link);
+  }
+  const close=document.createElement('button');
+  close.type='button';
+  close.textContent='×';
+  close.setAttribute('aria-label','Tutup notifikasi');
+  close.style.cssText='flex:0 0 25px;width:25px;height:25px;border:0;border-radius:8px;background:#f1f5f9;color:#475569;font-size:20px;line-height:1;cursor:pointer;';
+  close.addEventListener('click',()=>{toast.style.display='none';});
+  toast.style.borderColor=saved?'#ccebdc':'#fecdd3';
+  toast.replaceChildren(icon,content,close);
+  toast.style.display='flex';
+  clearTimeout(notify.dismissTimer);
+  notify.dismissTimer=setTimeout(()=>{toast.style.display='none';},9500);
+}
 
 function options(sel,placeholder,vals,selected=''){sel.replaceChildren(new Option(placeholder,''));for(const x of vals)sel.add(new Option(x,x));sel.disabled=!vals.length;if(selected&&vals.includes(selected))sel.value=selected;}
 function machineList(g){return [...new Set((MASTER[g]||[]).flatMap(x=>x.mesin))]}
