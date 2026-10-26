@@ -313,4 +313,189 @@ async function finalize(){const c=ctx();if(!(hasContext(c)&&c.shift)){notify('Le
 async function reload(){try{if(!window.SHO_API)throw Error('Koneksi belum siap');await window.SHO_API.sync(true);await loadOee(ctx());render();notify('Data terbaru berhasil diambil dari Supabase.')}catch(e){notify('Gagal memuat data online: '+e.message,true)}}
 function setup(){initStorage();setFilters(state.ctx);render();renderOee();$('open-input').addEventListener('click',()=>openInput());$('previous-handover-body').addEventListener('click',onReviewButton);$('handover-history').addEventListener('click',onReviewButton);for(const key of ['history-building','history-shift','history-date'])$(key).addEventListener('change',()=>{historyShown=12;renderHistory()});$('history-more').addEventListener('click',()=>{historyShown+=12;renderHistory()});$('review-close').addEventListener('click',closeReview);$('review-overlay').addEventListener('click',e=>{if(e.target===$('review-overlay'))closeReview()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('review-overlay').hidden)closeReview()});$('issue-list').addEventListener('click',e=>{const b=e.target.closest('[data-edit]');if(b)openInput(b.dataset.edit)});$('open-list').addEventListener('click',e=>{const b=e.target.closest('[data-edit]');if(b)openInput(b.dataset.edit)});$('status-toggle').addEventListener('click',e=>{const b=e.target.closest('[data-status]');if(!b)return;selectedStatus=b.dataset.status;document.querySelectorAll('[data-status]').forEach(x=>x.classList.toggle('active',x===b));render()});$('gedung').addEventListener('change',()=>{refreshControls({mesin:''});saveFilters()});for(const el of ['tanggal','shift','mesin'])$(el).addEventListener('change',saveFilters);$('finalize').addEventListener('click',finalize);$('refresh').addEventListener('click',reload);$('print').addEventListener('click',()=>window.print());window.addEventListener('message',bridgeHandler);window.addEventListener('focus',()=>{if(!state.online)refreshLocal();render()});window.addEventListener('pageshow',()=>{if(!state.online)refreshLocal();render()});document.addEventListener('sho-masters-updated',()=>{const c=ctx();refreshControls(c);render()});document.addEventListener('sho-data-updated',render);document.addEventListener('sho-oee-updated',renderOee);loadOee(ctx());setInterval(()=>{if(!document.hidden){refreshLocal();loadOee(ctx())}},30000)}
 setup();
-</script><script src="sho-online.js?v=20261026-restore-1" onerror="document.getElementById('sho-connection').textContent='File sinkronisasi tidak ditemukan';document.getElementById('sho-connection').className='pill warn';"></script></body></html>
+</script><script src="sho-online.js?v=20261026-restore-1" onerror="document.getElementById('sho-connection').textContent='File sinkronisasi tidak ditemukan';document.getElementById('sho-connection').className='pill warn';"></script><script id="sho-oee-from-admin">
+/*
+ * OEE SHO: same Supabase tables used by oee.html.
+ * This runs AFTER sho-online.js, which previously used an exact-machine lookup.
+ * The OEE workbook contains LINE totals, while SHO uses individual machines.
+ * Only the published OEE read key is used; no service/admin credentials.
+ */
+(function () {
+  'use strict';
+  const API = 'https://bmnhtxalfsfaefacgtpm.supabase.co/rest/v1/';
+  const PUBLIC_KEY = 'sb_publishable_VItBKenz-q2sYz7MsibODA_nYtLXv9Q';
+  const DEFAULT_TARGET = 55; // identical to OEE_TARGET in oee.html
+  let currentRequest = 0;
+
+  const fmt = x => x === null || x === undefined || x === '' || !Number.isFinite(Number(x)) ? null : Number(x);
+  const cleanLabel = s => String(s == null ? '' : s).toUpperCase().replace(/[^A-Z0-9]+/g,' ').replace(/\s+/g,' ').trim();
+  const machineName = s => String(s == null ? '' : s).toUpperCase().trim().replace(/\s+/g, ' ');
+  const hasOee = row => fmt(row && row.oee) !== null;
+  const uniq = a => [...new Set(a)];
+
+  // Matches OEE_LINE_MASTER in oee.html, including older Dried Noodle naming.
+  const MATCHES = [
+    {gedung:'6', key:'BOATO', name:'BOATO'},
+    {gedung:'6', key:'LINE 1A FILLING CF 4 MSN', name:'Line 1A · CF'},
+    {gedung:'6', key:'LINE 1B FILLING BOPACK 3 MSN', name:'Line 1B · BOPACK'},
+    {gedung:'6', key:'LINE 2 FILLING CF 12 MSN', name:'Line 2 · CF'},
+    {gedung:'7', key:'LINE 4 FILLING SW', name:'Line 4 · SW'},
+    {gedung:'7', key:'LINE 5A FILLING BOOSTAR 5 MSN', name:'Line 5A · BOOSTAR'},
+    {gedung:'7', key:'LINE 5B FILLING SW 1 MSN', name:'Line 5B · SW'},
+    {gedung:'7', key:'LINE 6 FILLING DRIED NOODLE', name:'Line 6 · Dried Noodle'},
+    {gedung:'4', key:'LINE 7 FILLING SW', name:'Line 7 · SW'}
+  ];
+  function lineInfo(row) {
+    const k=cleanLabel(row.mesin || row.line);
+    const hit=MATCHES.find(m=> k===m.key || (m.key==='LINE 6 FILLING DRIED NOODLE' && k.startsWith(m.key)));
+    // A missing gedung column is normal on OEE projects not yet migrated.
+    return hit || null;
+  }
+  function normalizeGedung(v) {
+    const x=String(v == null ? '' : v).trim();
+    const m=x.match(/(?:^|\D)(4|6|7)(?:\D|$)/);
+    return m ? m[1] : '';
+  }
+  function validForBuilding(row,g) {
+    const info=lineInfo(row), stated=normalizeGedung(row.gedung);
+    return info ? info.gedung===g : !!stated && stated===g;
+  }
+  function groupForMachine(g,m) {
+    const machine=machineName(m);
+    let num;
+    if (g==='4' && (num=/^SW\s*(\d+)$/.exec(machine)) && +num[1]>=39 && +num[1]<=46)
+      return {keys:['LINE 7 FILLING SW'],label:'Line 7 · SW Gedung 4'};
+    if (g==='6') {
+      if (/^BOATO$/.test(machine)) return {keys:['BOATO'],label:'BOATO · Gedung 6'};
+      if ((num=/^BP\s*(\d+)$/.exec(machine)) && +num[1]>=22 && +num[1]<=24)
+        return {keys:['LINE 1B FILLING BOPACK 3 MSN'],label:'Line 1B · BOPACK'};
+      // No verified CF machine-to-line assignment exists in OEE workbook.
+      // Show the combined CF lines rather than inventing one machine's OEE.
+      if (/^CF\s*\d+$/.test(machine))
+        return {keys:['LINE 1A FILLING CF 4 MSN','LINE 2 FILLING CF 12 MSN'],label:'Gabungan line CF · Gedung 6'};
+    }
+    if (g==='7') {
+      if ((num=/^SW\s*(\d+)$/.exec(machine)) && +num[1]>=32 && +num[1]<=37)
+        return {keys:['LINE 4 FILLING SW'],label:'Line 4 · SW Gedung 7'};
+      if (/^SW\s*38$/.test(machine))return {keys:['LINE 5B FILLING SW 1 MSN'],label:'Line 5B · SW Gedung 7'};
+      if ((num=/^BOOSTAR\s*(\d+)$/.exec(machine)) && +num[1]>=25 && +num[1]<=29)
+        return {keys:['LINE 5A FILLING BOOSTAR 5 MSN'],label:'Line 5A · BOOSTAR'};
+      if ((num=/^BOOSTAR\s*(\d+)$/.exec(machine)) && +num[1]>=30 && +num[1]<=31)
+        return {keys:['LINE 6 FILLING DRIED NOODLE'],label:'Line 6 · Dried Noodle'};
+    }
+    return null;
+  }
+  function aggregate(rows) {
+    const valid=(rows||[]).filter(hasOee);
+    if (!valid.length)return null;
+    const allWeighted=valid.every(r=>fmt(r.target_pcs)!==null && Number(r.target_pcs)>0 && fmt(r.output_pcs)!==null);
+    const weights=allWeighted?valid.map(r=>Number(r.target_pcs)):null;
+    const totalW=weights ? weights.reduce((a,b)=>a+b,0):0;
+    // Same calculation as oee.html's aggregateScopedLineRows.
+    const actual=allWeighted && totalW>0
+      ? valid.reduce((sum,r)=>sum+Number(r.output_pcs),0)/totalW*100
+      : valid.reduce((sum,r)=>sum+Number(r.oee),0)/valid.length;
+    const targets=valid.map(r=>fmt(r.target));
+    const target=targets.every(v=>v!==null)
+      ? (weights && totalW>0 ? valid.reduce((sum,r,i)=>sum+targets[i]*weights[i],0)/totalW
+        : targets.reduce((a,b)=>a+b,0)/targets.length)
+      : DEFAULT_TARGET;
+    return {actual:Math.round(actual*100)/100,target:Math.round(target*100)/100,weighted:!!(allWeighted&&totalW>0),count:valid.length};
+  }
+  async function getRows(table, filters, signal) {
+    const q=new URLSearchParams({select:'*',...filters});
+    const response=await fetch(API+table+'?'+q.toString(),{
+      method:'GET',headers:{apikey:PUBLIC_KEY,Accept:'application/json'},signal,cache:'no-store'
+    });
+    if(!response.ok){
+      const body=await response.text().catch(()=> '');
+      throw Error('Akses '+table+' gagal (HTTP '+response.status+')'+(body.includes('permission')?' · izin baca OEE belum aktif':''));
+    }
+    const result=await response.json();
+    if(!Array.isArray(result))throw Error('Respons tabel '+table+' tidak sesuai.');
+    return result;
+  }
+  function setResult(actual,target,note){
+    state.oee={actual:fmt(actual),target:fmt(target),note};
+    document.dispatchEvent(new Event('sho-oee-updated'));
+  }
+  async function readOeeForSho(selection){
+    const token=++currentRequest;
+    const c={tanggal:String(selection?.tanggal||''),shift:String(selection?.shift||''),gedung:normalizeGedung(selection?.gedung),mesin:String(selection?.mesin||'')};
+    if(!c.tanggal){setResult(null,null,'Pilih tanggal untuk melihat OEE dari OEE Admin');return;}
+    setResult(null,null,'Memuat OEE dari OEE Monitoring...');
+    const controller=new AbortController(), timer=setTimeout(()=>controller.abort(),12000);
+    try {
+      let calculation=null, note='';
+      const shiftNum=Number(c.shift);
+      if (c.gedung || c.mesin) {
+        // The OEE workbook stores line-level OEE, not per individual SW/CF/BP.
+        const rows=await getRows('oee_shiftly_line',{
+          tanggal:'eq.'+c.tanggal,
+          ...(shiftNum===1||shiftNum===2||shiftNum===3?{shift:'eq.'+shiftNum}:{})
+        },controller.signal);
+        const scoped=rows.filter(hasOee);
+        const directMachine=c.mesin?scoped.filter(r=>cleanLabel(r.mesin)===cleanLabel(c.mesin)):[];
+        if(directMachine.length){
+          calculation=aggregate(directMachine);
+          note='OEE mesin '+c.mesin+' · laporan OEE Admin';
+        } else if(c.mesin){
+          const group=groupForMachine(c.gedung,c.mesin);
+          const groupRows=group?scoped.filter(r=>group.keys.some(k=>cleanLabel(r.mesin)===k || (k==='LINE 6 FILLING DRIED NOODLE'&&cleanLabel(r.mesin).startsWith(k)))):[];
+          if(groupRows.length){
+            calculation=aggregate(groupRows);
+            note=group.label+' · OEE kelompok line, bukan mesin individual';
+          } else {
+            const buildingRows=scoped.filter(r=>validForBuilding(r,c.gedung));
+            calculation=aggregate(buildingRows);
+            note=calculation?'OEE agregat Gedung '+c.gedung+' · data khusus mesin belum tersedia':'Tidak ada data OEE line untuk area/shift ini';
+          }
+        } else {
+          calculation=aggregate(scoped.filter(r=>validForBuilding(r,c.gedung)));
+          note='OEE agregat Gedung '+c.gedung+' · '+(shiftNum?'Shift '+shiftNum:'semua shift');
+        }
+        if(calculation && !calculation.weighted && calculation.count>1)
+          note+=' · rata-rata lini';
+      } else if(shiftNum===1 || shiftNum===2 || shiftNum===3) {
+        // All gedung, one shift: the shift summary used by oee.html.
+        const rows=await getRows('oee_shiftly',{tanggal:'eq.'+c.tanggal},controller.signal);
+        const matched=rows.find(r=>{const s=String(r.shift||'').toUpperCase().trim();return s==='SHIFT '+shiftNum || s===String(shiftNum);});
+        calculation=matched?aggregate([matched]):null;
+        note='OEE seluruh pabrik · Shift '+shiftNum+' · OEE Admin';
+      } else {
+        // All buildings and shifts: same daily OEE value displayed in oee.html.
+        const rows=await getRows('oee_daily',{tanggal:'eq.'+c.tanggal},controller.signal);
+        calculation=aggregate(rows);
+        note='OEE harian seluruh pabrik · OEE Admin';
+      }
+      if(token!==currentRequest)return;
+      if(!calculation){
+        setResult(null,null,(note||'Belum ada data OEE')+' · '+c.tanggal);
+      }else{
+        setResult(calculation.actual,calculation.target,note);
+      }
+    }catch(e){
+      if(token!==currentRequest)return;
+      const msg=e?.name==='AbortError'?'permintaan terlalu lama':String(e.message||e);
+      setResult(null,null,'Gagal membaca data OEE: '+msg);
+    }finally{clearTimeout(timer);}
+  }
+  // The legacy online connector replaces loadOee in its own script.
+  // Assign after that script so all SHO controls/reloads use this OEE reader.
+  window.loadOee=readOeeForSho;
+  readOeeForSho(typeof ctx==='function'?ctx():{});
+  // The connector may finish an OEE request started before this override.
+  // Replace such a stale result immediately with the canonical OEE-page lookup.
+  const legacyNotes = new Set([
+    'Belum ada laporan Admin',
+    'Dari laporan OEE Admin',
+    'Belum ada laporan Admin untuk mesin ini',
+    'OEE Admin belum dapat diakses',
+    'Pilih tanggal, shift, dan mesin',
+    'Aktifkan perangkat untuk membaca OEE Admin'
+  ]);
+  document.addEventListener('sho-oee-updated', () => {
+    if (legacyNotes.has(state.oee?.note)) Promise.resolve().then(() => readOeeForSho(typeof ctx==='function'?ctx():{}));
+  });
+})();
+</script></body></html>
