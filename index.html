@@ -1977,7 +1977,7 @@ body::after {
 }
 </style>
 <style id="top5-downtime-style">
-/* Top 5 downtime — sourced from OEE admin reports */
+/* Top 5 downtime — sourced from SHO Team Leader (kategori D) */
 .downtime-index-card{margin:20px 0 22px;padding:22px 23px;border:1px solid #dfe8f3;border-radius:22px;background:rgba(255,255,255,.94);box-shadow:0 14px 34px rgba(38,70,113,.08)}
 .downtime-index-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px}
 .downtime-index-title{display:flex;align-items:center;gap:11px;min-width:0}
@@ -2002,6 +2002,12 @@ body::after {
 .downtime-top5-foot{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:13px;color:#8a96a7;font-size:9px;line-height:1.5}
 .downtime-top5-state{padding:23px 12px;border:1px dashed #d7e1ed;border-radius:13px;color:#8c9aad;background:#fbfdff;text-align:center;font-size:11px;line-height:1.6}
 @media(max-width:650px){.downtime-index-card{padding:16px;border-radius:17px}.downtime-index-header h2{font-size:16px}.downtime-index-total{text-align:left}.downtime-top5-row{grid-template-columns:30px minmax(0,1fr) minmax(75px,85px);gap:8px;padding:11px 9px}.downtime-top5-track{grid-column:2 / -1;grid-row:2}.downtime-top5-cause{font-size:11px}.downtime-top5-duration{font-size:12px}}
+/* Seluruh kartu downtime merupakan tautan ke halaman monitoring SHO. */
+.downtime-sho-link{display:block;color:inherit;text-decoration:none;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
+.downtime-sho-link:hover{transform:translateY(-2px);box-shadow:0 18px 40px rgba(38,70,113,.13);border-color:#b7d3f8}
+.downtime-sho-link:focus-visible{outline:3px solid #1268e8;outline-offset:3px}
+.downtime-sho-open{margin-top:12px;text-align:right;color:#1268e8;font-size:11px;font-weight:800}
+.downtime-sho-open span{font-size:15px;margin-left:3px}
 </style>
 <!-- VARIANCE MULTISELECT SEARCH V3 + SELECT VISIBLE RESULTS -->
 <style id="energy-target-color-fix">
@@ -2350,7 +2356,7 @@ body::after {
 
 
 
-    <section class="downtime-index-card" id="top5-downtime" aria-label="Top 5 downtime produksi">
+    <a class="downtime-index-card downtime-sho-link" id="top5-downtime" href="sho.html" aria-label="Buka monitoring Shift Hand Over untuk melihat detail Top 5 downtime">
         <div class="downtime-index-header">
             <div class="downtime-index-title">
                 <div class="downtime-index-icon" aria-hidden="true">◷</div>
@@ -2362,8 +2368,9 @@ body::after {
             <div class="downtime-index-total" aria-live="polite"><strong id="downtime-total-minutes">—</strong><span id="downtime-total-events">Menunggu data downtime</span></div>
         </div>
         <div class="downtime-top5-rows" id="downtime-top5-rows" aria-live="polite"><div class="downtime-top5-state">Memuat data downtime...</div></div>
-        <div class="downtime-top5-foot"><span id="downtime-top5-period">Periode mengikuti filter tanggal di atas.</span><span>Sumber: OEE → Generate Ringkasan · diperbarui otomatis</span></div>
-    </section>
+        <div class="downtime-top5-foot"><span id="downtime-top5-period">Periode mengikuti filter tanggal di atas.</span><span>Sumber: SHO · Input TL kategori D · sinkron otomatis</span></div>
+        <div class="downtime-sho-open" aria-hidden="true">Lihat Monitoring SHO <span>↗</span></div>
+    </a>
 
     <div class="sec-title">⚡ Monitoring Energy <span style="color:#94a3b8;font-weight:400;text-transform:none"> · sesuai filter tanggal</span></div>
     <div class="kpi-grid energy-kpi-grid">
@@ -5581,31 +5588,79 @@ async function loadGasTonCard(){
 }
 
 
-// Top 5 Downtime: alasan identik (abaikan huruf besar/spasi) digabung berdasarkan total menit.
+// Top 5 Downtime (SHO): satu issue kategori D dihitung satu kali.
+// Jika perlu, gunakan kode aktivasi SHO pada domain yang sama untuk baca lewat Edge Function.
+// Tidak mengambil data dari OEE, dan tidak menghitung ulang arsip finalisasi handover.
 let downtimeTop5Request=0;
-function parseDowntimeIndexNotes(raw){
-    const events=[];
-    String(raw||'').split(/\r?\n/).forEach(value=>{
-        const line=value.trim().replace(/^\d+[.)]\s+/, '').trim();
-        const m=line.match(/^(\d{1,2})[.:](\d{2})\s*[-–—]\s*(\d{1,2})[.:](\d{2})\s*[:\-–—]?\s*(.+)$/);
-        if(!m)return;
-        const a=+m[1]*60 + +m[2],b=+m[3]*60 + +m[4];
-        if(+m[1]>23||+m[3]>23||+m[2]>59||+m[4]>59)return;
-        let minutes=b-a;
-        if(minutes<0)minutes+=1440;
-        if(minutes<1||minutes>720)return;
-        const reason=m[5].trim();if(reason)events.push({reason,minutes});
-    });
-    return events;
-}
 function formatDowntimeMinutes(total){
-    const minutes=Math.round(total),hours=Math.floor(minutes/60),rem=minutes%60;
-    return hours?`${hours} jam${rem?' '+rem+' mnt':''}`:`${minutes} mnt`;
+    const minutes=Math.max(0,Math.round(Number(total)||0));
+    const hours=Math.floor(minutes/60),rest=minutes%60;
+    return hours?`${hours} jam${rest?' '+rest+' mnt':''}`:`${minutes} mnt`;
 }
 function setDowntimeIndexState(message){
     const rows=document.getElementById('downtime-top5-rows');
     if(!rows)return;
     rows.replaceChildren();const el=document.createElement('div');el.className='downtime-top5-state';el.textContent=message;rows.append(el);
+}
+function shoIndexDowntimeMinutes(issue){
+    if(String(issue.category||'').trim().toUpperCase()!=='D')return 0;
+    const raw=(issue.downtime_minutes===null||issue.downtime_minutes===undefined||issue.downtime_minutes==='')
+        ? issue.duration_minutes : issue.downtime_minutes;
+    const minutes=Number(raw);
+    return Number.isFinite(minutes)&&minutes>0?minutes:0;
+}
+function shoIndexDeviceCode(){
+    try{return localStorage.getItem('kobe_sho_device_access_v1')||''}catch{return ''}
+}
+async function shoIndexReadFromTable(sDate,eDate,token){
+    const all=[];
+    const step=1000;
+    for(let offset=0;offset<100000;offset+=step){
+        const {data,error}=await db.from('sho_issues')
+            .select('id,tanggal,gedung,mesin,line,category,problem,downtime_minutes,duration_minutes')
+            .eq('category','D').gte('tanggal',sDate).lte('tanggal',eDate)
+            .order('tanggal',{ascending:true}).order('id',{ascending:true})
+            .range(offset,offset+step-1);
+        if(error)throw error;
+        if(token!==downtimeTop5Request)return null;
+        all.push(...(data||[]));
+        if(!data||data.length<step)return all;
+    }
+    throw Error('Jumlah issue melebihi batas 100.000 baris. Persempit rentang tanggal.');
+}
+async function shoIndexReadFromSync(sDate,eDate,token){
+    const access=shoIndexDeviceCode();
+    if(!access)throw Error('Kode akses SHO belum diaktifkan pada perangkat ini.');
+    const controller=new AbortController();
+    const timeout=setTimeout(()=>controller.abort(),18000);
+    try{
+        const response=await fetch(SUPABASE_URL+'/functions/v1/sho-sync',{
+            method:'POST',
+            headers:{'Content-Type':'application/json','x-sho-code':access,'apikey':SUPABASE_KEY},
+            body:JSON.stringify({action:'snapshot'}),
+            cache:'no-store',signal:controller.signal
+        });
+        const payload=await response.json().catch(()=>({}));
+        if(!response.ok)throw Error(payload.error||'Akses sinkronisasi SHO ditolak ('+response.status+').');
+        if(!Array.isArray(payload.issues))throw Error('Format data sinkronisasi SHO tidak sesuai.');
+        if(token!==downtimeTop5Request)return null;
+        return payload.issues.filter(x=>x.tanggal>=sDate&&x.tanggal<=eDate&&String(x.category||'').trim().toUpperCase()==='D');
+    }finally{clearTimeout(timeout)}
+}
+async function shoIndexReadIssues(sDate,eDate,token){
+    let tableRows=null,tableError=null;
+    try{tableRows=await shoIndexReadFromTable(sDate,eDate,token)}
+    catch(error){tableError=error}
+    if(token!==downtimeTop5Request)return null;
+    // Prefer table data when available. On RLS-restricted projects, the table
+    // may return 0 rows even though issues exist; retry with the same SHO activation.
+    if(tableRows?.length)return tableRows;
+    if(shoIndexDeviceCode()){
+        try{return await shoIndexReadFromSync(sDate,eDate,token)}
+        catch(error){if(tableError)throw Error('Tabel SHO: '+tableError.message+'; sinkronisasi SHO: '+error.message)}
+    }
+    if(tableError)throw Error(tableError.message+' · Buka halaman SHO dan aktifkan perangkat jika diperlukan.');
+    return tableRows||[];
 }
 async function loadDowntimeTop5(sDate,eDate){
     const token=++downtimeTop5Request;
@@ -5614,40 +5669,40 @@ async function loadDowntimeTop5(sDate,eDate){
     const periodLabel=document.getElementById('downtime-top5-period');
     if(periodLabel)periodLabel.textContent=sDate&&eDate?`Periode: ${sDate}${sDate===eDate?'':' s.d. '+eDate}`:'Pilih rentang tanggal untuk melihat downtime.';
     if(!sDate||!eDate){setDowntimeIndexState('Pilih tanggal terlebih dahulu.');if(total)total.textContent='—';if(eventsLabel)eventsLabel.textContent='Tidak ada periode aktif';return}
-    if(total)total.textContent='...';if(eventsLabel)eventsLabel.textContent='Mengambil data online';
-    setDowntimeIndexState('Memuat Top 5 downtime dari laporan OEE...');
-    const reports=[];const step=1000;
+    if(total)total.textContent='...';
+    if(eventsLabel)eventsLabel.textContent='Mengambil data SHO online';
+    setDowntimeIndexState('Memuat Top 5 downtime dari input Team Leader (SHO)...');
     try{
-        for(let i=0;i<100000;i+=step){
-            const {data,error}=await db.from('oee_downtime_reports')
-                .select('downtime_text')
-                .gte('tanggal',sDate).lte('tanggal',eDate).order('id',{ascending:true})
-                .range(i,i+step-1);
-            if(error)throw error;
-            if(token!==downtimeTop5Request)return;
-            reports.push(...(data||[]));
-            if(!data||data.length<step)break;
+        const issues=await shoIndexReadIssues(sDate,eDate,token);
+        if(token!==downtimeTop5Request||issues===null)return;
+        const map=new Map(),seen=new Set();
+        let count=0,totalMin=0;
+        for(const issue of issues){
+            if(issue?.id){if(seen.has(issue.id))continue;seen.add(issue.id)}
+            const minutes=shoIndexDowntimeMinutes(issue);
+            if(minutes<=0)continue;
+            const reason=String(issue.problem||'Tanpa keterangan').trim()||'Tanpa keterangan';
+            const key=reason.toLocaleLowerCase('id-ID').replace(/\s+/g,' ').trim();
+            if(!map.has(key))map.set(key,{reason,minutes:0,count:0,gedung:new Set()});
+            const r=map.get(key);
+            r.minutes+=minutes;r.count++;
+            if(issue.gedung)r.gedung.add(String(issue.gedung));
+            count++;totalMin+=minutes;
         }
-        if(token!==downtimeTop5Request)return;
-        const map=new Map();let count=0,totalMin=0;
-        reports.forEach(row=>parseDowntimeIndexNotes(row.downtime_text).forEach(item=>{
-            const key=item.reason.toLocaleLowerCase('id-ID').replace(/\s+/g,' ').trim();
-            if(!map.has(key))map.set(key,{reason:item.reason,minutes:0,count:0});
-            const r=map.get(key);r.minutes+=item.minutes;r.count++;
-            count++;totalMin+=item.minutes;
-        }));
         if(total)total.textContent=formatDowntimeMinutes(totalMin);
         if(eventsLabel)eventsLabel.textContent=`${count} kejadian · ${map.size} penyebab`;
         const ranking=[...map.values()].sort((a,b)=>b.minutes-a.minutes||b.count-a.count||a.reason.localeCompare(b.reason,'id')).slice(0,5);
         const wrap=document.getElementById('downtime-top5-rows');
-        if(!ranking.length){setDowntimeIndexState('Belum ada downtime tersimpan untuk tanggal ini. Catatan akan muncul setelah admin klik Generate Ringkasan di halaman OEE.');return}
+        if(!ranking.length){setDowntimeIndexState('Belum ada downtime kategori D dengan durasi tercatat pada SHO untuk periode ini.');return}
         wrap.replaceChildren();
-        const max=ranking[0].minutes;
+        const max=ranking[0].minutes||1;
         ranking.forEach((r,i)=>{
             const item=document.createElement('div');item.className='downtime-top5-row'+(i<3?' critical':'');
             const rank=document.createElement('div');rank.className='downtime-top5-rank';rank.textContent=String(i+1).padStart(2,'0');
             const desc=document.createElement('div');desc.className='downtime-top5-cause';desc.textContent=r.reason;
-            const small=document.createElement('span');small.className='downtime-top5-detail';small.textContent=`${r.count} kejadian`;desc.appendChild(small);
+            const small=document.createElement('span');small.className='downtime-top5-detail';
+            small.textContent=`${r.count} kejadian${r.gedung.size?' · Gedung '+[...r.gedung].sort().join(', '):''}`;
+            desc.appendChild(small);
             const track=document.createElement('div');track.className='downtime-top5-track';
             const fill=document.createElement('div');fill.className='downtime-top5-fill';fill.style.width=`${Math.max(2,100*r.minutes/max)}%`;track.appendChild(fill);
             const duration=document.createElement('div');duration.className='downtime-top5-duration';duration.textContent=formatDowntimeMinutes(r.minutes);
@@ -5655,23 +5710,23 @@ async function loadDowntimeTop5(sDate,eDate){
         });
     }catch(error){
         if(token!==downtimeTop5Request)return;
-        if(total)total.textContent='—';if(eventsLabel)eventsLabel.textContent='Data belum tersedia';
-        setDowntimeIndexState('Top 5 belum bisa ditampilkan: '+error.message+'. Pastikan tabel Supabase sudah dibuat.');
+        if(total)total.textContent='—';if(eventsLabel)eventsLabel.textContent='Koneksi SHO bermasalah';
+        setDowntimeIndexState('Data downtime SHO belum dapat dibaca: '+(error.message||String(error)));
+        console.warn('Downtime Index SHO:',error);
     }
 }
 
-
-// Supabase Realtime membuat Top 5 berubah pada halaman Index yang masih terbuka.
-// Interval adalah fallback bila WebSocket/Reatime tidak tersedia di browser/jaringan.
+// Perubahan issue SHO langsung memutakhirkan peringkat jika Realtime diizinkan.
+// Polling 30 detik tetap bekerja bila Realtime tidak diaktifkan.
 function refreshDowntimeOnIndex(){
     if(document.visibilityState==='hidden')return;
     if(startDate&&endDate)loadDowntimeTop5(startDate,endDate);
 }
 try{
-    db.channel('index-downtime-updates')
-      .on('postgres_changes',{event:'*',schema:'public',table:'oee_downtime_reports'},refreshDowntimeOnIndex)
+    db.channel('index-sho-downtime-updates')
+      .on('postgres_changes',{event:'*',schema:'public',table:'sho_issues'},refreshDowntimeOnIndex)
       .subscribe();
-}catch(err){console.warn('Realtime downtime tidak aktif; fallback refresh tetap digunakan.',err)}
+}catch(err){console.warn('Realtime SHO tidak aktif; refresh 30 detik tetap digunakan.',err)}
 setInterval(refreshDowntimeOnIndex,30000);
 document.addEventListener('visibilitychange',()=>{
     if(document.visibilityState==='visible')refreshDowntimeOnIndex();
