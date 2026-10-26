@@ -52,10 +52,17 @@
 .sku-source-hint.ready{color:#167153}
 .sku-reload{display:none;margin-left:5px;background:transparent;border:0;padding:2px 4px;color:#1268e8;font-size:10px;font-weight:850;text-decoration:underline}
 .sku-reload.show{display:inline}
+
+/* Dropdown Mesin: pastikan menu tidak terpotong oleh kartu Identitas Shift. */
+#shift-identity-card{position:relative;z-index:30;overflow:visible}
+#shift-identity-card .machine-picker{position:relative;z-index:35}
+#shift-identity-card .machine-menu{top:calc(45px + 6px);z-index:50;max-width:100%;overflow:hidden}
+#shift-identity-card .machine-options{overscroll-behavior:contain}
+@media(max-width:740px){#shift-identity-card .machine-menu{max-height:min(330px,65vh)}#shift-identity-card .machine-options{max-height:min(265px,50vh)}}
 </style></head><body><header class="head"><div class="head-in"><div class="brand"><span class="mark">K</span><span><b>PT KOBE BOGA UTAMA</b><small>BOJONEGORO · SHIFT HAND OVER</small></span></div><div class="head-actions"><span id="sho-connection" class="pill warn" style="display:none!important" aria-hidden="true">Supabase: menghubungkan...</span></div></div></header><main class="wrap">
 <section class="hero"><div><div class="eyebrow">TEAM LEADER · INPUT REAL TIME</div><h1>Form Input TL</h1><p>Isi saat ada kejadian, kapan saja selama shift. Input berikutnya tidak akan menghapus catatan sebelumnya.</p></div><div class="hero-right"><button class="btn btn-white" id="back-to-review" type="button">← Kembali ke SHO Review</button><small>Catat issue dalam satu menit · v2 mobile</small></div></section>
 <div id="notice" class="notice" role="status" aria-live="polite"></div>
-<div class="card" style="margin-bottom:16px"><div class="card-title"><div><b>Identitas Shift</b></div></div><div class="card-body"><div class="grid-ctx"><div class="field"><label for="tanggal">Tanggal *</label><input id="tanggal" type="date" required></div><div class="field"><label for="shift">Shift *</label><select id="shift" required><option value="">Pilih shift</option><option value="1">Shift 1</option><option value="2">Shift 2</option><option value="3">Shift 3</option></select></div><div class="field"><label for="gedung">Gedung *</label><select id="gedung" required><option value="">Pilih gedung</option><option value="4">Gedung 4</option><option value="6">Gedung 6</option><option value="7">Gedung 7</option></select></div><div class="field"><label for="machine-trigger">Mesin * <span class="multi-indicator">Bisa pilih beberapa</span></label>
+<div class="card" id="shift-identity-card" style="margin-bottom:16px"><div class="card-title"><div><b>Identitas Shift</b></div></div><div class="card-body"><div class="grid-ctx"><div class="field"><label for="tanggal">Tanggal *</label><input id="tanggal" type="date" required></div><div class="field"><label for="shift">Shift *</label><select id="shift" required><option value="">Pilih shift</option><option value="1">Shift 1</option><option value="2">Shift 2</option><option value="3">Shift 3</option></select></div><div class="field"><label for="gedung">Gedung *</label><select id="gedung" required><option value="">Pilih gedung</option><option value="4">Gedung 4</option><option value="6">Gedung 6</option><option value="7">Gedung 7</option></select></div><div class="field"><label for="machine-trigger">Mesin * <span class="multi-indicator">Bisa pilih beberapa</span></label>
   <div class="machine-picker" id="machine-picker">
     <input type="hidden" id="mesin" value="">
     <button id="machine-trigger" type="button" class="machine-trigger" aria-expanded="false" aria-controls="machine-menu" aria-haspopup="true" disabled><span id="machine-trigger-text">Pilih gedung dahulu</span><span aria-hidden="true">&#9662;</span></button>
