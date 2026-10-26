@@ -848,23 +848,9 @@ body{
 .chart-compare-hint.show{display:inline-flex;}
 .chart-compare-hint::before{content:'';width:12px;height:3px;border-radius:999px;background:linear-gradient(90deg,#1268e8,#7c3aed,#16a065,#f97316);}
 
-/* Downtime reporting — protected publishing, readable monitoring */
-.downtime-publish-panel{margin:12px 0 0;padding:13px;border:1px solid #d9e5f6;border-radius:13px;background:linear-gradient(135deg,#f7fbff,#fff)}
-.downtime-admin-form[hidden],.downtime-user-row[hidden]{display:none !important}
-.downtime-publish-title{font-size:12px;font-weight:850;color:#183f74;margin:0 0 5px}
-.downtime-publish-hint{font-size:10px;line-height:1.55;color:#66768a;margin:0 0 11px}
-.downtime-admin-form{display:grid;grid-template-columns:minmax(100px,1fr) minmax(100px,1fr) auto;gap:7px;align-items:end}
-.downtime-admin-form label{display:block;color:#718096;font-size:9px;font-weight:750;margin:0 0 4px}
-.downtime-admin-form input{width:100%;height:35px;padding:7px 9px;border:1px solid #dce5f2;border-radius:9px;background:#fff;color:#334155;font-size:11px}
-.downtime-admin-form button,.downtime-save-btn,.downtime-signout-btn{min-height:35px;padding:8px 11px;border-radius:9px;font-size:10px;font-weight:800;cursor:pointer}
-.downtime-admin-form button,.downtime-save-btn{border:0;color:#fff;background:linear-gradient(135deg,#1268e8,#194b9d)}
-.downtime-save-btn{width:100%;margin-top:8px}
-.downtime-save-btn:disabled{opacity:.65;cursor:wait}
-.downtime-signout-btn{border:1px solid #dce5f2;color:#52657e;background:#fff}
-.downtime-user-row{display:flex;align-items:center;justify-content:space-between;gap:9px;flex-wrap:wrap;margin:5px 0;font-size:10px;color:#52657e}
-.downtime-save-note{min-height:15px;margin-top:7px;color:#6b7a90;font-size:9px;line-height:1.5}
+/* Catatan downtime dikirim otomatis saat laporan dibuat. */
 .report-line-card .downtime-format-hint{margin:4px 0 7px;font-size:9px;line-height:1.5;color:#718096}
-@media(max-width:640px){.downtime-admin-form{grid-template-columns:1fr}.downtime-admin-form button{width:100%}}
+
 </style>
 </head>
 <body>
@@ -956,7 +942,7 @@ body{
         <div class="report-head">
             <div>
                 <h3>Konversi Laporan OEE WhatsApp</h3>
-                <p>Data produksi diambil dari sheet <strong>DATA</strong> pada workbook OEE yang sama. Pilih tanggal dan shift, lengkapi Speed Actual serta downtime, lalu generate ringkasan yang siap disalin ke grup WhatsApp.</p>
+                <p>Data produksi diambil dari sheet <strong>DATA</strong> pada workbook OEE yang sama. Pilih tanggal dan shift, lengkapi Speed Actual serta downtime, lalu klik Generate Ringkasan. Laporan WhatsApp dibuat sekaligus data downtime dikirim ke Index otomatis.</p>
             </div>
             <span class="report-badge" id="report-source-badge">Menunggu Excel</span>
         </div>
@@ -973,24 +959,11 @@ body{
                 <div class="report-preview-head"><strong>Preview Pesan WhatsApp</strong><span>Siap copy-paste</span></div>
                 <textarea id="wa-report-output" readonly placeholder="Ringkasan laporan akan tampil di sini..."></textarea>
                 <div class="report-actions">
-                    <button type="button" class="report-generate-btn" onclick="generateWhatsAppReport()">Generate Ringkasan</button>
+                    <button type="button" id="btn-generate-report" class="report-generate-btn" onclick="generateWhatsAppReport()">Generate Ringkasan</button>
                     <button type="button" class="report-copy-btn" onclick="copyWhatsAppReport()">Copy WhatsApp</button>
                     <button type="button" class="report-clear-btn" onclick="clearReportDraftsForSelection()">Bersihkan Input Lokal</button>
                 </div>
                 <div class="report-helper"><b>Catatan:</b> Target OEE, Target PCS, Output, SKU dan Speed SAP dibaca otomatis bila tersedia pada sheet DATA. Field target/Speed SAP tetap dapat dikoreksi sebelum generate.</div>
-                <div class="downtime-publish-panel" aria-label="Publikasi downtime ke monitoring">
-                    <p class="downtime-publish-title">Simpan Downtime ke Dashboard</p>
-                    <p class="downtime-publish-hint">Input tetap bisa dipakai untuk laporan WhatsApp. Agar Top 5 pada index terbaca di semua perangkat, login admin dan klik Simpan Downtime setelah mengisi catatan. Urutan berdasarkan total menit.</p>
-                    <form id="downtime-admin-form" class="downtime-admin-form" onsubmit="loginDowntimeAdmin(event)">
-                        <div><label for="downtime-admin-email">Email admin</label><input type="email" id="downtime-admin-email" autocomplete="username" required placeholder="Email Supabase Auth"></div>
-                        <div><label for="downtime-admin-password">Password</label><input type="password" id="downtime-admin-password" autocomplete="current-password" required placeholder="Password"></div>
-                        <button type="submit" id="downtime-login-btn">Masuk</button>
-                    </form>
-                    <div class="downtime-user-row" id="downtime-admin-session" hidden><span id="downtime-admin-name"></span><button type="button" class="downtime-signout-btn" onclick="logoutDowntimeAdmin()">Keluar</button></div>
-                    <button type="button" class="downtime-save-btn" id="btn-save-downtime" onclick="saveDowntimeToSupabase()" disabled>Simpan Downtime ke Dashboard</button>
-                    <div class="downtime-save-note" id="downtime-save-note" role="status">Login diperlukan untuk menyimpan perubahan ke dashboard.</div>
-                </div>
-
                 <div class="report-status" id="report-status"></div>
             </div>
         </div>
@@ -1490,7 +1463,7 @@ function aggregateReportRows(rows){
 }
 function reportDraftKey(r){return [r.tanggal,r.shift||'',r.mesin,r.sku].join('||')}
 function loadReportDraft(key){try{return JSON.parse(localStorage.getItem('oee-wa:'+key)||'{}')}catch{return{}}}
-function saveReportDraft(key,field,value){const d=loadReportDraft(key);d[field]=value;if(field==='downtime'){d._downtimeEditedAt=Date.now();setDowntimeSaveNote('Catatan berubah. Klik Simpan Downtime agar muncul di index.')}localStorage.setItem('oee-wa:'+key,JSON.stringify(d))}
+function saveReportDraft(key,field,value){const d=loadReportDraft(key);d[field]=value;if(field==='downtime'){d._downtimeEditedAt=Date.now()}localStorage.setItem('oee-wa:'+key,JSON.stringify(d))}
 function resetReportConverter(label='Menunggu Excel'){
     const badge=document.getElementById('report-source-badge');if(badge)badge.textContent=label;
     const ds=document.getElementById('report-date'),ss=document.getElementById('report-shift'),lines=document.getElementById('report-lines'),out=document.getElementById('wa-report-output');
@@ -1523,15 +1496,63 @@ function renderReportLines(){
       </div>`}).join('');
 }
 function formatReportDate(dateStr){const d=dateFromStr(dateStr);return `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getFullYear()).slice(-2)}`}
-function generateWhatsAppReport(){
-    const {date,shift,rows}=currentReportSelection(),output=document.getElementById('wa-report-output');if(!date||!rows.length){setReportStatus('warn','Pilih tanggal dan shift yang memiliki data produksi.');return}
-    const blocks=[];
-    rows.forEach(r=>{const d=loadReportDraft(reportDraftKey(r));if(d.include===false)return;const target=Number(d.targetOee??r.targetOee??OEE_TARGET),targetCustom=Number(r.targetPcs||0)*(target/100),speedSap=String(d.speedSap??r.speedSap??'').trim()||'—',speedActual=String(d.speedActual??'').trim()||'—',downtime=String(d.downtime??'').trim()||'1. ...\n2. ...\n3. ...';blocks.push(`${r.mesin}\nSKU : ${r.sku||'—'}\nTarget OEE - 100% : ${fmtReportNum(r.targetPcs)} Pcs\nTarget OEE - ${fmtReportNum(target)}% : ${fmtReportNum(targetCustom)} Pcs\nHasil Output      : ${fmtReportNum(r.outputPcs)} Pcs\nSpeed SAP :${speedSap}\nSpeed Actual:${speedActual}\nTop 3 Downtime\n${downtime}`)});
+let downtimeGenerateInProgress = false;
+async function generateWhatsAppReport(){
+    if(downtimeGenerateInProgress)return;
+    const {date,shift,rows}=currentReportSelection();
+    const output=document.getElementById('wa-report-output');
+    if(!date||!shift||!rows.length){setReportStatus('warn','Pilih tanggal dan shift yang memiliki data produksi.');return}
+    const blocks=[],payload=[];
+    let eventCount=0;
+    for(const r of rows){
+        const key=reportDraftKey(r),d=loadReportDraft(key);
+        if(d.include===false)continue;
+        const text=String(d.downtime??'').trim();
+        const {events,errors}=parseDowntimeNotes(text);
+        if(errors.length){setReportStatus('warn',`${r.mesin} (${r.sku}): ${errors.join('; ')}. Perbaiki sebelum Generate.`);return}
+        if(text.length>5000){setReportStatus('warn',`${r.mesin}: catatan downtime maksimal 5.000 karakter.`);return}
+        eventCount+=events.length;
+        const target=Number(d.targetOee??r.targetOee??OEE_TARGET);
+        const targetCustom=Number(r.targetPcs||0)*(target/100);
+        const speedSap=String(d.speedSap??r.speedSap??'').trim()||'—';
+        const speedActual=String(d.speedActual??'').trim()||'—';
+        const downtime=text||'1. ...\n2. ...\n3. ...';
+        blocks.push(`${r.mesin}\nSKU : ${r.sku||'—'}\nTarget OEE - 100% : ${fmtReportNum(r.targetPcs)} Pcs\nTarget OEE - ${fmtReportNum(target)}% : ${fmtReportNum(targetCustom)} Pcs\nHasil Output      : ${fmtReportNum(r.outputPcs)} Pcs\nSpeed SAP :${speedSap}\nSpeed Actual:${speedActual}\nTop 3 Downtime\n${downtime}`);
+        // Pengiriman idempotent: tanggal+shift+mesin+SKU selalu update catatan sebelumnya.
+        // Catatan yang sudah ada namun sekarang dikosongkan juga ikut dipublikasikan untuk menghapus downtime dari ranking.
+        if(text||downtimeServerReportKeys.has(key))payload.push({mesin:r.mesin,sku:r.sku,downtime_text:text});
+    }
     if(!blocks.length){setReportStatus('warn','Tidak ada line yang dicentang untuk disertakan.');return}
-    output.value=`Report OEE shift ${shift||'-'} tgl ${formatReportDate(date)}\n${blocks.join('\n\n')}`;setReportStatus('ok',`${blocks.length} line berhasil dikonversi menjadi laporan WhatsApp.`);
+    // Preview pesan tersedia walaupun sambungan online sedang gagal.
+    output.value=`Report OEE shift ${shift} tgl ${formatReportDate(date)}\n${blocks.join('\n\n')}`;
+    if(!payload.length){setReportStatus('ok',`${blocks.length} line berhasil digenerate. Belum ada catatan downtime untuk dikirim ke Index.`);return}
+    const btn=document.getElementById('btn-generate-report');
+    downtimeGenerateInProgress=true;
+    if(btn){btn.disabled=true;btn.textContent='Menyinkronkan...'}
+    setReportStatus('ok','Laporan WhatsApp siap. Mengirim downtime ke Index...');
+    try{
+        const {data,error}=await db.rpc('publish_oee_downtime',{
+            p_tanggal:date,p_shift:shift,p_records:payload
+        });
+        if(error)throw error;
+        const editedAt=Date.now();
+        for(const row of payload){
+            const key=reportDraftKey({tanggal:date,shift,mesin:row.mesin,sku:row.sku});
+            const draft=loadReportDraft(key);draft._downtimeEditedAt=editedAt;
+            localStorage.setItem('oee-wa:'+key,JSON.stringify(draft));
+            downtimeServerReportKeys.add(key);
+        }
+        setReportStatus('ok',`Laporan WhatsApp siap · ${eventCount} kejadian downtime tersinkron ke Index (${data??payload.length} line/SKU). Top 5 mengikuti periode tanggal yang dipilih.`);
+    }catch(err){
+        setReportStatus('warn','Laporan WhatsApp berhasil dibuat, tetapi downtime BELUM masuk ke Index: '+(err?.message||err)+'. Jalankan SQL sinkronisasi dan coba Generate ulang.');
+    }finally{
+        downtimeGenerateInProgress=false;
+        if(btn){btn.disabled=false;btn.textContent='Generate Ringkasan'}
+    }
 }
+
 async function copyWhatsAppReport(){const el=document.getElementById('wa-report-output');if(!el?.value.trim())generateWhatsAppReport();if(!el?.value.trim())return;try{await navigator.clipboard.writeText(el.value);setReportStatus('ok','Laporan berhasil disalin. Tinggal paste ke grup WhatsApp.')}catch{el.focus();el.select();document.execCommand('copy');setReportStatus('ok','Laporan berhasil disalin. Tinggal paste ke grup WhatsApp.')}}
-function clearReportDraftsForSelection(){const {rows}=currentReportSelection();rows.forEach(r=>localStorage.removeItem('oee-wa:'+reportDraftKey(r)));document.getElementById('wa-report-output').value='';renderReportLines();setReportStatus('warn','Input lokal dibersihkan. Untuk menghapus downtime yang sudah online, login admin lalu klik Simpan Downtime ke Dashboard.')}
+function clearReportDraftsForSelection(){const {rows}=currentReportSelection();rows.forEach(r=>localStorage.removeItem('oee-wa:'+reportDraftKey(r)));document.getElementById('wa-report-output').value='';renderReportLines();setReportStatus('warn','Input lokal dibersihkan. Untuk mengosongkan downtime yang sudah online, klik Generate Ringkasan kembali setelah mengosongkan catatan.')}
 function setReportStatus(type,msg){const el=document.getElementById('report-status');if(!el)return;el.className=`report-status show ${type}`;el.textContent=msg}
 
 // Parsing format: 15.00-15.27 : Penyebab; 23:55-00:12 diperbolehkan lintas tengah malam.
@@ -1552,22 +1573,19 @@ function parseDowntimeNotes(raw){
     return {events,errors};
 }
 let downtimeFetchSequence=0;
-let downtimeAdminUser=null;
 let downtimeServerReportKeys=new Set();
-function setDowntimeSaveNote(message){const el=document.getElementById('downtime-save-note');if(el)el.textContent=message;}
 async function loadServerDowntimeForSelection(){
     const {date,shift,rows}=currentReportSelection();
     renderReportLines();
     const token=++downtimeFetchSequence;
     downtimeServerReportKeys=new Set();
     if(!date||!shift||!rows.length)return;
-    setDowntimeSaveNote('Memuat catatan downtime tersimpan...');
     const {data,error}=await db.from('oee_downtime_reports')
         .select('tanggal,shift,mesin,sku,downtime_text,updated_at')
         .eq('tanggal',date).eq('shift',shift).limit(1000);
     if(token!==downtimeFetchSequence)return;
     if(error){
-        setDowntimeSaveNote('Catatan online belum bisa dibaca: '+error.message+'. Periksa SQL tabel downtime.');
+        setReportStatus('warn','Catatan downtime online belum terbaca: '+error.message);
         return;
     }
     (data||[]).forEach(r=>{
@@ -1575,7 +1593,7 @@ async function loadServerDowntimeForSelection(){
         downtimeServerReportKeys.add(key);
         const draft=loadReportDraft(key);
         const serverUpdated=new Date(r.updated_at||0).getTime();
-        // Jangan menimpa ketikan lokal admin yang lebih baru dan belum disimpan.
+        // Input terbaru lokal tidak ditimpa oleh data lama dari server.
         if(!Object.prototype.hasOwnProperty.call(draft,'_downtimeEditedAt')||serverUpdated>=Number(draft._downtimeEditedAt)){
             draft.downtime=r.downtime_text||'';
             draft._downtimeEditedAt=serverUpdated;
@@ -1583,76 +1601,7 @@ async function loadServerDowntimeForSelection(){
         }
     });
     renderReportLines();
-    setDowntimeSaveNote(`${(data||[]).length} catatan tersimpan online untuk tanggal dan shift ini. Edit lalu Simpan Downtime untuk memperbarui index.`);
 }
-async function syncDowntimeAdminSession(){
-    const {data:{user},error}=await db.auth.getUser();
-    downtimeAdminUser=error?null:user;
-    const form=document.getElementById('downtime-admin-form');
-    const panel=document.getElementById('downtime-admin-session');
-    const label=document.getElementById('downtime-admin-name');
-    const btn=document.getElementById('btn-save-downtime');
-    if(form)form.hidden=!!downtimeAdminUser;
-    if(panel)panel.hidden=!downtimeAdminUser;
-    if(label)label.textContent=downtimeAdminUser?'Masuk: '+downtimeAdminUser.email:'';
-    if(btn)btn.disabled=!downtimeAdminUser;
-}
-async function loginDowntimeAdmin(event){
-    event.preventDefault();
-    const email=document.getElementById('downtime-admin-email')?.value.trim();
-    const password=document.getElementById('downtime-admin-password')?.value;
-    const btn=document.getElementById('downtime-login-btn');
-    btn.disabled=true;
-    try{
-        const {error}=await db.auth.signInWithPassword({email,password});
-        if(error)throw error;
-        document.getElementById('downtime-admin-password').value='';
-        await syncDowntimeAdminSession();
-        setDowntimeSaveNote('Login berhasil. Hak simpan diverifikasi oleh Supabase saat penyimpanan.');
-    }catch(err){setDowntimeSaveNote('Login gagal: '+err.message)}
-    finally{btn.disabled=false}
-}
-async function logoutDowntimeAdmin(){
-    await db.auth.signOut();
-    downtimeAdminUser=null;
-    await syncDowntimeAdminSession();
-    setDowntimeSaveNote('Anda telah keluar. Input lokal tetap tersedia di browser ini.');
-}
-async function saveDowntimeToSupabase(){
-    const {date,shift,rows}=currentReportSelection();
-    if(!downtimeAdminUser){setReportStatus('warn','Login admin sebelum menyimpan downtime.');return}
-    if(!date||!shift||!rows.length){setReportStatus('warn','Pilih tanggal dan shift produksi terlebih dahulu.');return}
-    const payload=[];let totalEvents=0;
-    for(const r of rows){
-        const key=reportDraftKey(r),text=String(loadReportDraft(key).downtime||'').trim();
-        const {events,errors}=parseDowntimeNotes(text);
-        if(errors.length){setReportStatus('warn',`${r.mesin} (${r.sku}): ${errors.join('; ')}`);return}
-        if(text.length>5000){setReportStatus('warn',`${r.mesin}: catatan terlalu panjang (maksimal 5.000 karakter).`);return}
-        totalEvents+=events.length;
-        // Catatan kosong yang pernah disimpan tetap bisa dihapus dari ranking lewat upsert kosong.
-        if(text||downtimeServerReportKeys.has(key))payload.push({tanggal:date,shift,mesin:r.mesin,sku:r.sku,downtime_text:text,updated_at:new Date().toISOString(),updated_by:downtimeAdminUser.id});
-    }
-    if(!payload.length){setReportStatus('warn','Belum ada catatan downtime yang perlu disimpan.');return}
-    const btn=document.getElementById('btn-save-downtime');
-    btn.disabled=true;btn.textContent='Menyimpan...';setDowntimeSaveNote('Mengirim catatan ke Supabase...');
-    try{
-        const {error}=await db.from('oee_downtime_reports').upsert(payload,{onConflict:'tanggal,shift,mesin,sku'});
-        if(error)throw error;
-        payload.forEach(r=>{
-            const key=reportDraftKey(r),draft=loadReportDraft(key);
-            draft._downtimeEditedAt=new Date(r.updated_at).getTime();
-            localStorage.setItem('oee-wa:'+key,JSON.stringify(draft));
-            downtimeServerReportKeys.add(key);
-        });
-        setReportStatus('ok',`${totalEvents} kejadian downtime berhasil disimpan online untuk ${payload.length} line/SKU. Top 5 index akan mengikutinya saat dibuka atau di-refresh.`);
-        setDowntimeSaveNote('Berhasil tersimpan di Supabase. Data akan terbaca pada index sesuai rentang tanggal yang dipilih.');
-    }catch(err){
-        setReportStatus('warn','Gagal menyimpan downtime: '+err.message);
-        setDowntimeSaveNote('Gagal menyimpan. Pastikan tabel SQL tersedia dan akun memiliki akses admin.');
-    }finally{btn.disabled=!downtimeAdminUser;btn.textContent='Simpan Downtime ke Dashboard'}
-}
-// Supabase Auth hanya mengizinkan akun terdaftar; kebijakan RLS memastikan hanya admin yang menulis.
-syncDowntimeAdminSession();
 
 function prosesExcel() {
     const file = window._pendingFile;
