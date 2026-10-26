@@ -20,16 +20,9 @@
 .time24-hint{display:block;font-size:10px;color:#8492a7;margin-top:5px}
 @media(max-width:530px){.mandatory-details{padding:13px}.mandatory-title{align-items:flex-start}.duration-display{font-size:15px}}
 
-</style></head><body><header class="head"><div class="head-in"><div class="brand"><span class="mark">K</span><span><b>PT KOBE BOGA UTAMA</b><small>BOJONEGORO · SHIFT HAND OVER</small></span></div><div class="head-actions"><span class="pill" id="mode-badge">Mode percobaan</span><a class="btn btn-soft btn-sm" href="sho.html">SHO Review</a></div></div></header><main class="wrap">
+</style></head><body><header class="head"><div class="head-in"><div class="brand"><span class="mark">K</span><span><b>PT KOBE BOGA UTAMA</b><small>BOJONEGORO · SHIFT HAND OVER</small></span></div><div class="head-actions"><a class="btn btn-soft btn-sm" href="sho.html">SHO Review</a></div></div></header><main class="wrap">
 <section class="hero"><div><div class="eyebrow">TEAM LEADER · INPUT REAL TIME</div><h1>Form Input TL</h1><p>Isi saat ada kejadian, kapan saja selama shift. Input berikutnya tidak akan menghapus catatan sebelumnya.</p></div><div class="hero-right"><button class="btn btn-white" id="back-to-review" type="button">← Kembali ke SHO Review</button><small>Catat issue dalam satu menit · v2 mobile</small></div></section>
 <div id="notice" class="notice" role="status" aria-live="polite"></div>
-<section class="card" id="sho-auth-panel" style="margin-bottom:16px;display:none" aria-label="Koneksi ke Supabase">
-  <div class="card-title"><div><b>Masuk ke Supabase SHO</b><small>Data issue tersimpan online dan terlihat di SHO Review dari perangkat lain.</small></div><span class="pill">Akun berizin</span></div>
-  <div class="card-body"><form id="sho-auth-form"><div class="form-row" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px">
-    <div class="field"><label for="sho-auth-email">Email akun SHO</label><input id="sho-auth-email" type="email" autocomplete="username" placeholder="Email Supabase Auth" required></div>
-    <div class="field"><label for="sho-auth-password">Password</label><input id="sho-auth-password" type="password" autocomplete="current-password" placeholder="Password akun" required></div>
-  </div><div class="row" style="margin-top:12px"><button type="submit" class="btn btn-primary" id="sho-auth-submit">Masuk & Hubungkan</button><span class="muted">Akun harus memiliki izin SHO. Password tidak disimpan di HTML.</span></div></form></div>
-</section>
 <div class="card" style="margin-bottom:16px"><div class="card-title"><div><b>Identitas Shift</b><small>Diisi sekali dan otomatis diingat untuk catatan berikutnya</small></div><span class="pill">1 kali per shift</span></div><div class="card-body"><div class="grid-ctx"><div class="field"><label for="tanggal">Tanggal *</label><input id="tanggal" type="date" required></div><div class="field"><label for="shift">Shift *</label><select id="shift" required><option value="">Pilih shift</option><option value="1">Shift 1</option><option value="2">Shift 2</option><option value="3">Shift 3</option></select></div><div class="field"><label for="gedung">Gedung *</label><select id="gedung" required><option value="">Pilih gedung</option><option value="4">Gedung 4</option><option value="6">Gedung 6</option><option value="7">Gedung 7</option></select></div><div class="field"><label for="mesin">Mesin *</label><select id="mesin" required disabled><option value="">Pilih line dahulu</option></select></div><div class="field"><label for="sku">SKU / Produk *</label><select id="sku" required disabled><option value="">Pilih mesin dahulu</option></select></div><div class="field"><label for="tl">Nama Team Leader *</label><input id="tl" maxlength="100" placeholder="Nama TL" required></div></div></div></div>
 <div class="layout"><div class="stack"><section class="card"><div class="card-title"><div><b id="form-heading">Catat Issue Baru</b><small>Catat masalah, tindakan, waktu, dan PIC</small></div><span class="pill" id="form-tag">Input cepat</span></div><div class="card-body"><form id="quick-form"><div class="field"><label>Kategori SQCDP *</label><div class="cat-btns" id="category-btns"><button class="cat-btn" type="button" data-cat="S">S<small>Safety</small></button><button class="cat-btn" type="button" data-cat="Q">Q<small>Quality</small></button><button class="cat-btn" type="button" data-cat="C">C<small>Cost</small></button><button class="cat-btn active" type="button" data-cat="D">D<small>Delivery</small></button><button class="cat-btn" type="button" data-cat="P">P<small>People</small></button></div></div><div class="field" style="margin-top:15px"><label for="problem">Masalah / Kejadian *</label><textarea id="problem" maxlength="1200" required placeholder="Contoh: Mesin berhenti karena sensor error"></textarea></div><div class="field" style="margin-top:13px"><label for="action">Action / Tindakan *</label><textarea id="action" maxlength="1200" placeholder="Contoh: Koordinasi dengan tim Maintenance" required></textarea></div><section class="mandatory-details" id="extra" aria-label="Detail kejadian wajib">
   <div class="mandatory-title"><strong>Detail Kejadian</strong><span>Wajib diisi</span></div>
@@ -45,8 +38,8 @@
     <div class="field"><label for="priority">Prioritas *</label><select id="priority" required><option value="Normal">Normal</option><option value="High">High</option></select></div>
     <div class="field"><label for="issue-status">Status *</label><select id="issue-status" required><option value="Open">Open</option><option value="In Progress">In Progress</option><option value="Closed">Closed</option></select></div>
   </div>
-</section><div class="sticky-actions"><span class="muted">Format 24 jam · durasi otomatis dalam menit.</span><div class="row"><button class="btn btn-quiet btn-sm hide" type="button" id="cancel-edit">Batal Edit</button><button class="btn btn-primary" type="submit" id="save-issue">Simpan Issue</button></div></div></form></div></section></div><div class="stack"><section class="card"><div class="card-title"><div><b>OEE Aktual / Target</b><small>Otomatis, tanpa perlu diketik TL</small></div></div><div class="card-body"><div id="oee-display" style="font-size:25px;font-weight:850;letter-spacing:-.03em">— / —</div><div id="oee-description" class="muted" style="margin-top:4px">Menunggu data Admin</div></div></section></div></div>
-<div class="footer">KOBE · INPUT KEJADIAN TEAM LEADER · SQCDP</div>
+</section><div class="sticky-actions"><span class="muted">Format 24 jam · durasi otomatis · simpan di perangkat ini.</span><div class="row"><button class="btn btn-quiet btn-sm hide" type="button" id="cancel-edit">Batal Edit</button><button class="btn btn-primary" type="submit" id="save-issue">Simpan Issue</button></div></div></form></div></section></div><div class="stack"><section class="card"><div class="card-title"><div><b>OEE Aktual / Target</b><small>Otomatis, tanpa perlu diketik TL</small></div></div><div class="card-body"><div id="oee-display" style="font-size:25px;font-weight:850;letter-spacing:-.03em">— / —</div><div id="oee-description" class="muted" style="margin-top:4px">Menunggu data Admin</div></div></section></div></div>
+<div class="footer">KOBE · INPUT KEJADIAN TEAM LEADER · SQCDP<br><small>Uji coba: data pada browser ini, belum tersinkron antarperangkat.</small></div>
 </main><script>
 'use strict';
 const BASE='https://bmnhtxalfsfaefacgtpm.supabase.co';
@@ -62,21 +55,31 @@ const today=()=>{const x=new Date();return [x.getFullYear(),String(x.getMonth()+
 const dt=s=>{const x=new Date(s);return Number.isNaN(x.getTime())?clean(s):x.toLocaleString('id-ID',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})};
 const n=x=>Number(x||0).toLocaleString('id-ID',{maximumFractionDigits:2});
 const cats={S:'Safety',Q:'Quality',C:'Cost',D:'Delivery',P:'People'};
-const state={ctx:read('ctx',{}),issues:read('issues',[]),reviews:read('reviews',[]),checkins:read('checkins',[]),auth:read('auth',null),oee:{actual:null,target:null,note:'Menunggu data OEE Admin'},online:false};
+const state={ctx:read('ctx',{}),issues:read('issues',[]),reviews:read('reviews',[]),checkins:read('checkins',[]),oee:{actual:null,target:null,note:'Menunggu data OEE Admin'},online:false};
 const sameLine=(a,b)=>!!(a&&b&&a.gedung&&b.gedung&&a.gedung===b.gedung&&(a.mesin&&b.mesin?norm(a.mesin)===norm(b.mesin):a.line&&b.line&&norm(a.line)===norm(b.line)));
 const sameShift=(a,b)=>sameLine(a,b)&&a.tanggal===b.tanggal&&Number(a.shift)===Number(b.shift);
 const hasContext=c=>!!(c.tanggal&&c.shift&&c.gedung&&c.mesin);
 function notify(s,err=false){const el=$('notice');if(!el)return;el.className='notice show'+(err?' error':'');el.textContent=s;}
-function setStorageBadge(){const b=$('mode-badge');if(b){b.className='pill'+(state.online?' online':'');b.textContent=state.online?'Online tersinkron':(isHttp()?'Belum masuk Supabase':'Mode percobaan · perangkat ini');}}
+
 function options(sel,placeholder,vals,selected=''){sel.replaceChildren(new Option(placeholder,''));for(const x of vals)sel.add(new Option(x,x));sel.disabled=!vals.length;if(selected&&vals.includes(selected))sel.value=selected;}
 function machineList(g){return [...new Set((MASTER[g]||[]).flatMap(x=>x.mesin))]}
 function skusFor(g,mesin){const group=(MASTER[g]||[]).find(x=>x.mesin.some(m=>norm(m)===norm(mesin)));return group?[...new Set(group.sku)]:[]}
 function accessHeaders(auth=false){const token=auth&&state.auth?.access_token?state.auth.access_token:KEY;return {apikey:KEY,Authorization:'Bearer '+token,'Content-Type':'application/json'}}
 async function req(path,{method='GET',body=null,auth=false,authApi=false}={}){const ctrl=new AbortController(),timeout=setTimeout(()=>ctrl.abort(),11000);try{const resp=await fetch(BASE+(authApi?'/auth/v1/':'/rest/v1/')+path,{method,headers:accessHeaders(auth),signal:ctrl.signal,body:body===null?undefined:JSON.stringify(body)});if(!resp.ok)throw Error('HTTP '+resp.status+': '+(await resp.text()).slice(0,170));if(resp.status===204)return null;return await resp.json()}finally{clearTimeout(timeout)}}
-async function ensureSession(){if(!state.online)return;if(!state.auth?.refresh_token)throw Error('Sesi akun tidak valid. Masuk kembali dari SHO Review.');if((state.auth.expires_at||0)>Math.floor(Date.now()/1000)+75)return;const next=await req('token?grant_type=refresh_token',{method:'POST',body:{refresh_token:state.auth.refresh_token},authApi:true});state.auth={...state.auth,...next,expires_at:Math.floor(Date.now()/1000)+next.expires_in};write('auth',state.auth)}
-async function cloudWrite(table,row,update=false){await ensureSession();if(!state.online)throw Error('Koneksi online belum aktif');let path=table,method='POST';if(update){method='PATCH';path+='?id=eq.'+encodeURIComponent(row.id)}const ctrl=new AbortController(),t=setTimeout(()=>ctrl.abort(),11000);try{const res=await fetch(BASE+'/rest/v1/'+path,{method,signal:ctrl.signal,headers:{...accessHeaders(true),Prefer:'return=representation'},body:JSON.stringify(row)});if(!res.ok)throw Error('Tidak tersimpan: '+(await res.text()).slice(0,180));const data=await res.json();if(!data.length)throw Error('Record tidak disimpan. Periksa akses akun.');return data[0]}finally{clearTimeout(t)}}
-async function cloudLoad(){if(!state.online)return;await ensureSession();const [a,b,c]=await Promise.all([req('sho_live_issues?select=*&order=occurred_at.desc&limit=3000',{auth:true}),req('sho_live_reviews?select=*&order=reviewed_at.desc&limit=1000',{auth:true}),req('sho_live_checkins?select=*&order=checked_at.desc&limit=2000',{auth:true})]);state.issues=a||[];state.reviews=b||[];state.checkins=c||[];document.dispatchEvent(new Event('sho-data-updated'))}
-async function persist(table,row,update=false){if(state.online){const map={issues:'sho_live_issues',reviews:'sho_live_reviews',checkins:'sho_live_checkins'};const saved=await cloudWrite(map[table],row,update);state[table]=update?state[table].map(x=>x.id===saved.id?saved:x):[saved,...state[table]];document.dispatchEvent(new Event('sho-data-updated'));cloudLoad().catch(e=>console.warn('SHO: data tersimpan, tetapi refresh tertunda',e));return saved}else{const arr=state[table];state[table]=update?arr.map(x=>x.id===row.id?row:x):[row,...arr];if(!write(table,state[table]))throw Error('Browser menolak penyimpanan. Gunakan server atau aktifkan penyimpanan browser.');document.dispatchEvent(new Event('sho-data-updated'))}}
+
+
+
+async function persist(table,row,update=false){
+  if(!['issues','reviews','checkins'].includes(table)) throw Error('Jenis catatan tidak dikenali.');
+  // Local pilot mode: no login, no public/unprotected Supabase writes.
+  const existing=state[table];
+  const next=update?existing.map(item=>item.id===row.id?row:item):[row,...existing];
+  if(!write(table,next)) throw Error('Penyimpanan browser diblokir. Aktifkan penyimpanan situs.');
+  state[table]=next;
+  document.dispatchEvent(new Event('sho-data-updated'));
+  return row;
+}
+
 async function loadOee(ctx){state.oee={actual:null,target:null,note:'Belum ada laporan Admin'};if(!(ctx.tanggal&&ctx.shift&&ctx.mesin)){document.dispatchEvent(new Event('sho-oee-updated'));return}try{const rows=await req('oee_shiftly_line?select=tanggal,shift,mesin,oee,target&tanggal=eq.'+encodeURIComponent(ctx.tanggal)+'&shift=eq.'+encodeURIComponent(ctx.shift)+'&limit=600',{auth:state.online});const matched=(rows||[]).find(x=>[ctx.mesin].some(w=>w&&norm(w)===norm(x.mesin)));const parse=v=>v===null||v===undefined||v===''||!Number.isFinite(+v)?null:Number(v);state.oee={actual:matched?parse(matched.oee):null,target:matched?parse(matched.target):null,note:matched?'Dari laporan OEE Admin':'Belum ada laporan Admin untuk line/mesin ini'}}catch{state.oee.note='OEE Admin belum dapat diakses'}document.dispatchEvent(new Event('sho-oee-updated'))}
 function eventCard(e,{actions=false}={}){
 const status=e.status==='Closed'?'closed':e.status==='In Progress'?'progress':'open';
@@ -88,7 +91,13 @@ function filterIssues(ctx){return state.issues.filter(x=>(!ctx.tanggal||x.tangga
 function openIssues(ctx){return state.issues.filter(x=>(!ctx.gedung||x.gedung===ctx.gedung)&&(!ctx.mesin||norm(x.mesin)===norm(ctx.mesin))&&(!ctx.tanggal||x.tanggal<=ctx.tanggal)&&(!(ctx.tanggal&&ctx.shift&&x.tanggal===ctx.tanggal)||Number(x.shift)<=Number(ctx.shift))&&x.status!=='Closed').sort((a,b)=>(a.priority==='High'?-1:0)-(b.priority==='High'?-1:0)||b.occurred_at.localeCompare(a.occurred_at))}
 function refreshLocal(){if(!state.online){for(const k of ['ctx','issues','reviews','checkins'])state[k]=read(k,k==='ctx'?{}:[]);document.dispatchEvent(new Event('sho-data-updated'))}}
 function isHttp(){return location.protocol==='http:'||location.protocol==='https:'}
-function initStorage(){state.online=!!(isHttp()&&state.auth?.access_token);setStorageBadge();window.addEventListener('storage',e=>{if(Object.values(storeKeys).includes(e.key)){if(e.key===storeKeys.auth){state.auth=read('auth',null);state.online=!!(isHttp()&&state.auth?.access_token);setStorageBadge();toggleOnlineAuth()}if(!state.online)refreshLocal();else cloudLoad().catch(()=>{})}})}
+function initStorage(){
+  state.online=false;
+  window.addEventListener('storage',e=>{
+    if(['ctx','issues','reviews','checkins'].some(k=>storeKeys[k]===e.key)) refreshLocal();
+  });
+}
+
 </script><script>
 let category='D',editing=null,returnCtx=null,bridge=false,pending=new Map(),initialEdit=new URLSearchParams(location.search).get('edit')||'';
 function curCtx(){return {tanggal:$('tanggal').value,shift:Number($('shift').value),gedung:$('gedung').value,line:$('mesin').value,mesin:$('mesin').value,sku:$('sku').value,tl:clean($('tl').value)}}
@@ -133,39 +142,17 @@ function startEdit(x){if(!editing)returnCtx=curCtx();editing=x;$('form-heading')
 async function sendBridge(type,row){if(!window.opener||window.opener.closed)throw Error('Halaman SHO Review telah ditutup. Buka kembali form lewat halaman SHO.');const reqId=id();return await new Promise((resolve,reject)=>{const t=setTimeout(()=>{pending.delete(reqId);reject(Error('Dashboard tidak merespons. Buka form lagi dari SHO Review.'))},7000);pending.set(reqId,{resolve,reject,t});window.opener.postMessage({type,reqId,row},location.protocol==='file:'?'*':location.origin)})}
 function message(e){if(isHttp())return;if(e.source!==window.opener||!e.data||typeof e.data!=='object')return;const m=e.data;if(m.type==='SHO_SNAPSHOT'||m.type==='SHO_ACK'&&m.ok&&m.snapshot){bridge=true;const snap=m.snapshot;for(const key of ['issues','reviews','checkins'])state[key]=snap[key]||[];if(snap.ctx){state.ctx=snap.ctx;if(!editing)applyCtx(snap.ctx)}render();if(initialEdit){const event=state.issues.find(x=>x.id===initialEdit);if(event){startEdit(event);initialEdit=''}}}if(m.type==='SHO_ACK'){const p=pending.get(m.reqId);if(!p)return;clearTimeout(p.t);pending.delete(m.reqId);m.ok?p.resolve(m):p.reject(Error(m.error||'Tidak tersimpan'))}}
 async function saveRecord(table,row,update=false){
-  // Hosting GitHub Pages: always save directly to Supabase, never via another tab.
-  if(isHttp()){
-    if(!state.online || !state.auth?.access_token){
-      toggleOnlineAuth();
-      throw Error('Anda belum masuk akun SHO. Masuk ke Supabase di bagian atas form, lalu ulangi Simpan Issue.');
-    }
-    return persist(table,row,update);
+  if(isHttp()) return persist(table,row,update);
+  // Direct local files can retain the opener bridge used by the review page.
+  if(window.opener&&!window.opener.closed){
+    await sendBridge(table==='issues'?'SHO_SAVE':'SHO_CHECKIN',row);
+    return;
   }
-  // Only local file pilot retains legacy bridge.
-  if(window.opener&&!window.opener.closed){await sendBridge(table==='issues'?'SHO_SAVE':'SHO_CHECKIN',row);return}
-  throw Error('Mode file lokal memerlukan halaman SHO Review.');
+  return persist(table,row,update);
 }
-function toggleOnlineAuth(){const el=$('sho-auth-panel');if(el)el.style.display=isHttp()&&!state.online?'block':'none';}
-async function signInSho(e){
-  e.preventDefault();
-  const button=$('sho-auth-submit');
-  const email=clean($('sho-auth-email').value),password=$('sho-auth-password').value;
-  if(!email||!password){notify('Isi email dan password akun SHO.',true);return}
-  button.disabled=true;button.textContent='Menghubungkan...';
-  try{
-    const result=await req('token?grant_type=password',{method:'POST',body:{email,password},authApi:true});
-    state.auth={...result,email,expires_at:Math.floor(Date.now()/1000)+result.expires_in};
-    state.online=true;
-    const allowed=await req('rpc/sho_live_has_access',{method:'POST',body:{},auth:true});
-    if(allowed!==true)throw Error('Akun belum diizinkan pada tabel sho_live_members. Minta admin menambahkan UUID akun.');
-    await cloudLoad();
-    if(!write('auth',state.auth))throw Error('Browser tidak mengizinkan penyimpanan sesi akun.');
-    setStorageBadge();toggleOnlineAuth();
-    $('sho-auth-password').value='';
-    notify('Supabase terhubung. Catatan selanjutnya langsung tersimpan online.');
-  }catch(err){state.auth=null;state.online=false;write('auth',null);setStorageBadge();toggleOnlineAuth();notify('Gagal menghubungkan Supabase: '+err.message,true)}
-  finally{button.disabled=false;button.textContent='Masuk & Hubungkan'}
-}
+
+
+
 async function issueSubmit(e){
 e.preventDefault();if(!validate())return;
 const problem=clean($('problem').value),action=clean($('action').value),pic=clean($('pic').value);
@@ -188,6 +175,6 @@ finally{$('save-issue').disabled=false}
 }
 
 function back(){if(location.protocol==='file:'&&window.opener&&!window.opener.closed){window.opener.focus();window.close();return}window.location.href='sho.html'}
-function setup(){initTime24();initStorage();toggleOnlineAuth();$('sho-auth-form').addEventListener('submit',signInSho);applyCtx(state.ctx);render();renderOee();$('back-to-review').addEventListener('click',back);$('gedung').addEventListener('change',()=>{cascade({mesin:'',sku:''});writeCtx()});$('mesin').addEventListener('change',()=>{cascade({sku:''});writeCtx()});for(const x of ['tanggal','shift','sku','tl'])$(x).addEventListener('change',writeCtx);document.querySelectorAll('.cat-btn').forEach(btn=>btn.addEventListener('click',()=>setCat(btn.dataset.cat)));$('quick-form').addEventListener('submit',issueSubmit);setTime24('start',clockNow());setTime24('end','');$('cancel-edit').addEventListener('click',resetForm);window.addEventListener('message',message);document.addEventListener('sho-masters-updated',()=>{const x=curCtx();cascade(x);render()});document.addEventListener('sho-data-updated',()=>{render();if(initialEdit){const found=state.issues.find(x=>x.id===initialEdit);if(found){startEdit(found);initialEdit=''}}});document.addEventListener('sho-oee-updated',renderOee);window.addEventListener('focus',()=>{if(!state.online&&(isHttp()||!bridge))refreshLocal();render()});window.addEventListener('pageshow',()=>{if(!state.online&&(isHttp()||!bridge))refreshLocal();render()});if(location.protocol==='file:'&&!window.opener)notify('Untuk menyimpan ke SHO Review saat menggunakan file lokal, buka form melalui tombol Form Input TL pada halaman SHO.',true);if(initialEdit&&!window.opener){const found=state.issues.find(x=>x.id===initialEdit);if(found){startEdit(found);initialEdit=''}}if(location.protocol==='file:'&&window.opener&&!window.opener.closed){window.opener.postMessage({type:'SHO_HELLO',reqId:id()},'*')}loadOee(curCtx());if(state.online){cloudLoad().catch(e=>notify('Data online belum dapat dimuat: '+e.message,true))}else if(isHttp()){notify('Supabase sudah disiapkan. Masuk akun SHO di bagian atas agar issue bisa tersimpan online.',true)}setCat('D');setInterval(()=>{if(!document.hidden){if(state.online)cloudLoad().catch(()=>{});else if(!bridge)refreshLocal();loadOee(curCtx())}},30000)}
+function setup(){initTime24();initStorage();applyCtx(state.ctx);render();renderOee();$('back-to-review').addEventListener('click',back);$('gedung').addEventListener('change',()=>{cascade({mesin:'',sku:''});writeCtx()});$('mesin').addEventListener('change',()=>{cascade({sku:''});writeCtx()});for(const x of ['tanggal','shift','sku','tl'])$(x).addEventListener('change',writeCtx);document.querySelectorAll('.cat-btn').forEach(btn=>btn.addEventListener('click',()=>setCat(btn.dataset.cat)));$('quick-form').addEventListener('submit',issueSubmit);setTime24('start',clockNow());setTime24('end','');$('cancel-edit').addEventListener('click',resetForm);window.addEventListener('message',message);document.addEventListener('sho-masters-updated',()=>{const x=curCtx();cascade(x);render()});document.addEventListener('sho-data-updated',()=>{render();if(initialEdit){const found=state.issues.find(x=>x.id===initialEdit);if(found){startEdit(found);initialEdit=''}}});document.addEventListener('sho-oee-updated',renderOee);window.addEventListener('focus',()=>{if(!state.online&&(isHttp()||!bridge))refreshLocal();render()});window.addEventListener('pageshow',()=>{if(!state.online&&(isHttp()||!bridge))refreshLocal();render()});if(location.protocol==='file:'&&!window.opener)notify('Untuk menyimpan ke SHO Review saat menggunakan file lokal, buka form melalui tombol Form Input TL pada halaman SHO.',true);if(initialEdit&&!window.opener){const found=state.issues.find(x=>x.id===initialEdit);if(found){startEdit(found);initialEdit=''}}if(location.protocol==='file:'&&window.opener&&!window.opener.closed){window.opener.postMessage({type:'SHO_HELLO',reqId:id()},'*')}loadOee(curCtx());setCat('D');setInterval(()=>{if(!document.hidden){if(!bridge)refreshLocal();loadOee(curCtx())}},30000)}
 setup();
 </script></body></html>
