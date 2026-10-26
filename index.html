@@ -2361,7 +2361,7 @@ body::after {
             <div class="downtime-index-total" aria-live="polite"><strong id="downtime-total-minutes">—</strong><span id="downtime-total-events">Menunggu data downtime</span></div>
         </div>
         <div class="downtime-top5-rows" id="downtime-top5-rows" aria-live="polite"><div class="downtime-top5-state">Memuat data downtime...</div></div>
-        <div class="downtime-top5-foot"><span id="downtime-top5-period">Periode mengikuti filter tanggal di atas.</span><span>Sumber: OEE → Catatan Downtime tersimpan</span></div>
+        <div class="downtime-top5-foot"><span id="downtime-top5-period">Periode mengikuti filter tanggal di atas.</span><span>Sumber: OEE → Generate Ringkasan · diperbarui otomatis</span></div>
     </section>
 
     <div class="sec-title">⚡ Monitoring Energy <span style="color:#94a3b8;font-weight:400;text-transform:none"> · sesuai filter tanggal</span></div>
@@ -5639,7 +5639,7 @@ async function loadDowntimeTop5(sDate,eDate){
         if(eventsLabel)eventsLabel.textContent=`${count} kejadian · ${map.size} penyebab`;
         const ranking=[...map.values()].sort((a,b)=>b.minutes-a.minutes||b.count-a.count||a.reason.localeCompare(b.reason,'id')).slice(0,5);
         const wrap=document.getElementById('downtime-top5-rows');
-        if(!ranking.length){setDowntimeIndexState('Belum ada downtime tersimpan untuk tanggal ini. Admin dapat menyimpan melalui halaman OEE.');return}
+        if(!ranking.length){setDowntimeIndexState('Belum ada downtime tersimpan untuk tanggal ini. Catatan akan muncul setelah admin klik Generate Ringkasan di halaman OEE.');return}
         wrap.replaceChildren();
         const max=ranking[0].minutes;
         ranking.forEach((r,i)=>{
@@ -5658,6 +5658,23 @@ async function loadDowntimeTop5(sDate,eDate){
         setDowntimeIndexState('Top 5 belum bisa ditampilkan: '+error.message+'. Pastikan tabel Supabase sudah dibuat.');
     }
 }
+
+
+// Supabase Realtime membuat Top 5 berubah pada halaman Index yang masih terbuka.
+// Interval adalah fallback bila WebSocket/Reatime tidak tersedia di browser/jaringan.
+function refreshDowntimeOnIndex(){
+    if(document.visibilityState==='hidden')return;
+    if(startDate&&endDate)loadDowntimeTop5(startDate,endDate);
+}
+try{
+    db.channel('index-downtime-updates')
+      .on('postgres_changes',{event:'*',schema:'public',table:'oee_downtime_reports'},refreshDowntimeOnIndex)
+      .subscribe();
+}catch(err){console.warn('Realtime downtime tidak aktif; fallback refresh tetap digunakan.',err)}
+setInterval(refreshDowntimeOnIndex,30000);
+document.addEventListener('visibilitychange',()=>{
+    if(document.visibilityState==='visible')refreshDowntimeOnIndex();
+});
 
 // ── Init: cari tanggal terakhir dari waste_shiftly, set date picker (satu hari), lalu load ──
 async function init() {
