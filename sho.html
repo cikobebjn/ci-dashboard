@@ -73,11 +73,89 @@
 body.review-modal-open{overflow:hidden}
 @media(max-width:480px){.history-controls{grid-template-columns:1fr 1fr}.history-controls>div:last-child{grid-column:1/-1}.history-item{align-items:flex-start;flex-direction:column;gap:8px}.history-item button{width:100%}.review-overlay{padding:8px}.review-dialog{max-height:96dvh;border-radius:16px}.review-dialog-header,.review-dialog-content{padding:15px}.review-facts>div{padding:8px}.review-facts b{font-size:19px}}
 @media print{.review-overlay{display:none!important}}
+
+/* OEE SHO: angka gedung, tidak dipengaruhi pilihan mesin/work center. */
+#oee-building-list[hidden]{display:none!important}
+.oee-building-list{display:grid;gap:6px;margin-top:9px}
+.oee-building-item{display:flex;align-items:center;justify-content:space-between;gap:9px;padding:6px 8px;background:#f7faff;border:1px solid #e5edf9;border-radius:9px}
+.oee-building-name{font-size:10px;font-weight:800;color:#546784}
+.oee-building-number{font-size:12px;font-weight:850;color:#263d60;white-space:nowrap}
+.oee-building-number small{font-size:9px;color:#8897ab;font-weight:600}
+.oee-building-number.empty{color:#9aa9bb}
+
+/* Serah terima TL: alur ringkas tanpa checklist atau kolom yang berulang. */
+.handover-simple{scroll-margin-top:86px}
+.handover-simple-head small{line-height:1.4}
+.handover-simple-body{padding:18px 20px 19px}
+.handover-context-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 13px;background:#f6f9ff;border:1px solid #e0eafa;border-radius:12px}
+.handover-context-row>div{min-width:0}
+.handover-context-label{display:block;font-size:9px;color:#8595aa;font-weight:800;text-transform:uppercase;letter-spacing:.06em}
+#handover-context-label{display:block;font-size:12px;color:#253d61;line-height:1.45;margin-top:2px;overflow-wrap:anywhere}
+#choose-handover-context{white-space:nowrap;min-height:32px}
+.handover-missing{color:#a36a0c;background:#fff9ed;border:1px solid #f4e2c0;border-radius:10px;padding:10px 12px;font-size:11px;line-height:1.5;margin-top:10px}
+.handover-brief{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:11px}
+.handover-brief span{padding:10px 6px;text-align:center;background:#fbfcff;border:1px solid #e8edf5;border-radius:10px;color:#7589a3;font-size:9px;line-height:1.4}
+.handover-brief b{display:block;font-size:21px;line-height:1.2;color:#213955;letter-spacing:-.035em}
+.handover-brief b.has-open{color:#c62a39}
+.handover-pending{border:1px solid #f8d4d9;background:#fff5f6;color:#923044;padding:10px 11px;margin-top:10px;border-radius:10px;font-size:10px;line-height:1.55;overflow-wrap:anywhere}
+.handover-pending[hidden]{display:none}
+.handover-more{margin:11px 0 0;border:1px solid #e5ecf5;border-radius:11px;background:#fff;overflow:hidden}
+.handover-more summary{display:flex;align-items:center;justify-content:space-between;gap:8px;list-style:none;cursor:pointer;padding:11px 12px;color:#376296;font-size:11px;font-weight:800}
+.handover-more summary::-webkit-details-marker{display:none}
+.handover-more summary::after{content:'⌄';font-size:17px;font-weight:600;line-height:1;transition:transform .2s}
+.handover-more[open] summary::after{transform:rotate(180deg)}
+.handover-more[open] summary{border-bottom:1px solid #e8edf5;background:#f8fbff}
+.handover-more-body{display:grid;gap:8px;padding:11px 12px}
+.handover-more-body>b{font-size:10px;color:#7185a0}
+.handover-more-body .summary-text{padding:10px 11px;font-size:11px}
+.handover-person-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.handover-person-fields .field label{font-size:11px;color:#36506e}
+.handover-person-fields input{padding:11px 12px;min-height:43px}
+.handover-required{color:#d92b3a}
+.handover-note-option{margin-top:10px}
+.handover-note-option .field{padding:12px}
+.handover-note-option textarea{min-height:80px}
+.handover-save{display:flex;width:100%;margin-top:15px;min-height:45px;border-radius:11px;font-size:12px}
+.handover-footer-actions{margin-top:10px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.handover-footer-actions #review-feedback{flex:1;font-size:9px;line-height:1.45;overflow-wrap:anywhere}
+.handover-print{flex:0 0 auto;border:0;background:transparent;color:#607e9f;padding:6px;font-size:10px;font-weight:750;text-decoration:underline;text-underline-offset:3px}
+.handover-print:hover{color:#1268e8}
+@media(max-width:620px){.handover-simple-body{padding:14px}.handover-person-fields{grid-template-columns:1fr;gap:10px}.handover-brief b{font-size:19px}.handover-context-row{padding:10px;align-items:flex-start}.handover-context-row #choose-handover-context{padding:6px 9px;font-size:10px}.handover-footer-actions{align-items:flex-start}.handover-brief span{font-size:8.5px}}
+@media print{.handover-more-body{display:grid}.handover-more:not([open]) .handover-more-body{display:grid}.handover-save,.handover-print,#choose-handover-context{display:none!important}}
+</style><style id="sho-multi-machine-style">
+.filters{position:relative;z-index:30;overflow:visible!important}
+.filters .card-body{overflow:visible!important}
+.filters .grid-filters .field{position:relative;min-width:0}
+.machine-picker{position:relative;min-width:0}
+.machine-trigger{display:flex;width:100%;min-height:43px;align-items:center;justify-content:space-between;gap:10px;text-align:left;padding:9px 11px;border:1px solid #dce4ef;background:#fff;color:#293c59;border-radius:11px;font-size:12px;font-weight:700;cursor:pointer}
+.machine-trigger:disabled{opacity:.55;cursor:not-allowed;background:#f4f7fb}
+.machine-trigger:focus-visible,.machine-picker.open .machine-trigger{outline:none;border-color:#78a9fc;box-shadow:0 0 0 3px #1268e815}
+#machine-trigger-text{display:block;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.machine-chevron{flex:none;color:#7b91ad;font-size:20px;line-height:1}
+.machine-menu{position:absolute;top:calc(100% + 6px);right:0;z-index:150;width:max(100%,310px);max-width:min(400px,calc(100vw - 28px));border:1px solid #dce6f4;border-radius:13px;background:#fff;box-shadow:0 16px 40px rgba(13,39,82,.19);overflow:hidden}
+.machine-menu[hidden]{display:none!important}
+.machine-menu-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 12px 9px;border-bottom:1px solid #edf1f6}
+.machine-menu-toolbar b{font-size:10px;color:#415b7a}
+.machine-menu-toolbar button{border:0;background:none;color:#1766c9;font-size:10px;font-weight:800;cursor:pointer;padding:3px}
+.machine-options{max-height:260px;overflow:auto;padding:6px}
+.machine-option{display:flex;align-items:center;gap:9px;padding:9px;border-radius:8px;color:#40566f;font-size:11px;font-weight:700;cursor:pointer}
+.machine-option:hover{background:#eff5ff}
+.machine-option input{width:17px;height:17px;min-width:17px;margin:0;accent-color:#1268e8;cursor:pointer}
+.machine-menu-footer{display:flex;justify-content:space-between;gap:8px;padding:9px 11px;border-top:1px solid #edf1f6;background:#f8fbff}
+@media(max-width:740px){.machine-menu{right:0;width:max(100%,290px)}.machine-options{max-height:40vh}}
 </style></head><body><header class="head"><div class="head-in"><div class="brand"><span class="mark">K</span><span><b>PT KOBE BOGA UTAMA</b><small>BOJONEGORO · SHIFT HAND OVER</small></span></div><div class="head-actions"><span id="sho-connection" class="pill warn">Supabase: menghubungkan...</span><a class="btn btn-soft btn-sm" href="index.html">Dashboard</a></div></div></header><main class="wrap">
 <section class="hero"><div><div class="eyebrow">DAILY MANAGEMENT SYSTEM · SQCDP</div><h1>Shift Hand Over</h1><p>Satu halaman untuk memantau seluruh catatan Team Leader, menangani outstanding, dan mereview hasil akhir shift.</p></div><div class="hero-right"><button id="open-input" class="btn btn-white" type="button">＋ Form Input TL</button><small id="last-sync">Sinkronisasi otomatis setiap 15 detik</small></div></section>
 <div id="notice" class="notice" role="status" aria-live="polite"></div>
-<div class="card filters no-print" style="margin-bottom:17px"><div class="card-title"><div><b>Filter Monitoring</b><small>Pilih periode dan area untuk melihat output yang akan direview</small></div><button class="btn btn-quiet btn-sm" id="refresh" type="button">↻ Muat Ulang</button></div><div class="card-body"><div class="grid-filters"><div class="field"><label for="tanggal">Tanggal</label><input id="tanggal" type="date"></div><div class="field"><label for="shift">Shift</label><select id="shift"><option value="">Semua shift</option><option value="1">Shift 1</option><option value="2">Shift 2</option><option value="3">Shift 3</option></select></div><div class="field"><label for="gedung">Gedung</label><select id="gedung"><option value="">Semua gedung</option><option value="4">Gedung 4</option><option value="6">Gedung 6</option><option value="7">Gedung 7</option></select></div><div class="field"><label for="mesin">Mesin / Work Center</label><select id="mesin"><option value="">Semua mesin</option></select></div></div></div></div>
-<div class="stats"><div class="stat"><label>Issue pada Periode</label><strong id="kpi-issue">0</strong><small>Catatan SQCDP tersimpan</small></div><div class="stat"><label>Downtime TL</label><strong id="kpi-downtime">0</strong><small>Menit · khusus kategori D</small><small style="display:block;margin-top:5px">Durasi semua issue: <b id="kpi-total-duration">0</b> menit</small></div><div class="stat"><label>Outstanding</label><strong id="kpi-open" class="red">0</strong><small>Open / In Progress di line</small></div><div class="stat"><label>OEE Aktual / Target</label><strong id="kpi-oee" style="font-size:21px;white-space:nowrap">— / —</strong><small id="oee-note">Otomatis dari OEE Admin</small></div></div>
+<div class="card filters no-print" style="margin-bottom:17px"><div class="card-title"><div><b>Filter Monitoring</b><small>Pilih periode dan area untuk melihat output yang akan direview</small></div><button class="btn btn-quiet btn-sm" id="refresh" type="button">↻ Muat Ulang</button></div><div class="card-body"><div class="grid-filters"><div class="field"><label for="tanggal">Tanggal</label><input id="tanggal" type="date"></div><div class="field"><label for="shift">Shift</label><select id="shift"><option value="">Semua shift</option><option value="1">Shift 1</option><option value="2">Shift 2</option><option value="3">Shift 3</option></select></div><div class="field"><label for="gedung">Gedung</label><select id="gedung"><option value="">Semua gedung</option><option value="4">Gedung 4</option><option value="6">Gedung 6</option><option value="7">Gedung 7</option></select></div><div class="field"><label id="machine-filter-label">Mesin / Work Center</label>
+  <div id="machine-picker" class="machine-picker">
+    <button id="machine-trigger" type="button" class="machine-trigger" aria-haspopup="true" aria-expanded="false" aria-labelledby="machine-filter-label machine-trigger"><span id="machine-trigger-text">Pilih gedung dahulu</span><span class="machine-chevron">⌄</span></button>
+    <div id="machine-menu" class="machine-menu" hidden>
+      <div class="machine-menu-toolbar"><b>Pilih satu atau beberapa mesin</b><button id="machine-clear" type="button">Bersihkan</button></div>
+      <div id="machine-options" class="machine-options"></div>
+      <div class="machine-menu-footer"><button id="machine-all" type="button" class="btn btn-quiet btn-sm">Pilih semua</button><button id="machine-done" type="button" class="btn btn-primary btn-sm">Selesai</button></div>
+    </div>
+  </div><select id="mesin" class="hide" tabindex="-1" aria-hidden="true"><option value="">Semua mesin</option></select></div></div></div></div>
+<div class="stats"><div class="stat"><label>Issue pada Periode</label><strong id="kpi-issue">0</strong><small>Catatan SQCDP tersimpan</small></div><div class="stat"><label>Downtime TL</label><strong id="kpi-downtime">0</strong><small>Menit · khusus kategori D</small><small style="display:block;margin-top:5px">Durasi semua issue: <b id="kpi-total-duration">0</b> menit</small></div><div class="stat"><label>Outstanding</label><strong id="kpi-open" class="red">0</strong><small>Open / In Progress di line</small></div><div class="stat" id="oee-gedung-card"><label>OEE Gedung / Target</label><strong id="kpi-oee" style="font-size:21px;white-space:nowrap">— / —</strong><div id="oee-building-list" class="oee-building-list" hidden></div><small id="oee-note">Otomatis dari OEE Monitoring</small></div></div>
 
 <section class="card" id="downtime-monitor" aria-labelledby="downtime-heading" style="margin-bottom:18px">
   <div class="card-title">
@@ -89,7 +167,47 @@ body.review-modal-open{overflow:hidden}
 <div class="layout"><div class="stack"><section class="card"><div class="card-title"><div><b>Live Issue Log</b><small>Seluruh input Team Leader ditampilkan sesuai filter</small></div><div class="sqcdp" id="category-totals"></div></div><div class="card-body"><div class="row no-print" style="margin-bottom:12px"><div class="toggle" id="status-toggle"><button class="active" type="button" data-status="all">Semua</button><button type="button" data-status="Open">Open</button><button type="button" data-status="In Progress">In Progress</button><button type="button" data-status="Closed">Closed</button></div><span class="muted" id="list-count">0 catatan</span></div><div id="issue-list"></div></div></section><section class="card"><div class="card-title"><div><b>Outstanding Antar-Shift</b><small>Issue belum selesai, tetap terbawa ke shift berikutnya</small></div><span id="open-count-chip" class="pill warn">0 outstanding</span></div><div class="card-body" id="open-list"></div></section></div>
 <div class="stack">
 <section class="card" id="handover-previous"><div class="card-title"><div><b>Informasi Shift Sebelumnya</b><small>Catatan dari Team Leader sebelumnya untuk ditindaklanjuti pada shift ini</small></div><span id="previous-shift-label" class="pill">Pilih shift</span></div><div class="card-body" id="previous-handover-body"><div class="empty">Pilih tanggal dan shift untuk melihat catatan handover sebelumnya.</div></div></section>
-<section class="card" id="handover-review"><div class="card-title"><div><b>Review & Finalisasi Handover</b><small>Ringkasan otomatis, identitas TL dikonfirmasi saat serah terima</small></div><span id="review-status" class="status open">Belum final</span></div><div class="card-body"><div id="review-prereq" class="alert-note" style="margin-bottom:14px">Pilih tanggal, shift, gedung, dan mesin untuk finalisasi.</div><div class="review-rows"><div><b id="rev-issue">0</b><small>Issue shift</small></div><div><b id="rev-downtime">0</b><small>Menit downtime</small></div><div><b id="rev-out">0</b><small>Outstanding</small></div></div><div class="review-sub">Ringkasan SQCDP</div><div id="review-summary" class="summary-text">Belum ada catatan untuk direview.</div><div class="review-sub">Poin untuk Shift Berikutnya</div><div id="review-open" class="summary-text">Belum ada outstanding.</div><div class="sep"></div><div class="field"><label for="tl-sender">Team Leader penyerah *</label><input id="tl-sender" placeholder="Nama TL yang menyerahkan shift" maxlength="100" autocomplete="off" required><small>Isi sesuai TL yang benar-benar melakukan serah terima (bukan otomatis dari catatan issue).</small></div><div class="field" style="margin-top:10px"><label for="tl-receiver">Team Leader penerima *</label><input id="tl-receiver" placeholder="Nama TL shift berikutnya" maxlength="100" autocomplete="off" required></div><div class="field" style="margin-top:10px"><label for="handover-notes">Catatan handover (opsional)</label><textarea id="handover-notes" placeholder="Prioritas, dukungan yang dibutuhkan, dan kondisi terakhir..." maxlength="1500"></textarea></div><label class="confirm" style="margin:12px 0"><input type="checkbox" id="review-confirm"><span>Catatan SQCDP dan outstanding sudah saya periksa sebelum diserahkan.</span></label><div class="row"><button id="finalize" class="btn btn-green" type="button">Finalisasi Handover</button><button id="print" class="btn btn-quiet btn-sm" type="button">Cetak / PDF</button></div><p id="review-feedback" class="minor" style="margin:10px 0 0">Setelah finalisasi, riwayat tetap tersimpan dan status issue dapat diperbarui.</p></div></section><section class="card"><div class="card-title"><div><b>Riwayat Serah Terima</b><small>Lihat detail dan catatan seluruh handover antar-shift</small></div></div><div class="card-body"><div class="history-controls no-print"><div><label for="history-building">Gedung</label><select id="history-building"><option value="">Semua gedung</option><option value="4">Gedung 4</option><option value="6">Gedung 6</option><option value="7">Gedung 7</option></select></div><div><label for="history-shift">Shift</label><select id="history-shift"><option value="">Semua shift</option><option value="1">Shift 1</option><option value="2">Shift 2</option><option value="3">Shift 3</option></select></div><div><label for="history-date">Tanggal (opsional)</label><input id="history-date" type="date" /></div></div><div id="handover-history"></div><button type="button" id="history-more" class="btn btn-quiet btn-sm hide" style="margin-top:12px;width:100%">Tampilkan riwayat lainnya</button></div></section></div></div>
+<section class="card handover-simple" id="handover-review">
+  <div class="card-title handover-simple-head">
+    <div><b>Serah Terima Shift</b><small>Periksa ringkasan, isi nama TL, lalu simpan</small></div>
+    <span id="review-status" class="status open">Belum final</span>
+  </div>
+  <div class="card-body handover-simple-body">
+    <div class="handover-context-row">
+      <div>
+        <small class="handover-context-label">Shift yang diserahkan</small>
+        <strong id="handover-context-label">Belum dipilih</strong>
+      </div>
+      <button id="choose-handover-context" class="btn btn-soft btn-sm no-print" type="button">Ubah pilihan</button>
+    </div>
+    <div id="review-prereq" class="handover-missing" role="status">Pilih tanggal, shift, gedung, dan mesin pada Filter Monitoring terlebih dahulu.</div>
+    <div class="handover-brief" aria-label="Ringkasan shift">
+      <span><b id="rev-issue">—</b> Issue</span>
+      <span><b id="rev-downtime">—</b> Menit downtime</span>
+      <span><b id="rev-out">—</b> Belum selesai</span>
+    </div>
+    <div class="handover-pending" id="handover-pending" hidden><b>Perlu diteruskan:</b> <span id="handover-pending-text"></span></div>
+    <details class="handover-more" id="handover-details">
+      <summary>Lihat detail issue dan outstanding</summary>
+      <div class="handover-more-body">
+        <b>Ringkasan SQCDP</b>
+        <div id="review-summary" class="summary-text">Pilih shift untuk melihat ringkasan.</div>
+        <b>Untuk shift berikutnya</b>
+        <div id="review-open" class="summary-text">Pilih shift untuk melihat outstanding.</div>
+      </div>
+    </details>
+    <div class="handover-person-fields">
+      <div class="field"><label for="tl-sender">TL Penyerah <span class="handover-required">*</span></label><input id="tl-sender" placeholder="Nama TL saat ini" maxlength="100" autocomplete="off" required></div>
+      <div class="field"><label for="tl-receiver">TL Penerima <span class="handover-required">*</span></label><input id="tl-receiver" placeholder="Nama TL shift berikutnya" maxlength="100" autocomplete="off" required></div>
+    </div>
+    <details class="handover-more handover-note-option" id="handover-note-details">
+      <summary>+ Tambah catatan (opsional)</summary>
+      <div class="field"><label for="handover-notes">Pesan untuk shift berikutnya</label><textarea id="handover-notes" placeholder="Misalnya: mesin perlu dicek, prioritas perbaikan, atau tindakan lanjutan..." maxlength="1500"></textarea></div>
+    </details>
+    <button id="finalize" class="btn btn-green handover-save" type="button">Simpan Serah Terima</button>
+    <div class="handover-footer-actions"><span id="review-feedback" class="minor" role="status">Tersimpan sebagai riwayat yang dapat dibaca shift berikutnya.</span><button id="print" class="handover-print no-print" type="button">Cetak / PDF</button></div>
+  </div>
+</section><section class="card"><div class="card-title"><div><b>Riwayat Serah Terima</b><small>Lihat detail dan catatan seluruh handover antar-shift</small></div></div><div class="card-body"><div class="history-controls no-print"><div><label for="history-building">Gedung</label><select id="history-building"><option value="">Semua gedung</option><option value="4">Gedung 4</option><option value="6">Gedung 6</option><option value="7">Gedung 7</option></select></div><div><label for="history-shift">Shift</label><select id="history-shift"><option value="">Semua shift</option><option value="1">Shift 1</option><option value="2">Shift 2</option><option value="3">Shift 3</option></select></div><div><label for="history-date">Tanggal (opsional)</label><input id="history-date" type="date" /></div></div><div id="handover-history"></div><button type="button" id="history-more" class="btn btn-quiet btn-sm hide" style="margin-top:12px;width:100%">Tampilkan riwayat lainnya</button></div></section></div></div>
 <div class="footer">KOBE · SHIFT HAND OVER · SQCDP · BOJONEGORO<br><small>Data SHO terpusat di Supabase; status koneksi tampil di atas.</small></div>
 </main>
 <div class="review-overlay" id="review-overlay" role="presentation" hidden><section class="review-dialog" role="dialog" aria-modal="true" aria-labelledby="review-modal-heading" tabindex="-1"><div class="review-dialog-header"><div><h2 id="review-modal-heading">Detail Serah Terima</h2><p>Arsip finalisasi handover · hanya baca</p></div><button type="button" id="review-close" class="btn btn-quiet btn-sm" aria-label="Tutup detail review">✕ Tutup</button></div><div class="review-dialog-content" id="review-modal-content"></div></section></div>
@@ -111,7 +229,7 @@ const cats={S:'Safety',Q:'Quality',C:'Cost',D:'Delivery',P:'People'};
 const state={ctx:read('ctx',{}),issues:[],reviews:[],checkins:[],oee:{actual:null,target:null,note:'Menunggu data OEE Admin'},online:false};
 const sameLine=(a,b)=>!!(a&&b&&a.gedung&&b.gedung&&a.gedung===b.gedung&&(a.mesin&&b.mesin?norm(a.mesin)===norm(b.mesin):a.line&&b.line&&norm(a.line)===norm(b.line)));
 const sameShift=(a,b)=>sameLine(a,b)&&a.tanggal===b.tanggal&&Number(a.shift)===Number(b.shift);
-const hasContext=c=>!!(c.tanggal&&c.shift&&c.gedung&&c.mesin);
+const hasContext=c=>!!(c.tanggal&&c.shift&&c.gedung&&getCtxMachines(c).length);
 function notify(s,err=false){const el=$('notice');if(!el)return;el.className='notice show'+(err?' error':'');el.textContent=s;}
 
 function options(sel,placeholder,vals,selected=''){sel.replaceChildren(new Option(placeholder,''));for(const x of vals)sel.add(new Option(x,x));sel.disabled=!vals.length;if(selected&&vals.includes(selected))sel.value=selected;}
@@ -134,8 +252,10 @@ const duration=Number(e.duration_minutes ?? e.downtime_minutes ?? 0);
 const timeLabel=e.time_start&&e.time_end?`${esc(e.time_start)}–${esc(e.time_end)}${e.time_end<e.time_start?' (+1 hari)':''}`:'';
 const durationLabel=Number.isFinite(duration)&&duration>0?`<span class="chip">${e.category==='D'?'Downtime':'Durasi'}: ${n(duration)} menit</span>`:'';
 return `<article class="event"><span class="sq ${esc(e.category)}">${esc(e.category)}</span><div><div class="meta">${esc(dt(e.occurred_at))} · ${esc(e.mesin)} · ${esc(e.sku)}${timeLabel?' · Jam '+timeLabel:''}</div><h4>${esc(e.problem)}</h4>${e.action?`<p><b>Action:</b> ${esc(e.action)}</p>`:''}<div class="sqcdp"><span class="status ${status}">${esc(e.status)}</span>${durationLabel}${e.pic?`<span class="chip">PIC: ${esc(e.pic)}</span>`:''}${e.priority==='High'?'<span class="status open">Prioritas tinggi</span>':''}</div></div>${actions?`<div class="event-end"><button class="btn btn-soft btn-sm" data-edit="${esc(e.id)}" type="button">Update</button></div>`:''}</article>`}
-function filterIssues(ctx){return state.issues.filter(x=>(!ctx.tanggal||x.tanggal===ctx.tanggal)&&(!ctx.shift||Number(x.shift)===Number(ctx.shift))&&(!ctx.gedung||x.gedung===ctx.gedung)&&(!ctx.mesin||norm(x.mesin)===norm(ctx.mesin))).sort((a,b)=>b.occurred_at.localeCompare(a.occurred_at))}
-function openIssues(ctx){return state.issues.filter(x=>(!ctx.gedung||x.gedung===ctx.gedung)&&(!ctx.mesin||norm(x.mesin)===norm(ctx.mesin))&&(!ctx.tanggal||x.tanggal<=ctx.tanggal)&&(!(ctx.tanggal&&ctx.shift&&x.tanggal===ctx.tanggal)||Number(x.shift)<=Number(ctx.shift))&&x.status!=='Closed').sort((a,b)=>(a.priority==='High'?-1:0)-(b.priority==='High'?-1:0)||b.occurred_at.localeCompare(a.occurred_at))}
+function getCtxMachines(c){return Array.isArray(c?.mesins)?c.mesins.filter(Boolean):(c?.mesin?[c.mesin]:[])}
+function issueMatchesMachines(e,c){const selected=getCtxMachines(c);if(!selected.length)return true;const issueNames=String(e.mesin||e.line||'').split(/[,;|]/).map(norm).filter(Boolean);return selected.some(m=>issueNames.includes(norm(m)))}
+function filterIssues(ctx){return state.issues.filter(x=>(!ctx.tanggal||x.tanggal===ctx.tanggal)&&(!ctx.shift||Number(x.shift)===Number(ctx.shift))&&(!ctx.gedung||String(x.gedung)===String(ctx.gedung))&&issueMatchesMachines(x,ctx)).sort((a,b)=>clean(b.occurred_at).localeCompare(clean(a.occurred_at)))}
+function openIssues(ctx){return state.issues.filter(x=>(!ctx.gedung||String(x.gedung)===String(ctx.gedung))&&issueMatchesMachines(x,ctx)&&(!ctx.tanggal||x.tanggal<=ctx.tanggal)&&(!(ctx.tanggal&&ctx.shift&&x.tanggal===ctx.tanggal)||Number(x.shift)<=Number(ctx.shift))&&x.status!=='Closed').sort((a,b)=>(b.priority==='High'?1:0)-(a.priority==='High'?1:0)||clean(b.occurred_at).localeCompare(clean(a.occurred_at)))}
 function refreshLocal(){/* Data SHO hanya diambil dari Supabase; browser bukan database. */}
 function isHttp(){return location.protocol==='http:'||location.protocol==='https:'}
 function initStorage(){
@@ -146,11 +266,41 @@ function initStorage(){
 }
 
 </script><script>
-let formWindow=null,selectedStatus='all',activeOeeReq=0;
-const ctx=()=>({tanggal:$('tanggal').value,shift:$('shift').value,gedung:$('gedung').value,line:$('mesin').value,mesin:$('mesin').value});
-function refreshControls(preserve={}){const g=$('gedung').value;options($('mesin'),'Semua mesin',g?machineList(g):[],preserve.mesin??$('mesin').value);}
-function setFilters(v){$('tanggal').value=v.tanggal||today();$('shift').value=v.shift?String(v.shift):'';$('gedung').value=v.gedung||'';refreshControls(v);}
-function saveFilters(){const previous=state.ctx||{},current=ctx();const changed=['tanggal','shift','gedung','mesin'].some(k=>String(previous[k]||'')!==String(current[k]||''));if(changed){$('tl-sender').value='';$('tl-receiver').value='';$('review-confirm').checked=false;}state.ctx={...state.ctx,...current};write('ctx',state.ctx);render();loadOee(current)}
+let formWindow=null,selectedStatus='all',activeOeeReq=0,selectedMachines=[];
+const ctx=()=>({tanggal:$('tanggal').value,shift:$('shift').value,gedung:$('gedung').value,mesins:[...selectedMachines],line:selectedMachines.length===1?selectedMachines[0]:'',mesin:selectedMachines.length===1?selectedMachines[0]:''});
+function setMachineMenu(open){const picker=$('machine-picker'),menu=$('machine-menu');menu.hidden=!open;picker.classList.toggle('open',open);$('machine-trigger').setAttribute('aria-expanded',String(open));}
+function updateMachineDisplay(){
+  const g=$('gedung').value,trigger=$('machine-trigger');trigger.disabled=!g;
+  const label=!g?'Pilih gedung dahulu':!selectedMachines.length?'Semua mesin':selectedMachines.length<=2?selectedMachines.join(', '):selectedMachines.length+' mesin dipilih';
+  $('machine-trigger-text').textContent=label;
+  $('mesin').value=selectedMachines.length===1?selectedMachines[0]:'';
+  $('machine-options').querySelectorAll('input[type=checkbox]').forEach(cb=>{cb.checked=selectedMachines.includes(cb.value)});
+}
+function refreshControls(preserve={}){
+  const g=$('gedung').value,available=machineList(g);
+  const prior=Array.isArray(preserve.mesins)?preserve.mesins:(preserve.mesin?[preserve.mesin]:selectedMachines);
+  selectedMachines=[...new Set(prior.filter(v=>available.includes(v)))];
+  options($('mesin'),'Semua mesin',available,selectedMachines.length===1?selectedMachines[0]:'');
+  $('machine-options').replaceChildren();
+  for(const machine of available){const label=document.createElement('label');label.className='machine-option';const check=document.createElement('input');check.type='checkbox';check.value=machine;check.checked=selectedMachines.includes(machine);label.append(check,document.createTextNode(machine));$('machine-options').append(label)}
+  if(!available.length)setMachineMenu(false);
+  updateMachineDisplay();
+}
+function changeMachines(list){
+  const available=machineList($('gedung').value);
+  const next=[...new Set(list.filter(x=>available.includes(x)))];
+  if(JSON.stringify(next)===JSON.stringify(selectedMachines))return;
+  selectedMachines=next;updateMachineDisplay();saveFilters();
+}
+function setFilters(v){$('tanggal').value=v.tanggal||today();$('shift').value=v.shift?String(v.shift):'';$('gedung').value=v.gedung||'';refreshControls(v)}
+function saveFilters(){
+  const previous=state.ctx||{},current=ctx();
+  const prevMachines=getCtxMachines(previous).map(norm).sort().join('|');
+  const nextMachines=current.mesins.map(norm).sort().join('|');
+  const changed=['tanggal','shift','gedung'].some(k=>String(previous[k]||'')!==String(current[k]||''))||prevMachines!==nextMachines;
+  if(changed){$('tl-sender').value='';$('tl-receiver').value='';$('handover-notes').value='';$('handover-note-details').open=false;$('handover-details').open=false;}
+  state.ctx={...state.ctx,...current};write('ctx',state.ctx);render();loadOee(current);
+}
 function scoped(){return filterIssues(ctx())}
 function scopedOutstanding(){return openIssues(ctx())}
 
@@ -226,7 +376,7 @@ function previousShift(c){
   return {tanggal:[day.getFullYear(),String(day.getMonth()+1).padStart(2,'0'),String(day.getDate()).padStart(2,'0')].join('-'),shift:shift===1?3:shift-1};
 }
 function matchesReviewArea(r,c){
-  return (!c.gedung||String(r.gedung)===String(c.gedung)) && (!c.mesin||norm(r.mesin||r.line)===norm(c.mesin));
+  return (!c.gedung||String(r.gedung)===String(c.gedung)) && (!getCtxMachines(c).length||getCtxMachines(c).some(m=>norm(r.mesin||r.line)===norm(m)));
 }
 function reviewLabel(r){return `${esc(r.tanggal)} · Shift ${esc(r.shift)} · G${esc(r.gedung)} · ${esc(r.mesin||r.line||'Mesin tidak tercatat')}`}
 function reviewIssueCount(r){return Number(r.issues_count||0)}
@@ -286,11 +436,45 @@ function closeReview(){
 function onReviewButton(e){const btn=e.target.closest('[data-open-review]');if(btn)showReview(btn.dataset.openReview,btn)}
 
 function render(){const c=ctx();renderDowntimeByGedung(c);renderPreviousHandover(c);renderHistory();const filtered=scoped(),o=scopedOutstanding(),total=filtered.reduce((a,e)=>a+downtimeMinutes(e),0);$('kpi-issue').textContent=filtered.length;$('kpi-downtime').textContent=n(total);$('kpi-total-duration').textContent=n(filtered.reduce((a,e)=>a+Number(e.duration_minutes ?? e.downtime_minutes ?? 0),0));$('kpi-open').textContent=o.length;$('open-count-chip').textContent=o.length+' outstanding';$('list-count').textContent=filtered.length+' catatan';const catsCount=Object.fromEntries(Object.keys(cats).map(x=>[x,filtered.filter(e=>e.category===x).length]));$('category-totals').innerHTML=Object.entries(catsCount).map(([k,v])=>`<span class="chip"><b>${k}</b> ${v}</span>`).join('');const list=filtered.filter(e=>selectedStatus==='all'||e.status===selectedStatus);$('issue-list').innerHTML=list.length?list.map(x=>eventCard(x,{actions:true})).join(''):'<div class="empty">Belum ada issue pada filter ini. Gunakan tombol Form Input TL saat terjadi masalah.</div>';$('open-list').innerHTML=o.length?o.slice(0,25).map(x=>eventCard(x,{actions:true})).join(''):'<div class="empty">Tidak ada issue terbuka untuk area yang dipilih.</div>';
-const exact=hasContext(c)&&!!c.shift,cur=exact?state.issues.filter(x=>sameShift(x,c)):[],open=exact?openIssues(c):[];const exactTotal=cur.reduce((a,e)=>a+Number(e.downtime_minutes||0),0);$('rev-issue').textContent=cur.length;$('rev-downtime').textContent=n(exactTotal);$('rev-out').textContent=open.length;$('review-prereq').style.display=exact?'none':'';
+const exact=hasContext(c)&&!!c.shift,cur=exact?filterIssues(c):[],open=exact?openIssues(c):[];
+const exactTotal=cur.reduce((a,e)=>a+Number(e.downtime_minutes||0),0);
+$('rev-issue').textContent=exact?n(cur.length):'—';$('rev-downtime').textContent=exact?n(exactTotal):'—';$('rev-out').textContent=exact?n(open.length):'—';
+$('rev-out').classList.toggle('has-open',exact&&open.length>0);
+$('review-prereq').style.display=exact?'none':'';
+$('handover-context-label').textContent=exact?`${c.tanggal} · Shift ${c.shift} · Gedung ${c.gedung} · ${getCtxMachines(c).join(", ")}`:'Pilih tanggal, shift, gedung, dan mesin';
+$('handover-pending').hidden=!exact||!open.length;
+$('handover-pending-text').textContent=exact&&open.length?open.slice(0,2).map(e=>e.problem).join(' · ')+(open.length>2?` (+${open.length-2} lainnya)`:''):'';
 const bycat=Object.entries(cats).map(([k,label])=>{const rows=cur.filter(e=>e.category===k);return rows.length?`${label} (${rows.length}): ${rows.map(e=>e.problem).slice(0,3).join(' · ')}`:''}).filter(Boolean).join('\n');$('review-summary').textContent=exact?(bycat||'Tidak ada issue pada shift ini.'):'Pilih filter tanggal, shift, gedung, dan mesin agar ringkasan handover tepat.';$('review-open').textContent=exact?(open.length?open.slice(0,12).map(e=>`• ${e.problem} [${e.status}]${e.pic?' · PIC '+e.pic:''}`).join('\n'):'Tidak ada outstanding.'):'Pilih mesin dan shift terlebih dahulu.';
-const old=exact?state.reviews.find(r=>sameShift(r,c)):null;const stale=old&&cur.some(e=>new Date(e.updated_at)>new Date(old.reviewed_at));$('review-status').className='status '+(!old?'open':stale?'progress':'closed');$('review-status').textContent=!old?'Belum final':stale?'Perlu review ulang':'Sudah final';$('review-feedback').textContent=old?`Finalisasi terakhir: ${dt(old.reviewed_at)} · Penyerah: ${old.tl_serah} · Penerima: ${old.tl_terima}${stale?' · Ada perubahan issue setelah finalisasi':''}`:'Setelah finalisasi, riwayat tetap tersimpan dan status issue dapat diperbarui.';$('finalize').disabled=!exact;
+const records=exact?getCtxMachines(c).map(m=>state.reviews.find(r=>sameShift(r,{...c,mesin:m,line:m}))):[];
+const saved=records.filter(Boolean),allFinal=exact&&saved.length===records.length;
+const stale=saved.some(r=>cur.some(e=>issueMatchesMachines(e,{mesins:[r.mesin]})&&new Date(e.updated_at)>new Date(r.reviewed_at)));
+$('review-status').className='status '+(!saved.length?'open':stale||!allFinal?'progress':'closed');
+$('review-status').textContent=!saved.length?'Belum final':stale?'Perlu review ulang':allFinal?'Sudah final':`${saved.length}/${records.length} mesin final`;
+$('review-feedback').textContent=saved.length?`${saved.length} dari ${records.length} mesin sudah tersimpan${stale?' · Ada perubahan issue setelah finalisasi':''}.`:'Tersimpan sebagai riwayat yang dapat dibaca shift berikutnya.';
+$('finalize').disabled=!exact;
 }
-function renderOee(){$('kpi-oee').textContent=(state.oee.actual===null?'—':n(state.oee.actual)+'%')+' / '+(state.oee.target===null?'—':n(state.oee.target)+'%');$('oee-note').textContent=state.oee.note}
+function renderOee(){
+  const selected=String($('gedung')?.value||'');
+  const value=$('kpi-oee'), summary=$('oee-building-list');
+  $('oee-note').textContent=state.oee.note||'Dari OEE Monitoring';
+  if(selected){
+    summary.hidden=true;
+    value.hidden=false;
+    value.style.display='';
+    value.textContent=(state.oee.actual===null?'—':n(state.oee.actual)+'%')+' / '+(state.oee.target===null?'—':n(state.oee.target)+'%');
+  }else{
+    // Semua gedung: tampilkan tiga OEE terpisah, bukan angka rata-rata pabrik.
+    value.hidden=true;
+    value.style.display='none';
+    summary.hidden=false;
+    const data=state.oee.buildings||{};
+    summary.innerHTML=['4','6','7'].map(g=>{
+      const entry=data[g]||{},actual=entry.actual,target=entry.target;
+      const missing=actual===null||actual===undefined;
+      return '<div class="oee-building-item"><span class="oee-building-name">Gedung '+g+'</span><span class="oee-building-number'+(missing?' empty':'')+'">'+(missing?'—':n(actual)+'%')+' <small>/ '+(target===null||target===undefined?'—':n(target)+'%')+'</small></span></div>';
+    }).join('');
+  }
+}
 function openInput(edit=''){
  const url='sho_input.html'+(edit?'?edit='+encodeURIComponent(edit):'');
  if(isHttp()){
@@ -307,195 +491,171 @@ function openInput(edit=''){
 }
 function bridgeReply(to,type,reqId,extra={}){try{to.postMessage({type,reqId,...extra},location.protocol==='file:'?'*':location.origin)}catch{}}
 function bridgeHandler(e){if(isHttp())return;if(!formWindow||e.source!==formWindow||!e.data||typeof e.data!=='object')return;const msg=e.data;if(msg.type==='SHO_CONTEXT'&&msg.ctx){state.ctx=msg.ctx;write('ctx',state.ctx);setFilters(state.ctx);render();loadOee(ctx());return}if(msg.type==='SHO_HELLO'){bridgeReply(e.source,'SHO_SNAPSHOT',msg.reqId,{snapshot:{ctx:state.ctx,issues:state.issues,reviews:state.reviews,checkins:state.checkins}});return}if(!['SHO_SAVE','SHO_CHECKIN'].includes(msg.type)||state.online)return;const dest=msg.type==='SHO_CHECKIN'?'checkins':'issues';const row=msg.row;if(!row||typeof row!=='object'||!row.id)return;const isUpdate=msg.type==='SHO_SAVE'&&state.issues.some(x=>x.id===row.id);persist(dest,row,isUpdate).then(()=>{bridgeReply(e.source,'SHO_ACK',msg.reqId,{ok:true,snapshot:{ctx:state.ctx,issues:state.issues,reviews:state.reviews,checkins:state.checkins}});render()}).catch(err=>bridgeReply(e.source,'SHO_ACK',msg.reqId,{ok:false,error:err.message}))}
-async function finalize(){const c=ctx();if(!(hasContext(c)&&c.shift)){notify('Lengkapi tanggal, shift, gedung, dan mesin dahulu.',true);return}const sender=clean($('tl-sender').value);if(!sender){notify('Isi nama Team Leader penyerah sesuai serah terima aktual.',true);$('tl-sender').focus();return}const receiver=clean($('tl-receiver').value);if(!receiver){notify('Isi nama Team Leader penerima.',true);$('tl-receiver').focus();return}if(!$('review-confirm').checked){notify('Centang konfirmasi review terlebih dahulu.',true);return}const issues=state.issues.filter(e=>sameShift(e,c)),out=openIssues(c),old=state.reviews.find(r=>sameShift(r,c));if(old&&!confirm('Handover ini sudah difinalisasi. Simpan ulang dengan nama TL penyerah dan penerima yang sudah diverifikasi?'))return;const now=new Date().toISOString(),row={id:old?.id||id(),tanggal:c.tanggal,shift:Number(c.shift),gedung:c.gedung,line:c.line,mesin:c.mesin,tl_serah:sender,tl_terima:receiver,issues_count:issues.length,open_count:out.length,downtime_total:issues.reduce((v,e)=>v+Number(e.downtime_minutes||0),0),oee_actual:state.oee.actual,oee_target:state.oee.target,review_notes:clean($('handover-notes').value),reviewed_at:now};$('finalize').disabled=true;try{await persist('reviews',row,!!old);try{await window.SHO_API.sync(true)}catch(syncError){console.warn('Finalisasi tersimpan, sinkronisasi tampilan ditunda:',syncError)}$('review-confirm').checked=false;notify('Handover telah difinalisasi. Outstanding tetap bisa dilanjutkan pada shift berikutnya.');render()}catch(e){notify('Finalisasi gagal: '+e.message,true)}finally{$('finalize').disabled=false}}
+async function finalize(){
+  const c=ctx(),machines=getCtxMachines(c);
+  if(!(hasContext(c)&&c.shift)){notify('Pilih tanggal, shift, gedung, dan minimal satu mesin dahulu.',true);return}
+  const sender=clean($('tl-sender').value);if(!sender){notify('Isi nama Team Leader penyerah.',true);$('tl-sender').focus();return}
+  const receiver=clean($('tl-receiver').value);if(!receiver){notify('Isi nama Team Leader penerima.',true);$('tl-receiver').focus();return}
+  const existing=machines.map(m=>state.reviews.find(r=>sameShift(r,{...c,mesin:m,line:m})));
+  const previouslySaved=existing.filter(Boolean).length;
+  if(previouslySaved&&!confirm(`${previouslySaved} mesin sudah pernah difinalisasi. Perbarui data serah terima mesin tersebut?`))return;
+  const outstanding=openIssues(c);
+  if(outstanding.length&&!confirm(`${outstanding.length} outstanding masih terbuka pada mesin yang dipilih. Lanjutkan serah terima?`))return;
+  const now=new Date().toISOString(),notes=clean($('handover-notes').value);
+  let success=0;
+  $('finalize').disabled=true;
+  try{
+    for(let i=0;i<machines.length;i++){
+      const machine=machines[i],perMachine={...c,mesin:machine,line:machine,mesins:[machine]};
+      const old=existing[i],issues=filterIssues(perMachine),open=openIssues(perMachine);
+      const row={id:old?.id||id(),tanggal:c.tanggal,shift:Number(c.shift),gedung:c.gedung,line:machine,mesin:machine,tl_serah:sender,tl_terima:receiver,issues_count:issues.length,open_count:open.length,downtime_total:issues.reduce((v,e)=>v+downtimeMinutes(e),0),oee_actual:state.oee.actual,oee_target:state.oee.target,review_notes:notes,reviewed_at:now};
+      await persist('reviews',row,!!old);success++;
+    }
+    try{await window.SHO_API.sync(true)}catch(syncError){console.warn('Serah terima tersimpan, sinkronisasi tampilan tertunda:',syncError)}
+    notify(`Serah terima berhasil disimpan untuk ${success} mesin. Shift berikutnya dapat membuka setiap mesin di riwayat.`);
+  }catch(e){
+    notify(success?`Tersimpan ${success} dari ${machines.length} mesin. Mesin berikutnya gagal: ${e.message}. Periksa riwayat sebelum mencoba lagi.`:'Gagal menyimpan serah terima: '+e.message,true);
+  }finally{$('finalize').disabled=false;render()}
+}
 
 
 async function reload(){try{if(!window.SHO_API)throw Error('Koneksi belum siap');await window.SHO_API.sync(true);await loadOee(ctx());render();notify('Data terbaru berhasil diambil dari Supabase.')}catch(e){notify('Gagal memuat data online: '+e.message,true)}}
-function setup(){initStorage();setFilters(state.ctx);render();renderOee();$('open-input').addEventListener('click',()=>openInput());$('previous-handover-body').addEventListener('click',onReviewButton);$('handover-history').addEventListener('click',onReviewButton);for(const key of ['history-building','history-shift','history-date'])$(key).addEventListener('change',()=>{historyShown=12;renderHistory()});$('history-more').addEventListener('click',()=>{historyShown+=12;renderHistory()});$('review-close').addEventListener('click',closeReview);$('review-overlay').addEventListener('click',e=>{if(e.target===$('review-overlay'))closeReview()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('review-overlay').hidden)closeReview()});$('issue-list').addEventListener('click',e=>{const b=e.target.closest('[data-edit]');if(b)openInput(b.dataset.edit)});$('open-list').addEventListener('click',e=>{const b=e.target.closest('[data-edit]');if(b)openInput(b.dataset.edit)});$('status-toggle').addEventListener('click',e=>{const b=e.target.closest('[data-status]');if(!b)return;selectedStatus=b.dataset.status;document.querySelectorAll('[data-status]').forEach(x=>x.classList.toggle('active',x===b));render()});$('gedung').addEventListener('change',()=>{refreshControls({mesin:''});saveFilters()});for(const el of ['tanggal','shift','mesin'])$(el).addEventListener('change',saveFilters);$('finalize').addEventListener('click',finalize);$('refresh').addEventListener('click',reload);$('print').addEventListener('click',()=>window.print());window.addEventListener('message',bridgeHandler);window.addEventListener('focus',()=>{if(!state.online)refreshLocal();render()});window.addEventListener('pageshow',()=>{if(!state.online)refreshLocal();render()});document.addEventListener('sho-masters-updated',()=>{const c=ctx();refreshControls(c);render()});document.addEventListener('sho-data-updated',render);document.addEventListener('sho-oee-updated',renderOee);loadOee(ctx());setInterval(()=>{if(!document.hidden){refreshLocal();loadOee(ctx())}},30000)}
+function setup(){initStorage();setFilters(state.ctx);render();renderOee();$('open-input').addEventListener('click',()=>openInput());$('previous-handover-body').addEventListener('click',onReviewButton);$('handover-history').addEventListener('click',onReviewButton);for(const key of ['history-building','history-shift','history-date'])$(key).addEventListener('change',()=>{historyShown=12;renderHistory()});$('history-more').addEventListener('click',()=>{historyShown+=12;renderHistory()});$('review-close').addEventListener('click',closeReview);$('review-overlay').addEventListener('click',e=>{if(e.target===$('review-overlay'))closeReview()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('review-overlay').hidden)closeReview()});$('issue-list').addEventListener('click',e=>{const b=e.target.closest('[data-edit]');if(b)openInput(b.dataset.edit)});$('open-list').addEventListener('click',e=>{const b=e.target.closest('[data-edit]');if(b)openInput(b.dataset.edit)});$('status-toggle').addEventListener('click',e=>{const b=e.target.closest('[data-status]');if(!b)return;selectedStatus=b.dataset.status;document.querySelectorAll('[data-status]').forEach(x=>x.classList.toggle('active',x===b));render()});$('gedung').addEventListener('change',()=>{refreshControls({mesins:[]});saveFilters()});
+for(const el of ['tanggal','shift'])$(el).addEventListener('change',saveFilters);
+$('machine-trigger').addEventListener('click',()=>setMachineMenu($('machine-menu').hidden));
+$('machine-done').addEventListener('click',()=>setMachineMenu(false));
+$('machine-all').addEventListener('click',()=>changeMachines(machineList($('gedung').value)));
+$('machine-clear').addEventListener('click',()=>changeMachines([]));
+$('machine-options').addEventListener('change',e=>{if(e.target.matches('input[type=checkbox]'))changeMachines([...$('machine-options').querySelectorAll('input:checked')].map(x=>x.value))});
+document.addEventListener('click',e=>{if(!$('machine-picker').contains(e.target))setMachineMenu(false)});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')setMachineMenu(false)});$('choose-handover-context').addEventListener('click',()=>{document.querySelector('.filters')?.scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>{if(!$('shift').value)$('shift').focus();else if(!$('gedung').value)$('gedung').focus();else $('machine-trigger').focus()},300)});$('finalize').addEventListener('click',finalize);$('refresh').addEventListener('click',reload);$('print').addEventListener('click',()=>window.print());window.addEventListener('message',bridgeHandler);window.addEventListener('focus',()=>{if(!state.online)refreshLocal();render()});window.addEventListener('pageshow',()=>{if(!state.online)refreshLocal();render()});document.addEventListener('sho-masters-updated',()=>{const c=ctx();refreshControls(c);render()});document.addEventListener('sho-data-updated',render);document.addEventListener('sho-oee-updated',renderOee);loadOee(ctx());setInterval(()=>{if(!document.hidden){refreshLocal();loadOee(ctx())}},30000)}
 setup();
+</script><script id="sho-hide-legacy-browser-import">
+/* Tombol impor dari penyimpanan browser tidak diperlukan di monitoring online.
+   Hanya sembunyikan kontrol ini, jangan ubah data atau sinkronisasi SHO. */
+(() => {
+  'use strict';
+  const labels = ['impor data lama browser', 'import data lama browser'];
+  function removeLegacyImportButton() {
+    for (const el of document.querySelectorAll('button, a, [role="button"], input[type="button"], input[type="submit"]')) {
+      const name = String(el.tagName === 'INPUT' ? el.value : (el.textContent || el.getAttribute('aria-label') || ''))
+        .replace(/\s+/g, ' ').trim().toLowerCase();
+      if (labels.some(label => name.includes(label))) el.remove();
+    }
+  }
+  removeLegacyImportButton();
+  const observer = new MutationObserver(removeLegacyImportButton);
+  observer.observe(document.body, { childList:true, subtree:true });
+})();
 </script><script src="sho-online.js?v=20261026-restore-1" onerror="document.getElementById('sho-connection').textContent='File sinkronisasi tidak ditemukan';document.getElementById('sho-connection').className='pill warn';"></script><script id="sho-oee-from-admin">
-/*
- * OEE SHO: same Supabase tables used by oee.html.
- * This runs AFTER sho-online.js, which previously used an exact-machine lookup.
- * The OEE workbook contains LINE totals, while SHO uses individual machines.
- * Only the published OEE read key is used; no service/admin credentials.
- */
+/* OEE shift handover per gedung. Reads the SAME oee_shiftly_line records as oee.html.
+   Machine selection is intentionally ignored for the OEE card. */
 (function () {
   'use strict';
   const API = 'https://bmnhtxalfsfaefacgtpm.supabase.co/rest/v1/';
   const PUBLIC_KEY = 'sb_publishable_VItBKenz-q2sYz7MsibODA_nYtLXv9Q';
-  const DEFAULT_TARGET = 55; // identical to OEE_TARGET in oee.html
-  let currentRequest = 0;
+  const DEFAULT_TARGET = 55;
+  const BUILDINGS = ['4','6','7'];
+  let currentRequest=0;
 
-  const fmt = x => x === null || x === undefined || x === '' || !Number.isFinite(Number(x)) ? null : Number(x);
-  const cleanLabel = s => String(s == null ? '' : s).toUpperCase().replace(/[^A-Z0-9]+/g,' ').replace(/\s+/g,' ').trim();
-  const machineName = s => String(s == null ? '' : s).toUpperCase().trim().replace(/\s+/g, ' ');
-  const hasOee = row => fmt(row && row.oee) !== null;
-  const uniq = a => [...new Set(a)];
+  const parseNumber = x => x===null || x===undefined || x==='' || !Number.isFinite(Number(x)) ? null : Number(x);
+  const cleanLabel = x => String(x??'').toUpperCase().replace(/[^A-Z0-9]+/g,' ').replace(/\s+/g,' ').trim();
+  const normalizeGedung = x => { const match=String(x??'').match(/(?:^|\D)(4|6|7)(?:\D|$)/); return match?match[1]:''; };
+  const validOee = r => parseNumber(r?.oee)!==null;
 
-  // Matches OEE_LINE_MASTER in oee.html, including older Dried Noodle naming.
-  const MATCHES = [
-    {gedung:'6', key:'BOATO', name:'BOATO'},
-    {gedung:'6', key:'LINE 1A FILLING CF 4 MSN', name:'Line 1A · CF'},
-    {gedung:'6', key:'LINE 1B FILLING BOPACK 3 MSN', name:'Line 1B · BOPACK'},
-    {gedung:'6', key:'LINE 2 FILLING CF 12 MSN', name:'Line 2 · CF'},
-    {gedung:'7', key:'LINE 4 FILLING SW', name:'Line 4 · SW'},
-    {gedung:'7', key:'LINE 5A FILLING BOOSTAR 5 MSN', name:'Line 5A · BOOSTAR'},
-    {gedung:'7', key:'LINE 5B FILLING SW 1 MSN', name:'Line 5B · SW'},
-    {gedung:'7', key:'LINE 6 FILLING DRIED NOODLE', name:'Line 6 · Dried Noodle'},
-    {gedung:'4', key:'LINE 7 FILLING SW', name:'Line 7 · SW'}
-  ];
-  function lineInfo(row) {
-    const k=cleanLabel(row.mesin || row.line);
-    const hit=MATCHES.find(m=> k===m.key || (m.key==='LINE 6 FILLING DRIED NOODLE' && k.startsWith(m.key)));
-    // A missing gedung column is normal on OEE projects not yet migrated.
-    return hit || null;
-  }
-  function normalizeGedung(v) {
-    const x=String(v == null ? '' : v).trim();
-    const m=x.match(/(?:^|\D)(4|6|7)(?:\D|$)/);
-    return m ? m[1] : '';
-  }
-  function validForBuilding(row,g) {
-    const info=lineInfo(row), stated=normalizeGedung(row.gedung);
-    return info ? info.gedung===g : !!stated && stated===g;
-  }
-  function groupForMachine(g,m) {
-    const machine=machineName(m);
-    let num;
-    if (g==='4' && (num=/^SW\s*(\d+)$/.exec(machine)) && +num[1]>=39 && +num[1]<=46)
-      return {keys:['LINE 7 FILLING SW'],label:'Line 7 · SW Gedung 4'};
-    if (g==='6') {
-      if (/^BOATO$/.test(machine)) return {keys:['BOATO'],label:'BOATO · Gedung 6'};
-      if ((num=/^BP\s*(\d+)$/.exec(machine)) && +num[1]>=22 && +num[1]<=24)
-        return {keys:['LINE 1B FILLING BOPACK 3 MSN'],label:'Line 1B · BOPACK'};
-      // No verified CF machine-to-line assignment exists in OEE workbook.
-      // Show the combined CF lines rather than inventing one machine's OEE.
-      if (/^CF\s*\d+$/.test(machine))
-        return {keys:['LINE 1A FILLING CF 4 MSN','LINE 2 FILLING CF 12 MSN'],label:'Gabungan line CF · Gedung 6'};
-    }
-    if (g==='7') {
-      if ((num=/^SW\s*(\d+)$/.exec(machine)) && +num[1]>=32 && +num[1]<=37)
-        return {keys:['LINE 4 FILLING SW'],label:'Line 4 · SW Gedung 7'};
-      if (/^SW\s*38$/.test(machine))return {keys:['LINE 5B FILLING SW 1 MSN'],label:'Line 5B · SW Gedung 7'};
-      if ((num=/^BOOSTAR\s*(\d+)$/.exec(machine)) && +num[1]>=25 && +num[1]<=29)
-        return {keys:['LINE 5A FILLING BOOSTAR 5 MSN'],label:'Line 5A · BOOSTAR'};
-      if ((num=/^BOOSTAR\s*(\d+)$/.exec(machine)) && +num[1]>=30 && +num[1]<=31)
-        return {keys:['LINE 6 FILLING DRIED NOODLE'],label:'Line 6 · Dried Noodle'};
-    }
-    return null;
+  // Canonical names follow OEE_LINE_MASTER in oee.html.
+  const LINE_TO_BUILDING = new Map([
+    ['BOATO','6'],
+    ['LINE 1A FILLING CF 4 MSN','6'],
+    ['LINE 1B FILLING BOPACK 3 MSN','6'],
+    ['LINE 2 FILLING CF 12 MSN','6'],
+    ['LINE 4 FILLING SW','7'],
+    ['LINE 5A FILLING BOOSTAR 5 MSN','7'],
+    ['LINE 5B FILLING SW 1 MSN','7'],
+    ['LINE 6 FILLING DRIED NOODLE 2MESIN','7'],
+    ['LINE 7 FILLING SW','4'],
+  ]);
+  function buildingForRow(r) {
+    const key=cleanLabel(r.line||r.mesin);
+    // Prefer the published line master to avoid misclassified gedung values.
+    if(LINE_TO_BUILDING.has(key)) return LINE_TO_BUILDING.get(key);
+    if(key.startsWith('LINE 6 FILLING DRIED NOODLE')) return '7';
+    return normalizeGedung(r.gedung);
   }
   function aggregate(rows) {
-    const valid=(rows||[]).filter(hasOee);
-    if (!valid.length)return null;
-    const allWeighted=valid.every(r=>fmt(r.target_pcs)!==null && Number(r.target_pcs)>0 && fmt(r.output_pcs)!==null);
-    const weights=allWeighted?valid.map(r=>Number(r.target_pcs)):null;
-    const totalW=weights ? weights.reduce((a,b)=>a+b,0):0;
-    // Same calculation as oee.html's aggregateScopedLineRows.
-    const actual=allWeighted && totalW>0
-      ? valid.reduce((sum,r)=>sum+Number(r.output_pcs),0)/totalW*100
+    const valid=rows.filter(validOee);
+    if(!valid.length) return null;
+    const weighted=valid.every(r=>parseNumber(r.target_pcs)>0 && parseNumber(r.output_pcs)!==null);
+    const totalTarget=weighted?valid.reduce((sum,r)=>sum+Number(r.target_pcs),0):0;
+    const actual=weighted&&totalTarget>0
+      ? valid.reduce((sum,r)=>sum+Number(r.output_pcs),0)/totalTarget*100
       : valid.reduce((sum,r)=>sum+Number(r.oee),0)/valid.length;
-    const targets=valid.map(r=>fmt(r.target));
+    const targets=valid.map(r=>parseNumber(r.target));
     const target=targets.every(v=>v!==null)
-      ? (weights && totalW>0 ? valid.reduce((sum,r,i)=>sum+targets[i]*weights[i],0)/totalW
+      ? (weighted&&totalTarget>0
+        ? valid.reduce((sum,r,i)=>sum+targets[i]*Number(r.target_pcs),0)/totalTarget
         : targets.reduce((a,b)=>a+b,0)/targets.length)
       : DEFAULT_TARGET;
-    return {actual:Math.round(actual*100)/100,target:Math.round(target*100)/100,weighted:!!(allWeighted&&totalW>0),count:valid.length};
+    return {actual:Math.round(actual*100)/100,target:Math.round(target*100)/100,count:valid.length,weighted:weighted&&totalTarget>0};
   }
-  async function getRows(table, filters, signal) {
-    const q=new URLSearchParams({select:'*',...filters});
-    const response=await fetch(API+table+'?'+q.toString(),{
+  function setOee(selected, data, note) {
+    const value=selected ? (data[selected]||null) : null;
+    state.oee={actual:value?.actual??null,target:value?.target??null,buildings:data,note};
+    document.dispatchEvent(new Event('sho-oee-updated'));
+  }
+  async function getLineRows(date,shift,signal) {
+    const search=new URLSearchParams({select:'*',tanggal:'eq.'+date,limit:'2000'});
+    if(['1','2','3'].includes(shift)) search.set('shift','eq.'+shift);
+    const response=await fetch(API+'oee_shiftly_line?'+search.toString(),{
       method:'GET',headers:{apikey:PUBLIC_KEY,Accept:'application/json'},signal,cache:'no-store'
     });
     if(!response.ok){
       const body=await response.text().catch(()=> '');
-      throw Error('Akses '+table+' gagal (HTTP '+response.status+')'+(body.includes('permission')?' · izin baca OEE belum aktif':''));
+      throw Error('HTTP '+response.status+(body.includes('permission')?' · akses baca OEE ditolak':''));
     }
-    const result=await response.json();
-    if(!Array.isArray(result))throw Error('Respons tabel '+table+' tidak sesuai.');
-    return result;
+    const rows=await response.json();
+    if(!Array.isArray(rows)) throw Error('format data OEE tidak sesuai');
+    return rows;
   }
-  function setResult(actual,target,note){
-    state.oee={actual:fmt(actual),target:fmt(target),note};
-    document.dispatchEvent(new Event('sho-oee-updated'));
-  }
-  async function readOeeForSho(selection){
+  async function readOeePerGedung(selection){
     const token=++currentRequest;
-    const c={tanggal:String(selection?.tanggal||''),shift:String(selection?.shift||''),gedung:normalizeGedung(selection?.gedung),mesin:String(selection?.mesin||'')};
-    if(!c.tanggal){setResult(null,null,'Pilih tanggal untuk melihat OEE dari OEE Admin');return;}
-    setResult(null,null,'Memuat OEE dari OEE Monitoring...');
-    const controller=new AbortController(), timer=setTimeout(()=>controller.abort(),12000);
-    try {
-      let calculation=null, note='';
-      const shiftNum=Number(c.shift);
-      if (c.gedung || c.mesin) {
-        // The OEE workbook stores line-level OEE, not per individual SW/CF/BP.
-        const rows=await getRows('oee_shiftly_line',{
-          tanggal:'eq.'+c.tanggal,
-          ...(shiftNum===1||shiftNum===2||shiftNum===3?{shift:'eq.'+shiftNum}:{})
-        },controller.signal);
-        const scoped=rows.filter(hasOee);
-        const directMachine=c.mesin?scoped.filter(r=>cleanLabel(r.mesin)===cleanLabel(c.mesin)):[];
-        if(directMachine.length){
-          calculation=aggregate(directMachine);
-          note='OEE mesin '+c.mesin+' · laporan OEE Admin';
-        } else if(c.mesin){
-          const group=groupForMachine(c.gedung,c.mesin);
-          const groupRows=group?scoped.filter(r=>group.keys.some(k=>cleanLabel(r.mesin)===k || (k==='LINE 6 FILLING DRIED NOODLE'&&cleanLabel(r.mesin).startsWith(k)))):[];
-          if(groupRows.length){
-            calculation=aggregate(groupRows);
-            note=group.label+' · OEE kelompok line, bukan mesin individual';
-          } else {
-            const buildingRows=scoped.filter(r=>validForBuilding(r,c.gedung));
-            calculation=aggregate(buildingRows);
-            note=calculation?'OEE agregat Gedung '+c.gedung+' · data khusus mesin belum tersedia':'Tidak ada data OEE line untuk area/shift ini';
-          }
-        } else {
-          calculation=aggregate(scoped.filter(r=>validForBuilding(r,c.gedung)));
-          note='OEE agregat Gedung '+c.gedung+' · '+(shiftNum?'Shift '+shiftNum:'semua shift');
-        }
-        if(calculation && !calculation.weighted && calculation.count>1)
-          note+=' · rata-rata lini';
-      } else if(shiftNum===1 || shiftNum===2 || shiftNum===3) {
-        // All gedung, one shift: the shift summary used by oee.html.
-        const rows=await getRows('oee_shiftly',{tanggal:'eq.'+c.tanggal},controller.signal);
-        const matched=rows.find(r=>{const s=String(r.shift||'').toUpperCase().trim();return s==='SHIFT '+shiftNum || s===String(shiftNum);});
-        calculation=matched?aggregate([matched]):null;
-        note='OEE seluruh pabrik · Shift '+shiftNum+' · OEE Admin';
-      } else {
-        // All buildings and shifts: same daily OEE value displayed in oee.html.
-        const rows=await getRows('oee_daily',{tanggal:'eq.'+c.tanggal},controller.signal);
-        calculation=aggregate(rows);
-        note='OEE harian seluruh pabrik · OEE Admin';
-      }
+    // Mesin tidak dipakai dalam perhitungan atau filter OEE.
+    const date=String(selection?.tanggal||'');
+    const shift=String(selection?.shift||'');
+    const gedung=normalizeGedung(selection?.gedung);
+    if(!date){setOee(gedung,{},'Pilih tanggal untuk melihat OEE per gedung');return;}
+    setOee(gedung,{},'Memuat OEE per gedung dari OEE Monitoring...');
+    const controller=new AbortController();
+    const timeout=setTimeout(()=>controller.abort(),12000);
+    try{
+      const rows=await getLineRows(date,shift,controller.signal);
       if(token!==currentRequest)return;
-      if(!calculation){
-        setResult(null,null,(note||'Belum ada data OEE')+' · '+c.tanggal);
-      }else{
-        setResult(calculation.actual,calculation.target,note);
-      }
-    }catch(e){
+      const results={};
+      for(const g of BUILDINGS) results[g]=aggregate(rows.filter(r=>buildingForRow(r)===g));
+      const shiftLabel=['1','2','3'].includes(shift)?'Shift '+shift:'semua shift';
+      const suffix=gedung?'Gedung '+gedung:'Gedung 4, 6, dan 7';
+      const active=gedung?[gedung]:BUILDINGS;
+      const available=active.filter(g=>results[g]);
+      let note=available.length?`OEE ${suffix} · ${shiftLabel} · OEE Monitoring`:`Belum ada data OEE ${suffix} · ${date}`;
+      if(available.some(g=>results[g]&&!results[g].weighted&&results[g].count>1)) note+=' · rerata line';
+      setOee(gedung,results,note);
+    }catch(error){
       if(token!==currentRequest)return;
-      const msg=e?.name==='AbortError'?'permintaan terlalu lama':String(e.message||e);
-      setResult(null,null,'Gagal membaca data OEE: '+msg);
-    }finally{clearTimeout(timer);}
+      setOee(gedung,{},'Gagal membaca OEE: '+(error?.name==='AbortError'?'koneksi terlalu lama':String(error?.message||error)));
+    }finally{clearTimeout(timeout);}
   }
-  // The legacy online connector replaces loadOee in its own script.
-  // Assign after that script so all SHO controls/reloads use this OEE reader.
-  window.loadOee=readOeeForSho;
-  readOeeForSho(typeof ctx==='function'?ctx():{});
-  // The connector may finish an OEE request started before this override.
-  // Replace such a stale result immediately with the canonical OEE-page lookup.
-  const legacyNotes = new Set([
-    'Belum ada laporan Admin',
-    'Dari laporan OEE Admin',
-    'Belum ada laporan Admin untuk mesin ini',
-    'OEE Admin belum dapat diakses',
-    'Pilih tanggal, shift, dan mesin',
+
+  // sho-online.js loads first; replace only its old exact-machine OEE reader.
+  window.loadOee=readOeePerGedung;
+  readOeePerGedung(typeof ctx==='function'?ctx():{});
+  // An outstanding request from the old connector may finish late.
+  const legacyNotes=new Set([
+    'Belum ada laporan Admin','Dari laporan OEE Admin','Belum ada laporan Admin untuk mesin ini',
+    'OEE Admin belum dapat diakses','Pilih tanggal, shift, dan mesin',
     'Aktifkan perangkat untuk membaca OEE Admin'
   ]);
-  document.addEventListener('sho-oee-updated', () => {
-    if (legacyNotes.has(state.oee?.note)) Promise.resolve().then(() => readOeeForSho(typeof ctx==='function'?ctx():{}));
+  document.addEventListener('sho-oee-updated',()=>{
+    if(legacyNotes.has(state.oee?.note))Promise.resolve().then(()=>readOeePerGedung(typeof ctx==='function'?ctx():{}));
   });
 })();
 </script></body></html>
