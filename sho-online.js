@@ -142,3 +142,4 @@
   window.addEventListener('pageshow',()=>sync().catch(()=>{}));
   window.addEventListener('online',()=>sync(true).catch(()=>{}));
 })();
+
