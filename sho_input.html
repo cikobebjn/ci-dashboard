@@ -94,7 +94,7 @@
 'use strict';
 const BASE='https://bmnhtxalfsfaefacgtpm.supabase.co';
 const KEY='sb_publishable_VItBKenz-q2sYz7MsibODA_nYtLXv9Q';
-const MASTER_MACHINES={"4":["SW 39","SW 40","SW 41","SW 42","SW 43","SW 44","SW 45","SW 46"],"6":["BP 22","BP 23","BP 24","CF 01","CF 02","CF 04","CF 05","CF 06","CF 08","CF 12","CF 13","CF 14","CF 15","CF 16","CF 17","CF 19","CF 20","Boato"],"7":["SW 32","SW 33","SW 34","SW 35","SW 36","SW 37","SW 38","BOOSTAR 25","BOOSTAR 26","BOOSTAR 27","BOOSTAR 28","BOOSTAR 29","BOOSTAR 30","BOOSTAR 31"]};
+const MASTER_MACHINES={"4":["SW 39","SW 40","SW 41","SW 42","SW 43","SW 44","SW 45","SW 46"],"6":["BP 22","BP 23","BP 24","CF 01","CF 02","CF 04","CF 05","CF 06","CF 08","CF 12","CF 13","CF 14","CF 15","CF 16","CF 17","CF 19","CF 20","Boato"],"7":["SW 32","SW 33","SW 34","SW 35","SW 36","SW 37","SW 38","BOOSTAR 25","BOOSTAR 26","BOOSTAR 27","BOOSTAR 28","BOOSTAR 29","BOOSTAR 30","BOOSTAR 31","BOOSTAR 32","BOOSTAR 33"]};
 const $=id=>document.getElementById(id),esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const storeKeys={ctx:'kobe_sho_quick_context_v1',issues:'kobe_sho_quick_issues_v1',reviews:'kobe_sho_quick_reviews_v1',checkins:'kobe_sho_quick_checkins_v1',auth:'kobe_sho_quick_auth_v1'};
 const read=(key,fallback)=>{try{return JSON.parse(localStorage.getItem(storeKeys[key]))??fallback}catch{return fallback}};
