@@ -5655,24 +5655,9 @@ async function shoIndexReadFromSync(sDate,eDate,token){
     }finally{clearTimeout(timeout)}
 }
 async function shoIndexReadIssues(sDate,eDate,token){
-    // Sumber utama adalah snapshot SHO live agar sama di laptop dan HP.
-    if(shoIndexDeviceCode()){
-        try{return await shoIndexReadFromSync(sDate,eDate,token)}
-        catch(error){console.warn('Snapshot SHO live belum tersedia:',error.message)}
-    }
-    let tableRows=null,tableError=null;
-    try{tableRows=await shoIndexReadFromTable(sDate,eDate,token)}
-    catch(error){tableError=error}
-    if(token!==downtimeTop5Request)return null;
-    // Prefer table data when available. On RLS-restricted projects, the table
-    // may return 0 rows even though issues exist; retry with the same SHO activation.
-    if(tableRows?.length)return tableRows;
-    if(shoIndexDeviceCode()){
-        try{return await shoIndexReadFromSync(sDate,eDate,token)}
-        catch(error){if(tableError)throw Error('Tabel SHO: '+tableError.message+'; sinkronisasi SHO: '+error.message)}
-    }
-    if(tableError)throw Error(tableError.message+' · Buka halaman SHO dan aktifkan perangkat jika diperlukan.');
-    return tableRows||[];
+    // Sumber data resmi sama dengan Form TL dan SHO Monitoring: public.sho_issues.
+    // Jangan fallback ke sho_live_issues karena tabel tersebut berbeda/kosong.
+    return await shoIndexReadFromTable(sDate,eDate,token);
 }
 async function loadDowntimeTop5(sDate,eDate){
     const token=++downtimeTop5Request;
