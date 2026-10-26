@@ -1984,7 +1984,105 @@ body::after {
 .energy-kpi-grid .energy-provisional-mark{margin-left:2px;font-size:9px;line-height:0;color:inherit}
 .energy-kpi-grid .gas-ton-footnote.energy-provisional-note{color:#92400e;font-size:9px;line-height:1.4}
 </style>
+<style id="dor-jargon-style">
+/* ===== Jargon KMS | Daily Operational Review ===== */
+.dor-jargon {
+    margin:0 0 24px;
+    padding:24px;
+    border:1px solid #e0e9f3;
+    border-radius:24px;
+    background:linear-gradient(135deg,#fff 0%,#f7faff 100%);
+    box-shadow:0 16px 38px rgba(38,70,113,.08);
+    scroll-margin-top:88px;
+}
+.dor-jargon-head {display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:18px;}
+.dor-jargon-eyebrow {display:flex;align-items:center;gap:8px;margin:0 0 6px;color:#d71920;font-size:10px;font-weight:850;letter-spacing:.10em;text-transform:uppercase;}
+.dor-jargon-eyebrow::before {content:'';width:8px;height:8px;flex:0 0 8px;background:#d71920;border-radius:50%;box-shadow:0 0 0 5px rgba(215,25,32,.09);}
+.dor-jargon h2 {margin:0;color:#14224a;font-size:22px;letter-spacing:-.025em;line-height:1.2;}
+.dor-jargon-note {color:#7b8799;font-size:11px;line-height:1.5;margin:0;text-align:right;}
+.dor-jargon-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;}
+.dor-jargon-card {min-width:0;position:relative;overflow:hidden;border:1px solid #dfe8f3;border-radius:18px;padding:20px 22px;background:#fff;}
+.dor-jargon-card::after {content:'';position:absolute;right:-35px;top:-58px;width:170px;height:170px;border-radius:50%;background:currentColor;opacity:.045;pointer-events:none;}
+.dor-jargon-card.insan {color:#163b85;background:linear-gradient(125deg,#f8fbff,#edf4ff);border-color:#d7e5fc;}
+.dor-jargon-card.semangat {color:#047444;background:linear-gradient(125deg,#f7fffa,#eaf9f1);border-color:#cfebdc;}
+.dor-jargon-question {position:relative;z-index:1;display:block;color:#52637d;font-size:14px;font-weight:800;margin-bottom:7px;line-height:1.3;}
+.dor-jargon-response {position:relative;z-index:1;display:block;font-size:clamp(28px,3.2vw,49px);font-weight:950;letter-spacing:-.04em;line-height:1.12;overflow-wrap:break-word;}
+.dor-jargon-card.insan .dor-jargon-response {color:#123b8d;}
+.dor-jargon-card.insan .dor-jargon-response .emphasis {color:#d71920;display:inline-block;margin-left:.17em;}
+.dor-jargon-card.semangat .dor-jargon-response {color:#087344;letter-spacing:.02em;}
+.dor-jargon-statement {display:flex;gap:18px;align-items:center;margin-top:14px;padding:19px 24px;border:1px solid #dfe7f1;border-radius:18px;background:linear-gradient(115deg,#122d67,#123c88 58%,#105a54);color:#fff;}
+.dor-jargon-statement-label {flex:0 0 90px;display:grid;place-items:center;min-height:67px;border-right:1px solid rgba(255,255,255,.20);font-size:27px;font-weight:950;letter-spacing:-.035em;}
+.dor-jargon-statement-body {min-width:0;display:flex;flex-direction:column;gap:7px;}
+.dor-jargon-statement-question {font-size:13px;font-weight:750;color:#cbd9ef;}
+.dor-jargon-statement-answer {font-size:clamp(19px,2.35vw,31px);font-weight:900;line-height:1.24;letter-spacing:-.025em;}
+.dor-jargon-statement-answer .highlight {color:#a9e3bb;display:inline-block;margin-left:.19em;}
+.dor-jargon-statement-answer .yesterday {color:#ffca8a;display:inline-block;margin-left:.19em;}
+@media(max-width:760px) {
+    .dor-jargon {padding:17px;border-radius:20px;scroll-margin-top:75px;}
+    .dor-jargon-head {align-items:flex-start;flex-direction:column;gap:5px;margin-bottom:13px;}
+    .dor-jargon h2 {font-size:19px;}
+    .dor-jargon-note {text-align:left;}
+    .dor-jargon-grid {grid-template-columns:1fr;gap:10px;}
+    .dor-jargon-card {padding:17px 18px;border-radius:15px;}
+    .dor-jargon-response {font-size:clamp(27px,8vw,42px);}
+    .dor-jargon-statement {padding:18px;gap:11px;align-items:flex-start;}
+    .dor-jargon-statement-label {flex-basis:65px;min-height:68px;font-size:23px;}
+    .dor-jargon-statement-answer {font-size:clamp(18px,4.5vw,25px);}
+}
+@media(max-width:380px) {
+    .dor-jargon-statement {flex-direction:column;}
+    .dor-jargon-statement-label {min-height:0;flex-basis:auto;border-right:0;border-bottom:1px solid rgba(255,255,255,.20);padding-bottom:7px;}
+}
+</style>
 <meta name="energy-target-revision" content="wtd-mtd-ratio-color-fix-v2">
+
+<style id="dor-collapse-style">
+/* DOR panel toggle: native details/summary, compact when collapsed. */
+.dor-collapsible { scroll-margin-top:90px; }
+.dor-collapsible > .dor-toggle-summary {
+    list-style:none; display:flex; align-items:center; justify-content:space-between;
+    gap:16px; margin:0; padding:0; cursor:pointer; user-select:none;
+    border-radius:12px; outline-offset:6px;
+}
+.dor-collapsible > .dor-toggle-summary::-webkit-details-marker {display:none;}
+.dor-collapsible > .dor-toggle-summary::marker {content:'';}
+.dor-collapsible > .dor-toggle-summary:focus-visible {outline:3px solid rgba(18,104,232,.32);}
+.dor-collapsible[open] > .dor-toggle-summary {
+    padding-bottom:18px; margin-bottom:18px; border-bottom:1px solid #e8edf4;
+}
+.dor-toggle-trailing {display:flex; align-items:center; justify-content:flex-end; gap:16px; min-width:0;}
+.dor-toggle-trailing p {max-width:460px;}
+.dor-toggle-pill {
+    display:inline-flex; align-items:center; justify-content:center; gap:9px;
+    flex:0 0 auto; min-width:84px; padding:10px 13px; border:1px solid #cfe0f6;
+    border-radius:11px; background:#f0f6ff; color:#1259ac;
+    font-size:12px; font-weight:800; line-height:1;
+    transition:background .18s ease, border-color .18s ease;
+}
+.dor-toggle-summary:hover .dor-toggle-pill {background:#e3eeff; border-color:#aac9f4;}
+.dor-toggle-open {display:none;}
+.dor-collapsible[open] .dor-toggle-closed {display:none;}
+.dor-collapsible[open] .dor-toggle-open {display:inline;}
+.dor-toggle-chevron {
+    display:inline-block; width:8px; height:8px; border-right:2px solid currentColor;
+    border-bottom:2px solid currentColor; transform:rotate(45deg) translateY(-2px);
+    transition:transform .18s ease;
+}
+.dor-collapsible[open] .dor-toggle-chevron {transform:rotate(225deg) translateY(-1px);}
+.dor-jargon {margin-bottom:16px;}
+.dor-opening {margin-bottom:22px;}
+@media(max-width:850px) {
+    .dor-collapsible > .dor-toggle-summary {align-items:flex-start; flex-direction:column; gap:13px;}
+    .dor-toggle-trailing {width:100%; justify-content:space-between; align-items:center;}
+    .dor-toggle-trailing p {text-align:left;}
+    .dor-collapsible[open] > .dor-toggle-summary {padding-bottom:15px; margin-bottom:15px;}
+}
+@media(max-width:470px) {
+    .dor-toggle-trailing {gap:10px;}
+    .dor-toggle-trailing p {font-size:10px; line-height:1.45;}
+    .dor-toggle-pill {min-width:75px; padding:9px 10px;}
+}
+</style>
 </head>
 <body>
 
@@ -1998,6 +2096,7 @@ body::after {
         <div class="sidebar-section">
             <span class="sidebar-section-label">Overview</span>
             <a href="index.html" class="active">Dashboard Utama</a>
+            <a href="#dor-jargon">Jargon KMS</a>
             <a href="#dor-opening">Komitmen &amp; Kebijakan KOBE</a>
         </div>
         <div class="sidebar-section">
@@ -2054,14 +2153,48 @@ body::after {
     </section>
 
 
-    <section class="dor-opening" id="dor-opening" aria-label="Pembukaan DOR: visi, misi, core values, kebijakan mutu dan kebijakan halal">
-        <div class="dor-opening-head">
+    <!-- Jargon KMS | pembacaan bersama setelah visi, misi dan kebijakan -->
+    <details class="dor-jargon dor-collapsible" id="dor-jargon" aria-label="Jargon KMS untuk pembukaan DOR">
+        <summary class="dor-jargon-head dor-toggle-summary">
+            <div>
+                <div class="dor-jargon-eyebrow">Semangat KOBE Management System</div>
+                <h2>Jargon KMS</h2>
+            </div>
+            <div class="dor-toggle-trailing">
+                <p class="dor-jargon-note">Siapa Kita? Insan KOBE! &bull; Semangat Kita? K-M-S</p>
+                <span class="dor-toggle-pill"><span class="dor-toggle-closed">Buka</span><span class="dor-toggle-open">Tutup</span><span class="dor-toggle-chevron" aria-hidden="true"></span></span>
+            </div>
+        </summary>
+        <div class="dor-jargon-grid">
+            <article class="dor-jargon-card insan">
+                <span class="dor-jargon-question">Siapa Kita??</span>
+                <strong class="dor-jargon-response">INSAN <span class="emphasis">KOBE!!</span></strong>
+            </article>
+            <article class="dor-jargon-card semangat">
+                <span class="dor-jargon-question">Semangat Kita??</span>
+                <strong class="dor-jargon-response">K-M-S</strong>
+            </article>
+        </div>
+        <div class="dor-jargon-statement">
+            <div class="dor-jargon-statement-label">KMS?</div>
+            <div class="dor-jargon-statement-body">
+                <span class="dor-jargon-statement-question">Komitmen kita setiap hari</span>
+                <strong class="dor-jargon-statement-answer">SETIAP HARI <span class="highlight">LEBIH BAIK</span> <span class="yesterday">DARI KEMARIN</span></strong>
+            </div>
+        </div>
+    </details>
+
+    <details class="dor-opening dor-collapsible" id="dor-opening" aria-label="Pembukaan DOR: visi, misi, core values, kebijakan mutu dan kebijakan halal">
+        <summary class="dor-opening-head dor-toggle-summary">
             <div>
                 <div class="dor-opening-kicker">Daily Operational Review Opening</div>
                 <h2>Visi, Misi, Core Values &amp; Kebijakan</h2>
             </div>
-            <p class="dor-opening-sub">Visi, misi, nilai inti, dan komitmen mutu serta halal untuk dibacakan pada pembukaan DOR.</p>
-        </div>
+            <div class="dor-toggle-trailing">
+                <p class="dor-opening-sub">Visi, misi, nilai inti, serta komitmen mutu dan halal.</p>
+                <span class="dor-toggle-pill"><span class="dor-toggle-closed">Buka</span><span class="dor-toggle-open">Tutup</span><span class="dor-toggle-chevron" aria-hidden="true"></span></span>
+            </div>
+        </summary>
 
         <div class="dor-values-grid">
             <div class="dor-vm-stack">
@@ -2103,7 +2236,8 @@ body::after {
                 </article>
             </div>
         </div>
-    </section>
+    </details>
+
 
 
     <!-- Date Filter Bar (range: Dari - Sampai) + Export -->
@@ -5427,6 +5561,26 @@ async function init() {
 }
 
 init();
+</script>
+
+<script id="dor-navigation-script">
+document.querySelectorAll('.sidebar a[href="#dor-jargon"], .sidebar a[href="#dor-opening"]').forEach(link => {
+    link.addEventListener('click', () => {
+        const target=document.getElementById(link.getAttribute('href').slice(1));
+        if(target && target.tagName==='DETAILS') target.open=true;
+    });
+});
+window.addEventListener('hashchange', () => {
+    const id=location.hash.slice(1);
+    if(id==='dor-jargon' || id==='dor-opening') {
+        const target=document.getElementById(id);
+        if(target) target.open=true;
+    }
+});
+if(location.hash==='#dor-jargon' || location.hash==='#dor-opening') {
+    const target=document.getElementById(location.hash.slice(1));
+    if(target) target.open=true;
+}
 </script>
 </body>
 </html>
