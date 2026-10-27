@@ -1043,8 +1043,10 @@ body{
 <script>
 const SUPABASE_URL = 'https://bmnhtxalfsfaefacgtpm.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_VItBKenz-q2sYz7MsibODA_nYtLXv9Q';
-const { createClient } = supabase;
-const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+// Kegagalan CDN tidak boleh menghentikan seluruh JavaScript dashboard.
+const db = (window.supabase && typeof window.supabase.createClient === 'function')
+    ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+    : null;
 
 const OEE_TARGET = 55;
 let parsedData = null;
@@ -1063,20 +1065,34 @@ let oeeCompareMode='trend';
 let oeeFilterSelection={gedung:[],line:[]};
 let scopeDailyRows=[];
 const OEE_COMPARE_COLORS=['#1268e8','#7c3aed','#16a065','#f97316','#db2777','#0891b2','#b77905','#64748b','#e5484d'];
+// Seluruh line dari sheet OEE SHIFTLY, termasuk sub-line 4A/4B dan 5C-5F.
 const OEE_LINE_MASTER=[
     {gedung:'Gd 6',line:'BOATO'},
     {gedung:'Gd 6',line:'LINE 1A - FILLING CF (4 MSN)'},
     {gedung:'Gd 6',line:'LINE 1B - FILLING BOPACK (3 MSN)'},
     {gedung:'Gd 6',line:'LINE 2 - FILLING CF (12 MSN)'},
+    {gedung:'Gd 7',line:'LINE 4A - FILLING SW (4 MSN)'},
+    {gedung:'Gd 7',line:'LINE 4B - FILLING SW (2 MSN)'},
     {gedung:'Gd 7',line:'LINE 4 - FILLING SW'},
     {gedung:'Gd 7',line:'LINE 5A - FILLING BOOSTAR (5 MSN)'},
     {gedung:'Gd 7',line:'LINE 5B - FILLING SW (1 MSN)'},
     {gedung:'Gd 7',line:'Line 6 - Filling Dried Noodle (2Mesin)'},
+    {gedung:'Gd 7',line:'LINE 5E - FILLING BOOSTAR (4MSN)'},
+    {gedung:'Gd 7',line:'LINE 5F - FILLING BOOSTAR (1MSN)'},
+    {gedung:'Gd 7',line:'LINE 5C - FILLING BOOSTAR (2 MSN)'},
+    {gedung:'Gd 7',line:'LINE 5D - FILLING BOOSTAR (3 MSN)'},
     {gedung:'Gd 4',line:'LINE 7 - FILLING SW'},
 ];
 const OEE_LINE_BY_KEY=new Map(OEE_LINE_MASTER.map(x=>[normalizeLineKey(x.line),x]));
+const OEE_LINE_BY_CODE=new Map(OEE_LINE_MASTER.filter(x=>/^LINE\s+[0-9]/i.test(x.line)).map(x=>[x.line.match(/^LINE\s+([0-9]+[A-Z]?)/i)[1].toUpperCase(),x]));
 const HARI=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
 const BULAN_ID=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+// Tetap bisa edit laporan walau penyimpanan browser dibatasi (mode privat / embedded preview).
+const OEE_LOCAL_FALLBACK=new Map();
+function safeStorageGet(key){try{return localStorage.getItem(key)??OEE_LOCAL_FALLBACK.get(key)??null}catch{return OEE_LOCAL_FALLBACK.get(key)??null}}
+function safeStorageSet(key,value){OEE_LOCAL_FALLBACK.set(key,String(value));try{localStorage.setItem(key,String(value))}catch{}}
+function safeStorageRemove(key){OEE_LOCAL_FALLBACK.delete(key);try{localStorage.removeItem(key)}catch{}}
+
 
 function toggleMenu() {
     const s=document.getElementById('sidebar');
@@ -1102,6 +1118,7 @@ function handleFile(file) {
     document.getElementById('file-name').textContent = '📄 ' + file.name;
     document.getElementById('btn-proses').classList.add('visible');
     window._pendingFile = file;
+    const input=document.getElementById('file-input');if(input)input.value='';
     setStatus('default', 'File siap diproses: ' + file.name);
     document.getElementById('btn-save').style.display = 'none';
     document.getElementById('btn-save').disabled = true;
@@ -1138,8 +1155,9 @@ function weekNumberSunday(dateStr){const d=dateFromStr(dateStr);const year=d.get
 function aggregateOee(rows){
     const valid=rows.filter(r=>r && r.oee!==null && r.oee!==undefined);
     if(!valid.length)return null;
-    const weighted=valid.filter(r=>Number(r.target_pcs)>0 && Number.isFinite(Number(r.output_pcs)));
-    if(weighted.length){
+    const weighted=valid.filter(r=>Number(r.target_pcs)>0 && r.output_pcs!==null && r.output_pcs!==undefined && Number.isFinite(Number(r.output_pcs)));
+    // Campuran tanggal berbobot dan tanpa bobot tidak boleh menyebabkan tanggal hilang.
+    if(weighted.length===valid.length){
         const target=weighted.reduce((s,r)=>s+Number(r.target_pcs||0),0);
         const output=weighted.reduce((s,r)=>s+Number(r.output_pcs||0),0);
         if(target>0)return {oee:+(output/target*100).toFixed(2),target,output,count:valid.length};
@@ -1251,9 +1269,25 @@ function parseReportRowsFromDataSheet(wsData){
     return rows;
 }
 function normalizeLineKey(v){return String(v??'').toUpperCase().replace(/[^A-Z0-9]+/g,' ' ).replace(/\s+/g,' ').trim()}
-function canonicalLineName(v){const hit=OEE_LINE_BY_KEY.get(normalizeLineKey(v));return hit?hit.line:''}
-function gedungForLine(v){const hit=OEE_LINE_BY_KEY.get(normalizeLineKey(v));return hit?hit.gedung:''}
-function canonicalLineRows(rows){return (rows||[]).map(r=>{const line=canonicalLineName(r.line||r.mesin);if(!line)return null;return {...r,line,mesin:line,gedung:r.gedung||gedungForLine(line)}}).filter(Boolean)}
+function matchOeeLine(v){
+    const key=normalizeLineKey(v);
+    if(!key)return null;
+    if(OEE_LINE_BY_KEY.has(key))return OEE_LINE_BY_KEY.get(key);
+    if(/^BOATO(?:\s|$)/.test(key))return OEE_LINE_BY_KEY.get('BOATO');
+    // Nama di sheet DATA bisa lebih singkat dibanding nama di OEE SHIFTLY.
+    const code=key.match(/^LINE\s+([0-9]+[A-Z]?)(?:\s|$)/);
+    return code?OEE_LINE_BY_CODE.get(code[1])||null:null;
+}
+function canonicalLineName(v){return matchOeeLine(v)?.line||''}
+function gedungForLine(v){return matchOeeLine(v)?.gedung||''}
+function canonicalLineRows(rows){return (rows||[]).map(r=>{const raw=String(r.line||r.mesin||'').trim();if(!raw)return null;const line=canonicalLineName(raw)||raw;return {...r,line,mesin:line,gedung:r.gedung||gedungForLine(line)||''}}).filter(Boolean)}
+function availableOeeLines(){
+    const seen=new Set(),list=[];
+    const add=x=>{const key=normalizeLineKey(x.line);if(!key||seen.has(key))return;seen.add(key);list.push(x)};
+    OEE_LINE_MASTER.forEach(add);
+    canonicalLineRows(currentOeeData?.all_line||[]).forEach(r=>add({line:r.line,gedung:r.gedung||'Belum dipetakan'}));
+    return list;
+}
 function scopedLineRows(){
     let rows=canonicalLineRows(currentOeeData?.all_line||[]);
     const selectedLines=new Set((oeeFilterSelection.line||[]).map(normalizeLineKey));
@@ -1265,7 +1299,7 @@ function scopedLineRows(){
 function aggregateScopedLineRows(rows){
     const valid=(rows||[]).filter(r=>Number.isFinite(Number(r.oee)));
     if(!valid.length)return null;
-    const weighted=valid.filter(r=>Number(r.target_pcs)>0&&Number.isFinite(Number(r.output_pcs)));
+    const weighted=valid.filter(r=>Number(r.target_pcs)>0&&r.output_pcs!==null&&r.output_pcs!==undefined&&Number.isFinite(Number(r.output_pcs)));
     if(weighted.length===valid.length&&weighted.length){const target=weighted.reduce((a,r)=>a+Number(r.target_pcs||0),0),output=weighted.reduce((a,r)=>a+Number(r.output_pcs||0),0);if(target>0)return{oee:+(output/target*100).toFixed(2),target,output,count:valid.length,weighted:true}}
     const avg=valid.reduce((a,r)=>a+Number(r.oee||0),0)/valid.length;return{oee:+avg.toFixed(2),target:null,output:null,count:valid.length,weighted:false};
 }
@@ -1321,7 +1355,7 @@ function groupedLineScopeLabel(lines){
 }
 function syncOeeSelectionState(){
     const buildings=selectedGedungs();
-    if(buildings.length){const allowed=new Set(OEE_LINE_MASTER.filter(x=>buildings.includes(x.gedung)).map(x=>normalizeLineKey(x.line)));oeeFilterSelection.line=selectedLines().filter(x=>allowed.has(normalizeLineKey(x)))}
+    if(buildings.length){const allowed=new Set(availableOeeLines().filter(x=>buildings.includes(x.gedung)).map(x=>normalizeLineKey(x.line)));oeeFilterSelection.line=selectedLines().filter(x=>allowed.has(normalizeLineKey(x)))}
     const lines=selectedLines();
     if(lines.length>1){
         oeeCompareMode='line';const lineBuildings=[...new Set(lines.map(gedungForLine).filter(Boolean))];oeeScope={gedung:lineBuildings.length===1?lineBuildings[0]:'',line:''};
@@ -1348,13 +1382,13 @@ function scopeMultiActionHeader(kind){
 function refreshOeeScopeOptions(){
     syncOeeSelectionState();
     const gedungValues=selectedGedungs(),lineValues=selectedLines();
-    const buildings=[...new Set(OEE_LINE_MASTER.map(x=>x.gedung))].sort();
+    const buildings=[...new Set(availableOeeLines().map(x=>x.gedung).filter(x=>x&&x!=='Belum dipetakan'))].sort();
     const gedungMenu=document.getElementById('filter-gedung-menu'),lineMenu=document.getElementById('filter-line-menu');
     const gedungLabel=document.getElementById('filter-gedung-label'),lineLabel=document.getElementById('filter-line-label');
     const gedungBtn=document.getElementById('filter-gedung-btn'),lineBtn=document.getElementById('filter-line-btn');
     const gedungCount=document.getElementById('filter-gedung-count'),lineCount=document.getElementById('filter-line-count');
     if(gedungMenu){gedungMenu.innerHTML=scopeMultiActionHeader('gedung')+`<div class="scope-multi-options">${buildings.map(x=>`<label class="scope-multi-option"><input type="checkbox" value="${escapeHtml(x)}" ${gedungValues.includes(x)?'checked':''} onchange="handleOeeMultiCheck('gedung',this.value,this.checked)"><span>${escapeHtml(x)}</span></label>`).join('')}</div>`}
-    const lineOptions=OEE_LINE_MASTER.filter(x=>!gedungValues.length||gedungValues.includes(x.gedung));
+    const lineOptions=availableOeeLines().filter(x=>!gedungValues.length||gedungValues.includes(x.gedung));
     if(lineMenu){
         const grouped=[...new Set(lineOptions.map(x=>x.gedung))].sort().map(g=>`<div class="scope-multi-group-title">${escapeHtml(g)}</div>`+lineOptions.filter(x=>x.gedung===g).map(x=>`<label class="scope-multi-option"><input type="checkbox" value="${escapeHtml(x.line)}" ${lineValues.some(v=>normalizeLineKey(v)===normalizeLineKey(x.line))?'checked':''} onchange="handleOeeMultiCheck('line',this.value,this.checked)"><span>${escapeHtml(x.line)}<small>${escapeHtml(x.gedung)}</small></span></label>`).join('')).join('');
         lineMenu.innerHTML=scopeMultiActionHeader('line')+`<div class="scope-multi-options">${grouped||'<div class="scope-multi-empty">Tidak ada line untuk Gedung terpilih.</div>'}</div>`;
@@ -1372,7 +1406,7 @@ function handleOeeMultiCheck(kind,value,checked){
     const next=list.filter(x=>!same(x,value));if(checked&&!list.some(x=>same(x,value)))next.push(value);oeeFilterSelection[kind]=next;if(kind==='gedung')oeeFilterSelection.line=[];syncOeeSelectionState();chartHoverKey='';refreshOeeScopeOptions();renderDashboardByScope();
 }
 function selectAllOeeMulti(kind,event){
-    event?.stopPropagation();if(kind==='gedung'){oeeFilterSelection.gedung=[...new Set(OEE_LINE_MASTER.map(x=>x.gedung))].sort();oeeFilterSelection.line=[]}else{oeeFilterSelection.line=OEE_LINE_MASTER.filter(x=>!selectedGedungs().length||selectedGedungs().includes(x.gedung)).map(x=>x.line)}syncOeeSelectionState();chartHoverKey='';refreshOeeScopeOptions();renderDashboardByScope();
+    event?.stopPropagation();if(kind==='gedung'){oeeFilterSelection.gedung=[...new Set(availableOeeLines().map(x=>x.gedung).filter(x=>x&&x!=='Belum dipetakan'))].sort();oeeFilterSelection.line=[]}else{oeeFilterSelection.line=availableOeeLines().filter(x=>!selectedGedungs().length||selectedGedungs().includes(x.gedung)).map(x=>x.line)}syncOeeSelectionState();chartHoverKey='';refreshOeeScopeOptions();renderDashboardByScope();
 }
 function clearOeeMulti(kind,event){event?.stopPropagation();oeeFilterSelection[kind]=[];syncOeeSelectionState();chartHoverKey='';refreshOeeScopeOptions();renderDashboardByScope()}
 function resetOeeScope(){oeeFilterSelection={gedung:[],line:[]};syncOeeSelectionState();chartHoverKey='';refreshOeeScopeOptions();renderDashboardByScope()}
@@ -1389,12 +1423,12 @@ function latestTargetForLineRows(rows){
 function compareOeeGroups(){
     const all=canonicalLineRows(currentOeeData?.all_line||[]);
     if(oeeCompareMode==='building'){
-        const allBuildings=[...new Set(OEE_LINE_MASTER.map(x=>x.gedung))].sort();const chosen=selectedGedungs().length?selectedGedungs():allBuildings;
+        const allBuildings=[...new Set(availableOeeLines().map(x=>x.gedung).filter(x=>x&&x!=='Belum dipetakan'))].sort();const chosen=selectedGedungs().length?selectedGedungs():allBuildings;
         return chosen.map(gedung=>{const i=allBuildings.indexOf(gedung),rows=all.filter(r=>r.gedung===gedung);return{key:`building-${gedung}`,label:gedung,shortLabel:gedung,color:OEE_COMPARE_COLORS[(i<0?0:i)%OEE_COMPARE_COLORS.length],target:OEE_TARGET,daily:dailyRowsFromLineRows(rows),rawRows:rows}}).filter(x=>x.daily.length);
     }
     if(oeeCompareMode==='line'){
-        const chosenKeys=new Set(selectedLines().map(normalizeLineKey));const master=OEE_LINE_MASTER.filter(x=>chosenKeys.size?chosenKeys.has(normalizeLineKey(x.line)):(!selectedGedungs().length||selectedGedungs().includes(x.gedung)));
-        return master.map(m=>{const i=OEE_LINE_MASTER.findIndex(x=>normalizeLineKey(x.line)===normalizeLineKey(m.line)),rows=all.filter(r=>normalizeLineKey(r.line)===normalizeLineKey(m.line));return{key:`line-${normalizeLineKey(m.line)}`,label:m.line,shortLabel:shortOeeCompareLabel(m.line),gedung:m.gedung,color:OEE_COMPARE_COLORS[(i<0?0:i)%OEE_COMPARE_COLORS.length],target:latestTargetForLineRows(rows),daily:dailyRowsFromLineRows(rows),rawRows:rows}}).filter(x=>x.daily.length);
+        const chosenKeys=new Set(selectedLines().map(normalizeLineKey));const master=availableOeeLines().filter(x=>chosenKeys.size?chosenKeys.has(normalizeLineKey(x.line)):(!selectedGedungs().length||selectedGedungs().includes(x.gedung)));
+        return master.map(m=>{const i=availableOeeLines().findIndex(x=>normalizeLineKey(x.line)===normalizeLineKey(m.line)),rows=all.filter(r=>normalizeLineKey(r.line)===normalizeLineKey(m.line));return{key:`line-${normalizeLineKey(m.line)}`,label:m.line,shortLabel:shortOeeCompareLabel(m.line),gedung:m.gedung,color:OEE_COMPARE_COLORS[(i<0?0:i)%OEE_COMPARE_COLORS.length],target:latestTargetForLineRows(rows),daily:dailyRowsFromLineRows(rows),rawRows:rows}}).filter(x=>x.daily.length);
     }
     return[];
 }
@@ -1427,7 +1461,7 @@ function scopeShiftSummary(){
 function buildPerLineDisplay(rows,tanggal){
     let data=canonicalLineRows(rows).filter(r=>r.tanggal===tanggal);const chosenLines=new Set(selectedLines().map(normalizeLineKey)),chosenGedungs=new Set(selectedGedungs());if(chosenLines.size)data=data.filter(r=>chosenLines.has(normalizeLineKey(r.line)));else if(chosenGedungs.size)data=data.filter(r=>chosenGedungs.has(r.gedung));
     const by=new Map();data.forEach(r=>{if(!by.has(r.line))by.set(r.line,{mesin:r.line,gedung:r.gedung,target:Number(r.target||OEE_TARGET),shift1:null,shift2:null,shift3:null});const o=by.get(r.line);o[`shift${Number(r.shift)}`]=Number(r.oee)});
-    return OEE_LINE_MASTER.filter(x=>by.has(x.line)).map(x=>by.get(x.line));
+    return availableOeeLines().filter(x=>by.has(x.line)).map(x=>by.get(x.line));
 }
 function renderDashboardByScope(){
     if(!currentOeeData)return;refreshOeeScopeOptions();updateScopeTargetUi();const target=activeOeeTarget();
@@ -1462,8 +1496,8 @@ function aggregateReportRows(rows){
     return [...map.values()].map(o=>({...o,speedSap:o._speeds.find(Boolean)||'',targetOee:o._targets.length?o._targets[0]:OEE_TARGET,sourceRows:o._rows})).sort((a,b)=>a.tanggal.localeCompare(b.tanggal)||(a.shift||0)-(b.shift||0)||a.mesin.localeCompare(b.mesin));
 }
 function reportDraftKey(r){return [r.tanggal,r.shift||'',r.mesin,r.sku].join('||')}
-function loadReportDraft(key){try{return JSON.parse(localStorage.getItem('oee-wa:'+key)||'{}')}catch{return{}}}
-function saveReportDraft(key,field,value){const d=loadReportDraft(key);d[field]=value;if(field==='downtime'){d._downtimeEditedAt=Date.now()}localStorage.setItem('oee-wa:'+key,JSON.stringify(d))}
+function loadReportDraft(key){try{return JSON.parse(safeStorageGet('oee-wa:'+key)||'{}')}catch{return{}}}
+function saveReportDraft(key,field,value){const d=loadReportDraft(key);d[field]=value;if(field==='downtime'){d._downtimeEditedAt=Date.now()}safeStorageSet('oee-wa:'+key,JSON.stringify(d))}
 function resetReportConverter(label='Menunggu Excel'){
     const badge=document.getElementById('report-source-badge');if(badge)badge.textContent=label;
     const ds=document.getElementById('report-date'),ss=document.getElementById('report-shift'),lines=document.getElementById('report-lines'),out=document.getElementById('wa-report-output');
@@ -1489,11 +1523,22 @@ function renderReportLines(){
     if(!rows.length){wrap.innerHTML='<div class="report-empty">Tidak ada baris produksi untuk tanggal/shift ini. Jika kolom Shift atau Mesin pada sheet DATA menggunakan nama berbeda, field tetap bisa disesuaikan pada parser.</div>';return}
     wrap.innerHTML=rows.map((r,i)=>{const key=reportDraftKey(r),d=loadReportDraft(key),target=Number(d.targetOee??r.targetOee??OEE_TARGET),speedSap=d.speedSap??r.speedSap??'',speedActual=d.speedActual??'',downtime=d.downtime??'',include=d.include!==false,targetCustom=Number(r.targetPcs||0)*(target/100);return `
       <div class="report-line-card" data-report-key="${escapeHtml(key)}">
-        <div class="report-line-top"><div class="report-line-title"><strong>${escapeHtml(r.mesin)}</strong><span>SKU: ${escapeHtml(r.sku||'—')}</span></div><label class="report-include"><input type="checkbox" ${include?'checked':''} onchange="saveReportDraft('${escapeHtml(key)}','include',this.checked)"> Sertakan</label></div>
+        <div class="report-line-top"><div class="report-line-title"><strong>${escapeHtml(r.mesin)}</strong><span>SKU: ${escapeHtml(r.sku||'—')}</span></div><label class="report-include"><input type="checkbox" ${include?'checked':''} onchange="saveReportDraft(this.closest('.report-line-card').dataset.reportKey,'include',this.checked)"> Sertakan</label></div>
         <div class="report-metrics"><div class="report-metric"><span>Target 100%</span><b>${fmtReportNum(r.targetPcs)} Pcs</b></div><div class="report-metric"><span>Target ${fmtReportNum(target)}%</span><b>${fmtReportNum(targetCustom)} Pcs</b></div><div class="report-metric"><span>Output</span><b>${fmtReportNum(r.outputPcs)} Pcs</b></div><div class="report-metric"><span>Actual OEE</span><b>${r.targetPcs?fmtReportNum(r.outputPcs/r.targetPcs*100)+'%':'—'}</b></div></div>
-        <div class="report-edit-grid"><div class="report-field"><label>Target OEE (%)</label><input type="number" step="0.01" value="${escapeHtml(target)}" oninput="saveReportDraft('${escapeHtml(key)}','targetOee',this.value)"></div><div class="report-field"><label>Speed SAP</label><input type="text" value="${escapeHtml(speedSap)}" oninput="saveReportDraft('${escapeHtml(key)}','speedSap',this.value)"></div><div class="report-field"><label>Speed Actual</label><input type="text" placeholder="contoh: 80-85" value="${escapeHtml(speedActual)}" oninput="saveReportDraft('${escapeHtml(key)}','speedActual',this.value)"></div><div class="report-field"><label>Material / Kode (opsional)</label><input type="text" value="${escapeHtml(r.material||'')}" readonly></div></div>
-        <label class="textarea-label">Catatan Downtime</label><p class="downtime-format-hint">Satu kejadian per baris: <b>15.00-15.27 : Ganti roll</b>. Format waktu wajib agar durasi bisa dihitung otomatis.</p><textarea placeholder="Contoh:\n15.00-15.27 : vacum tes verif QC\n16.00-16.03 : ganti roll\n17.32-17.45 : coding putus" oninput="saveReportDraft('${escapeHtml(key)}','downtime',this.value)">${escapeHtml(downtime)}</textarea>
+        <div class="report-edit-grid"><div class="report-field"><label>Target OEE (%)</label><input type="number" step="0.01" value="${escapeHtml(target)}" oninput="saveReportDraft(this.closest('.report-line-card').dataset.reportKey,'targetOee',this.value);updateReportTargetPreview(this)"></div><div class="report-field"><label>Speed SAP</label><input type="text" value="${escapeHtml(speedSap)}" oninput="saveReportDraft(this.closest('.report-line-card').dataset.reportKey,'speedSap',this.value)"></div><div class="report-field"><label>Speed Actual</label><input type="text" placeholder="contoh: 80-85" value="${escapeHtml(speedActual)}" oninput="saveReportDraft(this.closest('.report-line-card').dataset.reportKey,'speedActual',this.value)"></div><div class="report-field"><label>Material / Kode (opsional)</label><input type="text" value="${escapeHtml(r.material||'')}" readonly></div></div>
+        <label class="textarea-label">Catatan Downtime</label><p class="downtime-format-hint">Satu kejadian per baris: <b>15.00-15.27 : Ganti roll</b>. Format waktu wajib agar durasi bisa dihitung otomatis.</p><textarea placeholder="Contoh:\n15.00-15.27 : vacum tes verif QC\n16.00-16.03 : ganti roll\n17.32-17.45 : coding putus" oninput="saveReportDraft(this.closest('.report-line-card').dataset.reportKey,'downtime',this.value)">${escapeHtml(downtime)}</textarea>
       </div>`}).join('');
+}
+function updateReportTargetPreview(input){
+    const card=input.closest('.report-line-card');if(!card)return;
+    const key=card.dataset.reportKey;
+    const row=currentReportSelection().rows.find(r=>reportDraftKey(r)===key);
+    const metric=card.querySelectorAll('.report-metric');
+    if(!row||metric.length<2)return;
+    const target=Number(input.value);
+    if(!Number.isFinite(target)||target<0||target>100)return;
+    metric[1].querySelector('span').textContent=`Target ${fmtReportNum(target)}%`;
+    metric[1].querySelector('b').textContent=`${fmtReportNum(Number(row.targetPcs||0)*target/100)} Pcs`;
 }
 function formatReportDate(dateStr){const d=dateFromStr(dateStr);return `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getFullYear()).slice(-2)}`}
 let downtimeGenerateInProgress = false;
@@ -1513,6 +1558,7 @@ async function generateWhatsAppReport(){
         if(text.length>5000){setReportStatus('warn',`${r.mesin}: catatan downtime maksimal 5.000 karakter.`);return}
         eventCount+=events.length;
         const target=Number(d.targetOee??r.targetOee??OEE_TARGET);
+        if(!Number.isFinite(target)||target<0||target>100){setReportStatus('warn',`${r.mesin}: target OEE harus antara 0 dan 100%.`);return}
         const targetCustom=Number(r.targetPcs||0)*(target/100);
         const speedSap=String(d.speedSap??r.speedSap??'').trim()||'—';
         const speedActual=String(d.speedActual??'').trim()||'—';
@@ -1531,6 +1577,7 @@ async function generateWhatsAppReport(){
     if(btn){btn.disabled=true;btn.textContent='Menyinkronkan...'}
     setReportStatus('ok','Laporan WhatsApp siap. Mengirim downtime ke Index...');
     try{
+        if(!db)throw new Error('Koneksi Supabase belum tersedia. Periksa internet lalu muat ulang halaman');
         const {data,error}=await db.rpc('publish_oee_downtime',{
             p_tanggal:date,p_shift:shift,p_records:payload
         });
@@ -1539,7 +1586,7 @@ async function generateWhatsAppReport(){
         for(const row of payload){
             const key=reportDraftKey({tanggal:date,shift,mesin:row.mesin,sku:row.sku});
             const draft=loadReportDraft(key);draft._downtimeEditedAt=editedAt;
-            localStorage.setItem('oee-wa:'+key,JSON.stringify(draft));
+            safeStorageSet('oee-wa:'+key,JSON.stringify(draft));
             downtimeServerReportKeys.add(key);
         }
         setReportStatus('ok',`Laporan WhatsApp siap · ${eventCount} kejadian downtime tersinkron ke Index (${data??payload.length} line/SKU). Top 5 mengikuti periode tanggal yang dipilih.`);
@@ -1551,8 +1598,20 @@ async function generateWhatsAppReport(){
     }
 }
 
-async function copyWhatsAppReport(){const el=document.getElementById('wa-report-output');if(!el?.value.trim())generateWhatsAppReport();if(!el?.value.trim())return;try{await navigator.clipboard.writeText(el.value);setReportStatus('ok','Laporan berhasil disalin. Tinggal paste ke grup WhatsApp.')}catch{el.focus();el.select();document.execCommand('copy');setReportStatus('ok','Laporan berhasil disalin. Tinggal paste ke grup WhatsApp.')}}
-function clearReportDraftsForSelection(){const {rows}=currentReportSelection();rows.forEach(r=>localStorage.removeItem('oee-wa:'+reportDraftKey(r)));document.getElementById('wa-report-output').value='';renderReportLines();setReportStatus('warn','Input lokal dibersihkan. Untuk mengosongkan downtime yang sudah online, klik Generate Ringkasan kembali setelah mengosongkan catatan.')}
+async function copyWhatsAppReport(){
+    const el=document.getElementById('wa-report-output');if(!el)return;
+    if(!el.value.trim())await generateWhatsAppReport();
+    if(!el.value.trim())return;
+    try{
+        if(navigator.clipboard?.writeText)await navigator.clipboard.writeText(el.value);
+        else throw new Error('Clipboard API tidak tersedia');
+        setReportStatus('ok','Laporan berhasil disalin. Siap ditempel ke WhatsApp.');
+    }catch{
+        el.focus();el.select();const copied=document.execCommand('copy');
+        setReportStatus(copied?'ok':'warn',copied?'Laporan berhasil disalin. Siap ditempel ke WhatsApp.':'Copy otomatis tidak tersedia. Salin teks pada kolom preview secara manual.');
+    }
+}
+function clearReportDraftsForSelection(){const {rows}=currentReportSelection();rows.forEach(r=>safeStorageRemove('oee-wa:'+reportDraftKey(r)));document.getElementById('wa-report-output').value='';renderReportLines();setReportStatus('warn','Input lokal dibersihkan. Untuk mengosongkan downtime yang sudah online, klik Generate Ringkasan kembali setelah mengosongkan catatan.')}
 function setReportStatus(type,msg){const el=document.getElementById('report-status');if(!el)return;el.className=`report-status show ${type}`;el.textContent=msg}
 
 // Parsing format: 15.00-15.27 : Penyebab; 23:55-00:12 diperbolehkan lintas tengah malam.
@@ -1580,6 +1639,8 @@ async function loadServerDowntimeForSelection(){
     const token=++downtimeFetchSequence;
     downtimeServerReportKeys=new Set();
     if(!date||!shift||!rows.length)return;
+    if(!db){setReportStatus('warn','Koneksi Supabase belum tersedia; catatan lokal masih bisa diedit.');return;}
+    try{
     const {data,error}=await db.from('oee_downtime_reports')
         .select('tanggal,shift,mesin,sku,downtime_text,updated_at')
         .eq('tanggal',date).eq('shift',shift).limit(1000);
@@ -1597,15 +1658,17 @@ async function loadServerDowntimeForSelection(){
         if(!Object.prototype.hasOwnProperty.call(draft,'_downtimeEditedAt')||serverUpdated>=Number(draft._downtimeEditedAt)){
             draft.downtime=r.downtime_text||'';
             draft._downtimeEditedAt=serverUpdated;
-            localStorage.setItem('oee-wa:'+key,JSON.stringify(draft));
+            safeStorageSet('oee-wa:'+key,JSON.stringify(draft));
         }
     });
     renderReportLines();
+    }catch(err){if(token===downtimeFetchSequence)setReportStatus('warn','Tidak bisa mengambil catatan online: '+(err?.message||err));}
 }
 
 function prosesExcel() {
     const file = window._pendingFile;
-    if (!file) return;
+    if (!file) { setStatus('error','Pilih file Excel terlebih dahulu.'); return; }
+    if (!window.XLSX) { setStatus('error','Pembaca Excel belum termuat. Periksa internet dan muat ulang halaman.'); return; }
     setStatus('loading', 'Membaca file Excel...');
 
     const reader = new FileReader();
@@ -1789,6 +1852,12 @@ function prosesExcel() {
             // Siapkan data konverter WhatsApp. Target OEE yang tidak ada di DATA dicoba dilengkapi dari OEE SHIFTLY per line/shift.
             reportRowsRaw = enrichReportRows(reportRowsRaw, allLineRows);
             oeeReportRows = aggregateReportRows(reportRowsRaw);
+            try {
+                // Cache laporan 14 hari terakhir saja, agar localStorage tidak penuh.
+                const reportDates=[...new Set(oeeReportRows.map(r=>r.tanggal))].sort();
+                const recentDates=new Set(reportDates.slice(-14));
+                safeStorageSet('oee-recent-report-rows',JSON.stringify(oeeReportRows.filter(r=>recentDates.has(r.tanggal))));
+            }catch(err){console.warn('Cache laporan lokal tidak tersedia:',err);}
 
             // Data per-line utk preview kartu (hanya tanggal terakhir)
             const perLineData = buildPerLineDisplay(allLineRows,lastShiftDate);
@@ -1796,6 +1865,9 @@ function prosesExcel() {
             const tanggalUnikShiftly = [...new Set(allShiftlyRows.map(r => r.tanggal))].sort();
             const tanggalUnikDaily   = [...new Set(allDailyRows.map(r => r.tanggal))].sort();
 
+            if(!allShiftlyRows.length||!allDailyRows.length){
+                throw new Error('Sheet OEE SHIFTLY atau OEE DAILY tidak memiliki data OEE valid. Data online tidak diubah.');
+            }
             parsedData = {
                 date      : lastShiftDate,
                 shift1    : lastShift1,
@@ -1827,6 +1899,7 @@ function prosesExcel() {
             console.error(err);
         }
     };
+    reader.onerror = function(){setStatus('error','Gagal membuka file Excel. Silakan pilih file ulang.');};
     reader.readAsArrayBuffer(file);
 }
 
@@ -2155,6 +2228,7 @@ async function exportOeeSlide(){
         const peakText=(document.getElementById('chart-peak')?.textContent||'—').trim()||'—';
         const hitText=(document.getElementById('chart-target-hit')?.textContent||'—').trim()||'—';
         const exportTime=new Date().toLocaleString('id-ID',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+        if(typeof PptxGenJS!=='function')throw new Error('Library PowerPoint belum dimuat. Periksa koneksi internet lalu refresh.');
         const pptx=new PptxGenJS();
         pptx.layout='LAYOUT_WIDE';
         pptx.author='OpenAI';
@@ -2204,6 +2278,7 @@ async function exportOeeSlide(){
     }
 }
 function exportOeeExcel(){
+    if(!window.XLSX){alert('Library Excel belum dimuat. Periksa koneksi internet lalu refresh.');return;}
     if(!scopeDailyRows?.length){alert('Belum ada data OEE untuk diexport pada filter aktif.');return}
     const periods=selectedChartSeries();if(!periods.length){alert('Pilih periode terlebih dahulu.');return}
     const target=activeOeeTarget(),daily=selectedDailyRowsForChart(),dateSet=new Set(daily.map(r=>r.tanggal)),compareSeries=selectedCompareSeries();
@@ -2232,11 +2307,22 @@ function setStatus(type, msg) {
 
 // ── Load seluruh histori dari Supabase ──
 async function loadAllRows(table){
+    if(!db)throw new Error('Supabase belum termuat. Periksa koneksi internet lalu refresh.');
     const all=[];const size=1000;
-    for(let from=0;;from+=size){const{data,error}=await db.from(table).select('*').order('tanggal',{ascending:true}).range(from,from+size-1);if(error)throw error;if(data?.length)all.push(...data);if(!data||data.length<size)break}
+    for(let from=0;;from+=size){
+        // Tambahan urutan untuk menjaga paging stabil saat satu tanggal berisi banyak row.
+        let query=db.from(table).select('*').order('tanggal',{ascending:true});
+        if(table==='oee_shiftly'||table==='oee_shiftly_line')query=query.order('shift',{ascending:true});
+        if(table==='oee_shiftly_line')query=query.order('mesin',{ascending:true});
+        const{data,error}=await query.range(from,from+size-1);
+        if(error)throw error;
+        if(data?.length)all.push(...data);
+        if(!data||data.length<size)break;
+    }
     return all;
 }
 async function loadFromSupabase() {
+    if(!db){setStatus('error','Supabase gagal dimuat. Periksa koneksi internet, lalu muat ulang halaman. Import Excel tetap bisa dipreview.');return;}
     setStatus('loading','Memuat data OEE dari Supabase...');
     try {
         const [shiftRows,dailyRows,lineRows]=await Promise.all([loadAllRows('oee_shiftly'),loadAllRows('oee_daily'),loadAllRows('oee_shiftly_line')]);
@@ -2249,15 +2335,22 @@ async function loadFromSupabase() {
         const lastDaily=cleanDaily.filter(r=>r.tanggal===lastDailyDate).slice(-1)[0];
         const lastLineDate=cleanLine.length?cleanLine[cleanLine.length-1].tanggal:lastShiftDate;
         const d={date:lastShiftDate,shift1:byShift['SHIFT 1']??null,shift2:byShift['SHIFT 2']??null,shift3:byShift['SHIFT 3']??null,daily_date:lastDailyDate,daily_oee:lastDaily?.oee??null,per_line:buildPerLineDisplay(cleanLine,lastLineDate),all_shiftly:cleanShift,all_daily:cleanDaily,all_line:cleanLine};
-        tampilkanData(d);const latest=lastDailyDate||lastShiftDate;setStatus('active',`Data dimuat sampai ${fmtDate(latest)} · ${cleanDaily.length} hari daily OEE tersedia`);
+        tampilkanData(d);
+        if(!oeeReportRows.length){try{const cached=JSON.parse(safeStorageGet('oee-recent-report-rows')||'[]');if(Array.isArray(cached)&&cached.length){oeeReportRows=cached;initReportConverter();}}catch(err){console.warn('Cache laporan lokal tidak terbaca:',err)}}
+        const latest=lastDailyDate||lastShiftDate;setStatus('active',`Data dimuat sampai ${fmtDate(latest)} · ${cleanDaily.length} hari daily OEE tersedia`);
     } catch(err){setStatus('error','Gagal memuat data OEE: '+err.message);console.error(err)}
 }
 
 async function simpanKeSupabase() {
-    if(!parsedData)return;const btn=document.getElementById('btn-save');btn.disabled=true;btn.textContent='Memperbarui...';setStatus('loading','Menghapus data OEE lama & menyimpan workbook terbaru...');
+    if(!parsedData)return;
+    if(!db){setStatus('error','Supabase tidak tersedia. Data lokal belum disimpan.');return;}
+    if(!(parsedData.all_daily||[]).length||!(parsedData.all_shiftly||[]).length){setStatus('error','Data Excel belum lengkap. Database tidak diubah.');return;}
+    if(!window.confirm('Ganti seluruh data OEE online dengan data dari file terbaru? Pastikan workbook sudah lengkap.'))return;
+    const btn=document.getElementById('btn-save');btn.disabled=true;btn.textContent='Memperbarui...';setStatus('loading','Memperbarui database OEE, jangan tutup halaman sampai selesai...');
     const BATCH=500;async function insertBatched(table,rows){for(let i=0;i<rows.length;i+=BATCH){const{error}=await db.from(table).insert(rows.slice(i,i+BATCH));if(error)throw error}}
     try {
         const allShiftly=parsedData.all_shiftly||[],allDaily=parsedData.all_daily||[],allLine=parsedData.all_line||[];
+        if(!allLine.length)throw new Error('Data per-line belum terbaca. Database tidak diubah.');
         for(const table of ['oee_shiftly','oee_shiftly_line','oee_daily']){const{error}=await db.from(table).delete().gte('tanggal','2000-01-01');if(error)throw error}
         if(allShiftly.length)await insertBatched('oee_shiftly',allShiftly);
         let lineWeightedSaved=false;
