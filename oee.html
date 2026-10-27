@@ -850,6 +850,7 @@ body{
 
 /* Catatan downtime dikirim otomatis saat laporan dibuat. */
 .report-line-card .downtime-format-hint{margin:4px 0 7px;font-size:9px;line-height:1.5;color:#718096}
+.report-line-card .downtime-live-hint{min-height:15px;margin-top:5px;font-size:9px;line-height:1.5;color:#64748b}
 
 </style>
 </head>
@@ -942,7 +943,7 @@ body{
         <div class="report-head">
             <div>
                 <h3>Konversi Laporan OEE WhatsApp</h3>
-                <p>Data produksi diambil dari sheet <strong>DATA</strong> pada workbook OEE yang sama. Pilih tanggal dan shift, lengkapi Speed Actual serta downtime, lalu klik Generate Ringkasan. Laporan WhatsApp dibuat sekaligus data downtime dikirim ke Index otomatis.</p>
+                <p>Data produksi diambil dari sheet <strong>DATA</strong> pada workbook OEE yang sama. Pilih tanggal dan shift, lengkapi Speed Actual serta catatan downtime, lalu klik Generate Ringkasan. Semua catatan masuk laporan WhatsApp; hanya catatan dengan rentang jam yang valid dihitung di Index.</p>
             </div>
             <span class="report-badge" id="report-source-badge">Menunggu Excel</span>
         </div>
@@ -1497,7 +1498,29 @@ function aggregateReportRows(rows){
 }
 function reportDraftKey(r){return [r.tanggal,r.shift||'',r.mesin,r.sku].join('||')}
 function loadReportDraft(key){try{return JSON.parse(safeStorageGet('oee-wa:'+key)||'{}')}catch{return{}}}
-function saveReportDraft(key,field,value){const d=loadReportDraft(key);d[field]=value;if(field==='downtime'){d._downtimeEditedAt=Date.now()}safeStorageSet('oee-wa:'+key,JSON.stringify(d))}
+let reportEditVersion=0;
+function saveReportDraft(key,field,value){
+    const d=loadReportDraft(key);
+    d[field]=value;
+    if(field==='downtime')d._downtimeEditedAt=Date.now();
+    reportEditVersion++;
+    safeStorageSet('oee-wa:'+key,JSON.stringify(d));
+}
+function handleDowntimeInput(field){
+    const card=field.closest('.report-line-card');if(!card)return;
+    saveReportDraft(card.dataset.reportKey,'downtime',field.value);
+    // Preview lama tidak boleh disalin seolah-olah sudah memuat perubahan terbaru.
+    const output=document.getElementById('wa-report-output');if(output)output.value='';
+    const hint=card.querySelector('.downtime-live-hint');
+    if(hint){
+        const result=parseDowntimeNotes(field.value);
+        if(!field.value.trim())hint.textContent='';
+        else if(result.errors.length)hint.textContent='Catatan tersimpan di perangkat. Isi laporan WhatsApp tetap bisa dibuat; untuk Index cantumkan rentang jam.';
+        else hint.textContent=`${result.events.length} kejadian siap disinkronkan ke Index saat Generate.`;
+    }
+    setReportStatus('ok','Catatan tersimpan di perangkat. Klik Generate Ringkasan untuk membuat laporan dan menyinkronkan durasi yang valid.');
+}
+
 function resetReportConverter(label='Menunggu Excel'){
     const badge=document.getElementById('report-source-badge');if(badge)badge.textContent=label;
     const ds=document.getElementById('report-date'),ss=document.getElementById('report-shift'),lines=document.getElementById('report-lines'),out=document.getElementById('wa-report-output');
@@ -1526,7 +1549,7 @@ function renderReportLines(){
         <div class="report-line-top"><div class="report-line-title"><strong>${escapeHtml(r.mesin)}</strong><span>SKU: ${escapeHtml(r.sku||'—')}</span></div><label class="report-include"><input type="checkbox" ${include?'checked':''} onchange="saveReportDraft(this.closest('.report-line-card').dataset.reportKey,'include',this.checked)"> Sertakan</label></div>
         <div class="report-metrics"><div class="report-metric"><span>Target 100%</span><b>${fmtReportNum(r.targetPcs)} Pcs</b></div><div class="report-metric"><span>Target ${fmtReportNum(target)}%</span><b>${fmtReportNum(targetCustom)} Pcs</b></div><div class="report-metric"><span>Output</span><b>${fmtReportNum(r.outputPcs)} Pcs</b></div><div class="report-metric"><span>Actual OEE</span><b>${r.targetPcs?fmtReportNum(r.outputPcs/r.targetPcs*100)+'%':'—'}</b></div></div>
         <div class="report-edit-grid"><div class="report-field"><label>Target OEE (%)</label><input type="number" step="0.01" value="${escapeHtml(target)}" oninput="saveReportDraft(this.closest('.report-line-card').dataset.reportKey,'targetOee',this.value);updateReportTargetPreview(this)"></div><div class="report-field"><label>Speed SAP</label><input type="text" value="${escapeHtml(speedSap)}" oninput="saveReportDraft(this.closest('.report-line-card').dataset.reportKey,'speedSap',this.value)"></div><div class="report-field"><label>Speed Actual</label><input type="text" placeholder="contoh: 80-85" value="${escapeHtml(speedActual)}" oninput="saveReportDraft(this.closest('.report-line-card').dataset.reportKey,'speedActual',this.value)"></div><div class="report-field"><label>Material / Kode (opsional)</label><input type="text" value="${escapeHtml(r.material||'')}" readonly></div></div>
-        <label class="textarea-label">Catatan Downtime</label><p class="downtime-format-hint">Satu kejadian per baris: <b>15.00-15.27 : Ganti roll</b>. Format waktu wajib agar durasi bisa dihitung otomatis.</p><textarea placeholder="Contoh:\n15.00-15.27 : vacum tes verif QC\n16.00-16.03 : ganti roll\n17.32-17.45 : coding putus" oninput="saveReportDraft(this.closest('.report-line-card').dataset.reportKey,'downtime',this.value)">${escapeHtml(downtime)}</textarea>
+        <label class="textarea-label" for="downtime-note-${i}">Catatan Downtime</label><p class="downtime-format-hint">Catatan bebas bisa masuk laporan WhatsApp. Agar durasi terhitung di Index, tulis per kejadian: <b>15.00-15.27 : Ganti roll</b>.</p><textarea id="downtime-note-${i}" placeholder="Contoh:\n15.00-15.27 : ganti roll\n16.00-16.03 : coding putus" oninput="handleDowntimeInput(this)">${escapeHtml(downtime)}</textarea><div class="downtime-live-hint" aria-live="polite"></div>
       </div>`}).join('');
 }
 function updateReportTargetPreview(input){
@@ -1547,35 +1570,54 @@ async function generateWhatsAppReport(){
     const {date,shift,rows}=currentReportSelection();
     const output=document.getElementById('wa-report-output');
     if(!date||!shift||!rows.length){setReportStatus('warn','Pilih tanggal dan shift yang memiliki data produksi.');return}
-    const blocks=[],payload=[];
+    const blocks=[],payload=[],notSynced=[];
     let eventCount=0;
     for(const r of rows){
         const key=reportDraftKey(r),d=loadReportDraft(key);
         if(d.include===false)continue;
         const text=String(d.downtime??'').trim();
-        const {events,errors}=parseDowntimeNotes(text);
-        if(errors.length){setReportStatus('warn',`${r.mesin} (${r.sku}): ${errors.join('; ')}. Perbaiki sebelum Generate.`);return}
+        const {events,errors,normalizedLines}=parseDowntimeNotes(text);
         if(text.length>5000){setReportStatus('warn',`${r.mesin}: catatan downtime maksimal 5.000 karakter.`);return}
-        eventCount+=events.length;
         const target=Number(d.targetOee??r.targetOee??OEE_TARGET);
         if(!Number.isFinite(target)||target<0||target>100){setReportStatus('warn',`${r.mesin}: target OEE harus antara 0 dan 100%.`);return}
         const targetCustom=Number(r.targetPcs||0)*(target/100);
         const speedSap=String(d.speedSap??r.speedSap??'').trim()||'—';
         const speedActual=String(d.speedActual??'').trim()||'—';
-        const downtime=text||'1. ...\n2. ...\n3. ...';
-        blocks.push(`${r.mesin}\nSKU : ${r.sku||'—'}\nTarget OEE - 100% : ${fmtReportNum(r.targetPcs)} Pcs\nTarget OEE - ${fmtReportNum(target)}% : ${fmtReportNum(targetCustom)} Pcs\nHasil Output      : ${fmtReportNum(r.outputPcs)} Pcs\nSpeed SAP :${speedSap}\nSpeed Actual:${speedActual}\nTop 3 Downtime\n${downtime}`);
-        // Pengiriman idempotent: tanggal+shift+mesin+SKU selalu update catatan sebelumnya.
-        // Catatan yang sudah ada namun sekarang dikosongkan juga ikut dipublikasikan untuk menghapus downtime dari ranking.
-        if(text||downtimeServerReportKeys.has(key))payload.push({mesin:r.mesin,sku:r.sku,downtime_text:text});
+        const downtime=text||'—';
+        blocks.push(`${r.mesin}
+SKU : ${r.sku||'—'}
+Target OEE - 100% : ${fmtReportNum(r.targetPcs)} Pcs
+Target OEE - ${fmtReportNum(target)}% : ${fmtReportNum(targetCustom)} Pcs
+Hasil Output      : ${fmtReportNum(r.outputPcs)} Pcs
+Speed SAP :${speedSap}
+Speed Actual:${speedActual}
+Top 3 Downtime
+${downtime}`);
+        if(errors.length){
+            // Catatan bebas tetap disertakan dalam WhatsApp, tetapi tidak dikirim
+            // sebagai durasi yang dapat menyesatkan dashboard Index.
+            notSynced.push(`${r.mesin} / ${r.sku||'—'} (${errors.length} baris tanpa format jam)`);
+        }else if(events.length){
+            eventCount+=events.length;
+            // Bentuk standar kompatibel dengan parser database/RPC yang lebih ketat.
+            payload.push({mesin:r.mesin,sku:r.sku,downtime_text:normalizedLines.join('\n')});
+        }else if(downtimeServerReportKeys.has(key)){
+            // Sengaja dikosongkan: hapus catatan lama ketika Generate ditekan.
+            payload.push({mesin:r.mesin,sku:r.sku,downtime_text:''});
+        }
     }
     if(!blocks.length){setReportStatus('warn','Tidak ada line yang dicentang untuk disertakan.');return}
-    // Preview pesan tersedia walaupun sambungan online sedang gagal.
-    output.value=`Report OEE shift ${shift} tgl ${formatReportDate(date)}\n${blocks.join('\n\n')}`;
-    if(!payload.length){setReportStatus('ok',`${blocks.length} line berhasil digenerate. Belum ada catatan downtime untuk dikirim ke Index.`);return}
+    output.value=`Report OEE shift ${shift} tgl ${formatReportDate(date)}
+${blocks.join('\n\n')}`;
+    if(!payload.length){
+        if(notSynced.length)setReportStatus('warn',`Laporan WhatsApp siap. ${notSynced.length} catatan bebas masuk laporan, tetapi BELUM tersinkron ke Index. Gunakan contoh 15.00-15.27 : Ganti roll untuk menghitung durasi.`);
+        else setReportStatus('ok',`${blocks.length} line berhasil digenerate. Tidak ada downtime yang perlu dikirim ke Index.`);
+        return;
+    }
     const btn=document.getElementById('btn-generate-report');
     downtimeGenerateInProgress=true;
     if(btn){btn.disabled=true;btn.textContent='Menyinkronkan...'}
-    setReportStatus('ok','Laporan WhatsApp siap. Mengirim downtime ke Index...');
+    setReportStatus('ok','Laporan WhatsApp siap. Menyinkronkan downtime yang memiliki rentang jam ke Index...');
     try{
         if(!db)throw new Error('Koneksi Supabase belum tersedia. Periksa internet lalu muat ulang halaman');
         const {data,error}=await db.rpc('publish_oee_downtime',{
@@ -1585,13 +1627,19 @@ async function generateWhatsAppReport(){
         const editedAt=Date.now();
         for(const row of payload){
             const key=reportDraftKey({tanggal:date,shift,mesin:row.mesin,sku:row.sku});
+            // Jangan mengubah teks mentah yang ditulis operator menjadi hasil normalisasi.
             const draft=loadReportDraft(key);draft._downtimeEditedAt=editedAt;
             safeStorageSet('oee-wa:'+key,JSON.stringify(draft));
             downtimeServerReportKeys.add(key);
         }
-        setReportStatus('ok',`Laporan WhatsApp siap · ${eventCount} kejadian downtime tersinkron ke Index (${data??payload.length} line/SKU). Top 5 mengikuti periode tanggal yang dipilih.`);
+        const detail=notSynced.length?` ${notSynced.length} catatan bebas hanya masuk WhatsApp (belum dihitung di Index).`:'';
+        setReportStatus(notSynced.length?'warn':'ok',`Laporan WhatsApp siap · ${eventCount} kejadian downtime tersinkron ke Index (${data??payload.length} line/SKU).${detail}`);
     }catch(err){
-        setReportStatus('warn','Laporan WhatsApp berhasil dibuat, tetapi downtime BELUM masuk ke Index: '+(err?.message||err)+'. Jalankan SQL sinkronisasi dan coba Generate ulang.');
+        const msg=String(err?.message||err);
+        let help='';
+        if(/publish_oee_downtime|function.*not.*exist|schema cache|PGRST202/i.test(msg))help=' Fungsi publish_oee_downtime belum tersedia di Supabase.';
+        else if(/permission denied|policy|row.level.security|42501/i.test(msg))help=' Periksa izin/RLS tabel downtime di Supabase.';
+        setReportStatus('warn',`Laporan WhatsApp berhasil dibuat, tetapi downtime BELUM terkirim ke Index: ${msg}.${help}`);
     }finally{
         downtimeGenerateInProgress=false;
         if(btn){btn.disabled=false;btn.textContent='Generate Ringkasan'}
@@ -1605,63 +1653,81 @@ async function copyWhatsAppReport(){
     try{
         if(navigator.clipboard?.writeText)await navigator.clipboard.writeText(el.value);
         else throw new Error('Clipboard API tidak tersedia');
-        setReportStatus('ok','Laporan berhasil disalin. Siap ditempel ke WhatsApp.');
+        const status=document.getElementById('report-status');
+        const pending=status?.classList.contains('warn')&&/Index|sinkron/i.test(status.textContent||'');
+        setReportStatus(pending?'warn':'ok',pending?'Laporan berhasil disalin ke WhatsApp. Sinkronisasi downtime ke Index belum berhasil.':'Laporan berhasil disalin. Siap ditempel ke WhatsApp.');
     }catch{
         el.focus();el.select();const copied=document.execCommand('copy');
-        setReportStatus(copied?'ok':'warn',copied?'Laporan berhasil disalin. Siap ditempel ke WhatsApp.':'Copy otomatis tidak tersedia. Salin teks pada kolom preview secara manual.');
+        const status=document.getElementById('report-status');
+        const pending=status?.classList.contains('warn')&&/Index|sinkron/i.test(status.textContent||'');
+        setReportStatus(copied&&!pending?'ok':'warn',copied?(pending?'Laporan berhasil disalin. Sinkronisasi downtime ke Index belum berhasil.':'Laporan berhasil disalin. Siap ditempel ke WhatsApp.'):'Copy otomatis tidak tersedia. Salin teks pada kolom preview secara manual.');
     }
 }
 function clearReportDraftsForSelection(){const {rows}=currentReportSelection();rows.forEach(r=>safeStorageRemove('oee-wa:'+reportDraftKey(r)));document.getElementById('wa-report-output').value='';renderReportLines();setReportStatus('warn','Input lokal dibersihkan. Untuk mengosongkan downtime yang sudah online, klik Generate Ringkasan kembali setelah mengosongkan catatan.')}
 function setReportStatus(type,msg){const el=document.getElementById('report-status');if(!el)return;el.className=`report-status show ${type}`;el.textContent=msg}
 
-// Parsing format: 15.00-15.27 : Penyebab; 23:55-00:12 diperbolehkan lintas tengah malam.
+// Catatan bebas diperbolehkan untuk WhatsApp. Hanya rentang jam yang valid
+// dihitung sebagai kejadian downtime untuk Index.
 function parseDowntimeNotes(raw){
-    const events=[],errors=[];
+    const events=[],errors=[],normalizedLines=[];
     String(raw||'').split(/\r?\n/).forEach((value,idx)=>{
-        const line=value.trim().replace(/^\d+[.)]\s+/, '').trim();
+        const line=value.trim().replace(/^(?:\d+[.)]\s+|[-*•]\s+)/,'').trim();
         if(!line)return;
-        const m=line.match(/^(\d{1,2})[.:](\d{2})\s*[-–—]\s*(\d{1,2})[.:](\d{2})\s*[:\-–—]?\s*(.+)$/);
-        if(!m){errors.push(`Baris ${idx+1}: gunakan 15.00-15.27 : Penyebab`);return}
+        const m=line.match(/^(\d{1,2})[.:](\d{2})\s*(?:[-–—]|s\/?d|sampai|to)\s*(\d{1,2})[.:](\d{2})\s*(?:[:\-–—]\s*)?(.+)$/i);
+        if(!m){errors.push(`Baris ${idx+1}: tidak ada rentang jam dan penyebab yang valid`);return}
         const h1=+m[1],min1=+m[2],h2=+m[3],min2=+m[4],reason=m[5].trim();
         if(h1>23||h2>23||min1>59||min2>59||!reason){errors.push(`Baris ${idx+1}: jam/penyebab tidak valid`);return}
         let minutes=(h2*60+min2)-(h1*60+min1);
         if(minutes<0)minutes+=1440;
         if(minutes<1||minutes>720){errors.push(`Baris ${idx+1}: durasi harus 1–720 menit`);return}
+        const hhmm=(h,m)=>String(h).padStart(2,'0')+'.'+String(m).padStart(2,'0');
+        normalizedLines.push(`${hhmm(h1,min1)}-${hhmm(h2,min2)} : ${reason}`);
         events.push({reason,minutes});
     });
-    return {events,errors};
+    return {events,errors,normalizedLines};
 }
+
 let downtimeFetchSequence=0;
 let downtimeServerReportKeys=new Set();
 async function loadServerDowntimeForSelection(){
     const {date,shift,rows}=currentReportSelection();
     renderReportLines();
     const token=++downtimeFetchSequence;
+    const editVersionAtLoad=reportEditVersion;
     downtimeServerReportKeys=new Set();
     if(!date||!shift||!rows.length)return;
     if(!db){setReportStatus('warn','Koneksi Supabase belum tersedia; catatan lokal masih bisa diedit.');return;}
     try{
-    const {data,error}=await db.from('oee_downtime_reports')
+    let {data,error}=await db.from('oee_downtime_reports')
         .select('tanggal,shift,mesin,sku,downtime_text,updated_at')
         .eq('tanggal',date).eq('shift',shift).limit(1000);
+    // Instalasi tabel lama mungkin belum mempunyai kolom updated_at.
+    if(error && /updated_at|42703|PGRST204/i.test(String(error.message||''))){
+        ({data,error}=await db.from('oee_downtime_reports')
+            .select('tanggal,shift,mesin,sku,downtime_text')
+            .eq('tanggal',date).eq('shift',shift).limit(1000));
+    }
     if(token!==downtimeFetchSequence)return;
     if(error){
         setReportStatus('warn','Catatan downtime online belum terbaca: '+error.message);
         return;
     }
     (data||[]).forEach(r=>{
-        const key=reportDraftKey({tanggal:r.tanggal,shift:r.shift,mesin:r.mesin,sku:r.sku});
+        // Gunakan key yang sama dengan workbook walau kapitalisasi/spasi di server berbeda.
+        const matchingRow=rows.find(x=>normalizeLineKey(x.mesin)===normalizeLineKey(r.mesin)&&normalizeLineKey(x.sku)===normalizeLineKey(r.sku));
+        const key=reportDraftKey(matchingRow||{tanggal:r.tanggal,shift:r.shift,mesin:r.mesin,sku:r.sku});
         downtimeServerReportKeys.add(key);
         const draft=loadReportDraft(key);
         const serverUpdated=new Date(r.updated_at||0).getTime();
         // Input terbaru lokal tidak ditimpa oleh data lama dari server.
-        if(!Object.prototype.hasOwnProperty.call(draft,'_downtimeEditedAt')||serverUpdated>=Number(draft._downtimeEditedAt)){
+        if(!Object.prototype.hasOwnProperty.call(draft,'_downtimeEditedAt')||(serverUpdated>0&&serverUpdated>=Number(draft._downtimeEditedAt))){
             draft.downtime=r.downtime_text||'';
             draft._downtimeEditedAt=serverUpdated;
             safeStorageSet('oee-wa:'+key,JSON.stringify(draft));
         }
     });
-    renderReportLines();
+    // Memperbarui UI hanya bila pengguna tidak sedang mengedit sejak request dimulai.
+    if(reportEditVersion===editVersionAtLoad)renderReportLines();
     }catch(err){if(token===downtimeFetchSequence)setReportStatus('warn','Tidak bisa mengambil catatan online: '+(err?.message||err));}
 }
 
