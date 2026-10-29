@@ -24,12 +24,25 @@ const $=id=>document.getElementById(id);
 const nf=new Intl.NumberFormat('id-ID',{maximumFractionDigits:2});
 const formatGram=v=>(v!==null&&v!==undefined&&String(v).trim()!==''&&Number.isFinite(Number(v)))?nf.format(Number(v)):'—';
 const norm=(a,b)=>Math.abs(Number(a)-Number(b))<0.000001;
-// Semua SKU 135 gr di Gedung 6 memakai 5 kali penimbangan; SKU lain 10 kali.
+// Khusus SKU 135 gr di Gedung 6: target x1; SKU lainnya tetap x10.
 const targetMultiplier=(gedung,gramasi)=>String(gedung)==='6'&&norm(gramasi,135)?1:10;
 const machineInfo=Object.fromEntries(Object.entries(CATALOG).flatMap(([gedung,groups])=>groups.flatMap((g,i)=>g.mesin.map(m=>[m,{gedung,group:i}]))));
 const machineNames=gedung=>CATALOG[gedung]?CATALOG[gedung].flatMap(g=>g.mesin):[];
 const findGroup=machine=>{let info=machineInfo[machine];return info?CATALOG[info.gedung][info.group]:null};
 const getSkuGramasi=sku=>{const m=String(sku).match(/(\d+(?:[.,]\d+)?)\s*g\s*$/i);return m?Number(m[1].replace(',','.')):null};
+
+// Pembatasan SKU khusus mesin CF Gedung 6.
+// CF 01, CF 02, CF 19, CF 20 hanya untuk kemasan 135 gr.
+// Semua mesin CF Gedung 6 lainnya hanya untuk kemasan gramasi kecil.
+const CF_135_ONLY=new Set(['CF 01','CF 02','CF 19','CF 20']);
+function productsForMachine(mesin){
+    const group=findGroup(mesin);
+    if(!group)return [];
+    const info=machineInfo[mesin];
+    if(info?.gedung!=='6'||!mesin.startsWith('CF '))return group.produk;
+    const only135=CF_135_ONLY.has(mesin);
+    return group.produk.filter(p=>only135?norm(p.gramasi,135):!norm(p.gramasi,135));
+}
 </script><script>
 // SKU difilter sesuai mesin dari Excel; gramasi diambil langsung dari SKU yang dipilih.
 function setOptions(select,placeholder,items,labelFor){
@@ -43,18 +56,17 @@ function onBuildingChanged(){
     updateTarget();
 }
 function machineChanged(){
-    const group=findGroup($('mesin').value);
-    const skus=group?group.produk.map(x=>x.nama):[];
-    setOptions($('sku'),group?'Pilih SKU / Produk':'Pilih mesin dahulu',skus,x=>x);
+    const mesin=$('mesin').value;
+    const skus=productsForMachine(mesin).map(x=>x.nama);
+    setOptions($('sku'),mesin?'Pilih SKU / Produk':'Pilih mesin dahulu',skus,x=>x);
     updateTarget();
 }
 function skuChanged(){
     updateTarget();
 }
 function updateTarget(){
-    // Lookup is based on the exact chosen SKU in the selected machine group.
-    const group=findGroup($('mesin').value);
-    const product=group?.produk.find(x=>x.nama===$('sku').value);
+    // Validasi menggunakan SKU yang diizinkan untuk mesin terpilih.
+    const product=productsForMachine($('mesin').value).find(x=>x.nama===$('sku').value);
     const gramasi=product?Number(product.gramasi):NaN;
     const pengali=targetMultiplier($('gedung').value,gramasi);
     const target=Number.isFinite(gramasi)&&gramasi>0?Math.round(gramasi*pengali*1000)/1000:null;
@@ -103,7 +115,7 @@ $('f').addEventListener('submit',async e=>{
         const gedung=$('gedung').value,mesin=$('mesin').value,sku=$('sku').value;
         const group=findGroup(mesin);
         if(!gedung||!group||!machineInfo[mesin]||machineInfo[mesin].gedung!==gedung)throw Error('Gedung atau mesin belum sesuai daftar Excel.');
-        const product=group.produk.find(x=>x.nama===sku);
+        const product=productsForMachine(mesin).find(x=>x.nama===sku);
         if(!product)throw Error('Pilih SKU sesuai kelompok mesin yang digunakan.');
         const gramasi=Number(product.gramasi);
         if(!Number.isFinite(gramasi)||gramasi<=0||!Number.isFinite(target)||target<=0||!norm(target,gramasi*targetMultiplier(gedung,gramasi)))throw Error('Target gramasi tidak sesuai dengan SKU yang dipilih.');
