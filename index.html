@@ -2035,6 +2035,70 @@ body::after {
     .variance-filter-grid { grid-template-columns:1fr; }
 }
 </style>
+<style id="variance-excel-pivot-hierarchy-css">
+/* Hierarchy follows Excel PivotTable15: Short Text -> Material Description. */
+.variance-parent-sku-count {display:inline-flex;margin-left:8px;padding:3px 7px;border-radius:999px;background:#fce7f3;color:#a21caf;font-size:8px;font-weight:800;vertical-align:middle;white-space:nowrap;}
+.variance-sku-row {cursor:pointer;}
+.variance-sku-row td {background:#f7fbff;color:#526075;border-bottom:1px solid #eaf0f8!important;}
+.variance-sku-row:hover td,.variance-sku-row.open td {background:#edf5ff!important;}
+.variance-sku-item-name {padding-left:21px;color:#28507b;font-weight:680;}
+.variance-sku-item-name .variance-item-caret {border-color:#cddff7;color:#2563eb;background:#fff;}
+.variance-sku-item-name small {display:inline-block;margin-left:8px;color:#92a3b7;font-size:8px;font-weight:700;white-space:nowrap;}
+.variance-sku-detail-label {font-size:8px!important;color:#94a3b8!important;font-weight:650;}
+.variance-sku-detail-row td {padding:0!important;background:#f5f9fe!important;}
+.variance-sku-detail-box {padding:12px 14px 15px 38px;}
+.variance-sku-detail-box .variance-line-block {margin:6px 0;background:#fff;}
+.variance-sku-detail-box .variance-machine-block {margin:5px 8px 7px 18px;}
+.variance-sku-row:focus-visible,.variance-material-table .material-row:focus-visible {outline:2px solid #3b82f6;outline-offset:-2px;}
+@media(max-width:700px){.variance-sku-item-name{padding-left:9px}.variance-sku-detail-box{padding:9px}.variance-sku-item-name small{margin-left:4px}.variance-parent-sku-count{margin-left:4px}}
+</style>
+<style id="variance-excel-parity-css">
+/* Excel (13) parity: global Pivot slicers and a detail-only SKU row filter. */
+.variance-week-line-section{margin-top:14px;padding:13px 15px;border:1px solid #e8edf4;border-radius:14px;background:#fff;}
+.variance-week-line-heading{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:10px;}
+.variance-week-line-heading strong{font-size:10px;font-weight:900;color:#704e64;text-transform:uppercase;letter-spacing:.05em;}
+.variance-week-line-heading p{font-size:8.5px;color:#8c98aa;margin:5px 0 0;line-height:1.4;}
+.variance-week-line-toggle{border:1px solid #dfe7f2;background:#f8fbff;border-radius:9px;padding:7px 10px;color:#53667f;font-size:9px;font-weight:800;cursor:pointer;}
+.variance-week-line-scroll{max-height:320px;overflow:auto;border:1px solid #e8edf4;border-radius:10px;}
+.variance-week-line-table{width:100%;border-collapse:collapse;min-width:620px;}
+.variance-week-line-table thead{position:sticky;top:0;z-index:3;}
+.variance-week-line-table th{padding:9px 12px;background:#f7f9fc;border-bottom:1px solid #dee6f2;color:#7a8a9d;font-size:8px;font-weight:850;text-align:right;text-transform:uppercase;}
+.variance-week-line-table th:first-child{text-align:left;}
+.variance-week-line-table td{padding:7px 12px;font-size:9px;color:#4e5d73;text-align:right;border-bottom:1px solid #f0f3f7;font-variant-numeric:tabular-nums;}
+.variance-week-line-table td:first-child{text-align:left;}
+.variance-week-line-parent td{font-weight:850;background:#edf5ff;color:#1c4c7d;}
+.variance-week-line-child td:first-child{padding-left:26px;font-weight:650;}
+.variance-week-line-table td.over{color:#dc2626;font-weight:800;}
+.variance-week-line-table td.saving{color:#16a34a;font-weight:800;}
+@media(max-width:650px){.variance-week-line-section{padding:11px}.variance-week-line-scroll{max-height:260px}}
+
+.variance-scope-toolbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:9px 16px;margin:2px 0 5px;padding:9px 12px;border:1px solid #e8e3f4;background:linear-gradient(110deg,#faf9ff,#fff);border-radius:13px;position:relative;z-index:3;}
+.variance-scope-controls{display:flex;align-items:center;flex-wrap:wrap;gap:5px;}
+.variance-scope-title{font-size:9px;font-weight:800;color:#6b7280;margin-right:6px;}
+.variance-scope-btn{border:1px solid #e1e6ef;background:#fff;color:#64748b;padding:7px 10px;border-radius:9px;cursor:pointer;font-size:9px;font-weight:850;}
+.variance-scope-btn.active{color:#fff;border-color:#a21caf;background:linear-gradient(135deg,#db2777,#8b5cf6);box-shadow:0 5px 13px rgba(139,92,246,.14);}
+.variance-excel-preset{border:1px solid #bfd8f7;color:#1263be;border-radius:9px;background:#eff6ff;font-size:9px;font-weight:850;padding:8px 10px;cursor:pointer;}
+.variance-excel-preset:hover{background:#dbeafe;}
+.variance-scope-label{margin:4px 1px 10px;color:#76869b;font-size:9px;line-height:1.55;}
+.variance-excel-preset-notice{font-size:10px;font-weight:700;line-height:1.5;color:#0f766e;}
+.variance-excel-preset-notice:empty{display:none;}
+.variance-excel-preset-notice.mismatch{color:#a16207;}
+.variance-period-actions{display:flex;align-items:center;gap:9px;}
+.variance-detail-summary{margin:9px 0 11px;padding:12px;border:1px solid #e4eaf2;border-radius:13px;background:linear-gradient(120deg,#f8fafc,#fff);}
+.variance-detail-summary.variance-detail-only{border-color:#e9d5ed;background:linear-gradient(120deg,#fdf5ff,#fff);}
+.variance-detail-summary-heading{font-size:10px;font-weight:850;color:#7c3aed;margin-bottom:9px;}
+.variance-detail-summary-values{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;}
+.variance-detail-summary-values>div{padding:9px 10px;border:1px solid #eaedf5;border-radius:10px;background:#fff;min-width:0;}
+.variance-detail-summary-values>div span{display:block;font-size:9px;color:#8794a6;font-weight:750;}
+.variance-detail-summary-values>div strong{display:block;margin-top:4px;font-size:clamp(14px,1.3vw,19px);font-weight:850;overflow-wrap:anywhere;}
+.variance-material-actions{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:7px;}
+.variance-hierarchy-buttons{display:flex;gap:3px;padding:3px;background:#f4f6fb;border:1px solid #e3e8ef;border-radius:9px;}
+.variance-hierarchy-buttons button{font-size:8px;font-weight:750;border:0;border-radius:6px;padding:6px 8px;background:transparent;color:#718096;cursor:pointer;}
+.variance-hierarchy-buttons button.active{color:#fff;background:#264a89;}
+.variance-pivot-label{display:inline-block;margin-left:6px;color:#6366f1;border-radius:5px;padding:3px 5px;background:#eef2ff;font-size:8px;}
+.variance-detail-empty{text-align:center!important;color:#9ca3af!important;padding:15px!important;}
+@media(max-width:700px){.variance-scope-toolbar{align-items:stretch;flex-direction:column}.variance-scope-controls{width:100%}.variance-scope-title{flex-basis:100%;margin-bottom:3px}.variance-scope-btn{flex:1 1 40%;}.variance-excel-preset{width:100%;}.variance-detail-summary-values{grid-template-columns:1fr;}.variance-material-actions{justify-content:flex-start}.variance-hierarchy-buttons{width:100%}.variance-hierarchy-buttons button{flex:1;}.variance-period-actions{gap:5px}.variance-period-actions .variance-period-reset{font-size:8px;}}
+</style>
 <!-- VARIANCE MULTISELECT SEARCH V3 + SELECT VISIBLE RESULTS -->
 <style id="energy-target-color-fix">
 /* Keep decorative corners clipped without an internal scroll offset. */
@@ -2477,11 +2541,21 @@ body::after {
             <div class="variance-filter-grid">
                 <div class="variance-filter-field"><span>Gedung</span><div class="variance-multi" id="variance-gedung-multi"></div></div>
                 <div class="variance-filter-field"><span>Material Group</span><div class="variance-multi" id="variance-group-multi"></div></div>
-                <div class="variance-filter-field"><span>SKU</span><div class="variance-multi" id="variance-sku-multi"></div></div>
-                <div class="variance-filter-field"><span>Material</span><div class="variance-multi" id="variance-material-multi"></div></div>
+                <div class="variance-filter-field" title="Material yang dikonsumsi, sumber Excel: Data!J / Short Text"><span>Material</span><div class="variance-multi" id="variance-material-multi"></div></div>
+                <div class="variance-filter-field" title="Produk/SKU yang diproduksi, sumber Excel: Data!H / Material Description"><span>SKU</span><div class="variance-multi" id="variance-sku-multi"></div></div>
                 <div class="variance-filter-field"><span>Line</span><div class="variance-multi" id="variance-line-multi"></div></div>
             </div>
 
+            <div class="variance-scope-toolbar">
+                <div class="variance-scope-controls" role="group" aria-label="Cakupan filter SKU">
+                    <span class="variance-scope-title">Filter SKU berlaku untuk</span>
+                    <button type="button" class="variance-scope-btn active" id="variance-scope-detail" aria-pressed="true" onclick="switchVarianceSkuScope('detail')">Detail SKU saja (Excel)</button>
+                    <button type="button" class="variance-scope-btn" id="variance-scope-global" aria-pressed="false" onclick="switchVarianceSkuScope('global')">Seluruh dashboard</button>
+                </div>
+                <button type="button" class="variance-excel-preset" id="variance-excel-preset" onclick="applyVarianceExcelReference()" title="Setel contoh filter dari Material Variance Weekly Bojo 2026 (13): Week 1-43, Semi Finishgoods, SFG PREP MINYAK SAYUR, lima Line, dua SKU detail">Samakan Filter Excel (13)</button>
+            </div>
+            <div class="variance-excel-preset-notice" id="variance-excel-preset-notice" aria-live="polite"></div>
+            <div class="variance-scope-label" id="variance-scope-label">KPI ringkasan mengikuti semua material terpilih, SKU hanya mempersempit tabel detail.</div>
             <div class="variance-kpi-grid">
                 <div class="variance-kpi-box">
                     <span class="variance-kpi-label">Variance Value</span>
@@ -2500,7 +2574,7 @@ body::after {
             <div class="variance-comparison-section" id="variance-comparison-section">
                 <div class="variance-comparison-head">
                     <div class="variance-comparison-title" id="variance-comparison-title">Perbandingan Periode</div>
-                    <div class="variance-comparison-note">Filter Gedung / Group / SKU / Material / Line diterapkan sama ke setiap periode.</div>
+                    <div class="variance-comparison-note" id="variance-comparison-note">Filter Gedung, Group, Material dan Line berlaku untuk semua periode. SKU hanya untuk detail.</div>
                 </div>
                 <div class="variance-comparison-wrap">
                     <table class="variance-comparison-table">
@@ -2510,6 +2584,17 @@ body::after {
                 </div>
             </div>
 
+            <div class="variance-week-line-section" id="variance-week-line-section">
+                <div class="variance-week-line-heading">
+                    <div><strong id="variance-week-line-title">Variance per Week &amp; Line</strong>
+                    <p id="variance-week-line-note">Mengikuti Pivot Excel (13): % Variance Qty per minggu dan Line. Pemilihan SKU detail tidak mengubah tabel ini.</p></div>
+                    <button class="variance-week-line-toggle" type="button" id="variance-week-line-toggle" onclick="toggleVarianceWeekLinePivot()" aria-expanded="true">Sembunyikan Detail Line</button>
+                </div>
+                <div class="variance-week-line-scroll" id="variance-week-line-scroll">
+                    <table class="variance-week-line-table"><thead><tr><th>Week / Line</th><th>Variance Value</th><th>% Var Value</th><th>% Var Qty</th></tr></thead>
+                    <tbody id="variance-week-line-body"></tbody></table>
+                </div>
+            </div>
             <div class="variance-chart-section" id="variance-chart-section">
                 <div class="variance-chart-head">
                     <div class="variance-chart-title-row">
@@ -2570,14 +2655,28 @@ body::after {
             <div class="variance-material-section">
                 <div class="variance-material-head">
                     <div>
-                        <div class="variance-material-title">Material Priority for Improvement</div>
-                        <div class="variance-material-hint">Item material diurutkan dari over-variance terbesar. Klik item untuk drill-down Line → Mesin/Work Center → Produk/SKU.</div>
+                        <div class="variance-material-title">Detail Material &amp; SKU <span class="variance-pivot-label">PivotTable15 Excel</span></div>
+                        <div class="variance-material-hint" id="variance-detail-hint">Baris: SKU (Material Description) lalu Material (Short Text), seperti Pivot Excel. Klik untuk rincian Line dan Mesin.</div>
                     </div>
-                    <button type="button" class="variance-material-toggle" id="variance-material-toggle" onclick="toggleVariancePriorityList()">Lihat Semua Item</button>
+                    <div class="variance-material-actions">
+                        <div class="variance-hierarchy-buttons" role="group" aria-label="Urutan detail">
+                            <button type="button" class="active" id="variance-hierarchy-sku" onclick="setVariancePriorityGroupBy('sku')">SKU → Material</button>
+                            <button type="button" id="variance-hierarchy-material" onclick="setVariancePriorityGroupBy('material')">Material → SKU</button>
+                        </div>
+                        <button type="button" class="variance-material-toggle" id="variance-material-toggle" onclick="toggleVariancePriorityList()">Lihat Semua Item</button>
+                    </div>
+                </div>
+                <div class="variance-detail-summary" id="variance-detail-summary">
+                    <div class="variance-detail-summary-heading" id="variance-detail-summary-heading">Ringkasan Detail SKU</div>
+                    <div class="variance-detail-summary-values">
+                        <div><span>Variance Value</span><strong id="variance-detail-value">—</strong></div>
+                        <div><span>% Variance Value</span><strong id="variance-detail-pct-value">—</strong></div>
+                        <div><span>% Variance Qty</span><strong id="variance-detail-pct-qty">—</strong></div>
+                    </div>
                 </div>
                 <div class="variance-material-wrap">
                     <table class="variance-material-table">
-                        <thead><tr><th>Item Material</th><th>Variance Value</th><th>% Var Value</th><th>% Var Qty</th><th>Kontribusi Over</th></tr></thead>
+                        <thead><tr><th>Material / SKU</th><th>Variance Value</th><th>% Var Value</th><th>% Var Qty</th><th>Kontribusi Over</th></tr></thead>
                         <tbody id="variance-material-body"><tr><td colspan="5" style="text-align:center;color:#9ca3af;padding:12px;">Memuat item material...</td></tr></tbody>
                     </table>
                 </div>
@@ -2777,7 +2876,14 @@ let varianceSelectedWeekKeys = [];
 let varianceSelectedMonthKeys = [];
 let variancePriorityShowAll = false;
 let variancePriorityExpanded = '';
+let variancePriorityExpandedSku = '';
 const varianceFilters = { gedung:[], group:[], sku:[], material:[], line:[] };
+// The explicit 'Pilih Semua' must stay unfiltered when another facet changes.
+let varianceSkuAllSelected=false;
+// Excel PivotTable15 can filter Material Description independently from the
+// summary PivotTables. Detail-only is the default, with optional global mode.
+let varianceSkuScope='detail';
+let variancePriorityGroupBy='sku';
 let varianceChartMetric = 'varianceValue';
 let varianceChartType = 'bar';
 let varianceChartHoverKey = '';
@@ -3420,7 +3526,9 @@ function handleVarianceMenuAction(button,event){
         if(clearVisible) selected.delete(value); else selected.add(value);
     });
     varianceFilters[key]=[...selected];
+    if(key==='sku') varianceSkuAllSelected=false;
     variancePriorityExpanded='';
+    variancePriorityExpandedSku='';
     rebuildVarianceFilterOptions(key);
     renderVarianceCard();
 
@@ -3444,8 +3552,10 @@ function selectAllVarianceSku(event){
     if(!root) return;
     const searchValue=root.querySelector('.variance-multi-search')?.value || '';
     const options=[...root.querySelectorAll('.variance-multi-check[data-key="sku"]')];
+    varianceSkuAllSelected=true;
     varianceFilters.sku=options.map(input=>decodeURIComponent(input.dataset.value||''));
     variancePriorityExpanded='';
+    variancePriorityExpandedSku='';
     rebuildVarianceFilterOptions('sku');
     renderVarianceCard();
     const fresh=document.getElementById('variance-sku-multi');
@@ -3479,7 +3589,9 @@ document.addEventListener('click',e=>{ if(!e.target.closest('.variance-multi')) 
 function clearVarianceMulti(key,event){
     event?.stopPropagation();
     varianceFilters[key]=[];
+    if(key==='sku') varianceSkuAllSelected=false;
     variancePriorityExpanded='';
+    variancePriorityExpandedSku='';
     rebuildVarianceFilterOptions(key);
     renderVarianceCard();
 }
@@ -3492,7 +3604,9 @@ function onVarianceMultiOptionChange(input){
     if(input.checked){ if(!selected.includes(value)) selected.push(value); }
     else selected=selected.filter(v=>v!==value);
     varianceFilters[key]=selected;
+    if(key==='sku') varianceSkuAllSelected=false;
     variancePriorityExpanded='';
+    variancePriorityExpandedSku='';
     rebuildVarianceFilterOptions(key);
     renderVarianceCard();
     // Keep the current menu and search term after re-render for convenient multi-selection.
@@ -3557,12 +3671,13 @@ function varianceRowsForPeriod(){
     }
     return varianceExcelRows.filter(r=>selected.has(`${Number(r.tahun)}-${Number(r.minggu_ke)}`));
 }
-function varianceApplyFilters(rows, skip=''){
+function varianceApplyFilters(rows, skip='', view='summary'){
     const gedung=varianceFilterValues('gedung'), group=varianceFilterValues('group'), sku=varianceFilterValues('sku'), material=varianceFilterValues('material'), line=varianceFilterValues('line');
+    const filterSKU = view==='detail' || varianceSkuScope==='global';
     return rows.filter(r=>
         (skip==='gedung' || varianceMatchSelected(r.gedung,gedung)) &&
         (skip==='group' || varianceMatchSelected(r.material_group,group)) &&
-        (skip==='sku' || varianceMatchSelected(r.material_description,sku)) &&
+        (skip==='sku' || !filterSKU || varianceSkuAllSelected || varianceMatchSelected(r.material_description,sku)) &&
         (skip==='material' || varianceMatchSelected(r.short_text,material)) &&
         (skip==='line' || varianceMatchSelected(r.line,line))
     );
@@ -3590,7 +3705,7 @@ function populateVariancePeriodSelect(){
         const compactLabel=variancePeriodCompactLabelByKey(item.key);
         return `<label class="variance-multi-option" title="${escapeHtml(fullLabel)}"><input type="checkbox" class="variance-period-check" data-period-key="${item.key}"${checked} onchange="onVariancePeriodOptionChange(this)"><span>${escapeHtml(compactLabel)}</span></label>`;
     }).join('');
-    root.innerHTML=`<button type="button" class="variance-multi-btn has-selection" onclick="toggleVarianceMulti('variance-period-multi',event)" aria-expanded="false"><span class="variance-multi-label">${escapeHtml(variancePeriodSummary(selected))}</span><span class="variance-multi-count" style="display:inline-flex">${selected.length}</span><span class="variance-multi-caret">▼</span></button><div class="variance-multi-menu"><div class="variance-multi-menu-head"><div><b>Pilih periode pembanding</b><div class="variance-period-meta">${selected.length} dari ${options.length} dipilih</div></div><button type="button" class="variance-period-reset" onclick="resetVariancePeriodsToLatest(event)">Terbaru saja</button></div><div class="variance-multi-options">${optionHtml}</div></div>`;
+    root.innerHTML=`<button type="button" class="variance-multi-btn has-selection" onclick="toggleVarianceMulti('variance-period-multi',event)" aria-expanded="false"><span class="variance-multi-label">${escapeHtml(variancePeriodSummary(selected))}</span><span class="variance-multi-count" style="display:inline-flex">${selected.length}</span><span class="variance-multi-caret">▼</span></button><div class="variance-multi-menu"><div class="variance-multi-menu-head"><div><b>Pilih periode pembanding</b><div class="variance-period-meta">${selected.length} dari ${options.length} dipilih</div></div><div class="variance-period-actions"><button type="button" class="variance-period-reset" onclick="selectAllVariancePeriods(event)">Pilih Semua</button><button type="button" class="variance-period-reset" onclick="resetVariancePeriodsToLatest(event)">Terbaru saja</button></div></div><div class="variance-multi-options">${optionHtml}</div></div>`;
 }
 function reopenVariancePeriodPicker(){
     const root=document.getElementById('variance-period-multi');
@@ -3610,6 +3725,16 @@ function onVariancePeriodOptionChange(input){
     selected=order.filter(k=>selected.includes(k));
     setVarianceSelectedPeriodKeys(selected);
     variancePriorityExpanded='';
+    variancePriorityExpandedSku='';
+    populateVariancePeriodSelect();
+    rebuildVarianceFilterOptions('period');
+    renderVarianceCard();
+    reopenVariancePeriodPicker();
+}
+function selectAllVariancePeriods(event){
+    event?.stopPropagation();
+    setVarianceSelectedPeriodKeys(variancePeriodOptions().map(x=>x.key));
+    variancePriorityExpanded='';variancePriorityExpandedSku='';
     populateVariancePeriodSelect();
     rebuildVarianceFilterOptions('period');
     renderVarianceCard();
@@ -3621,6 +3746,7 @@ function resetVariancePeriodsToLatest(event){
     if(!latest)return;
     setVarianceSelectedPeriodKeys([latest]);
     variancePriorityExpanded='';
+    variancePriorityExpandedSku='';
     populateVariancePeriodSelect();
     rebuildVarianceFilterOptions('period');
     renderVarianceCard();
@@ -3629,7 +3755,6 @@ function resetVariancePeriodsToLatest(event){
 function rebuildVarianceFilterOptions(changed=''){
     const periodRows=varianceRowsForPeriod();
     const gedungValues=varianceUnique(periodRows,'gedung');
-    // Default dashboard tidak memilih gedung tertentu; kosong berarti Semua Gedung.
     varianceFilters.gedung=varianceFilterValues('gedung').filter(v=>gedungValues.includes(v));
     varianceFilters.gedung=varianceRenderMulti('variance-gedung-multi','gedung',gedungValues,varianceFilters.gedung,'Semua Gedung');
 
@@ -3638,22 +3763,22 @@ function rebuildVarianceFilterOptions(changed=''){
     varianceFilters.group=varianceFilterValues('group').filter(v=>groupValues.includes(v));
     varianceFilters.group=varianceRenderMulti('variance-group-multi','group',groupValues,varianceFilters.group,'Semua Group');
 
+    // Excel slicer Short Text is a global filter, not a dependency of the
+    // Material Description row filter on PivotTable15.
     const afterGroup=afterGedung.filter(r=>varianceMatchSelected(r.material_group,varianceFilters.group));
-    // Excel sheet Data, column H = Material Description = SKU produced.
-    // The existing Material filter remains mapped to Short Text (column J).
-    const skuValues=varianceUnique(afterGroup,'material_description');
-    varianceFilters.sku=varianceFilterValues('sku').filter(v=>skuValues.includes(v));
-    varianceFilters.sku=varianceRenderMulti('variance-sku-multi','sku',skuValues,varianceFilters.sku,'Semua SKU');
-
-    const afterSku=afterGroup.filter(r=>varianceMatchSelected(r.material_description,varianceFilters.sku));
-    const materialValues=varianceUnique(afterSku,'short_text');
+    const materialValues=varianceUnique(afterGroup,'short_text');
     varianceFilters.material=varianceFilterValues('material').filter(v=>materialValues.includes(v));
     varianceFilters.material=varianceRenderMulti('variance-material-multi','material',materialValues,varianceFilters.material,'Semua Material');
 
-    const afterMaterial=afterSku.filter(r=>varianceMatchSelected(r.short_text,varianceFilters.material));
+    const afterMaterial=afterGroup.filter(r=>varianceMatchSelected(r.short_text,varianceFilters.material));
     const lineValues=varianceUnique(afterMaterial,'line');
     varianceFilters.line=varianceFilterValues('line').filter(v=>lineValues.includes(v));
     varianceFilters.line=varianceRenderMulti('variance-line-multi','line',lineValues,varianceFilters.line,'Semua Line');
+
+    const afterLine=afterMaterial.filter(r=>varianceMatchSelected(r.line,varianceFilters.line));
+    const skuValues=varianceUnique(afterLine,'material_description');
+    varianceFilters.sku=varianceSkuAllSelected ? skuValues.slice() : varianceFilterValues('sku').filter(v=>skuValues.includes(v));
+    varianceFilters.sku=varianceRenderMulti('variance-sku-multi','sku',skuValues,varianceFilters.sku,'Semua SKU');
 }
 async function fetchAllVarianceWeeklyDetail() {
     const pageSize = 1000;
@@ -3717,13 +3842,62 @@ async function loadVarianceCard() {
     rebuildVarianceFilterOptions('period');
     renderVarianceCard();
 }
+function switchVarianceSkuScope(scope){
+    if(scope!=='detail'&&scope!=='global') return;
+    varianceSkuScope=scope;
+    renderVarianceCard();
+}
+function applyVarianceExcelReference(){
+    if(!varianceExcelRows.length){
+        const note=document.getElementById('variance-excel-preset-notice');
+        if(note) note.textContent='Data Variance belum tersedia. Periksa koneksi dan unggah Excel terlebih dahulu.';
+        return;
+    }
+    // The verified workbook (13) contains a Short Text slicer used by all 6
+    // pivot tables, plus 2 visible Material Description items in PivotTable15.
+    variancePeriod='weekly';
+    varianceSelectedWeekKeys=varianceWeeksList.filter(w=>w.tahun===2026 && w.minggu>=1 && w.minggu<=43 && w.minggu!==12).map(w=>w.key);
+    varianceFilters.gedung=[];
+    varianceFilters.group=['Semi Finishgoods'];
+    varianceFilters.material=['SFG PREP MINYAK SAYUR'];
+    varianceFilters.line=[
+        'LINE 1 - PROCESS SUT',
+        'LINE 2 - PROCESS ELVA',
+        'LINE 4 - PROCESS WONTON SKIN',
+        'LINE 5 - PROCESS W900',
+        'LINE 7 - PROCESS ELVA'
+    ];
+    varianceFilters.sku=['SFG SEASONING MAKARONI BALADO BBQ','SFG SEASONING MAKARONI LV 0'];
+    varianceSkuAllSelected=false;
+    varianceSkuScope='detail';
+    variancePriorityGroupBy='sku';
+    variancePriorityShowAll=false;
+    variancePriorityExpanded='';variancePriorityExpandedSku='';
+    document.getElementById('btn-variance-weekly')?.classList.add('active');
+    document.getElementById('btn-variance-monthly')?.classList.remove('active');
+    populateVariancePeriodSelect();
+    rebuildVarianceFilterOptions('period');
+    renderVarianceCard();
+    const mainRows=varianceApplyFilters(varianceRowsForPeriod());
+    const detailRows=varianceApplyFilters(varianceRowsForPeriod(),'','detail');
+    const mainMetric=varianceMetric(mainRows),detailMetric=varianceMetric(detailRows);
+    const referenceMain=4268875637.8516693, referenceDetail=30189752.239150077;
+    const matches=Math.abs(mainMetric.varianceValue-referenceMain)<1 && Math.abs(detailMetric.varianceValue-referenceDetail)<1;
+    const note=document.getElementById('variance-excel-preset-notice');
+    if(note){
+        note.classList.toggle('mismatch',!matches);
+        note.textContent=matches ? `Sesuai Excel (13): ringkasan ${fmtRupiah(mainMetric.varianceValue)}, detail 2 SKU ${fmtRupiah(detailMetric.varianceValue)}.` : `Pilihan Excel (13) diterapkan, tetapi data dashboard berbeda dari Excel. Pastikan data Supabase sama dengan workbook (13). Ringkasan: ${fmtRupiah(mainMetric.varianceValue)}, detail: ${fmtRupiah(detailMetric.varianceValue)}.`;
+    }
+}
 function switchVariancePeriod(period){
     if(period==='monthly' && !varianceMonthsList.length) return;
     variancePeriod=period;
     document.getElementById('btn-variance-weekly')?.classList.toggle('active',period==='weekly');
     document.getElementById('btn-variance-monthly')?.classList.toggle('active',period==='monthly');
     varianceFilters.group=[]; varianceFilters.sku=[]; varianceFilters.material=[]; varianceFilters.line=[];
+    varianceSkuAllSelected=false;
     variancePriorityExpanded='';
+    variancePriorityExpandedSku='';
     populateVariancePeriodSelect();
     rebuildVarianceFilterOptions('period');
     renderVarianceCard();
@@ -4241,6 +4415,7 @@ function varianceExportFilterLabel(){
     const gedung=varianceFilterValues('gedung');
     const group=varianceFilterValues('group');
     const material=varianceFilterValues('material');
+    const sku=(varianceSkuScope==='global' && !varianceSkuAllSelected)?varianceFilterValues('sku'):[];
     const line=varianceFilterValues('line');
 
     if(gedung.length===1) parts.push(`Building: ${gedung[0]}`);
@@ -4249,6 +4424,8 @@ function varianceExportFilterLabel(){
     else if(group.length>1) parts.push(`${group.length} Material Groups Selected`);
     if(material.length===1) parts.push(`Material: ${material[0]}`);
     else if(material.length>1) parts.push(`${material.length} Materials Selected`);
+    if(sku.length===1) parts.push(`SKU: ${sku[0]}`);
+    else if(sku.length>1) parts.push(`${sku.length} SKUs Selected`);
     if(line.length===1) parts.push(`Line: ${line[0]}`);
     else if(line.length>1) parts.push(`${line.length} Lines Selected`);
 
@@ -4584,78 +4761,133 @@ function toggleVariancePriorityList(){
 function toggleVarianceMaterialDetail(encodedName){
     const name=decodeURIComponent(encodedName);
     variancePriorityExpanded=variancePriorityExpanded===name?'':name;
+    variancePriorityExpandedSku='';
+    renderVarianceCard();
+}
+function toggleVarianceSkuDetail(encodedMaterial,encodedSku,event){
+    event?.stopPropagation();
+    const key=decodeURIComponent(encodedMaterial)+'\u001F'+decodeURIComponent(encodedSku);
+    variancePriorityExpandedSku=variancePriorityExpandedSku===key ? '' : key;
+    renderVarianceCard();
+}
+// Follow the Excel Pivot formula at every grouping level: actual minus target,
+// with percentages calculated from SUM(actual) and SUM(target) in the group.
+// A zero denominator is undefined (Excel may show #DIV/0!), displayed here as —.
+function variancePivotPctTitle(metric,basis){
+    if(metric!==null && metric!==undefined) return basis==='cost' ?
+        '% Variance Value = (Total Actual Costs - Target Est. Cost) / Target Est. Cost' :
+        '% Variance Qty = (Total Actual Qty - Target Est. Qty) / Target Est. Qty';
+    return basis==='cost' ? 'Tidak terdefinisi: total target cost = 0' : 'Tidak terdefinisi: total target qty = 0';
+}
+function renderVarianceSkuLineDetail(skuRows){
+    const lines=varianceAggregate(skuRows,'line').sort((a,b)=>b.metric.varianceValue-a.metric.varianceValue);
+    if(!lines.length) return '<div class="variance-top5-empty">Tidak ada data Line/Mesin.</div>';
+    return lines.map(line=>{
+        const lm=line.metric,lc=varianceMetricClass(lm.varianceValue);
+        const machines=varianceAggregate(line.rows,'work_center').sort((a,b)=>b.metric.varianceValue-a.metric.varianceValue);
+        const machineHtml=machines.map(machine=>{
+            const mm=machine.metric,mc=varianceMetricClass(mm.varianceValue);
+            return `<div class="variance-machine-head"><span class="variance-machine-name"><span class="variance-machine-badge">MESIN</span><b>${escapeHtml(machine.name==='(Tanpa nama)'?'Work Center belum tersimpan':machine.name)}</b></span><span class="${mc}">${fmtRupiah(mm.varianceValue)}</span><span class="${varianceMetricClass(mm.pctValue||0)}">${fmtVariancePct(mm.pctValue)}</span><span class="${varianceMetricClass(mm.pctQty||0)}">${fmtVariancePct(mm.pctQty)}</span></div>`;
+        }).join('');
+        return `<div class="variance-line-block"><div class="variance-line-head"><span><b>${escapeHtml(line.name)}</b></span><span class="${lc}">${fmtRupiah(lm.varianceValue)}</span><span class="${varianceMetricClass(lm.pctValue||0)}">${fmtVariancePct(lm.pctValue)}</span><span class="${varianceMetricClass(lm.pctQty||0)}">${fmtVariancePct(lm.pctQty)}</span></div><div class="variance-machine-block">${machineHtml}</div></div>`;
+    }).join('');
+}
+function renderVarianceDetailSummary(rows, mainRows){
+    const el=document.getElementById('variance-detail-summary');
+    if(!el) return;
+    const selectedSku=varianceSkuAllSelected?[]:varianceFilterValues('sku');
+    const availableCount=document.querySelectorAll('#variance-sku-multi input.variance-multi-check').length;
+    const isFocused=selectedSku.length>0 && selectedSku.length<availableCount;
+    // Excel PivotTable15 detail has an additional Material Description row filter.
+    // Even if there is no SKU selection, it shows the valid parent material total.
+    const m=varianceMetric(rows);
+    const heading=document.getElementById('variance-detail-summary-heading');
+    if(heading) heading.textContent=isFocused ? `Detail ${selectedSku.length} SKU terpilih (${rows.length} baris)` : `Detail semua SKU (${rows.length} baris)`;
+    setVarianceMetric(document.getElementById('variance-detail-value'),rows.length?m.varianceValue:null);
+    setVarianceMetric(document.getElementById('variance-detail-pct-value'),rows.length?m.pctValue:null,'pct');
+    setVarianceMetric(document.getElementById('variance-detail-pct-qty'),rows.length?m.pctQty:null,'pct');
+    el.classList.toggle('variance-detail-only',varianceSkuScope==='detail' && isFocused);
+}
+function setVariancePriorityGroupBy(mode){
+    if(mode!=='sku' && mode!=='material')return;
+    variancePriorityGroupBy=mode;
+    variancePriorityExpanded='';variancePriorityExpandedSku='';
     renderVarianceCard();
 }
 function renderVarianceMaterialPriority(rows){
     const body=document.getElementById('variance-material-body');
     if(!body) return;
-    const items=varianceAggregate(rows,'short_text').sort((a,b)=>b.metric.varianceValue-a.metric.varianceValue);
-    const totalOver=items.filter(x=>x.metric.varianceValue>0).reduce((s,x)=>s+x.metric.varianceValue,0);
-    let candidates;
-    if(varianceFilterValues('material').length){
-        candidates=items;
-    }else if(variancePriorityShowAll){
-        candidates=items;
-    }else{
-        candidates=items.filter(x=>x.metric.varianceValue>0).slice(0,10);
-    }
+    const skuFirst=variancePriorityGroupBy==='sku';
+    const parentKey=skuFirst?'material_description':'short_text';
+    const childKey=skuFirst?'short_text':'material_description';
+    let items=varianceAggregate(rows,parentKey);
+    // PivotTable15 uses Material Description then Short Text, alphabetically.
+    if(skuFirst) items.sort((a,b)=>a.name.localeCompare(b.name,'id',{sensitivity:'base'}));
+    else items.sort((a,b)=>b.metric.varianceValue-a.metric.varianceValue);
+    const totalOver=items.filter(x=>x.metric.varianceValue>0).reduce((sum,x)=>sum+x.metric.varianceValue,0);
+    const selectedSku=varianceSkuAllSelected?[]:varianceFilterValues('sku');
+    const possibleSkuCount=document.querySelectorAll('#variance-sku-multi .variance-multi-check').length;
+    const focusedSku=selectedSku.length>0 && selectedSku.length<possibleSkuCount;
+    const focusedMaterial=varianceFilterValues('material').length>0;
+    const hasFocusedFilter=focusedSku||focusedMaterial;
+    const candidates=(hasFocusedFilter || variancePriorityShowAll) ? items : items.filter(x=>x.metric.varianceValue>0).slice(0,10);
+    document.getElementById('variance-hierarchy-sku')?.classList.toggle('active',skuFirst);
+    document.getElementById('variance-hierarchy-material')?.classList.toggle('active',!skuFirst);
+    const hint=document.getElementById('variance-detail-hint');
+    if(hint) hint.textContent=skuFirst ? 'Susunan Excel (13): SKU -> Material. Klik SKU untuk membuka material dan klik material untuk rincian Line/Mesin.' : 'Alternatif: Material -> SKU. Klik material untuk membuka SKU dan klik SKU untuk rincian Line/Mesin.';
     const toggle=document.getElementById('variance-material-toggle');
     if(toggle){
         const overCount=items.filter(x=>x.metric.varianceValue>0).length;
-        toggle.textContent=variancePriorityShowAll?'Tampilkan Top 10 Over':`Lihat Semua Item (${items.length})`;
-        toggle.style.display=(items.length<=10 || varianceFilterValues('material').length)?'none':'inline-block';
-        toggle.title=`${overCount} item memiliki variance positif`;
+        toggle.textContent=variancePriorityShowAll?'Top 10 Over':`Lihat Semua (${items.length})`;
+        toggle.style.display=(items.length<=10||hasFocusedFilter)?'none':'inline-block';
+        toggle.title=`${overCount} kelompok memiliki variance positif`;
     }
     if(!candidates.length){
-        body.innerHTML='<tr><td colspan="5" style="text-align:center;color:#9ca3af;padding:12px;">Tidak ada item material pada filter ini</td></tr>';
+        body.innerHTML='<tr><td colspan="5" class="variance-detail-empty">Tidak ada data pada filter ini.</td></tr>';
     }else{
         body.innerHTML=candidates.map(item=>{
             const im=item.metric, cls=varianceMetricClass(im.varianceValue);
             const contribution=varianceContributionPct(im.varianceValue,totalOver);
             const open=variancePriorityExpanded===item.name;
-            const encoded=encodeURIComponent(item.name);
-            let html=`<tr class="material-row ${open?'open':''}" onclick="toggleVarianceMaterialDetail('${encoded}')">
-                <td><div class="variance-item-name"><span class="variance-item-caret ${open?'open':''}">▶</span><span>${escapeHtml(item.name)}</span></div></td>
+            const parentEncoded=encodeURIComponent(item.name);
+            const children=varianceAggregate(item.rows,childKey).sort((a,b)=>a.name.localeCompare(b.name,'id',{sensitivity:'base'}));
+            const childCount=children.length;
+            let html=`<tr class="material-row ${open?'open':''}" role="button" tabindex="0" data-material="${escapeHtml(parentEncoded)}" aria-expanded="${open}" onclick="toggleVarianceMaterialDetail(this.dataset.material)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleVarianceMaterialDetail(this.dataset.material)}">
+                <td><div class="variance-item-name"><span class="variance-item-caret ${open?'open':''}">▶</span><span>${escapeHtml(item.name)}<span class="variance-parent-sku-count">${childCount} ${skuFirst?'material':'SKU'}</span></span></div></td>
                 <td class="${cls}">${fmtRupiah(im.varianceValue)}</td>
-                <td class="${varianceMetricClass(im.pctValue||0)}">${fmtVariancePct(im.pctValue)}</td>
-                <td class="${varianceMetricClass(im.pctQty||0)}">${fmtVariancePct(im.pctQty)}</td>
+                <td title="${variancePivotPctTitle(im.pctValue,'cost')}" class="${varianceMetricClass(im.pctValue||0)}">${fmtVariancePct(im.pctValue)}</td>
+                <td title="${variancePivotPctTitle(im.pctQty,'qty')}" class="${varianceMetricClass(im.pctQty||0)}">${fmtVariancePct(im.pctQty)}</td>
                 <td class="variance-contrib">${contribution.toFixed(1)}%<div class="variance-contrib-bar"><span style="width:${Math.min(100,Math.max(0,contribution)).toFixed(1)}%"></span></div></td>
             </tr>`;
             if(open){
-                const lines=varianceAggregate(item.rows,'line').sort((a,b)=>b.metric.varianceValue-a.metric.varianceValue);
-                const detail=lines.map(line=>{
-                    const lm=line.metric, lc=varianceMetricClass(lm.varianceValue);
-                    const machines=varianceAggregate(line.rows,'work_center').sort((a,b)=>b.metric.varianceValue-a.metric.varianceValue);
-                    const validMachines=machines.filter(machine=>machine.name && machine.name!=='(Tanpa nama)');
-                    const machineHtml=(validMachines.length?validMachines:[{name:'Work Center belum tersimpan',rows:line.rows,metric:lm}]).map(machine=>{
-                        const mm=machine.metric, mc=varianceMetricClass(mm.varianceValue);
-                        const products=varianceAggregate(machine.rows,'material_description').sort((a,b)=>b.metric.varianceValue-a.metric.varianceValue);
-                        const productHtml=products.map(prod=>{
-                            const pm=prod.metric, pc=varianceMetricClass(pm.varianceValue);
-                            return `<div class="variance-product-row"><span>↳ ${escapeHtml(prod.name)}</span><span class="${pc}">${fmtRupiah(pm.varianceValue)}</span><span class="${varianceMetricClass(pm.pctValue||0)}">${fmtVariancePct(pm.pctValue)}</span><span class="${varianceMetricClass(pm.pctQty||0)}">${fmtVariancePct(pm.pctQty)}</span></div>`;
-                        }).join('');
-                        return `<div class="variance-machine-block"><div class="variance-machine-head"><span class="variance-machine-name"><span class="variance-machine-badge">MESIN</span><b>${escapeHtml(machine.name)}</b></span><span class="${mc}">${fmtRupiah(mm.varianceValue)}</span><span class="${varianceMetricClass(mm.pctValue||0)}">${fmtVariancePct(mm.pctValue)}</span><span class="${varianceMetricClass(mm.pctQty||0)}">${fmtVariancePct(mm.pctQty)}</span></div>${productHtml}</div>`;
-                    }).join('');
-                    return `<div class="variance-line-block"><div class="variance-line-head"><span><b>${escapeHtml(line.name)}</b></span><span class="${lc}">${fmtRupiah(lm.varianceValue)}</span><span class="${varianceMetricClass(lm.pctValue||0)}">${fmtVariancePct(lm.pctValue)}</span><span class="${varianceMetricClass(lm.pctQty||0)}">${fmtVariancePct(lm.pctQty)}</span></div>${machineHtml}</div>`;
+                html+=children.map(child=>{
+                    const cm=child.metric,cc=varianceMetricClass(cm.varianceValue);
+                    const childEncoded=encodeURIComponent(child.name);
+                    const key=item.name+'\u001F'+child.name;
+                    const childOpen=variancePriorityExpandedSku===key;
+                    const lineCount=varianceUnique(child.rows,'line').length;
+                    let sub=`<tr class="variance-sku-row ${childOpen?'open':''}" role="button" tabindex="0" data-parent="${escapeHtml(parentEncoded)}" data-sku="${escapeHtml(childEncoded)}" aria-expanded="${childOpen}" title="Klik untuk rincian Line dan Mesin" onclick="toggleVarianceSkuDetail(this.dataset.parent,this.dataset.sku,event)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleVarianceSkuDetail(this.dataset.parent,this.dataset.sku,event)}">
+                        <td><div class="variance-item-name variance-sku-item-name"><span class="variance-item-caret ${childOpen?'open':''}">▶</span><span>${escapeHtml(child.name)}<small>${lineCount} Line</small></span></div></td>
+                        <td class="${cc}">${fmtRupiah(cm.varianceValue)}</td>
+                        <td class="${varianceMetricClass(cm.pctValue||0)}" title="${variancePivotPctTitle(cm.pctValue,'cost')}">${fmtVariancePct(cm.pctValue)}</td>
+                        <td class="${varianceMetricClass(cm.pctQty||0)}" title="${variancePivotPctTitle(cm.pctQty,'qty')}">${fmtVariancePct(cm.pctQty)}</td>
+                        <td class="variance-sku-detail-label">Rincian Line</td>
+                    </tr>`;
+                    if(childOpen) sub+=`<tr class="variance-sku-detail-row"><td colspan="5"><div class="variance-sku-detail-box"><div class="variance-drill-label">${skuFirst?'SKU: '+escapeHtml(item.name)+' / Material: '+escapeHtml(child.name):'Material: '+escapeHtml(item.name)+' / SKU: '+escapeHtml(child.name)} · Line -> Mesin</div>${renderVarianceSkuLineDetail(child.rows)}</div></td></tr>`;
+                    return sub;
                 }).join('');
-                html+=`<tr class="variance-drill-row"><td colspan="5"><div class="variance-drill"><div class="variance-drill-label">Drill-down Line → Mesin/Work Center → Produk/SKU</div>${detail||'<div style="color:#9ca3af;font-size:8px;">Tidak ada detail line.</div>'}</div></td></tr>`;
             }
             return html;
         }).join('');
     }
     const info=document.getElementById('variance-priority-info');
     if(info){
-        if(varianceFilterValues('material').length){
-            const count=varianceFilterValues('material').length;
-            info.textContent=`${count} material terpilih · Prioritas berdasarkan over-variance terbesar.`;
-        }
-        else if(variancePriorityShowAll) info.textContent='Semua item ditampilkan; merah = over variance, hijau = saving.';
-        else info.textContent='Top 10 item over-variance terbesar — kandidat utama improvement.';
+        if(focusedSku)info.textContent=`${selectedSku.length} SKU di tabel detail · ${skuFirst?'SKU -> Material':'Material -> SKU'} (termasuk saving).`;
+        else info.textContent=`${skuFirst?'SKU -> Material':'Material -> SKU'} · ${variancePriorityShowAll?'Semua item':'Top 10 over (jika tanpa filter)'} · Klik baris untuk detail.`;
     }
     const total=document.getElementById('variance-priority-total');
-    if(total) total.innerHTML=`Total Over: <strong>${fmtRupiah(totalOver)}</strong>`;
+    if(total)total.innerHTML=`Total Over: <strong>${fmtRupiah(totalOver)}</strong>`;
 }
-
 function varianceTop5BalancedRows(cards){
     const rows=[];
     let i=0;
@@ -4727,14 +4959,53 @@ function renderVariancePeriodComparison(){
     }).join('');
 }
 
+let varianceWeekLineVisible=true;
+function toggleVarianceWeekLinePivot(){
+    varianceWeekLineVisible=!varianceWeekLineVisible;
+    const wrap=document.getElementById('variance-week-line-scroll');
+    const btn=document.getElementById('variance-week-line-toggle');
+    if(wrap)wrap.style.display=varianceWeekLineVisible?'block':'none';
+    if(btn){btn.setAttribute('aria-expanded',String(varianceWeekLineVisible));btn.textContent=varianceWeekLineVisible?'Sembunyikan Detail Line':'Tampilkan Detail Line';}
+}
+function renderVarianceWeekLinePivot(){
+    const body=document.getElementById('variance-week-line-body');if(!body)return;
+    const keys=varianceSelectedPeriodKeysChronological();
+    const title=document.getElementById('variance-week-line-title');
+    if(title) title.textContent=(variancePeriod==='weekly'?'Variance per Week & Line':'Variance per Month & Line');
+    const note=document.getElementById('variance-week-line-note');
+    if(note)note.textContent=varianceSkuScope==='detail' ? 'Mengikuti Pivot Excel: % Variance Qty per periode dan Line. Filter SKU detail tidak mengubah angka.' : 'Periode dan Line mengikuti semua filter, termasuk SKU.';
+    body.innerHTML=keys.map(key=>{
+        const rows=varianceApplyFilters(varianceRowsForSinglePeriod(key));
+        if(!rows.length)return '';
+        const m=varianceMetric(rows);
+        const period=(variancePeriod==='weekly')?`Week ${key.split('-')[1]}`:variancePeriodCompactLabelByKey(key);
+        const lines=varianceAggregate(rows,'line').sort((a,b)=>a.name.localeCompare(b.name,'id',{sensitivity:'base'}));
+        const parent=`<tr class="variance-week-line-parent"><td>${escapeHtml(period)}</td><td class="${varianceMetricClass(m.varianceValue)}">${fmtRupiah(m.varianceValue)}</td><td class="${varianceMetricClass(m.pctValue||0)}">${fmtVariancePct(m.pctValue)}</td><td class="${varianceMetricClass(m.pctQty||0)}">${fmtVariancePct(m.pctQty)}</td></tr>`;
+        const children=lines.map(line=>{
+            const v=line.metric;
+            return `<tr class="variance-week-line-child"><td>${escapeHtml(line.name)}</td><td class="${varianceMetricClass(v.varianceValue)}">${fmtRupiah(v.varianceValue)}</td><td class="${varianceMetricClass(v.pctValue||0)}">${fmtVariancePct(v.pctValue)}</td><td class="${varianceMetricClass(v.pctQty||0)}">${fmtVariancePct(v.pctQty)}</td></tr>`;
+        }).join('');
+        return parent+children;
+    }).join('') || '<tr><td colspan="4" style="text-align:center;color:#94a3b8;padding:15px">Belum ada data.</td></tr>';
+}
 function renderVarianceCard(){
     const base=varianceRowsForPeriod();
-    const rows=varianceApplyFilters(base);
+    const rows=varianceApplyFilters(base); // KPI/weekly/monthly, SKU optional based on scope.
+    const detailRows=varianceApplyFilters(base,'','detail'); // PivotTable15 always sees SKU filter.
     const m=varianceMetric(rows);
+    document.getElementById('variance-scope-detail')?.classList.toggle('active',varianceSkuScope==='detail');
+    document.getElementById('variance-scope-global')?.classList.toggle('active',varianceSkuScope==='global');
+    document.getElementById('variance-scope-detail')?.setAttribute('aria-pressed',String(varianceSkuScope==='detail'));
+    document.getElementById('variance-scope-global')?.setAttribute('aria-pressed',String(varianceSkuScope==='global'));
+    const note=document.getElementById('variance-scope-label');
+    if(note) note.textContent=varianceSkuScope==='detail' ? 'Ringkasan seperti Pivot Excel: filter Gedung, Material Group, Material dan Line. Pemilihan SKU hanya untuk tabel detail.' : 'Analisis khusus SKU: filter SKU juga membatasi KPI, grafik, Pareto, Top 5, dan perbandingan periode.';
+    const compNote=document.getElementById('variance-comparison-note');
+    if(compNote) compNote.textContent=varianceSkuScope==='detail'?'Masing-masing periode dihitung dari filter Gedung, Group, Material dan Line, tanpa membatasi SKU detail.':'Masing-masing periode dihitung dengan seluruh filter termasuk SKU.';
     setVarianceMetric(document.getElementById('val-variance-value'),rows.length?m.varianceValue:null,'money');
     setVarianceMetric(document.getElementById('val-variance-pct-value'),rows.length?m.pctValue:null,'pct');
     setVarianceMetric(document.getElementById('val-variance-pct-qty'),rows.length?m.pctQty:null,'pct');
     renderVariancePeriodComparison();
+    renderVarianceWeekLinePivot();
     renderVarianceChart();
     renderVarianceTop5Cards();
 
@@ -4746,14 +5017,16 @@ function renderVarianceCard(){
         return `<tr><td>${escapeHtml(g)}</td><td class="${cls}">${fmtRupiah(gm.varianceValue)}</td><td class="${gm.pctValue>0?'over':gm.pctValue<0?'saving':''}">${fmtVariancePct(gm.pctValue)}</td><td class="${gm.pctQty>0?'over':gm.pctQty<0?'saving':''}">${fmtVariancePct(gm.pctQty)}</td></tr>`;
     }).join(''):'<tr><td colspan="4" style="text-align:center;color:#9ca3af;padding:8px;">Tidak ada data pada filter ini</td></tr>';
 
-    renderVarianceMaterialPriority(rows);
+    renderVarianceDetailSummary(detailRows,rows);
+    renderVarianceMaterialPriority(detailRows);
 
     const filterInfo=[];
     const filterLabels=[['gedung','Gedung'],['group','Group'],['sku','SKU'],['material','Material'],['line','Line']];
     filterLabels.forEach(([key,label])=>{
         const vals=varianceFilterValues(key);
-        if(vals.length===1) filterInfo.push(vals[0]);
-        else if(vals.length>1) filterInfo.push(`${label}: ${vals.length} dipilih`);
+        if(key==='sku' && varianceSkuAllSelected) return;
+        if(vals.length===1) filterInfo.push(key==='sku' && varianceSkuScope==='detail' ? `SKU detail: ${vals[0]}` : vals[0]);
+        else if(vals.length>1) filterInfo.push(`${key==='sku' && varianceSkuScope==='detail'?'SKU detail':label}: ${vals.length} dipilih`);
     });
     const selectedPeriodCount=varianceSelectedPeriodKeys().length;
     const periodLabel=(variancePeriod==='monthly'?'Bulanan':'Mingguan')+(selectedPeriodCount>1?` · ${selectedPeriodCount} periode`:``);
