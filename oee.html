@@ -2427,6 +2427,8 @@ async function simpanKeSupabase() {
         }
         if(allDaily.length)await insertBatched('oee_daily',allDaily);
         const days=new Set(allDaily.map(r=>r.tanggal)).size;setStatus('active',`Database OEE diperbarui penuh. ${days} hari daily OEE dimuat dari workbook terbaru.${lineWeightedSaved?' Filter gedung/line tersimpan dengan bobot volume.':' Filter gedung/line aktif; jalankan SQL migrasi agar bobot volume per line ikut tersimpan permanen.'}`);btn.textContent='Diperbarui';document.getElementById('warning-badge').classList.remove('show');await loadFromSupabase();
+        // Sinyal cepat ke tab index (polling + realtime tetap menangani perangkat lain).
+        safeStorageSet('kobe-oee-data-updated', String(Date.now()));
     } catch(err){setStatus('error','Gagal memperbarui database OEE: '+err.message);btn.disabled=false;btn.textContent='Perbarui Data Supabase';console.error(err)}
 }
 
