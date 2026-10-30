@@ -2009,6 +2009,32 @@ body::after {
 .downtime-sho-open{margin-top:12px;text-align:right;color:#1268e8;font-size:11px;font-weight:800}
 .downtime-sho-open span{font-size:15px;margin-left:3px}
 </style>
+<style id="variance-sku-filter-css">
+/* SKU Variance: 5 filters in one row on wide desktop, readable on smaller screens. */
+.variance-filter-grid { grid-template-columns:repeat(5,minmax(0,1fr)); }
+.variance-sku-menu-actions { display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:5px; }
+.variance-sku-select-all {
+    min-height:28px;padding:5px 9px;border:1px solid #bdd7ff;border-radius:999px;
+    background:#eaf3ff;color:#1553a4;font-size:8px;font-weight:850;
+    white-space:nowrap;cursor:pointer;
+}
+.variance-sku-select-all:hover { background:#dbeafe;border-color:#93c5fd; }
+#variance-sku-multi .variance-multi-option { font-size:10px;line-height:1.4;padding:8px 9px; }
+#variance-sku-multi .variance-multi-search { font-size:11px; }
+.variance-sku-select-all:focus-visible { outline:3px solid #bfdbfe;outline-offset:2px; }
+#variance-sku-multi .variance-multi-menu { width:max(100%,320px);max-width:390px; }
+#variance-sku-multi .variance-multi-option span { line-height:1.4; }
+@media(max-width:1150px) and (min-width:701px) {
+    .variance-filter-grid { grid-template-columns:repeat(3,minmax(0,1fr)); }
+}
+@media(max-width:700px) {
+    .variance-filter-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    #variance-sku-multi .variance-multi-menu { width:min(340px,calc(100vw - 64px));max-width:none; }
+}
+@media(max-width:360px) {
+    .variance-filter-grid { grid-template-columns:1fr; }
+}
+</style>
 <!-- VARIANCE MULTISELECT SEARCH V3 + SELECT VISIBLE RESULTS -->
 <style id="energy-target-color-fix">
 /* Keep decorative corners clipped without an internal scroll offset. */
@@ -2451,6 +2477,7 @@ body::after {
             <div class="variance-filter-grid">
                 <div class="variance-filter-field"><span>Gedung</span><div class="variance-multi" id="variance-gedung-multi"></div></div>
                 <div class="variance-filter-field"><span>Material Group</span><div class="variance-multi" id="variance-group-multi"></div></div>
+                <div class="variance-filter-field"><span>SKU</span><div class="variance-multi" id="variance-sku-multi"></div></div>
                 <div class="variance-filter-field"><span>Material</span><div class="variance-multi" id="variance-material-multi"></div></div>
                 <div class="variance-filter-field"><span>Line</span><div class="variance-multi" id="variance-line-multi"></div></div>
             </div>
@@ -2473,7 +2500,7 @@ body::after {
             <div class="variance-comparison-section" id="variance-comparison-section">
                 <div class="variance-comparison-head">
                     <div class="variance-comparison-title" id="variance-comparison-title">Perbandingan Periode</div>
-                    <div class="variance-comparison-note">Filter Gedung / Group / Material / Line diterapkan sama ke setiap periode.</div>
+                    <div class="variance-comparison-note">Filter Gedung / Group / SKU / Material / Line diterapkan sama ke setiap periode.</div>
                 </div>
                 <div class="variance-comparison-wrap">
                     <table class="variance-comparison-table">
@@ -2750,7 +2777,7 @@ let varianceSelectedWeekKeys = [];
 let varianceSelectedMonthKeys = [];
 let variancePriorityShowAll = false;
 let variancePriorityExpanded = '';
-const varianceFilters = { gedung:[], group:[], material:[], line:[] };
+const varianceFilters = { gedung:[], group:[], sku:[], material:[], line:[] };
 let varianceChartMetric = 'varianceValue';
 let varianceChartType = 'bar';
 let varianceChartHoverKey = '';
@@ -3304,13 +3331,16 @@ function varianceRenderMulti(id, key, values, selected, allLabel='Semua'){
     const root=document.getElementById(id); if(!root) return [];
     const safe=[...new Set(values.filter(Boolean))];
     const valid=(Array.isArray(selected)?selected:[]).filter(v=>safe.includes(v));
-    const label=varianceMultiSummary(valid,allLabel);
+    const label=(key==='sku' && safe.length && valid.length===safe.length) ? 'Semua SKU dipilih' : varianceMultiSummary(valid,allLabel);
     const options=safe.length ? safe.map(v=>{
         const enc=encodeURIComponent(v);
         const checked=valid.includes(v)?' checked':'';
         return `<label class="variance-multi-option"><input type="checkbox" class="variance-multi-check" data-key="${key}" data-value="${enc}"${checked} onchange="onVarianceMultiOptionChange(this)"><span>${escapeHtml(v)}</span></label>`;
     }).join('') : '<div class="variance-multi-empty">Tidak ada pilihan pada filter ini</div>';
-    root.innerHTML=`<button type="button" class="variance-multi-btn ${valid.length?'has-selection':''}" onclick="toggleVarianceMulti('${id}',event)" aria-expanded="false"><span class="variance-multi-label">${escapeHtml(label)}</span>${valid.length ? `<span class="variance-multi-count">${valid.length}</span>` : ''}<span class="variance-multi-caret">▼</span></button><div class="variance-multi-menu"><div class="variance-multi-search-wrap"><span class="variance-multi-search-icon">🔎</span><input type="search" class="variance-multi-search" placeholder="Cari pilihan..." autocomplete="off" oninput="filterVarianceMultiOptions(this)" onclick="event.stopPropagation()" onkeydown="event.stopPropagation()"></div><div class="variance-multi-menu-head"><b>Pilih beberapa</b><button type="button" class="variance-multi-clear" data-key="${key}" data-action="${valid.length?'clear-all':'none'}" onclick="handleVarianceMenuAction(this,event)" ${valid.length?'':'disabled'}>${valid.length?'Hapus pilihan':'Semua aktif'}</button></div><div class="variance-multi-options">${options}</div></div>`;
+    const clearBtn=`<button type="button" class="variance-multi-clear" data-key="${key}" data-action="${valid.length?'clear-all':'none'}" onclick="handleVarianceMenuAction(this,event)" ${valid.length?'':'disabled'}>${valid.length?'Hapus pilihan':'Semua aktif'}</button>`;
+    const headButtons=key==='sku' ? `<div class="variance-sku-menu-actions"><button type="button" class="variance-sku-select-all" onclick="selectAllVarianceSku(event)" title="Centang seluruh SKU yang tersedia">Pilih Semua</button>${clearBtn}</div>` : clearBtn;
+    const headLabel=key==='sku' ? 'Pilih SKU' : 'Pilih beberapa';
+    root.innerHTML=`<button type="button" class="variance-multi-btn ${valid.length?'has-selection':''}" onclick="toggleVarianceMulti('${id}',event)" aria-expanded="false"><span class="variance-multi-label">${escapeHtml(label)}</span>${valid.length ? `<span class="variance-multi-count">${valid.length}</span>` : ''}<span class="variance-multi-caret">▼</span></button><div class="variance-multi-menu"><div class="variance-multi-search-wrap"><span class="variance-multi-search-icon">🔎</span><input type="search" class="variance-multi-search" placeholder="Cari ${key==='sku'?'SKU / Material Description':'pilihan'}..." autocomplete="off" oninput="filterVarianceMultiOptions(this)" onclick="event.stopPropagation()" onkeydown="event.stopPropagation()"></div><div class="variance-multi-menu-head"><b>${headLabel}</b>${headButtons}</div><div class="variance-multi-options">${options}</div></div>`;
     updateVarianceVisibleAction(root.querySelector('.variance-multi-menu'));
     return valid;
 }
@@ -3337,7 +3367,7 @@ function updateVarianceVisibleAction(menu){
     const selectedCount=varianceFilterValues(key).length;
     btn.disabled=selectedCount===0;
     btn.dataset.action=selectedCount?'clear-all':'none';
-    btn.textContent=selectedCount?'Hapus pilihan':'Semua aktif';
+    btn.textContent=selectedCount ? (key==='sku'?'Reset filter':'Hapus pilihan') : 'Semua aktif';
 }
 function filterVarianceMultiOptions(input){
     const menu=input.closest('.variance-multi-menu'); if(!menu) return;
@@ -3395,7 +3425,7 @@ function handleVarianceMenuAction(button,event){
     renderVarianceCard();
 
     // Buka kembali dropdown dan pertahankan keyword setelah rerender.
-    const idMap={gedung:'variance-gedung-multi',group:'variance-group-multi',material:'variance-material-multi',line:'variance-line-multi'};
+    const idMap={gedung:'variance-gedung-multi',group:'variance-group-multi',sku:'variance-sku-multi',material:'variance-material-multi',line:'variance-line-multi'};
     const fresh=document.getElementById(idMap[key]);
     if(fresh){
         document.querySelectorAll('.variance-filter-field').forEach(el=>el.style.zIndex='1');
@@ -3405,6 +3435,28 @@ function handleVarianceMenuAction(button,event){
         const search=fresh.querySelector('.variance-multi-search');
         if(search){ search.value=searchValue; filterVarianceMultiOptions(search); search.focus(); }
     }
+}
+// SKU is Data!H / material_description. The button checks ALL currently available
+// SKU options (not just the search results). Search-select remains in the right button.
+function selectAllVarianceSku(event){
+    event?.stopPropagation();
+    const root=document.getElementById('variance-sku-multi');
+    if(!root) return;
+    const searchValue=root.querySelector('.variance-multi-search')?.value || '';
+    const options=[...root.querySelectorAll('.variance-multi-check[data-key="sku"]')];
+    varianceFilters.sku=options.map(input=>decodeURIComponent(input.dataset.value||''));
+    variancePriorityExpanded='';
+    rebuildVarianceFilterOptions('sku');
+    renderVarianceCard();
+    const fresh=document.getElementById('variance-sku-multi');
+    if(!fresh) return;
+    document.querySelectorAll('.variance-filter-field').forEach(field=>field.style.zIndex='1');
+    fresh.classList.add('open');
+    fresh.querySelector('.variance-multi-btn')?.setAttribute('aria-expanded','true');
+    const field=fresh.closest('.variance-filter-field');
+    if(field) field.style.zIndex='180';
+    const search=fresh.querySelector('.variance-multi-search');
+    if(search){ search.value=searchValue; filterVarianceMultiOptions(search); search.focus(); }
 }
 function toggleVarianceMulti(id,event){
     event?.stopPropagation();
@@ -3444,7 +3496,7 @@ function onVarianceMultiOptionChange(input){
     rebuildVarianceFilterOptions(key);
     renderVarianceCard();
     // Keep the current menu and search term after re-render for convenient multi-selection.
-    const idMap={gedung:'variance-gedung-multi',group:'variance-group-multi',material:'variance-material-multi',line:'variance-line-multi'};
+    const idMap={gedung:'variance-gedung-multi',group:'variance-group-multi',sku:'variance-sku-multi',material:'variance-material-multi',line:'variance-line-multi'};
     const root=document.getElementById(idMap[key]);
     if(root){
         document.querySelectorAll('.variance-filter-field').forEach(el=>el.style.zIndex='1');
@@ -3506,10 +3558,11 @@ function varianceRowsForPeriod(){
     return varianceExcelRows.filter(r=>selected.has(`${Number(r.tahun)}-${Number(r.minggu_ke)}`));
 }
 function varianceApplyFilters(rows, skip=''){
-    const gedung=varianceFilterValues('gedung'), group=varianceFilterValues('group'), material=varianceFilterValues('material'), line=varianceFilterValues('line');
+    const gedung=varianceFilterValues('gedung'), group=varianceFilterValues('group'), sku=varianceFilterValues('sku'), material=varianceFilterValues('material'), line=varianceFilterValues('line');
     return rows.filter(r=>
         (skip==='gedung' || varianceMatchSelected(r.gedung,gedung)) &&
         (skip==='group' || varianceMatchSelected(r.material_group,group)) &&
+        (skip==='sku' || varianceMatchSelected(r.material_description,sku)) &&
         (skip==='material' || varianceMatchSelected(r.short_text,material)) &&
         (skip==='line' || varianceMatchSelected(r.line,line))
     );
@@ -3586,11 +3639,18 @@ function rebuildVarianceFilterOptions(changed=''){
     varianceFilters.group=varianceRenderMulti('variance-group-multi','group',groupValues,varianceFilters.group,'Semua Group');
 
     const afterGroup=afterGedung.filter(r=>varianceMatchSelected(r.material_group,varianceFilters.group));
-    const materialValues=varianceUnique(afterGroup,'short_text');
+    // Excel sheet Data, column H = Material Description = SKU produced.
+    // The existing Material filter remains mapped to Short Text (column J).
+    const skuValues=varianceUnique(afterGroup,'material_description');
+    varianceFilters.sku=varianceFilterValues('sku').filter(v=>skuValues.includes(v));
+    varianceFilters.sku=varianceRenderMulti('variance-sku-multi','sku',skuValues,varianceFilters.sku,'Semua SKU');
+
+    const afterSku=afterGroup.filter(r=>varianceMatchSelected(r.material_description,varianceFilters.sku));
+    const materialValues=varianceUnique(afterSku,'short_text');
     varianceFilters.material=varianceFilterValues('material').filter(v=>materialValues.includes(v));
     varianceFilters.material=varianceRenderMulti('variance-material-multi','material',materialValues,varianceFilters.material,'Semua Material');
 
-    const afterMaterial=afterGroup.filter(r=>varianceMatchSelected(r.short_text,varianceFilters.material));
+    const afterMaterial=afterSku.filter(r=>varianceMatchSelected(r.short_text,varianceFilters.material));
     const lineValues=varianceUnique(afterMaterial,'line');
     varianceFilters.line=varianceFilterValues('line').filter(v=>lineValues.includes(v));
     varianceFilters.line=varianceRenderMulti('variance-line-multi','line',lineValues,varianceFilters.line,'Semua Line');
@@ -3662,7 +3722,7 @@ function switchVariancePeriod(period){
     variancePeriod=period;
     document.getElementById('btn-variance-weekly')?.classList.toggle('active',period==='weekly');
     document.getElementById('btn-variance-monthly')?.classList.toggle('active',period==='monthly');
-    varianceFilters.group=[]; varianceFilters.material=[]; varianceFilters.line=[];
+    varianceFilters.group=[]; varianceFilters.sku=[]; varianceFilters.material=[]; varianceFilters.line=[];
     variancePriorityExpanded='';
     populateVariancePeriodSelect();
     rebuildVarianceFilterOptions('period');
@@ -4689,7 +4749,7 @@ function renderVarianceCard(){
     renderVarianceMaterialPriority(rows);
 
     const filterInfo=[];
-    const filterLabels=[['gedung','Gedung'],['group','Group'],['material','Material'],['line','Line']];
+    const filterLabels=[['gedung','Gedung'],['group','Group'],['sku','SKU'],['material','Material'],['line','Line']];
     filterLabels.forEach(([key,label])=>{
         const vals=varianceFilterValues(key);
         if(vals.length===1) filterInfo.push(vals[0]);
