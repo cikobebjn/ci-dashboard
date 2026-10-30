@@ -2734,6 +2734,9 @@ let costCardPeriod = 'weekly';
 // Minggu berjalan dari Minggu (Sunday) s.d. Sabtu (Saturday).
 let oeeCardStats = { weekly: null, monthly: null };
 let oeeCardPeriod = 'weekly';
+let oeeUseLatestDate = true; // Buka dashboard / tombol Terbaru -> tanggal OEE terbaru, bukan tanggal Waste.
+let oeeCardRequestToken = 0; // Abaikan hasil request lama saat filter berubah.
+let oeeCardError = '';
 
 // ── Variance Material — satu sumber Excel untuk Weekly + Monthly ──
 // Data disimpan pada grain: Month × Week × Gedung × Material Group × Material × Line × Material Description.
@@ -2844,7 +2847,7 @@ function sundayWeekRange(d) {
 }
 
 // Dipanggil saat salah satu input tanggal (Dari / Sampai) berubah.
-function gantiRentang() {
+function gantiRentang(useLatestOee = false) {
     let s = document.getElementById('filter-date-start').value;
     let e = document.getElementById('filter-date-end').value;
 
@@ -2853,6 +2856,7 @@ function gantiRentang() {
     if (e && !s) s = e;
     if (s > e) { const tmp = s; s = e; e = tmp; }
 
+    oeeUseLatestDate = Boolean(useLatestOee);
     startDate = s; endDate = e;
     document.getElementById('filter-date-start').value = s;
     document.getElementById('filter-date-end').value = e;
@@ -2875,86 +2879,137 @@ function keTanggalTerakhir() {
     if (lastAvailableDate) {
         document.getElementById('filter-date-start').value = lastAvailableDate;
         document.getElementById('filter-date-end').value = lastAvailableDate;
-        gantiRentang();
+        gantiRentang(true);
     }
 }
 
-// Menghitung rata-rata OEE (berbobot volume produksi jika memungkinkan,
-// fallback ke rata-rata sederhana) dari sekumpulan baris oee_daily.
+// Perhitungan OEE sama dengan halaman oee.html: weighted berdasarkan
+// SUM(output_pcs) / SUM(target_pcs) jika SEMUA row punya bobot yang valid;
+// jika tidak, gunakan rata-rata OEE daily yang valid (jangan menganggap NULL = 0).
 function hitungRataOee(rows) {
-    if (!rows || rows.length === 0) return null;
-    const hasPcsSemua = rows.every(r =>
-        r.target_pcs !== null && r.target_pcs !== undefined && r.target_pcs > 0);
-    if (hasPcsSemua) {
-        const totalOutput = rows.reduce((s, r) => s + (r.output_pcs || 0), 0);
-        const totalTarget = rows.reduce((s, r) => s + (r.target_pcs || 0), 0);
-        return totalTarget > 0 ? (totalOutput / totalTarget) * 100 : 0;
+    const valid = (rows || []).filter(r =>
+        r && r.oee !== null && r.oee !== undefined && r.oee !== '' &&
+        Number.isFinite(Number(r.oee))
+    );
+    if (!valid.length) return null;
+
+    const allWeighted = valid.every(r =>
+        r.target_pcs !== null && r.target_pcs !== undefined &&
+        Number.isFinite(Number(r.target_pcs)) && Number(r.target_pcs) > 0 &&
+        r.output_pcs !== null && r.output_pcs !== undefined &&
+        Number.isFinite(Number(r.output_pcs))
+    );
+    if (allWeighted) {
+        const totalTarget = valid.reduce((s, r) => s + Number(r.target_pcs), 0);
+        const totalOutput = valid.reduce((s, r) => s + Number(r.output_pcs), 0);
+        if (totalTarget > 0) return (totalOutput / totalTarget) * 100;
     }
-    return rows.reduce((s, r) => s + (r.oee || 0), 0) / rows.length;
+    return valid.reduce((s, r) => s + Number(r.oee), 0) / valid.length;
 }
 
-// Mengambil & menghitung ringkasan OEE Weekly (minggu Minggu–Sabtu yang memuat
-// tanggal terakhir data) dan Monthly (bulan kalender berjalan dari data terakhir),
-// independen dari filter tanggal Ringkasan.
-async function loadOeeCard() {
-    if (!lastAvailableDate) {
-        oeeCardStats = { weekly: null, monthly: null };
-        renderOeeCard(oeeCardPeriod);
+function renderDailyOee(rows, label, errorText = '') {
+    const el = document.getElementById('val-oee');
+    const dateEl = document.getElementById('date-oee');
+    if (!el || !dateEl) return;
+    // Satu hari memakai nilai OEE DAILY asli, sama seperti kartu Daily di oee.html.
+    // Jika filter multi-hari, gunakan agregasi OEE berbobot yang konsisten.
+    const avg = (rows && rows.length === 1 && rows[0].oee !== null &&
+        rows[0].oee !== undefined && rows[0].oee !== '' &&
+        Number.isFinite(Number(rows[0].oee)))
+        ? Number(rows[0].oee) : hitungRataOee(rows);
+    if (avg === null) {
+        el.textContent = '—'; el.className = 'value';
+        dateEl.textContent = errorText || 'Tidak ada data OEE';
         return;
     }
+    el.textContent = avg.toFixed(2) + '%';
+    el.className = 'value ' + (avg >= OEE_TARGET ? 'good' : 'low');
+    dateEl.textContent = label;
+}
 
-    // ── Weekly: Minggu (Sunday) s.d. Sabtu (Saturday) yang memuat tanggal terakhir ──
-    const { start: weekStart, end: weekEnd } = sundayWeekRange(lastAvailableDate);
+// Semua angka OEE index (daily, weekly, monthly) langsung membaca public.oee_daily.
+// Acuan ringkasan adalah tanggal TERAKHIR OEE yang tersimpan, bukan
+// lastAvailableDate (yang berasal dari tabel waste_shiftly).
+async function loadOeeCard(selectedStart = startDate, selectedEnd = endDate) {
+    const requestId = ++oeeCardRequestToken;
+    try {
+        const { data: latestOee, error: latestError } = await db
+            .from('oee_daily')
+            .select('tanggal')
+            .not('oee', 'is', null)
+            .order('tanggal', { ascending: false })
+            .limit(1)
+            .maybeSingle();
+        if (requestId !== oeeCardRequestToken) return;
+        if (latestError) throw latestError;
 
-    const { data: weekRows } = await db
-        .from('oee_daily')
-        .select('*')
-        .gte('tanggal', weekStart)
-        .lte('tanggal', weekEnd);
+        if (!latestOee?.tanggal) {
+            oeeCardError = '';
+            oeeCardStats = { weekly: null, monthly: null };
+            lastLoadedData.oeeDaily = [];
+            renderDailyOee([], '');
+            renderOeeCard(oeeCardPeriod);
+            return;
+        }
 
-    const weekAvg = hitungRataOee(weekRows);
-    oeeCardStats.weekly = {
-        avg: weekAvg,
-        label: fmtRange(weekStart, weekEnd),
-    };
+        const anchor = latestOee.tanggal;
+        const { start: weekStart, end: weekEnd } = sundayWeekRange(anchor);
+        const monthStart = anchor.slice(0, 7) + '-01';
+        const showLatest = oeeUseLatestDate || !selectedStart || !selectedEnd;
+        const dailyStart = showLatest ? anchor : selectedStart;
+        const dailyEnd = showLatest ? anchor : selectedEnd;
 
-    // ── Monthly: tgl 1 bulan berjalan s.d. tanggal terakhir data ──
-    const [y, m] = lastAvailableDate.split('-');
-    const monthStart = `${y}-${m}-01`;
+        const [dailyResult, weeklyResult, monthlyResult] = await Promise.all([
+            db.from('oee_daily').select('*')
+                .gte('tanggal', dailyStart).lte('tanggal', dailyEnd)
+                .order('tanggal', { ascending: true }),
+            db.from('oee_daily').select('*')
+                .gte('tanggal', weekStart).lte('tanggal', weekEnd),
+            db.from('oee_daily').select('*')
+                .gte('tanggal', monthStart).lte('tanggal', anchor),
+        ]);
+        if (requestId !== oeeCardRequestToken) return;
+        if (dailyResult.error) throw dailyResult.error;
+        if (weeklyResult.error) throw weeklyResult.error;
+        if (monthlyResult.error) throw monthlyResult.error;
 
-    const { data: monthRows } = await db
-        .from('oee_daily')
-        .select('*')
-        .gte('tanggal', monthStart)
-        .lte('tanggal', lastAvailableDate);
-
-    const monthAvg = hitungRataOee(monthRows);
-    oeeCardStats.monthly = {
-        avg: monthAvg,
-        label: fmtRange(monthStart, lastAvailableDate),
-    };
-
-    renderOeeCard(oeeCardPeriod);
+        oeeCardError = '';
+        const dailyRows = dailyResult.data || [];
+        lastLoadedData.oeeDaily = dailyRows;
+        renderDailyOee(dailyRows, fmtRange(dailyStart, dailyEnd));
+        oeeCardStats = {
+            weekly: { avg: hitungRataOee(weeklyResult.data), label: fmtRange(weekStart, weekEnd) },
+            monthly: { avg: hitungRataOee(monthlyResult.data), label: fmtRange(monthStart, anchor) },
+        };
+        renderOeeCard(oeeCardPeriod);
+    } catch (err) {
+        if (requestId !== oeeCardRequestToken) return;
+        console.error('OEE Index — gagal membaca oee_daily:', err);
+        oeeCardError = 'Gagal membaca OEE dari Supabase';
+        oeeCardStats = { weekly: null, monthly: null };
+        lastLoadedData.oeeDaily = [];
+        renderDailyOee([], '', oeeCardError);
+        renderOeeCard(oeeCardPeriod);
+    }
 }
 
 function renderOeeCard(period) {
     const stats = oeeCardStats[period];
-    const el   = document.getElementById('val-oee-period');
+    const el = document.getElementById('val-oee-period');
     const dateEl = document.getElementById('date-oee-period');
-
+    if (!el || !dateEl) return;
     if (!stats || stats.avg === null || stats.avg === undefined) {
         el.textContent = '—'; el.className = 'value';
-        dateEl.textContent = 'Belum ada data';
+        dateEl.textContent = oeeCardError || 'Belum ada data';
         return;
     }
-
     el.textContent = stats.avg.toFixed(2) + '%';
     el.className = 'value ' + (stats.avg >= OEE_TARGET ? 'good' : 'low');
     dateEl.textContent = stats.label;
 }
 
-// Dipanggil dari tombol toggle Mingguan / Bulanan di kartu Daily OEE.
 function switchOeePeriod(period) {
+    if (period !== 'weekly' && period !== 'monthly') return;
     oeeCardPeriod = period;
     document.getElementById('btn-oee-weekly').classList.toggle('active', period === 'weekly');
     document.getElementById('btn-oee-monthly').classList.toggle('active', period === 'monthly');
@@ -2962,28 +3017,9 @@ function switchOeePeriod(period) {
 }
 
 async function loadData(sDate, eDate) {
-
-    // ── Daily OEE — rata-rata dalam rentang tanggal ──
-    const { data: oeeRows } = await db
-        .from('oee_daily')
-        .select('*')
-        .gte('tanggal', sDate)
-        .lte('tanggal', eDate)
-        .order('tanggal', { ascending: true });
-
-    lastLoadedData.oeeDaily = oeeRows || [];
-
-    const oeeEl   = document.getElementById('val-oee');
-    const oeeDate = document.getElementById('date-oee');
-    if (oeeRows && oeeRows.length > 0) {
-        const avg = hitungRataOee(oeeRows);
-        oeeEl.textContent = avg.toFixed(2) + '%';
-        oeeEl.className   = 'value ' + (avg >= OEE_TARGET ? 'good' : 'low');
-        oeeDate.textContent = fmtRange(sDate, eDate);
-    } else {
-        oeeEl.textContent = '—'; oeeEl.className = 'value';
-        oeeDate.textContent = 'Tidak ada data';
-    }
+    // OEE dipisahkan supaya data OEE tetap benar meski tanggal terakhir Waste berbeda.
+    // Tidak memblokir pemuatan KPI lainnya.
+    loadOeeCard(sDate, eDate);
 
     // ── Tonase — total dalam rentang tanggal ──
     const { data: tonRows } = await db
@@ -5731,6 +5767,30 @@ document.addEventListener('visibilitychange',()=>{
     if(document.visibilityState==='visible')refreshDowntimeOnIndex();
 });
 
+// Sync OEE setelah update di oee.html: realtime bila aktif, polling tetap
+// berjalan jika Supabase Realtime belum direplikasi pada tabel oee_daily.
+let oeeRefreshTimer = null;
+function refreshOeeOnIndex() {
+    if (document.visibilityState === 'hidden') return;
+    clearTimeout(oeeRefreshTimer);
+    oeeRefreshTimer = setTimeout(() => loadOeeCard(startDate, endDate), 700);
+}
+try {
+    db.channel('index-oee-daily-updates')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'oee_daily' }, refreshOeeOnIndex)
+        .subscribe();
+} catch (err) {
+    console.warn('Realtime OEE tidak aktif; polling tetap berjalan.', err);
+}
+setInterval(refreshOeeOnIndex, 60000);
+window.addEventListener('focus', refreshOeeOnIndex);
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') refreshOeeOnIndex();
+});
+window.addEventListener('storage', event => {
+    if (event.key === 'kobe-oee-data-updated') refreshOeeOnIndex();
+});
+
 // ── Init: cari tanggal terakhir dari waste_shiftly, set date picker (satu hari), lalu load ──
 async function init() {
     const { data: lastWaste } = await db
@@ -5754,7 +5814,7 @@ async function init() {
     loadDowntimeTop5(startDate,endDate);
     loadGasTonCard();
     loadVarianceCard();
-    loadOeeCard();
+    // OEE dijalankan melalui loadData() untuk menghindari request ganda.
 }
 
 init();
