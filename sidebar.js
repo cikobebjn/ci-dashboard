@@ -30,6 +30,7 @@
     { title: 'Data & Improvement', items: [
       { name: 'Shift Hand Over (SQCDP)', url: 'sho.html', icon: 'activity' },
       { name: 'Improvement Monitoring', url: 'improvement-monitoring.html', icon: 'spark' },
+      { name: 'Monitoring Hasil Seleksi Admin Produksi', url: 'hasil-seleksi-admin.html', icon: 'form' },
       { name: 'Monitoring Gramasi', url: 'gramasi-monitoring.html', icon: 'chart' },
       { name: 'Analisa Packaging Reject', url: 'packaging-reject-monitoring.html', icon: 'chart' },
       { name: 'Form Input Packaging Reject', url: 'packaging-reject-input.html', icon: 'form' },
@@ -37,9 +38,6 @@
       { name: 'Baopack', url: 'baopack.html', icon: 'activity' },
       { name: 'ChingFong', url: 'chingfong.html', icon: 'activity' },
       { name: 'Extruder', url: 'import-extruder.html', icon: 'activity' }
-    ] },
-    { title: 'Administrasi', items: [
-      { name: 'Hasil Seleksi Admin Produksi', url: 'hasil-seleksi-admin.html', icon: 'form' }
     ] }
   ];
 
