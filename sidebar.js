@@ -37,6 +37,9 @@
       { name: 'Baopack', url: 'baopack.html', icon: 'activity' },
       { name: 'ChingFong', url: 'chingfong.html', icon: 'activity' },
       { name: 'Extruder', url: 'import-extruder.html', icon: 'activity' }
+    ] },
+    { title: 'Administrasi', items: [
+      { name: 'Hasil Seleksi Admin Produksi', url: 'hasil-seleksi-admin.html', icon: 'form' }
     ] }
   ];
 
