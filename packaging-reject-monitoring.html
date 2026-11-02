@@ -250,69 +250,107 @@ function buildRejectPresentation(report,f){
   ppt.defineLayout({name:'REJECT_OVERVIEW',width:20,height:11.25});ppt.layout='REJECT_OVERVIEW';
   ppt.author='KOBE Bojonegoro';ppt.subject='Analisa Packaging Reject';ppt.title='Monitoring Packaging Reject';ppt.company='PT KOBE BOGA UTAMA';ppt.lang='id-ID';
   ppt.theme={headFontFace:'Aptos Display',bodyFontFace:'Aptos',lang:'id-ID'};
-  const slide=ppt.addSlide();slide.background={color:'FFFFFF'};
+  const slide=ppt.addSlide();slide.background={color:'F5F8FD'};
   const C={navy:'102647',ink:'16243C',muted:'6F8098',border:'E5EBF3',orange:'ED923B',blue:'2672DA',purple:'7954D6',light:'F4F7FC'};
   const text=(value,x,y,w,h,size=14,color=C.ink,bold=false,align='left')=>slide.addText(String(value),{x,y,w,h,fontFace:'Aptos',fontSize:size,color,bold,margin:0,breakLine:false,fit:'shrink',valign:'mid',align});
   const rect=(x,y,w,h,color)=>slide.addShape(ppt.ShapeType.rect,{x,y,w,h,line:{color,transparency:100},fill:{color}});
+  const rounded=(x,y,w,h,color,r=.18,shadow=false,gradient=null)=>slide.addShape(ppt.ShapeType.roundRect,{x,y,w,h,rectRadius:Math.min(r,w/2,h/2),line:{color:shadow?'E3EAF4':color,transparency:shadow?0:100,pt:.5},fill:{color},objectName:gradient?'rejectGradient_'+gradient[0]+'_'+gradient[1]:undefined,shadow:shadow?{type:'outer',color:'24466B',opacity:.055,blur:5,angle:90,offset:2}:undefined});
+  const pill=(x,y,w,h,color,gradient)=>rounded(x,y,w,h,color,Math.min(w,h)/2,false,gradient);
   const kg=v=>fmt(v||0,2)+' kg';
   const cats=report.categories||[],lines=report.lines||[],machines=(report.machines||[]).slice(0,15),days=report.days||[],total=Number(report.total_kg)||0;
   const dateLabel=s=>{const a=String(s||'').split('-');return a.length===3?a[2]+'/'+a[1]+'/'+a[0]:String(s||'');};
   const scope=[f.p_gedung||'Semua Gedung',f.p_line||'Semua Line',f.p_shift||'Semua Shift',f.p_category||'Semua Kategori',f.p_mesin||'Semua Mesin'].join('  /  ');
-  rect(0,0,20,1.4,C.navy);
-  text('KOBE BOJONEGORO',.55,.2,12,.26,12,'87B5FF',true);
-  text('Packaging Reject',.55,.57,13,.58,36,'FFFFFF',true);
-  text(dateLabel(f.p_start)+' – '+dateLabel(f.p_end),13.3,.25,6.1,.35,19,'FFFFFF',true,'right');
-  text(scope,12.9,.72,6.5,.45,11,'D1DDF0',false,'right');
-  rect(.55,1.72,18.9,.87,C.light);
+  rounded(.4,.27,19.2,1.27,'1268E8',.22,false,['0E64DC','693BD1']);
+  text('KOBE BOJONEGORO',.74,.42,12,.26,12,'DCEAFF',true);
+  text('Packaging Reject',.74,.79,13,.58,36,'FFFFFF',true);
+  text(dateLabel(f.p_start)+' – '+dateLabel(f.p_end),13.1,.48,6.1,.35,19,'FFFFFF',true,'right');
+  text(scope,12.7,.91,6.5,.4,11,'D1DDF0',false,'right');
+
   const summary=[['TOTAL REJECT',kg(total),'Akumulasi pada periode filter'],['CATATAN INPUT',nf.format(Number(report.record_count)||0),'Catatan Admin Produksi'],['KATEGORI TERTINGGI',cats[0]?.name||'—',cats[0]?kg(cats[0].total_kg)+'  /  '+(total>0?fmt(Number(cats[0].total_kg)/total*100,1):'0,0')+'% dari total':'Belum ada data'],['LINE TERTINGGI',lines[0]?.name||'—',lines[0]?kg(lines[0].total_kg):'Belum ada data']];
-  summary.forEach(([label,value,detail],i)=>{const x=.78+i*4.72;text(label,x,1.79,4.3,.18,10,C.muted,true);text(value,x,2.01,4.3,.3,i<2?25:17,C.ink,true);text(detail,x,2.36,4.3,.17,10,C.muted);});
-  function heading(title,meta,x,y,w,color){rect(x,y+.04,.055,.25,color);text(title,x+.17,y,w-.2,.32,17,C.ink,true);if(meta)text(meta,x,y+.37,w,.21,10,C.muted);}
-  heading('Reject per Kategori','Seluruh '+cats.length+' kategori, diurutkan dari reject terbesar',.55,2.88,9.15,C.orange);
-  heading('Reject per Line','Seluruh '+lines.length+' line, satuan kg',10.2,2.88,9.25,C.blue);
+  summary.forEach(([label,value,detail],i)=>{
+    const bx=.4+i*4.85,x=bx+.23,accents=[C.orange,C.blue,'0E9B79',C.purple];
+    rounded(bx,1.8,4.65,1.0,'FFFFFF',.16,true);
+    pill(x,1.96,.08,.08,accents[i]);text(label,x+.17,1.91,4.0,.19,10,C.muted,true);
+    text(value,x,2.17,4.19,.3,i<2?27:17,C.ink,true);text(detail,x,2.57,4.19,.16,9,C.muted);
+  });
+  const denseRight=lines.length>5||machines.length>8;
+  const machineY=denseRight?5.73:5.43,trendY=denseRight?8.63:8.3;
+  rounded(.4,3.03,9.45,7.67,'FFFFFF',.2,true);
+  rounded(10.08,3.03,9.52,denseRight?2.5:2.17,'FFFFFF',.2,true);
+  rounded(10.08,machineY,9.52,denseRight?2.7:2.64,'FFFFFF',.2,true);
+  rounded(10.08,trendY,9.52,10.7-trendY,'FFFFFF',.2,true);
+  function heading(title,meta,x,y,w,color){pill(x,y+.1,.09,.09,color);text(title,x+.2,y,w-.2,.32,17,C.ink,true);if(meta)text(meta,x,y+.36,w,.21,10,C.muted);}
+  heading('Reject per Kategori','Seluruh '+cats.length+' kategori, diurutkan dari reject terbesar',.65,3.23,8.95,C.orange);
+  heading('Reject per Line','Seluruh '+lines.length+' line, satuan kg',10.33,3.23,9.02,C.blue);
   // Draw quantitative bars and labels as editable PowerPoint objects. Fixed
   // positions avoid the automatic axis-label skipping in Office charts.
   function compactBars(rows,x,y,w,h,color,columns,labelMode){
     if(!rows.length){text('Belum ada data pada filter ini.',x,y,w,.5,14,C.muted);return;}
     const perColumn=Math.ceil(rows.length/columns),gap=.4,cw=(w-gap*(columns-1))/columns;
-    const step=h/perColumn,max=Math.max(...rows.map(r=>Number(r.total_kg)||0),1);
+    const step=labelMode==='above'?Math.min(h/perColumn,.55):Math.min(h/perColumn,.33),top=labelMode==='above'?y:y+Math.max(0,(h-perColumn*step)/2),max=Math.max(...rows.map(r=>Number(r.total_kg)||0),1);
     rows.forEach((r,i)=>{
-      const col=Math.floor(i/perColumn),row=i%perColumn,xx=x+col*(cw+gap),yy=y+row*step;
+      const col=Math.floor(i/perColumn),row=i%perColumn,xx=x+col*(cw+gap),yy=top+row*step;
       const value=Number(r.total_kg)||0;
       if(labelMode==='above'){
         const fs=Math.min(13,Math.max(9,step*32));
         text(String(i+1).padStart(2,'0'),xx,yy,.28,.19,9,C.muted);
         text(r.name??'',xx+.34,yy,cw-.36,.21,fs,C.ink,i===0);
-        const bw=cw-1.12,by=yy+Math.min(.255,step*.58),bh=Math.min(.105,step*.22);
-        rect(xx+.34,by,bw,bh,'F0F3F8');
-        if(value>0)rect(xx+.34,by,Math.max(.012,bw*value/max),bh,color);
+        const bw=cw-1.12,by=yy+Math.min(.255,step*.58),bh=Math.min(.145,step*.3);
+        pill(xx+.34,by,bw,bh,'EDF2FA');
+        if(value>0)pill(xx+.34,by,Math.max(.012,bw*value/max),bh,color,['FDAF4D','EF7F37']);
         text(fmt(value,2),xx+cw-.73,by-.055,.73,.2,12,C.ink,true,'right');
       }else{
-        const nameW=labelMode==='machine'?.62:2.92,valueW=.85,bx=xx+nameW+.12,bw=cw-nameW-valueW-.25;
+        const nameW=labelMode==='machine'?(columns===1?1.45:.72):2.92,valueW=.85,bx=xx+nameW+.12,bw=cw-nameW-valueW-.25;
         const fs=Math.min(labelMode==='machine'?12:11,Math.max(8,step*51));
         text(r.name??'',xx,yy,nameW,step*.82,fs,C.ink);
-        const bh=Math.min(.115,step*.45),by=yy+(step*.82-bh)/2;
-        rect(bx,by,bw,bh,'F0F3F8');if(value>0)rect(bx,by,Math.max(.012,bw*value/max),bh,color);
+        const bh=Math.min(.16,step*.54),by=yy+(step*.82-bh)/2;
+        pill(bx,by,bw,bh,'EDF2FA');if(value>0)pill(bx,by,Math.max(.012,bw*value/max),bh,color,labelMode==='machine'?['744EE4','B39FF1']:['256FD6','719AF1']);
         text(fmt(value,2),xx+cw-valueW,yy,valueW,step*.82,Math.min(13,fs+1),C.ink,true,'right');
       }
     });
   }
-  compactBars(cats,.55,3.61,9.15,7.04,C.orange,cats.length>18?2:1,'above');
-  compactBars(lines,10.2,3.61,9.25,1.83,C.blue,1,'line');
-  heading('Reject per Mesin','15 mesin dengan reject tertinggi, satuan kg',10.2,5.64,9.25,C.purple);
-  compactBars(machines,10.2,6.35,9.25,1.94,C.purple,2,'machine');
-  heading('Tren Reject Harian','Satuan kg per hari',10.2,8.46,9.25,C.blue);
+  compactBars(cats,.65,3.94,8.95,6.48,C.orange,cats.length>18?2:1,'above');
+  compactBars(lines,10.33,3.94,9.02,denseRight?1.35:1.0,C.blue,1,'line');
+  heading('Reject per Mesin','Top '+machines.length+' mesin pada filter, satuan kg',10.33,machineY+.2,9.02,C.purple);
+  compactBars(machines,10.33,machineY+.91,9.02,denseRight?1.55:1.48,C.purple,machines.length>8?2:1,'machine');
+  heading('Tren Reject Harian','Satuan kg per hari',10.33,trendY+.2,9.02,C.blue);
   if(days.length){
     const ticks=new Set([0,Math.floor((days.length-1)/4),Math.floor((days.length-1)/2),Math.floor(3*(days.length-1)/4),days.length-1]);
     const labels=days.map((d,i)=>ticks.has(i)?String(d.name).slice(8,10)+'/'+String(d.name).slice(5,7):'');
-    slide.addChart(ppt.ChartType.line,[{name:'Reject (kg)',labels,values:days.map(d=>Number(d.total_kg)||0)}],{x:10.17,y:9.09,w:9.31,h:1.62,showLegend:false,showTitle:false,showValue:false,showBorder:false,showShadow:false,chartColors:[C.blue],lineSize:2.5,lineDataSymbol:days.length>60?'none':'circle',lineDataSymbolSize:3,catAxisLabelFontFace:'Aptos',catAxisLabelColor:C.muted,catAxisHidden:true,catAxisLabelFontSize:10,catAxisLabelFrequency:'1',catAxisLabelRotate:0,catAxisLineShow:false,catAxisMajorTickMark:'none',catAxisMinorTickMark:'none',valAxisLabelFontFace:'Aptos',valAxisLabelColor:C.muted,valAxisLabelFontSize:10,valAxisLabelFormatCode:'#,##0',valAxisMinVal:0,valAxisLineShow:false,valAxisMajorTickMark:'none',valGridLine:{color:C.border,size:.6},chartArea:{fill:{color:'FFFFFF'},border:{color:'FFFFFF',pt:0}},plotArea:{fill:{color:'FFFFFF'},border:{color:'FFFFFF',pt:0}},showCatName:false,showSerName:false,lang:'id-ID'});
-    [...ticks].forEach(i=>{const xx=10.68+(days.length===1?.5:i/(days.length-1))*8.58;text(labels[i],xx-.36,10.61,.72,.19,10,C.muted,false,'center');});
-  }else text('Belum ada tren pada filter ini.',10.2,9.3,9.25,.5,14,C.muted);
-  rect(.55,10.88,18.9,.01,C.border);
+    slide.addChart(ppt.ChartType.line,[{name:'Reject (kg)',labels,values:days.map(d=>Number(d.total_kg)||0)}],{x:10.3,y:trendY+.81,w:9.08,h:denseRight?.99:1.32,showLegend:false,showTitle:false,showValue:false,showBorder:false,showShadow:false,chartColors:[C.blue],lineSize:2.5,lineDataSymbol:days.length>60?'none':'circle',lineDataSymbolSize:3,catAxisLabelFontFace:'Aptos',catAxisLabelColor:C.muted,catAxisHidden:true,catAxisLabelFontSize:10,catAxisLabelFrequency:'1',catAxisLabelRotate:0,catAxisLineShow:false,catAxisMajorTickMark:'none',catAxisMinorTickMark:'none',valAxisLabelFontFace:'Aptos',valAxisLabelColor:C.muted,valAxisLabelFontSize:10,valAxisLabelFormatCode:'#,##0',valAxisMinVal:0,valAxisLineShow:false,valAxisMajorTickMark:'none',valGridLine:{color:C.border,size:.6},chartArea:{fill:{color:'FFFFFF'},border:{color:'FFFFFF',pt:0}},plotArea:{fill:{color:'FFFFFF'},border:{color:'FFFFFF',pt:0}},showCatName:false,showSerName:false,lang:'id-ID'});
+    [...ticks].forEach(i=>{const xx=10.8+(days.length===1?.5:i/(days.length-1))*8.35;text(labels[i],xx-.36,10.40,.72,.19,10,C.muted,false,'center');});
+  }else text('Belum ada tren pada filter ini.',10.33,9.3,9.02,.5,14,C.muted);
+  
   const sap=report.sap||{};
   text('Admin SAP: Konversi '+kg(sap.konversi_kg)+'   /   Waste '+kg(sap.waste_kg)+'   /   Waste '+(Number(sap.konversi_kg)>0?fmt(sap.waste_pct,3)+'%':'—'),.55,10.98,17.8,.16,9,C.muted);
   text('01',18.75,10.98,.7,.16,9,C.muted,true,'right');
   slide.addNotes('Sumber: Monitoring Packaging Reject, KOBE Bojonegoro. Periode '+f.p_start+' s.d. '+f.p_end+'. Filter: '+scope+'. Seluruh kategori dan line ditampilkan. Mesin mengikuti Top 15 pada dashboard. Grafik batang menggunakan objek PowerPoint yang dapat diedit. Grafik tren menggunakan grafik PowerPoint. Data sumber:\n'+JSON.stringify({categories:cats,lines,machines,days,total_kg:report.total_kg,record_count:report.record_count,sap}));
   return ppt;
+}
+// PptxGenJS embeds JSZip in this file. Apply native DrawingML gradients so
+// bars retain rounded geometry and remain editable PowerPoint shapes.
+async function styledRejectPptx(ppt){
+  if(typeof window.JSZip!=='function')throw new Error('Komponen ekspor belum tersedia. Muat ulang halaman.');
+  const zip=await window.JSZip.loadAsync(await ppt.write({outputType:'arraybuffer'}));
+  const file=zip.file('ppt/slides/slide1.xml');
+  if(!file)throw new Error('Slide ekspor tidak ditemukan.');
+  let gradients=0;
+  const xml=(await file.async('string')).replace(/<p:sp>([\s\S]*?)<\/p:sp>/g,shape=>{
+    const colors=shape.match(/name="rejectGradient_([A-F0-9]{6})_([A-F0-9]{6})"/);
+    if(!colors)return shape;
+    const fill='<a:gradFill rotWithShape="1"><a:gsLst><a:gs pos="0"><a:srgbClr val="'+colors[1]+'"/></a:gs><a:gs pos="100000"><a:srgbClr val="'+colors[2]+'"/></a:gs></a:gsLst><a:lin ang="0" scaled="1"/><a:tileRect/></a:gradFill>';
+    gradients++;
+    return shape.replace(/<p:spPr>([\s\S]*?)<\/p:spPr>/,(_,props)=>'<p:spPr>'+props.replace(/<a:solidFill>[\s\S]*?<\/a:solidFill>/,fill)+'</p:spPr>');
+  });
+  if(!gradients)throw new Error('Gaya grafik gagal diterapkan. Silakan coba kembali.');
+  zip.file('ppt/slides/slide1.xml',xml);
+  return zip.generateAsync({type:'uint8array',compression:'DEFLATE'});
+}
+async function downloadRejectPptx(ppt,fileName){
+  const bytes=await styledRejectPptx(ppt);
+  const url=URL.createObjectURL(new Blob([bytes],{type:'application/vnd.openxmlformats-officedocument.presentationml.presentation'}));
+  const a=document.createElement('a');a.href=url;a.download=fileName;document.body.appendChild(a);
+  try{a.click();}finally{a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);}
 }
 $('exportPpt').addEventListener('click',async()=>{
   if(pptExportBusy)return;
@@ -322,7 +360,7 @@ $('exportPpt').addEventListener('click',async()=>{
   pptExportBusy=true;updatePptExportButton();$('exportPpt').textContent='Menyiapkan PPT ...';
   try{
     const ppt=buildRejectPresentation(report,f);
-    await ppt.writeFile({fileName:'Packaging_Reject_'+f.p_start+'_sampai_'+f.p_end+'.pptx'});
+    await downloadRejectPptx(ppt,'Packaging_Reject_'+f.p_start+'_sampai_'+f.p_end+'.pptx');
     showStatus('status','PowerPoint 1 slide berhasil diekspor sesuai data dan filter yang ditampilkan.','ok');
   }catch(e){showStatus('status','Export PowerPoint gagal: '+e.message,'error');}
   finally{pptExportBusy=false;$('exportPpt').textContent='Export PPT · 1 Slide';updatePptExportButton();}
