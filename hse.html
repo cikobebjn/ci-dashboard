@@ -11,9 +11,9 @@
 :root{--navy:#10284a;--navy2:#0f1f39;--blue:#1268e8;--purple:#7c3aed;--green:#16a34a;--red:#dc2626;--amber:#d97706;--teal:#0f9f93;--ink:#172033;--muted:#6b7a90;--line:#e5ebf3;--bg:#f4f7fb;--surface:#fff;--shadow:0 16px 38px rgba(31,63,108,.08);--radius:20px}
 *{box-sizing:border-box}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);background:radial-gradient(circle at 7% 3%,rgba(18,104,232,.11),transparent 26%),radial-gradient(circle at 95% 5%,rgba(124,58,237,.08),transparent 24%),var(--bg);min-height:100vh}
 .topbar{height:68px;position:fixed;inset:0 0 auto 0;z-index:1000;display:flex;align-items:center;gap:14px;padding:0 24px;background:rgba(255,255,255,.88);backdrop-filter:blur(16px);border-bottom:1px solid rgba(226,232,240,.9);box-shadow:0 4px 18px rgba(15,23,42,.04)}
-.menu-btn{width:40px;height:40px;display:grid;place-items:center;border-radius:12px;border:1px solid #dce7f4;background:#fff;color:#34516f;font-size:22px;cursor:pointer}.topbar h2{margin:0;font-size:18px;letter-spacing:-.02em}.topbar h2 small{display:block;margin-top:2px;color:#94a3b8;font-size:9px;letter-spacing:.08em;text-transform:uppercase}
-.sidebar{height:100%;width:264px;position:fixed;top:0;left:-264px;z-index:1100;padding:14px 12px 16px;background:linear-gradient(180deg,#102a4d,#0f213d 58%,#0d192d);box-shadow:18px 0 46px rgba(8,24,47,.28);transition:left .25s ease;overflow-y:auto}.sidebar.open{left:0}.sidebar-head{min-height:62px;display:flex;align-items:center;gap:10px;padding:7px 44px 10px 7px;margin-bottom:8px;border-bottom:1px solid rgba(255,255,255,.075)}.brand-mark{width:36px;height:36px;display:grid;place-items:center;border-radius:11px;background:#fff;color:#d71920;font-weight:900}.brand-copy strong{display:block;color:#f8fbff;font-size:11px;letter-spacing:.10em}.brand-copy span{display:block;color:#7890af;font-size:9px;margin-top:2px}.sidebar-close{position:absolute;top:20px;right:14px;width:34px;height:34px;border-radius:10px;border:1px solid rgba(255,255,255,.11);background:rgba(255,255,255,.065);color:#fff;cursor:pointer}.section-label{display:block;padding:8px 10px 5px;color:#617a9b;font-size:8px;font-weight:850;letter-spacing:.12em;text-transform:uppercase}.sidebar a{display:flex;align-items:center;min-height:38px;margin:1px 0;padding:8px 12px;border-radius:10px;color:#c4d1e3;text-decoration:none;font-size:11.5px;font-weight:650}.sidebar a:hover{background:rgba(255,255,255,.06);color:#fff}.sidebar a.active{background:rgba(255,255,255,.105);color:#fff;box-shadow:inset 3px 0 0 #4f8df7}
-.overlay{display:none;position:fixed;inset:0;z-index:1050;background:rgba(15,23,42,.30)}.overlay.show{display:block}.main{max-width:1540px;margin:0 auto;padding:92px 28px 42px}
+.topbar h2{margin:0;font-size:18px;letter-spacing:-.02em}.topbar h2 small{display:block;margin-top:2px;color:#94a3b8;font-size:9px;letter-spacing:.08em;text-transform:uppercase}
+
+.main{max-width:1540px;margin:0 auto;padding:92px 28px 42px}
 .hero{position:relative;overflow:hidden;display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:28px;align-items:center;padding:32px 36px;border-radius:26px;color:#fff;background:linear-gradient(135deg,#073e72 0%,#0c6b78 52%,#0f9f93 100%);box-shadow:0 24px 58px rgba(7,62,114,.20)}.hero:after{content:"";position:absolute;width:360px;height:360px;right:-120px;top:-190px;border-radius:50%;border:1px solid rgba(255,255,255,.16);box-shadow:0 0 0 46px rgba(255,255,255,.035),0 0 0 92px rgba(255,255,255,.02)}.hero>*{position:relative;z-index:1}.kicker{display:inline-flex;align-items:center;gap:8px;padding:7px 11px;border:1px solid rgba(255,255,255,.22);border-radius:999px;background:rgba(255,255,255,.10);font-size:10px;font-weight:800;letter-spacing:.09em;text-transform:uppercase}.kicker:before{content:"";width:8px;height:8px;border-radius:50%;background:#80f4c2;box-shadow:0 0 0 5px rgba(128,244,194,.14)}.hero h1{margin:14px 0 8px;font-size:clamp(31px,4vw,50px);line-height:1;letter-spacing:-.04em}.hero p{max-width:760px;margin:0;color:rgba(255,255,255,.78);font-size:13px;line-height:1.6}.import-box{padding:18px;border:1px solid rgba(255,255,255,.22);border-radius:19px;background:rgba(255,255,255,.11);backdrop-filter:blur(12px)}.import-label{font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.68)}.import-name{margin:6px 0 10px;font-size:13px;font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.import-actions{display:flex;gap:8px}.btn{border:0;border-radius:11px;min-height:38px;padding:9px 13px;font-weight:800;font-size:11px;cursor:pointer}.btn-light{background:#fff;color:#0d5965}.btn-soft{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.18)}.import-note{margin-top:9px;color:rgba(255,255,255,.68);font-size:9px;line-height:1.45}
 .filterbar{display:grid;grid-template-columns:1.15fr repeat(4,minmax(140px,.8fr)) auto;gap:10px;align-items:end;margin:18px 0;padding:15px 16px;border:1px solid var(--line);border-radius:17px;background:rgba(255,255,255,.94);box-shadow:var(--shadow)}.field label{display:block;margin:0 0 5px 2px;color:#64748b;font-size:8px;font-weight:850;letter-spacing:.07em;text-transform:uppercase}.field select,.field input{width:100%;height:39px;border:1px solid #dbe3ee;border-radius:10px;background:#fff;color:#334155;padding:0 10px;font-size:11px;outline:none}.field select:focus,.field input:focus{border-color:#61a2f8;box-shadow:0 0 0 3px rgba(18,104,232,.10)}.reset{height:39px;background:#edf5ff;color:#1257b5;border:1px solid #d7e7ff}
 .sec-title{display:flex;align-items:center;gap:9px;margin:26px 0 12px;color:#3f5068;font-size:11px;font-weight:850;letter-spacing:.065em;text-transform:uppercase}.sec-title:before{content:"";width:8px;height:8px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--teal));box-shadow:0 0 0 5px rgba(18,104,232,.09)}
@@ -41,6 +41,7 @@
 body.is-busy{overflow:hidden}
 
 </style>
+<script src="sidebar.js" defer></script>
 </head>
 <body>
 
@@ -56,16 +57,8 @@ body.is-busy{overflow:hidden}
   </div>
 </div>
 
-<div class="sidebar" id="sidebar">
-  <div class="sidebar-head"><div class="brand-mark">K</div><div class="brand-copy"><strong>KOBE BOJONEGORO</strong><span>Factory Monitoring</span></div></div>
-  <button class="sidebar-close" onclick="toggleMenu()">✕</button>
-  <span class="section-label">Overview</span><a href="index.html">Dashboard Utama</a>
-  <span class="section-label">Performance</span><a href="oee.html">OEE</a><a href="tonase.html">Tonase</a><a href="waste.html">Waste</a><a href="cost-material.html">Cost Material / Ton</a><a href="energy.html">⚡ Energy (Listrik & Gas)</a><a href="input-variance.html">Variance</a>
-  <span class="section-label">Safety</span><a href="hse.html" class="active">HSE Monitoring</a>
-  <span class="section-label">Data & Improvement</span><a href="improvement-monitoring.html">Improvement Monitoring</a><a href="gramasi-monitoring.html">Monitoring Gramasi</a><a href="smartway.html">Smart Way</a><a href="baopack.html">Baopack</a><a href="chingfong.html">ChingFong</a><a href="import-extruder.html">Extruder</a>
-</div>
-<div class="overlay" id="overlay" onclick="toggleMenu(false)"></div>
-<div class="topbar"><button class="menu-btn" onclick="toggleMenu(true)">☰</button><h2>HSE Monitoring <small>Safety Observation Dashboard · Factory Bojonegoro</small></h2></div>
+<!-- Navigation and menu are generated by central sidebar.js -->
+<div class="topbar"><h2>HSE Monitoring <small>Safety Observation Dashboard · Factory Bojonegoro</small></h2></div>
 <main class="main">
   <section class="hero">
     <div><span class="kicker">Health · Safety · Environment</span><h1>Safety Monitoring</h1><p>Monitoring temuan safety dari master Excel berdasarkan minggu Minggu–Sabtu, kategori, PIC, dan status verifikasi. Kolom dokumentasi/foto tidak dibaca oleh dashboard.</p></div>
@@ -116,7 +109,6 @@ const {createClient}=supabase;
 const db=createClient(SUPABASE_URL,SUPABASE_KEY);
 let rows=[],filtered=[];let charts={};
 const $=id=>document.getElementById(id);
-function toggleMenu(force){const s=$('sidebar'),o=$('overlay');const open=force===undefined?!s.classList.contains('open'):force;s.classList.toggle('open',open);o.classList.toggle('show',open)}
 function excelDate(v){if(v instanceof Date&&!isNaN(v))return v;if(typeof v==='number'){const d=XLSX.SSF.parse_date_code(v);return d?new Date(d.y,d.m-1,d.d):null}if(typeof v==='string'){const x=new Date(v);return isNaN(x)?null:x}return null}
 function fmtDate(d){if(!d||isNaN(d))return'—';return new Intl.DateTimeFormat('id-ID',{day:'2-digit',month:'short',year:'numeric'}).format(d)}
 function weekSunday(d){const start=new Date(d.getFullYear(),0,1);const day=start.getDay();const days=Math.floor((new Date(d.getFullYear(),d.getMonth(),d.getDate())-start)/86400000);return Math.floor((days+day)/7)+1}
