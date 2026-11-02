@@ -36,8 +36,7 @@
       { name: 'Smart Way', url: 'smartway.html', icon: 'activity' },
       { name: 'Baopack', url: 'baopack.html', icon: 'activity' },
       { name: 'ChingFong', url: 'chingfong.html', icon: 'activity' },
-      { name: 'Extruder', url: 'import-extruder.html', icon: 'activity' },
-      { name: 'Settings', url: 'settings.html', icon: 'settings' }
+      { name: 'Extruder', url: 'import-extruder.html', icon: 'activity' }
     ] }
   ];
 
@@ -53,7 +52,6 @@
     shield: '<path d="M12 2 4 5v6c0 5.6 3.1 9.6 8 11 4.9-1.4 8-5.4 8-11V5z"/><path d="m9 12 2 2 4-4"/>',
     form: '<path d="M7 3h10l3 3v15H4V3z"/><path d="M8 10h8M8 14h8M8 18h5"/>',
     activity: '<path d="M3 12h5l3-7 4 14 3-7h3"/>',
-    settings: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3M4.9 4.9 7 7m10 10 2.1 2.1M19.1 4.9 17 7M7 17l-2.1 2.1"/>',
     menu: '<path d="M4 7h16M4 12h16M4 17h16"/>',
     close: '<path d="M5 5 19 19M19 5 5 19"/>',
     search: '<circle cx="11" cy="11" r="6.5"/><path d="m16 16 5 5"/>'
