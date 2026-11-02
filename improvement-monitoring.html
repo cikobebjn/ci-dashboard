@@ -12,15 +12,11 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; color:#1f293
     display:flex; align-items:center;
     position:fixed; top:0; left:0; width:100%; z-index:1000;
 }
-.menu-btn { font-size:28px; cursor:pointer; margin-right:15px; }
-.sidebar {
-    height:100%; width:250px; position:fixed;
-    top:0; left:-250px; background:#111827;
-    transition:0.3s; padding-top:60px; z-index:999;
-}
-.sidebar a { display:block; color:white; padding:15px 20px; text-decoration:none; }
-.sidebar a:hover { background:#374151; }
-.sidebar a.active { background:#3b82f6; }
+
+
+
+
+
 .main { padding:84px 24px 40px; max-width:1500px; margin:0 auto; }
 
 .page-header {
@@ -129,25 +125,13 @@ tr:hover td { background:#fafafa; }
     .fg.full { grid-column:auto; }
 }
 </style>
+<script src="sidebar.js" defer></script>
 </head>
 <body>
 
-<div class="sidebar" id="sidebar">
-    <a href="index.html">Dashboard Utama</a>
-    <a href="oee.html">OEE</a>
-    <a href="tonase.html">Tonase</a>
-    <a href="waste.html">Waste</a>
-    <a href="cost-material.html">Cost Material</a>
-    <a href="improvement-monitoring.html">Improvement Monitoring</a>
-    <a href="smartway.html" style="margin-top:20px; border-top:1px solid #374151;">🛠️ Smart Way</a>
-    <a href="baopack.html">📦 Baopack</a>
-    <a href="chingfong.html">⚙️ ChingFong</a>
-    <a href="import-extruder.html">📤 Import Extruder</a>
-    <a href="settings.html">⚙️ Settings</a>
-</div>
+<!-- Navigasi disediakan oleh sidebar.js master. -->
 
 <div class="topbar">
-    <span class="menu-btn" onclick="toggleMenu()">☰</span>
     <h2 style="margin:0;">📈 Improvement Monitoring</h2>
 </div>
 
@@ -286,11 +270,6 @@ const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let improvementData = [];
-
-function toggleMenu() {
-    const sidebar = document.getElementById('sidebar');
-    sidebar.style.left = sidebar.style.left === '0px' ? '-250px' : '0px';
-}
 
 function showToast(message, type = 'success') {
     const toast = document.getElementById('toast');
