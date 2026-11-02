@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -64,31 +62,6 @@ body::after  { width:340px; height:340px; right:-150px; top:35%; background:rgba
     backdrop-filter:blur(15px);
 }
 .topbar h2 { margin:0 !important; font-size:18px; font-weight:700; letter-spacing:-.01em; }
-.menu-btn {
-    width:40px; height:40px; display:grid; place-items:center; margin:0;
-    border:1px solid rgba(255,255,255,.20); border-radius:12px;
-    background:rgba(255,255,255,.10); font-size:23px; cursor:pointer; transition:.2s ease;
-}
-.menu-btn:hover { background:rgba(255,255,255,.18); transform:translateY(-1px); }
-
-/* Sidebar */
-.sidebar {
-    height:100%; width:270px; position:fixed; top:0; left:-270px; z-index:1100;
-    padding:78px 14px 24px; overflow-y:auto;
-    background:linear-gradient(180deg,#111a2d 0%,#152340 55%,#101827 100%);
-    box-shadow:18px 0 45px rgba(12,26,54,.22); transition:left .28s ease;
-}
-.sidebar::before {
-    content:"BOJONEGORO"; position:absolute; top:22px; left:20px;
-    color:rgba(255,255,255,.60); font-size:11px; font-weight:700; letter-spacing:.18em;
-}
-.sidebar a {
-    display:flex; align-items:center; min-height:44px; margin:4px 0; padding:11px 14px;
-    border-radius:12px; color:#dce6f5; text-decoration:none; font-size:13px; transition:.2s ease;
-}
-.sidebar a:hover { background:rgba(255,255,255,.08); color:#fff; transform:translateX(2px); }
-.sidebar a.active { color:#fff; background:linear-gradient(135deg,var(--primary),#6650dc); box-shadow:0 9px 20px rgba(18,104,232,.26); }
-
 .main { width:min(1120px,calc(100% - 36px)); margin:0 auto; padding:88px 0 46px; }
 
 /* Hero */
@@ -218,7 +191,6 @@ table.preview-table tr.row-warn td { background:#fff3f3; color:#d8444a; }
 @media (max-width:640px) {
     .topbar { height:60px; padding:0 12px; }
     .topbar h2 { font-size:15px; }
-    .menu-btn { width:36px; height:36px; font-size:21px; border-radius:10px; }
     .main { width:min(100% - 20px,1120px); padding:74px 0 30px; }
     .page-hero { min-height:auto; padding:25px 21px; border-radius:22px; }
     .page-hero h1 { font-size:34px; }
@@ -265,25 +237,13 @@ body.modal-open{overflow:hidden}
 @media(max-width:560px){.confirm-modal-backdrop{padding:12px;align-items:flex-end}.confirm-modal{border-radius:22px 22px 16px 16px}.confirm-modal-head{padding:19px 18px 14px}.confirm-modal-body{padding:0 18px 17px}.confirm-summary{grid-template-columns:1fr 1fr}.confirm-modal-actions{padding:14px 18px 18px;flex-direction:column-reverse}.confirm-btn{width:100%}}
 
 </style>
+<script src="sidebar.js" defer></script>
 </head>
 <body>
 
-<div class="sidebar" id="sidebar">
-    <a href="index.html">Dashboard Utama</a>
-    <a href="oee.html">OEE</a>
-    <a href="tonase.html">Tonase</a>
-    <a href="waste.html">Waste</a>
-    <a href="cost-material.html">Cost Material</a>
-    <a href="improvement-monitoring.html">Improvement Monitoring</a>
-    <a href="smartway.html" style="margin-top:20px; border-top:1px solid #374151;">🛠️ Smart Way</a>
-    <a href="baopack.html">📦 Baopack</a>
-    <a href="chingfong.html">⚙️ ChingFong</a>
-    <a href="import-extruder.html" class="active">📤 Import Extruder</a>
-    <a href="settings.html">⚙️ Settings</a>
-</div>
-
+<!-- Navigasi dan desain sidebar berasal dari satu master: sidebar.js -->
 <div class="topbar">
-    <span class="menu-btn" onclick="toggleMenu()">☰</span>
+    <button type="button" data-kobe-sidebar-toggle aria-label="Buka menu navigasi"></button>
     <h2 style="margin:0;">📤 Import Extruder</h2>
 </div>
 
@@ -379,11 +339,6 @@ let parsedRows = []; // hasil parsing achievement final, siap dikirim ke Supabas
 let parsedDowntimeRows = []; // hasil parsing sheet Downtime
 let pendingSubmitRows = [];
 let pendingDuplicateCount = 0;
-
-function toggleMenu() {
-    const s = document.getElementById('sidebar');
-    s.style.left = s.style.left === '0px' ? '-250px' : '0px';
-}
 
 const dropZone = document.getElementById('upload-zone');
 const fileInput = document.getElementById('file-input');
