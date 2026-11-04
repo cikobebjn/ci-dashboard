@@ -24,8 +24,12 @@ const $=id=>document.getElementById(id);
 const nf=new Intl.NumberFormat('id-ID',{maximumFractionDigits:2});
 const formatGram=v=>(v!==null&&v!==undefined&&String(v).trim()!==''&&Number.isFinite(Number(v)))?nf.format(Number(v)):'—';
 const norm=(a,b)=>Math.abs(Number(a)-Number(b))<0.000001;
-// Khusus SKU 135 gr di Gedung 4 dan 6: target x1; SKU lainnya tetap x10.
-const targetMultiplier=(gedung,gramasi)=>['4','6'].includes(String(gedung))&&norm(gramasi,135)?1:10;
+// Target: 135g Gedung 4 dan 6 x1; SKU 50g atau 70g x5; gramasi lainnya x10.
+const targetMultiplier=(gedung,gramasi)=>{
+    if(['4','6'].includes(String(gedung))&&norm(gramasi,135))return 1;
+    if(norm(gramasi,50)||norm(gramasi,70))return 5;
+    return 10;
+};
 const machineInfo=Object.fromEntries(Object.entries(CATALOG).flatMap(([gedung,groups])=>groups.flatMap((g,i)=>g.mesin.map(m=>[m,{gedung,group:i}]))));
 const machineNames=gedung=>CATALOG[gedung]?CATALOG[gedung].flatMap(g=>g.mesin):[];
 const findGroup=machine=>{let info=machineInfo[machine];return info?CATALOG[info.gedung][info.group]:null};
