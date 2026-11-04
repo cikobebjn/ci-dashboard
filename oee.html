@@ -973,6 +973,45 @@ function addDaysStr(s,n){const d=dateFromStr(s);d.setDate(d.getDate()+n);return 
 function fmtDateShort(d){if(!d)return'';return dateFromStr(d).toLocaleDateString('id-ID',{day:'2-digit',month:'short'})}
 function startOfSundayWeek(dateStr){const d=dateFromStr(dateStr);d.setDate(d.getDate()-d.getDay());return localDateToStr(d)}
 function weekNumberSunday(dateStr){const d=dateFromStr(dateStr);const year=d.getFullYear();const jan1=new Date(year,0,1);const dayOfYear=Math.floor((d-jan1)/86400000)+1;return Math.floor((dayOfYear+jan1.getDay()-1)/7)+1}
+// Lengkapi tanggal Daily yang belum ada HANYA bila semua baris OEE per-line
+// memiliki bobot target/output yang valid. Jangan mengarang OEE dari rata-rata
+// tiga shift: itu bisa berbeda dengan OEE gabungan berbobot volume.
+function completeOeeDailyFromLines(officialRows, lineRows) {
+    const byDate = new Map();
+    (officialRows || []).forEach(r => {
+        if (!r || !r.tanggal || r.oee === null || r.oee === undefined || r.oee === '' ||
+            !Number.isFinite(Number(r.oee))) return;
+        byDate.set(String(r.tanggal).slice(0, 10), r);
+    });
+    const grouped = new Map();
+    (lineRows || []).forEach(r => {
+        if (!r || !r.tanggal || r.oee === null || r.oee === undefined || r.oee === '' ||
+            !Number.isFinite(Number(r.oee))) return;
+        const date = String(r.tanggal).slice(0, 10);
+        if (byDate.has(date)) return; // Prioritaskan nilai resmi di oee_daily.
+        if (!grouped.has(date)) grouped.set(date, []);
+        grouped.get(date).push(r);
+    });
+    let derivedCount = 0;
+    grouped.forEach((rows, date) => {
+        if (!rows.length || !rows.every(r =>
+            r.target_pcs !== null && r.target_pcs !== undefined && r.target_pcs !== '' &&
+            Number.isFinite(Number(r.target_pcs)) && Number(r.target_pcs) > 0 &&
+            r.output_pcs !== null && r.output_pcs !== undefined && r.output_pcs !== '' &&
+            Number.isFinite(Number(r.output_pcs)) && Number(r.output_pcs) >= 0
+        )) return;
+        const target = rows.reduce((n, r) => n + Number(r.target_pcs), 0);
+        const output = rows.reduce((n, r) => n + Number(r.output_pcs), 0);
+        if (!(target > 0)) return;
+        const pct = Number((output / target * 100).toFixed(2));
+        if (!Number.isFinite(pct)) return;
+        byDate.set(date, { tanggal: date, oee: pct, target_pcs: target,
+            output_pcs: output, sumber: 'Dihitung dari bobot OEE per-line', _oeeDerived: true });
+        derivedCount++;
+    });
+    return { rows: [...byDate.values()].sort((a,b) => a.tanggal.localeCompare(b.tanggal)), derivedCount };
+}
+
 function aggregateOee(rows){
     const valid=rows.filter(r=>r && r.oee!==null && r.oee!==undefined);
     if(!valid.length)return null;
@@ -1689,6 +1728,29 @@ function prosesExcel() {
                 }
             }
 
+            // Jika hasil formula OEE DAILY belum ter-cache untuk tanggal terbaru,
+            // hitung HANYA tanggal yang kosong menggunakan data volume dari DATA.
+            // Ini mengikuti perhitungan OEE berbobot = Output PCS / Target PCS.
+            // Jangan memakai rata-rata tiga shift sebagai OEE pabrik.
+            const officialDates = new Set(allDailyRows.map(r => r.tanggal));
+            const shiftDates = new Set(allShiftlyRows.map(r => r.tanggal));
+            let dailyDerivedFromData = 0;
+            for (const [tanggal, pcs] of Object.entries(dailyPcs)) {
+                if (officialDates.has(tanggal) || !shiftDates.has(tanggal)) continue;
+                if (!Number.isFinite(pcs.target) || pcs.target <= 0 ||
+                    !Number.isFinite(pcs.output) || pcs.output < 0) continue;
+                const oee = Number((pcs.output / pcs.target * 100).toFixed(2));
+                if (!Number.isFinite(oee)) continue;
+                allDailyRows.push({tanggal, oee, target_pcs:pcs.target,
+                    output_pcs:pcs.output});
+                dailyDerivedFromData++;
+                if (!lastDailyDate || tanggal > lastDailyDate) {
+                    lastDailyDate = tanggal;
+                    lastDailyVal = oee;
+                }
+            }
+            allDailyRows.sort((a,b) => a.tanggal.localeCompare(b.tanggal));
+
             // Nama mesin per row (row index 3-17 = Excel row 4-18)
             // Target dibaca dari col C (index 2) dalam bentuk desimal → ×100
             const MESIN_ROWS = [
@@ -1770,15 +1832,18 @@ function prosesExcel() {
 
             tampilkanData(parsedData);
             initReportConverter();
-            setStatus('active',
-                `✅ Data berhasil dibaca: ${tanggalUnikShiftly.length} hari shiftly, ${tanggalUnikDaily.length} hari daily, ${oeeReportRows.length} record siap konversi WA. ` +
-                `Tanggal terakhir: ${fmtDate(lastShiftDate)}`);
-
+            const finalDailyDates = new Set(allDailyRows.map(r => r.tanggal));
+            const hasDailyGap = lastShiftDate && (!lastDailyDate || lastDailyDate < lastShiftDate);
             const btnSave = document.getElementById('btn-save');
             btnSave.style.display = 'inline-block';
-            btnSave.disabled = false;
+            btnSave.disabled = Boolean(hasDailyGap);
             btnSave.textContent = 'Perbarui Data Supabase';
             document.getElementById('warning-badge').classList.add('show');
+            if (hasDailyGap) {
+                setStatus('error', `Shiftly tersedia sampai ${fmtDate(lastShiftDate)}, tetapi Daily baru sampai ${fmtDate(lastDailyDate)}. Periksa nilai OEE DAILY atau target/output PCS di sheet DATA. Penyimpanan diblokir agar KPI Index tidak tertinggal.`);
+            } else {
+                setStatus('active', `Excel terbaca: ${tanggalUnikShiftly.length} hari Shiftly, ${finalDailyDates.size} hari Daily (tambahan dihitung dari DATA: ${dailyDerivedFromData} hari). Data terakhir ${fmtDate(lastDailyDate)}. Siap diperbarui ke Supabase.`);
+            }
 
         } catch (err) {
             setStatus('error', '❌ Gagal membaca Excel: ' + err.message);
@@ -2216,14 +2281,24 @@ async function loadFromSupabase() {
         const cleanDaily=dailyRows.map(r=>({...r,oee:r.oee===null?null:Number(r.oee),target_pcs:r.target_pcs===null||r.target_pcs===undefined?null:Number(r.target_pcs),output_pcs:r.output_pcs===null||r.output_pcs===undefined?null:Number(r.output_pcs)})).sort((a,b)=>a.tanggal.localeCompare(b.tanggal));
         const cleanShift=shiftRows.map(r=>({...r,oee:Number(r.oee)})).sort((a,b)=>a.tanggal.localeCompare(b.tanggal));
         const cleanLine=lineRows.map(r=>({...r,oee:Number(r.oee),target:Number(r.target||OEE_TARGET),shift:Number(r.shift),gedung:r.gedung||gedungForLine(r.mesin),target_pcs:r.target_pcs===null||r.target_pcs===undefined?null:Number(r.target_pcs),output_pcs:r.output_pcs===null||r.output_pcs===undefined?null:Number(r.output_pcs)})).sort((a,b)=>a.tanggal.localeCompare(b.tanggal));
-        const lastShiftDate=cleanShift.length?cleanShift[cleanShift.length-1].tanggal:null,lastDailyDate=cleanDaily.length?cleanDaily[cleanDaily.length-1].tanggal:null;
+        const lastShiftDate=cleanShift.length?cleanShift[cleanShift.length-1].tanggal:null;
+        const storedDailyDate=cleanDaily.length?cleanDaily[cleanDaily.length-1].tanggal:null;
+        const dailyCheck=completeOeeDailyFromLines(cleanDaily,cleanLine);
+        const synchronizedDaily=dailyCheck.rows;
+        const lastDailyDate=synchronizedDaily.length?synchronizedDaily[synchronizedDaily.length-1].tanggal:null;
         const byShift={};cleanShift.filter(r=>r.tanggal===lastShiftDate).forEach(r=>{byShift[r.shift]=r.oee});
-        const lastDaily=cleanDaily.filter(r=>r.tanggal===lastDailyDate).slice(-1)[0];
+        const lastDaily=synchronizedDaily.filter(r=>r.tanggal===lastDailyDate).slice(-1)[0];
         const lastLineDate=cleanLine.length?cleanLine[cleanLine.length-1].tanggal:lastShiftDate;
-        const d={date:lastShiftDate,shift1:byShift['SHIFT 1']??null,shift2:byShift['SHIFT 2']??null,shift3:byShift['SHIFT 3']??null,daily_date:lastDailyDate,daily_oee:lastDaily?.oee??null,per_line:buildPerLineDisplay(cleanLine,lastLineDate),all_shiftly:cleanShift,all_daily:cleanDaily,all_line:cleanLine};
+        const d={date:lastShiftDate,shift1:byShift['SHIFT 1']??null,shift2:byShift['SHIFT 2']??null,shift3:byShift['SHIFT 3']??null,daily_date:lastDailyDate,daily_oee:lastDaily?.oee??null,per_line:buildPerLineDisplay(cleanLine,lastLineDate),all_shiftly:cleanShift,all_daily:synchronizedDaily,all_line:cleanLine};
         tampilkanData(d);
         if(!oeeReportRows.length){try{const cached=JSON.parse(safeStorageGet('oee-recent-report-rows')||'[]');if(Array.isArray(cached)&&cached.length){oeeReportRows=cached;initReportConverter();}}catch(err){console.warn('Cache laporan lokal tidak terbaca:',err)}}
-        const latest=lastDailyDate||lastShiftDate;setStatus('active',`Data dimuat sampai ${fmtDate(latest)} · ${cleanDaily.length} hari daily OEE tersedia`);
+        if (lastShiftDate && (!lastDailyDate || lastDailyDate < lastShiftDate)) {
+            setStatus('error', `Shiftly sampai ${fmtDate(lastShiftDate)}, tetapi Daily valid terakhir ${fmtDate(lastDailyDate)}. Nilai Daily/Weekly/Monthly belum mencakup shift terbaru. Import Excel lengkap yang berisi Target PCS dan Output PCS pada sheet DATA.`);
+        } else if (dailyCheck.derivedCount) {
+            setStatus('active', `Data OEE sampai ${fmtDate(lastDailyDate)}. ${dailyCheck.derivedCount} hari Daily dihitung dari bobot per-line yang valid. Untuk menyimpannya permanen, import Excel terbaru.`);
+        } else {
+            setStatus('active', `Data OEE sampai ${fmtDate(lastDailyDate||lastShiftDate)} · ${cleanDaily.length} hari Daily tersimpan di Supabase.`);
+        }
     } catch(err){setStatus('error','Gagal memuat data OEE: '+err.message);console.error(err)}
 }
 
@@ -2231,6 +2306,12 @@ async function simpanKeSupabase() {
     if(!parsedData)return;
     if(!db){setStatus('error','Supabase tidak tersedia. Data lokal belum disimpan.');return;}
     if(!(parsedData.all_daily||[]).length||!(parsedData.all_shiftly||[]).length){setStatus('error','Data Excel belum lengkap. Database tidak diubah.');return;}
+    const lastShift=(parsedData.all_shiftly||[]).reduce((m,r)=>r.tanggal>m?r.tanggal:m,'');
+    const lastDaily=(parsedData.all_daily||[]).reduce((m,r)=>r.tanggal>m?r.tanggal:m,'');
+    if (lastShift && lastDaily < lastShift) {
+        setStatus('error', `Data Daily berhenti di ${fmtDate(lastDaily)}, sementara Shiftly sampai ${fmtDate(lastShift)}. Perbaiki OEE DAILY atau DATA. Data Supabase lama tidak dihapus.`);
+        return;
+    }
     if(!window.confirm('Ganti seluruh data OEE online dengan data dari file terbaru? Pastikan workbook sudah lengkap.'))return;
     const btn=document.getElementById('btn-save');btn.disabled=true;btn.textContent='Memperbarui...';setStatus('loading','Memperbarui database OEE, jangan tutup halaman sampai selesai...');
     const BATCH=500;async function insertBatched(table,rows){for(let i=0;i<rows.length;i+=BATCH){const{error}=await db.from(table).insert(rows.slice(i,i+BATCH));if(error)throw error}}
