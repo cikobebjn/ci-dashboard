@@ -1,672 +1,135 @@
-<!DOCTYPE html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#102749"><title>SHO Monitoring & Handover | PT KOBE BOGA UTAMA | v2.2 ONLINE</title><style>
-:root{--navy:#102749;--navy2:#162f5b;--blue:#1268e8;--blue2:#4e64e6;--ink:#1c2b44;--muted:#74839b;--line:#e3eaf4;--bg:#f5f8fd;--white:#fff;--red:#d92b3a;--green:#098661;--amber:#b77710;--shadow:0 12px 35px rgba(29,61,111,.075)}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(circle at 0 0,#eaf2ff 0,transparent 32%),linear-gradient(130deg,#f6f9fe,#f5f7fc 60%,#f2f5ff);color:var(--ink);font:14px/1.5 Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif}button,input,select,textarea{font:inherit}button,a{ -webkit-tap-highlight-color:transparent}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.5}a{text-decoration:none;color:inherit}input,select,textarea{width:100%;padding:11px 12px;border:1px solid #dce4ef;background:#fff;border-radius:11px;outline:none;color:#293c59;min-width:0}textarea{resize:vertical;min-height:88px;line-height:1.5}input:focus,select:focus,textarea:focus{border-color:#78a9fc;box-shadow:0 0 0 3px #1268e815}select:disabled{background:#f4f7fb;color:#97a2b2}.wrap{max-width:1390px;margin:auto;padding:29px 24px 70px}.head{height:69px;position:sticky;top:0;z-index:60;background:#ffffffeb;backdrop-filter:blur(18px);border-bottom:1px solid #e4eaf3;box-shadow:0 4px 14px rgba(18,47,89,.035)}.head-in{max-width:1390px;margin:auto;height:100%;padding:0 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}.brand{display:flex;align-items:center;gap:11px;min-width:0}.mark{height:40px;width:40px;flex:0 0 40px;display:grid;place-items:center;color:#fff;background:linear-gradient(140deg,#163b7b,#101c54);border-radius:13px;font-style:italic;font-size:19px;font-weight:850;box-shadow:0 7px 14px #17366c26}.brand b{display:block;font-size:15px;line-height:1.16;letter-spacing:-.025em}.brand small{display:block;margin-top:3px;font-size:10px;letter-spacing:.06em;color:#8b9bb0}.head-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.pill{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;background:#eaf2ff;color:#24549b;border:1px solid #dae7fa;border-radius:999px;font-weight:780;font-size:10px}.pill.online{color:#087c54;border-color:#caeadb;background:#edf9f2}.pill.warn{color:#966007;background:#fff8e9;border-color:#f6e8b9}.eyebrow{font-size:10px;text-transform:uppercase;letter-spacing:.16em;font-weight:850;color:#88a4d7}.hero{border-radius:24px;padding:27px 32px;position:relative;overflow:hidden;display:flex;justify-content:space-between;gap:20px;align-items:center;color:white;background:linear-gradient(105deg,#0b5bc7 0%,#1643a3 55%,#5438bc 100%);box-shadow:0 20px 40px #174aa524;margin-bottom:19px}.hero:before{content:'';position:absolute;right:-100px;top:-210px;width:440px;height:440px;border:1px solid #ffffff25;border-radius:50%;box-shadow:0 0 0 53px #ffffff09,0 0 0 108px #ffffff06}.hero>div{position:relative;z-index:1}.hero h1{font-size:clamp(26px,3.1vw,40px);letter-spacing:-.04em;line-height:1.12;margin:8px 0 10px}.hero p{font-size:12px;color:#dbe7ff;max-width:770px;margin:0}.hero .eyebrow{color:#9fe1fb}.hero-right{display:grid;gap:10px;min-width:210px;justify-items:end}.hero-right small{color:#dce7ff}.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:11px;min-height:40px;padding:10px 15px;font-size:12px;font-weight:800;transition:transform .15s,filter .15s,background .15s}.btn:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.025)}.btn-primary{background:linear-gradient(125deg,#1268e8,#4b55d9);color:white;box-shadow:0 7px 15px #1268e82b}.btn-green{background:linear-gradient(125deg,#058a68,#12a784);color:white}.btn-white{background:white;color:#1b57bd;box-shadow:0 6px 15px #122e7326}.btn-soft{background:#edf4ff;color:#245bac;border:1px solid #d7e6fa}.btn-quiet{background:#fff;color:#586a82;border:1px solid #e0e6ef}.btn-red{background:#fff1f3;color:#ba263c;border:1px solid #f7c6cc}.btn-sm{min-height:33px;padding:7px 10px;font-size:10px}.card{background:#fff;border:1px solid #e2eaf3;border-radius:19px;box-shadow:var(--shadow);min-width:0;overflow:hidden}.card-title{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:17px 20px;border-bottom:1px solid #eaf0f7}.card-title b{font-size:14px;color:#1c2d49}.card-title small{display:block;font-size:10px;color:#8a9bb0;margin-top:3px}.card-body{padding:19px 20px}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin-bottom:19px}.stat{background:white;border:1px solid #e2eaf3;border-radius:17px;padding:16px 18px;box-shadow:0 8px 24px #1a41700b;min-width:0}.stat label{display:block;font-weight:780;font-size:10px;color:#798ba3;text-transform:uppercase;letter-spacing:.075em}.stat strong{display:block;margin:7px 0 3px;font-size:30px;line-height:1.06;letter-spacing:-.045em}.stat small{color:#99a6b6;font-size:10px}.stat strong.red{color:var(--red)}.stat strong.green{color:var(--green)}.layout{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(325px,.9fr);gap:17px}.field{display:flex;flex-direction:column;gap:5px;min-width:0}.field label{font-size:11px;font-weight:790;color:#526684}.field small{color:#92a0b1;font-size:10px}.grid-filters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;align-items:end}.grid-ctx{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}.stack{display:grid;gap:16px;align-content:start}.status{border-radius:9px;padding:4px 8px;font-size:10px;font-weight:800;white-space:nowrap;border:1px solid #e6edf6;background:#f7f9fc;color:#66778b}.status.open{color:#be3542;background:#fff3f4;border-color:#f9dce0}.status.progress{color:#9b650e;background:#fff9ee;border-color:#f8e9c9}.status.closed{color:#087f58;background:#ecfaf3;border-color:#d4eddf}.sqcdp{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.sq{display:inline-flex;align-items:center;justify-content:center;border-radius:8px;background:#eff4fb;color:#4c6384;width:27px;height:27px;font-size:12px;font-weight:900}.sq.S{background:#fef0f2;color:#c32c42}.sq.Q{background:#e9f3ff;color:#2d66be}.sq.C{background:#fff4e2;color:#986315}.sq.D{background:#eef0ff;color:#4d50ab}.sq.P{background:#e9f8f1;color:#137e59}.event{border-bottom:1px solid #edf1f6;padding:15px 0;display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:10px;align-items:start}.event:first-child{padding-top:2px}.event:last-child{border-bottom:0;padding-bottom:0}.event h4{margin:0 0 4px;font-size:12px;color:#273953}.event p{margin:5px 0;color:#5b6c82;font-size:11px;overflow-wrap:anywhere}.event .meta{color:#93a0b2;font-size:10px;margin-bottom:5px}.event-end{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end;max-width:150px}.empty{padding:24px 14px;color:#91a0b4;background:#fbfcfe;border:1px dashed #d9e2ec;border-radius:14px;text-align:center;font-size:12px}.notice{display:none;margin:0 0 16px;padding:12px 15px;background:#eaf6f0;border:1px solid #c3e8d3;border-radius:12px;color:#087652;font-size:12px;font-weight:700}.notice.error{background:#fff1f2;border-color:#fecdd3;color:#b42337}.notice.show{display:block}.muted{font-size:11px;color:#8291a5}.minor{font-size:10px;color:#91a1b3}.row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.sep{height:1px;background:#ebeff5;margin:17px 0}.toggle{display:flex;gap:5px;flex-wrap:wrap}.toggle button{background:white;border:1px solid #e3eaf3;color:#64768e;border-radius:9px;padding:7px 10px;font-size:10px;font-weight:750}.toggle button.active{background:#ecf3ff;color:#195bb8;border-color:#bcd4fa}.table-wrap{overflow:auto}table{border-collapse:collapse;width:100%;font-size:11px}thead th{text-transform:uppercase;letter-spacing:.04em;background:#f7f9fd;color:#7e90a8;font-size:9px;text-align:left;padding:10px}tbody td{padding:11px 10px;border-bottom:1px solid #eef2f7;vertical-align:top}tbody tr:last-child td{border-bottom:0}tbody td b{font-size:11px}details>summary{cursor:pointer;font-size:12px;font-weight:780;color:#2d5fad}.chip{display:inline-block;background:#f4f7fc;border:1px solid #e6edf4;border-radius:8px;padding:4px 7px;margin:3px 4px 0 0;font-size:10px;color:#6c7d96}.cat-btns{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}.cat-btn{border:1px solid #e2eaf3;border-radius:11px;background:white;color:#3c5375;font-size:18px;font-weight:900;padding:10px 4px;min-width:0}.cat-btn small{display:block;color:#8797ac;font-size:9px;font-weight:700}.cat-btn.active{border-color:#8ebaff;background:#eef5ff;color:#1559c2;box-shadow:0 0 0 3px #1268e813}.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}.sticky-actions{position:sticky;bottom:0;background:linear-gradient(180deg,#ffffffed,#fff);padding:13px 0 0;margin-top:10px;border-top:1px solid #edf1f6;display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}.review-rows{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.review-rows>div{border-radius:12px;padding:12px;background:#f8fbff;border:1px solid #e6ecf6}.review-rows b{font-size:24px;display:block;line-height:1.2}.review-rows small{color:#8799b0;font-size:9px}.confirm{display:flex;gap:8px;align-items:flex-start;font-size:11px;color:#586980;padding:12px;border:1px solid #e2eaf4;border-radius:12px;background:#f8fbff}.confirm input{width:auto;margin-top:3px}.review-sub{margin:18px 0 9px;color:#556984;font-weight:860;letter-spacing:.05em;text-transform:uppercase;font-size:10px}.summary-text{border-radius:14px;background:#f7faff;border:1px solid #e6ecf5;padding:14px;font-size:11px;color:#4e5e72;line-height:1.6;white-space:pre-line}.hide{display:none!important}.alert-note{padding:10px 12px;background:#fffaf1;border:1px solid #f4e6c7;border-radius:11px;color:#9b680e;font-size:11px}.auth-settings{display:none}.auth-settings.open{display:block}.calendar{display:flex;gap:7px;align-items:center;color:#7690ab;font-size:10px}.footer{margin-top:24px;text-align:center;color:#a2aec0;font-size:10px}.print-only{display:none}.checkin-line{font-size:11px;color:#7388a0;margin-top:8px}.loading{opacity:.55;pointer-events:none}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#102749">
+  <title>SHO | Monitoring & Serah Terima Shift - KOBE Bojonegoro</title>
+  <style>
+    :root{--navy:#102749;--blue:#1667df;--blue-soft:#edf5ff;--ink:#213650;--muted:#7588a1;--line:#e3eaf2;--bg:#f5f8fc;--green:#087f5b;--red:#bf3346;--amber:#a76a0a;--shadow:0 12px 32px rgba(18,47,89,.045)}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 Inter,system-ui,-apple-system,'Segoe UI',Arial,sans-serif}button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{opacity:.48;cursor:not-allowed}a{text-decoration:none;color:inherit}input,select,textarea{width:100%;min-width:0;padding:11px 12px;border:1px solid #dce5f0;border-radius:10px;outline:none;background:#fff;color:#293d55}input:focus,select:focus,textarea:focus{border-color:#80aefa;box-shadow:0 0 0 3px #1667df16}textarea{resize:vertical;min-height:78px}input[disabled],select[disabled]{background:#f1f5fa}
+    [hidden]{display:none!important}
+    .topbar{background:#fff;min-height:65px;border-bottom:1px solid var(--line)}.topbar-in{max-width:1280px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:13px;padding:11px 24px}.brand{display:flex;align-items:center;gap:10px}.brand-mark{display:grid;place-items:center;width:36px;height:36px;border-radius:11px;background:#123b78;color:#fff;font-weight:850;font-style:italic;font-size:17px}.brand b{display:block;font-size:13px;line-height:1.25}.brand small{display:block;font-size:10px;letter-spacing:.04em;color:#91a0b2}.brand [data-kobe-sidebar-toggle]{border:0;background:#edf4ff;border-radius:9px;min-width:34px;min-height:34px}.topbar-actions{display:flex;align-items:center;gap:10px}.topbar-link{font-size:12px;font-weight:700;color:#375e97}.pill{display:inline-flex;align-items:center;gap:6px;border-radius:99px;font-size:10px;font-weight:750;padding:5px 9px;border:1px solid #dee8f8;background:#eef4fd;color:#345c99}.pill.online{color:#08774c;border-color:#cde9da;background:#effaf3}.pill.warn{color:#99610c;border-color:#f3e6c1;background:#fff9ed}
+    .container{max-width:1280px;margin:auto;padding:24px 24px 64px}.intro{display:flex;align-items:center;justify-content:space-between;gap:22px;margin-bottom:18px}.eyebrow{text-transform:uppercase;letter-spacing:.13em;color:#8294aa;font-size:10px;font-weight:850}.intro h1{font-size:clamp(25px,3vw,34px);line-height:1.18;letter-spacing:-.038em;margin:5px 0 6px;color:#142e50}.intro p{font-size:12px;color:#6e8096;margin:0}.intro-actions{display:flex;gap:9px;align-items:center}.btn{display:inline-flex;justify-content:center;align-items:center;gap:8px;border:0;border-radius:10px;padding:10px 14px;min-height:41px;font-size:12px;font-weight:800;white-space:nowrap;transition:background .15s,transform .15s}.btn:hover:not(:disabled){transform:translateY(-1px)}.btn-primary{background:#1667df;color:white;box-shadow:0 7px 14px #1667df1c}.btn-green{background:#0b8467;color:#fff;box-shadow:0 7px 14px #09836116}.btn-soft{background:#edf4ff;border:1px solid #d6e6fb;color:#235cab}.btn-quiet{border:1px solid #dfe7f2;background:#fff;color:#62768f}.btn-small{padding:7px 11px;min-height:34px;font-size:11px}.btn-plain{padding:3px 5px;background:none;color:#1f65b8;min-height:auto}.surface{background:#fff;border:1px solid var(--line);box-shadow:var(--shadow);border-radius:16px;min-width:0}.surface-head{padding:18px 20px 14px;display:flex;justify-content:space-between;align-items:start;gap:12px}.surface-head h2{margin:0;font-size:16px;letter-spacing:-.012em}.surface-head p{margin:3px 0 0;color:#8999ad;font-size:11px}.surface-body{padding:0 20px 20px}.section-title{font-size:11px;font-weight:850;color:#647992;letter-spacing:.04em;margin:0 0 9px;text-transform:uppercase}
+    .filters{padding:15px 18px;margin-bottom:14px}.filters-bar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:11px}.filters-bar strong{font-size:12px;color:#344b68}.filters-grid{display:grid;grid-template-columns:1fr .85fr .85fr 1.25fr;gap:11px}.field{min-width:0;display:flex;flex-direction:column;gap:5px}.field label{font-size:11px;color:#526985;font-weight:760}.filter-hint{font-size:10px;color:#8b9caf;margin:9px 0 0}.sync-note{font-size:10px;color:#9aaabc}
+    .machine-picker{position:relative}.machine-trigger{width:100%;display:flex;align-items:center;justify-content:space-between;text-align:left;gap:8px;border:1px solid #dce5f0;background:white;color:#304866;border-radius:10px;min-height:44px;padding:10px 12px;font-size:12px;font-weight:700}.machine-trigger:disabled{background:#f2f6fb}.machine-menu[hidden]{display:none!important}.machine-menu{position:absolute;right:0;top:calc(100% + 5px);z-index:45;width:max(100%,300px);max-width:min(380px,calc(100vw - 32px));background:#fff;border:1px solid #dbe6f3;border-radius:12px;box-shadow:0 14px 38px #163b6d32;overflow:hidden}.machine-menu-head,.machine-menu-foot{padding:9px 11px;display:flex;align-items:center;justify-content:space-between;gap:9px;background:#f8fbff}.machine-menu-head{border-bottom:1px solid #e8edf5;font-size:11px;color:#536987}.machine-menu-foot{border-top:1px solid #e8edf5}.machine-options{max-height:240px;overflow:auto;padding:4px}.machine-option{display:flex;align-items:center;gap:9px;padding:9px 10px;font-size:11px;cursor:pointer;border-radius:8px}.machine-option:hover{background:#f0f6ff}.machine-option input{width:17px;height:17px;accent-color:var(--blue);margin:0}
+    .metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:15px}.metric{padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px}.metric .m-label{display:block;font-size:11px;color:#7788a0;font-weight:750}.metric strong{display:block;font-size:30px;line-height:1.2;letter-spacing:-.04em;margin:4px 0 1px;color:#1c3960}.metric small{color:#92a2b5;font-size:10px}.metric .m-icon{width:39px;height:39px;flex:0 0 39px;display:grid;place-items:center;background:#eff5ff;color:#316cba;border-radius:12px;font-size:20px}.metric-danger strong{color:var(--red)}.metric-danger .m-icon{background:#fff1f3;color:#be3a4d}
+    .main-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.96fr);gap:15px;align-items:start}.status{display:inline-flex;white-space:nowrap;border-radius:8px;background:#f1f5fa;color:#56718f;font-size:10px;font-weight:780;border:1px solid #e1e9f3;padding:4px 8px}.status.open{background:#fff1f3;border-color:#f9d7dc;color:#ba2c43}.status.progress{background:#fff8eb;border-color:#f7e5c7;color:#a46e1a}.status.closed{background:#e9f8f1;border-color:#cfeadc;color:#087b57}.handover-scope{background:#f4f8ff;border:1px solid #dfebfb;border-radius:11px;padding:11px 13px;margin-bottom:15px;display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12px;color:#365676;font-weight:750}.handover-scope span{min-width:0;overflow-wrap:anywhere}.handover-count{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}.handover-count>div{border:1px solid #e6edf5;background:#fafcff;border-radius:10px;padding:11px 8px;text-align:center}.handover-count strong{display:block;font-size:23px;letter-spacing:-.035em;line-height:1.2}.handover-count span{font-size:10px;color:#8294a9}.handover-count strong.alert{color:var(--red)}.scope-warning{font-size:11px;color:#a26d17;background:#fff9ed;border:1px solid #f0e3c8;border-radius:10px;padding:10px 11px;margin:0 0 12px}.scope-warning[hidden]{display:none!important}.focus-list{padding:0;margin:0;list-style:none}.focus-list li{padding:9px 0;border-bottom:1px solid #edf2f8;font-size:11px}.focus-list li:last-child{border-bottom:0}.focus-list .item-meta{font-size:10px;color:#7990ab}.focus-list b{font-size:11px;color:#30465e}.focus-list .problem{font-size:11px;color:#536883;margin-top:2px;line-height:1.45;overflow-wrap:anywhere}.focus-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:12px}.focus-head .section-title{margin-bottom:4px}.pending-flag{font-size:10px;color:#b03849;background:#fff3f4;border-radius:7px;padding:3px 7px}.pending-none{color:#178064;font-size:11px;margin:5px 0 8px}.divider{height:1px;background:#edf1f5;margin:16px 0}.people-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.optional-note{margin:12px 0 0;border:1px solid #e6edf6;border-radius:10px}.optional-note summary{padding:10px 12px;font-size:11px;color:#3c6ca7;font-weight:780;cursor:pointer}.optional-note>div{padding:0 12px 12px}.handover-actions{display:flex;align-items:center;gap:10px;margin-top:15px}.handover-actions .btn{width:100%;min-height:46px;font-size:13px}.feedback{font-size:10px;color:#8b9cb1;margin:10px 0 0}.previous-mini{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 12px;margin-bottom:13px;background:#fafcff;border:1px solid #e7edf6;border-radius:10px;font-size:11px;color:#6a7e98}.previous-mini b{display:block;color:#314d70;font-size:11px}.previous-mini span{overflow-wrap:anywhere}.previous-mini .btn{flex:none}.previous-mini.none{color:#9aa7b7}
+    .incident-row{padding:12px 0;border-bottom:1px solid #eef2f7;display:grid;grid-template-columns:34px minmax(0,1fr);gap:9px}.incident-row:first-child{padding-top:2px}.incident-row:last-child{border-bottom:0}.sq{height:30px;width:30px;border-radius:9px;display:grid;place-items:center;background:#edf3fb;color:#476688;font-size:11px;font-weight:900}.sq.S{background:#fff1f3;color:#c22f47}.sq.Q{background:#ebf5ff;color:#2968b9}.sq.C{background:#fff7e8;color:#a47613}.sq.D{background:#eef0ff;color:#5556b3}.sq.P{background:#eaf8f1;color:#158362}.incident-meta{color:#8999aa;font-size:10px;margin:0 0 3px}.incident-problem{font-size:12px;font-weight:800;color:#304a68;line-height:1.45;overflow-wrap:anywhere;margin:0 0 5px}.incident-footer{display:flex;align-items:center;flex-wrap:wrap;gap:6px;color:#8192a6;font-size:10px}.incident-action{font-size:11px;color:#70819a;margin:5px 0 0;line-height:1.45;overflow-wrap:anywhere}.tag{font-size:10px;border-radius:6px;background:#f1f5fa;color:#657c97;padding:3px 6px}.incident-row .btn{font-size:10px;padding:3px 5px;min-height:24px}.empty{padding:17px 12px;text-align:center;font-size:11px;color:#91a0b1;background:#fbfcfe;border:1px dashed #dce5f0;border-radius:10px}.filter-tabs{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:9px}.filter-tabs button{border:1px solid #e2eaf4;padding:7px 10px;border-radius:8px;background:#fff;color:#6a8099;font-size:10px;font-weight:800}.filter-tabs button.active{background:#ebf4ff;color:#1a5cae;border-color:#c9ddfa}.more-wrap{padding-top:12px;text-align:center}
+    .secondary{margin-top:15px;overflow:hidden}.secondary>summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 19px;color:#3c5574}.secondary>summary::-webkit-details-marker{display:none}.secondary>summary b{font-size:13px}.secondary>summary small{display:block;font-size:10px;color:#9aa9bc;margin-top:2px;font-weight:500}.secondary>summary::after{content:'⌄';font-size:19px;color:#8a9eba;line-height:1}.secondary[open]>summary::after{transform:rotate(180deg)}.secondary[open]>summary{border-bottom:1px solid #e9eef5}.secondary-body{padding:15px 19px 20px}.analysis-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}.analysis-card{border:1px solid #e7edf6;border-radius:12px;padding:13px;background:#fafcff}.analysis-title{font-size:12px;font-weight:800}.analysis-total{font-size:22px;font-weight:850;letter-spacing:-.03em}.rank{display:flex;justify-content:space-between;align-items:center;gap:8px;border-top:1px solid #e8eef6;font-size:10px;padding:8px 0}.rank:first-child{margin-top:9px}.rank strong{color:#345479}.rank .bad{color:var(--red)}.analysis-empty{font-size:11px;color:#95a3b5;padding-top:8px}.history-filters{display:grid;grid-template-columns:1fr 1fr 1.1fr;gap:9px;margin-bottom:10px}.history-row{padding:11px 0;border-bottom:1px solid #ecf1f7;display:flex;align-items:center;justify-content:space-between;gap:12px}.history-row:last-child{border-bottom:0}.history-row b{font-size:12px}.history-row p{color:#8b9bb1;font-size:10px;margin:3px 0}.history-row .btn{flex:none}.review-overlay[hidden]{display:none!important}.review-overlay{position:fixed;inset:0;background:#0d1c38a8;z-index:200;display:grid;place-items:center;padding:14px;backdrop-filter:blur(4px)}.review-dialog{width:min(810px,100%);max-height:90dvh;overflow:auto;border-radius:17px;background:white;box-shadow:0 30px 80px #07172d50}.review-dialog-head{position:sticky;top:0;z-index:1;background:#fff;border-bottom:1px solid #e7edf5;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:16px 19px}.review-dialog-head h2{font-size:17px;margin:0}.review-dialog-body{padding:17px 19px 23px}.review-note{padding:12px 13px;background:#f5f9ff;border:1px solid #e1eaf7;border-radius:10px;white-space:pre-wrap;font-size:11px;color:#446380;margin:11px 0}.review-facts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}.review-facts>div{padding:11px;background:#fafcff;border:1px solid #e7eef7;border-radius:9px;text-align:center}.review-facts b{font-size:23px;display:block}.review-facts small{font-size:10px;color:#8395ab}.review-items{max-height:310px;overflow:auto;padding:5px 12px;border:1px solid #e6edf5;border-radius:10px}.toast{position:fixed;bottom:20px;right:20px;z-index:250;max-width:min(420px,calc(100vw - 30px));padding:13px 15px;box-shadow:0 15px 38px #102a4b30;background:#eafaf1;border:1px solid #c7ebd9;border-radius:12px;color:#166c4a;font-size:12px;font-weight:720;display:none;line-height:1.5}.toast.show{display:block}.toast.error{color:#a8273d;background:#fff1f3;border-color:#f5c6d1}.footer{text-align:center;font-size:10px;color:#acb7c7;margin-top:22px}
+    @media(max-width:1050px){.main-grid{grid-template-columns:1fr}.analysis-grid{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:720px){.container{padding:17px 12px 45px}.topbar-in{padding:10px 12px}.brand b{font-size:11px}.brand small{font-size:9px}.intro{align-items:stretch;flex-direction:column;gap:12px}.intro-actions{justify-content:flex-start}.intro-actions .btn{width:100%}.filters-grid{grid-template-columns:1fr 1fr}.metrics{gap:8px}.metric{padding:12px 11px}.metric strong{font-size:25px}.metric .m-icon{display:none}.surface-head{padding:15px 14px 12px}.surface-body{padding:0 14px 16px}.handover-count strong{font-size:20px}.analysis-grid{grid-template-columns:1fr}.topbar-actions{gap:6px}.topbar-link{font-size:10px}.sync-note{display:none}}
+    @media(max-width:470px){.brand-mark{display:none}.topbar-actions #sho-connection{max-width:105px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.filters{padding:13px 12px}.people-row{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(3,1fr)}.metric .m-label{font-size:10px}.metric strong{font-size:21px}.metric small{font-size:9px}.handover-count span{font-size:9px}.history-filters{grid-template-columns:1fr 1fr}.history-filters .field:last-child{grid-column:1/-1}.history-row{align-items:flex-start}.history-row .btn{padding:6px 8px}.review-facts b{font-size:19px}}
+    @media print{.topbar,.intro-actions,.filters,.secondary,.btn,.toast,.footer,.filter-tabs,.more-wrap,.optional-note summary{display:none!important}body{background:white}.container{padding:0}.surface,.metric{box-shadow:none;break-inside:avoid}.main-grid{grid-template-columns:1fr}.intro h1{font-size:24px}.main-grid>.surface:last-child{margin-top:10px}.optional-note:not([open])>div{display:none}}
+  </style>
+  <script src="sidebar.js" defer></script>
+</head>
+<body>
+  <header class="topbar"><div class="topbar-in">
+    <div class="brand"><button type="button" data-kobe-sidebar-toggle aria-label="Buka navigasi"></button><span class="brand-mark">K</span><span><b>PT KOBE BOGA UTAMA</b><small>BOJONEGORO · DAILY MANAGEMENT</small></span></div>
+    <div class="topbar-actions"><span class="pill warn" id="sho-connection">Menghubungkan...</span><a class="topbar-link" href="index.html">Dashboard Utama</a></div>
+  </div></header>
+  <main class="container">
+    <section class="intro"><div><div class="eyebrow">Shift Hand Over · SHO</div><h1>Monitoring & Serah Terima Shift</h1><p>Operator mencatat kejadian selama shift. Team Leader meninjau hasil dan melakukan handover.</p></div><div class="intro-actions"><button id="open-input" type="button" class="btn btn-primary">+ Input Kejadian Operator</button></div></section>
+    <div class="toast" id="notice" role="status" aria-live="polite"></div>
 
-/* Downtime per gedung: ringkasan dan Top 5 mesin berdasarkan durasi */
-.downtime-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
-.downtime-building{border:1px solid #e1e9f5;background:linear-gradient(155deg,#fff 0%,#f9fbff 100%);border-radius:16px;padding:17px;min-width:0}
-.downtime-building-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:13px}
-.downtime-building h3{margin:0;font-size:14px;letter-spacing:-.015em;color:#253955}
-.downtime-total{font-size:25px;font-weight:850;letter-spacing:-.04em;line-height:1.2;color:#1a458c;margin-top:4px}
-.downtime-total small{font-size:11px;letter-spacing:0;font-weight:750;color:#7d8fa9}
-.downtime-count{color:#8c9db0;font-size:10px;margin-top:2px}
-.downtime-building-number{border-radius:10px;background:#edf4ff;border:1px solid #dce9fb;color:#1c63bc;font-size:11px;font-weight:850;padding:6px 9px;white-space:nowrap}
-.downtime-rank-heading{font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-weight:850;color:#8393a9;margin:0 0 8px}
-.downtime-ranking{display:grid;gap:7px}
-.downtime-rank{border:1px solid #e5ebf4;border-radius:11px;background:#fff;padding:10px 11px}
-.downtime-rank.top-three{background:#fff5f6;border-color:#f4cdd3}
-.downtime-rank-top{display:grid;grid-template-columns:24px minmax(0,1fr) auto;align-items:center;gap:8px}
-.downtime-position{display:grid;place-items:center;width:23px;height:23px;border-radius:7px;background:#ebf2fc;color:#3761a0;font-size:11px;font-weight:900}
-.downtime-rank.top-three .downtime-position{background:#d92b3a;color:white}
-.downtime-machine{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;color:#2a3d58;font-size:11px;font-weight:800}
-.downtime-rank.top-three .downtime-machine,.downtime-rank.top-three .downtime-minutes{color:#b82235}
-.downtime-minutes{color:#315682;font-size:11px;font-weight:850;white-space:nowrap}
-.downtime-track{height:5px;border-radius:99px;background:#e9eff7;overflow:hidden;margin:8px 0 0 32px}
-.downtime-bar{height:100%;background:#3479d1;border-radius:99px}
-.downtime-rank.top-three .downtime-bar{background:#d92b3a}
-.downtime-occurrences{margin:4px 0 0 32px;color:#8b9bb0;font-size:9px}
-.downtime-empty{padding:19px 12px;border-radius:11px;border:1px dashed #d8e2f1;background:#fff;color:#8496ac;font-size:11px;text-align:center}
-.downtime-filter-note{font-size:10px;font-weight:750;color:#617795;background:#edf4ff;border:1px solid #dce9fb;border-radius:999px;padding:6px 10px}
-@media(max-width:1120px){.downtime-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:740px){.downtime-grid{grid-template-columns:1fr}.downtime-building{padding:14px}.downtime-filter-note{font-size:9px}}
+    <section class="surface filters" aria-label="Filter monitoring"><div class="filters-bar"><strong>Periode & Area Kerja</strong><div style="display:flex;align-items:center;gap:9px"><span id="last-sync" class="sync-note">Sinkron otomatis</span><button id="refresh" type="button" class="btn btn-quiet btn-small">↻ Perbarui</button></div></div>
+      <div class="filters-grid"><div class="field"><label for="tanggal">Tanggal</label><input id="tanggal" type="date"></div><div class="field"><label for="shift">Shift</label><select id="shift"><option value="">Semua shift</option><option value="1">Shift 1</option><option value="2">Shift 2</option><option value="3">Shift 3</option></select></div><div class="field"><label for="gedung">Gedung</label><select id="gedung"><option value="">Semua gedung</option><option value="4">Gedung 4</option><option value="6">Gedung 6</option><option value="7">Gedung 7</option></select></div>
+      <div class="field"><label id="machine-filter-label">Mesin <span style="color:#96a7b9;font-weight:500">(opsional)</span></label><div class="machine-picker" id="machine-picker"><button type="button" class="machine-trigger" id="machine-trigger" aria-expanded="false" aria-haspopup="true" aria-labelledby="machine-filter-label machine-trigger"><span id="machine-trigger-text">Semua mesin</span><span aria-hidden="true">⌄</span></button><div class="machine-menu" id="machine-menu" hidden><div class="machine-menu-head"><strong>Filter mesin</strong><button type="button" class="btn btn-plain" id="machine-clear">Semua mesin</button></div><div class="machine-options" id="machine-options"></div><div class="machine-menu-foot"><button type="button" class="btn btn-quiet btn-small" id="machine-all">Pilih semua</button><button type="button" class="btn btn-primary btn-small" id="machine-done">Selesai</button></div></div></div></div></div>
+      <p class="filter-hint">Tanpa memilih mesin, ringkasan dan handover mencakup seluruh gedung.</p>
+    </section>
 
-@media(max-width:1050px){.layout{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}.grid-filters{grid-template-columns:repeat(3,minmax(0,1fr))}}
-@media(max-width:740px){.wrap{padding:16px 12px 42px}.head{height:63px}.head-in{padding:0 13px}.brand b{font-size:12px}.brand small{font-size:8px}.mark{width:35px;height:35px;flex-basis:35px;font-size:16px}.head-actions .pill{display:none}.hero{padding:22px 18px;border-radius:19px;flex-direction:column;align-items:stretch}.hero h1{font-size:29px}.hero-right{display:flex;justify-content:flex-start;min-width:0}.hero-right .btn{width:100%}.grid-filters{grid-template-columns:repeat(2,minmax(0,1fr))}.grid-ctx{grid-template-columns:repeat(2,minmax(0,1fr))}.card-title{padding:14px 15px}.card-body{padding:15px}.stats{gap:8px}.stat{padding:12px}.stat strong{font-size:25px}.event{grid-template-columns:26px minmax(0,1fr);gap:8px}.event-end{grid-column:2;justify-content:flex-start;max-width:none}.review-rows{gap:5px}.review-rows>div{padding:9px}.review-rows b{font-size:20px}}
-@media(max-width:480px){.grid-ctx{grid-template-columns:1fr}.form-row{grid-template-columns:1fr}.cat-btns{gap:4px}.cat-btn{font-size:17px;padding:8px 2px}.cat-btn small{font-size:8px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.grid-filters{grid-template-columns:1fr 1fr}.grid-filters .field:nth-child(4),.grid-filters .field:nth-child(5){grid-column:auto}.head-actions .btn-sm{padding:7px 9px}.stat small{font-size:9px}}
-@media print{.head,.head-actions,.hero-right,.no-print,.btn,.filters,.footer{display:none!important}body{background:white}.wrap{max-width:none;padding:0}.card,.stat{box-shadow:none;break-inside:avoid}.hero{background:white!important;color:#1d355b;box-shadow:none;padding:0 0 10px;border-bottom:2px solid #0e5ac6}.hero p,.hero .eyebrow{color:#536b8d}.print-only{display:block}.layout{display:block}.layout>div{margin-bottom:12px}.event-end{display:none}}
+    <section class="metrics" aria-label="Ringkasan shift"><div class="surface metric"><div><span class="m-label">Kejadian Tercatat</span><strong id="kpi-issue">0</strong><small>Input operator pada periode</small></div><span class="m-icon" aria-hidden="true">▤</span></div><div class="surface metric"><div><span class="m-label">Downtime Selesai</span><strong id="kpi-downtime">0</strong><small>Menit · <span id="kpi-ongoing">0 masih berlangsung</span></small></div><span class="m-icon" aria-hidden="true">◷</span></div><div class="surface metric metric-danger"><div><span class="m-label">Outstanding</span><strong id="kpi-open">0</strong><small>Perlu ditindaklanjuti</small></div><span class="m-icon" aria-hidden="true">!</span></div></section>
 
-/* Indikator status tetap terlihat di layar kecil. */
-#sho-connection{display:inline-flex!important;white-space:nowrap;font-size:10px}
-@media(max-width:740px){#sho-connection{font-size:9px;padding:5px 7px}.head-actions{gap:5px}}
+    <div class="main-grid">
+      <section class="surface" id="handover-review" aria-labelledby="handover-heading"><div class="surface-head"><div><h2 id="handover-heading">Serah Terima Shift</h2><p>TL cukup meninjau outstanding dan mengisi nama penerima.</p></div><span class="status open" id="review-status">Belum diserahkan</span></div><div class="surface-body">
+        <div class="handover-scope"><span id="handover-context-label">Pilih tanggal, shift, dan gedung</span></div>
+        <div id="review-prereq" class="scope-warning">Pilih satu shift dan satu gedung di atas untuk melakukan handover.</div>
+        
+        <div id="previous-handover-body" class="previous-mini none">Catatan shift sebelumnya akan tampil di sini.</div>
+        <div class="focus-head" id="pending-heading"><span class="section-title">Untuk shift berikutnya</span><span class="pending-flag" id="open-count-chip" hidden>0 outstanding</span></div>
+        <div id="handover-pending" aria-live="polite"></div>
+        <div class="divider"></div>
+        <div class="people-row"><div class="field"><label for="tl-sender">TL Penyerah *</label><input id="tl-sender" autocomplete="off" maxlength="100" placeholder="Nama TL shift ini" required></div><div class="field"><label for="tl-receiver">TL Penerima *</label><input id="tl-receiver" autocomplete="off" maxlength="100" placeholder="Nama TL shift berikutnya" required></div></div>
+        <details class="optional-note" id="handover-note-details"><summary>+ Catatan tambahan (opsional)</summary><div><textarea id="handover-notes" maxlength="650" placeholder="Tulis arahan tambahan jika diperlukan..."></textarea></div></details>
+        <div class="handover-actions"><button type="button" id="finalize" class="btn btn-green">Serahkan ke Shift Berikutnya</button></div>
+        <p class="feedback" id="review-feedback">Catatan dan outstanding akan ikut tersimpan sebagai riwayat handover.</p>
+      </div></section>
 
-/* Review serah terima antar-shift: tampilan ringkas dan detail read-only. */
-.prev-shift-grid{display:grid;gap:10px}
-.prev-shift-record{border:1px solid #e3eaf4;background:#fbfdff;border-radius:13px;padding:13px}
-.prev-shift-record .row{align-items:start}
-.prev-shift-record b,.history-item b{font-size:12px;color:#193052}
-.prev-shift-record .minor{margin-top:3px}
-.prev-shift-note{font-size:11px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere;margin:9px 0;color:#4e647f;background:#f0f6ff;padding:10px 12px;border-radius:9px;border-left:3px solid #5286d4}
-.prev-shift-record .chips{margin:7px 0 0}
-.history-controls{display:grid;grid-template-columns:1fr 1fr 1.3fr;gap:8px;margin-bottom:13px}
-.history-controls label{display:block;font-size:10px;font-weight:780;color:#70849e;margin-bottom:4px}
-.history-controls select,.history-controls input{padding:8px 9px;font-size:11px;border-radius:9px}
-.history-item{display:flex;justify-content:space-between;align-items:center;gap:12px;border-bottom:1px solid #edf1f6;padding:14px 0}
-.history-item:first-child{padding-top:3px}.history-item:last-child{border-bottom:0}
-.history-item-text{min-width:0;overflow-wrap:anywhere}.history-item .muted{margin:4px 0;font-size:10px}
-.history-item .status{display:inline-flex;margin-top:5px}
-.history-item button{flex:0 0 auto;white-space:nowrap}
-.review-overlay[hidden]{display:none!important}
-.review-overlay{position:fixed;inset:0;z-index:200;background:rgba(14,30,56,.66);display:grid;place-items:center;padding:16px;backdrop-filter:blur(5px)}
-.review-dialog{width:min(790px,100%);max-height:min(91dvh,900px);overflow:auto;background:#fff;border:1px solid #dbe5f0;border-radius:20px;box-shadow:0 28px 75px rgba(7,22,49,.32)}
-.review-dialog-header{position:sticky;top:0;z-index:1;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:18px 21px;background:#fff;border-bottom:1px solid #e5ecf5}
-.review-dialog-header h2{font-size:17px;margin:0 0 3px;letter-spacing:-.02em}.review-dialog-header p{font-size:10px;color:#8797aa;margin:0}
-.review-dialog-content{padding:19px 21px 25px}
-.review-meta{display:flex;gap:7px;flex-wrap:wrap;margin:11px 0 4px}
-.review-meta .chip{margin:0}
-.review-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:14px 0 9px}
-.review-facts>div{padding:11px;border:1px solid #e2eaf5;background:#f7faff;border-radius:12px}
-.review-facts b{display:block;font-size:23px;line-height:1.2;color:#223d66}.review-facts small{display:block;color:#8293a9;font-size:10px;margin-top:4px}
-.review-note-full{font-size:12px;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.7;padding:13px 15px;border:1px solid #dce7f6;border-radius:12px;background:#f7faff;color:#35516d}
-.review-issue-list{border:1px solid #e5ebf3;border-radius:12px;padding:4px 13px;max-height:340px;overflow:auto}
-.review-issue-list .event{grid-template-columns:27px minmax(0,1fr)}
-.review-dialog .review-sub{margin-top:15px}
-body.review-modal-open{overflow:hidden}
-@media(max-width:480px){.history-controls{grid-template-columns:1fr 1fr}.history-controls>div:last-child{grid-column:1/-1}.history-item{align-items:flex-start;flex-direction:column;gap:8px}.history-item button{width:100%}.review-overlay{padding:8px}.review-dialog{max-height:96dvh;border-radius:16px}.review-dialog-header,.review-dialog-content{padding:15px}.review-facts>div{padding:8px}.review-facts b{font-size:19px}}
-@media print{.review-overlay{display:none!important}}
-
-/* OEE SHO: angka gedung, tidak dipengaruhi pilihan mesin/work center. */
-#oee-building-list[hidden]{display:none!important}
-.oee-building-list{display:grid;gap:6px;margin-top:9px}
-.oee-building-item{display:flex;align-items:center;justify-content:space-between;gap:9px;padding:6px 8px;background:#f7faff;border:1px solid #e5edf9;border-radius:9px}
-.oee-building-name{font-size:10px;font-weight:800;color:#546784}
-.oee-building-number{font-size:12px;font-weight:850;color:#263d60;white-space:nowrap}
-.oee-building-number small{font-size:9px;color:#8897ab;font-weight:600}
-.oee-building-number.empty{color:#9aa9bb}
-
-/* Serah terima TL: alur ringkas tanpa checklist atau kolom yang berulang. */
-.handover-simple{scroll-margin-top:86px}
-.handover-simple-head small{line-height:1.4}
-.handover-simple-body{padding:18px 20px 19px}
-.handover-context-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 13px;background:#f6f9ff;border:1px solid #e0eafa;border-radius:12px}
-.handover-context-row>div{min-width:0}
-.handover-context-label{display:block;font-size:9px;color:#8595aa;font-weight:800;text-transform:uppercase;letter-spacing:.06em}
-#handover-context-label{display:block;font-size:12px;color:#253d61;line-height:1.45;margin-top:2px;overflow-wrap:anywhere}
-#choose-handover-context{white-space:nowrap;min-height:32px}
-.handover-missing{color:#a36a0c;background:#fff9ed;border:1px solid #f4e2c0;border-radius:10px;padding:10px 12px;font-size:11px;line-height:1.5;margin-top:10px}
-.handover-brief{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:11px}
-.handover-brief span{padding:10px 6px;text-align:center;background:#fbfcff;border:1px solid #e8edf5;border-radius:10px;color:#7589a3;font-size:9px;line-height:1.4}
-.handover-brief b{display:block;font-size:21px;line-height:1.2;color:#213955;letter-spacing:-.035em}
-.handover-brief b.has-open{color:#c62a39}
-.handover-pending{border:1px solid #f8d4d9;background:#fff5f6;color:#923044;padding:10px 11px;margin-top:10px;border-radius:10px;font-size:10px;line-height:1.55;overflow-wrap:anywhere}
-.handover-pending[hidden]{display:none}
-.handover-more{margin:11px 0 0;border:1px solid #e5ecf5;border-radius:11px;background:#fff;overflow:hidden}
-.handover-more summary{display:flex;align-items:center;justify-content:space-between;gap:8px;list-style:none;cursor:pointer;padding:11px 12px;color:#376296;font-size:11px;font-weight:800}
-.handover-more summary::-webkit-details-marker{display:none}
-.handover-more summary::after{content:'⌄';font-size:17px;font-weight:600;line-height:1;transition:transform .2s}
-.handover-more[open] summary::after{transform:rotate(180deg)}
-.handover-more[open] summary{border-bottom:1px solid #e8edf5;background:#f8fbff}
-.handover-more-body{display:grid;gap:8px;padding:11px 12px}
-.handover-more-body>b{font-size:10px;color:#7185a0}
-.handover-more-body .summary-text{padding:10px 11px;font-size:11px}
-.handover-person-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
-.handover-person-fields .field label{font-size:11px;color:#36506e}
-.handover-person-fields input{padding:11px 12px;min-height:43px}
-.handover-required{color:#d92b3a}
-.handover-note-option{margin-top:10px}
-.handover-note-option .field{padding:12px}
-.handover-note-option textarea{min-height:80px}
-.handover-save{display:flex;width:100%;margin-top:15px;min-height:45px;border-radius:11px;font-size:12px}
-.handover-footer-actions{margin-top:10px;display:flex;justify-content:space-between;align-items:center;gap:10px}
-.handover-footer-actions #review-feedback{flex:1;font-size:9px;line-height:1.45;overflow-wrap:anywhere}
-.handover-print{flex:0 0 auto;border:0;background:transparent;color:#607e9f;padding:6px;font-size:10px;font-weight:750;text-decoration:underline;text-underline-offset:3px}
-.handover-print:hover{color:#1268e8}
-@media(max-width:620px){.handover-simple-body{padding:14px}.handover-person-fields{grid-template-columns:1fr;gap:10px}.handover-brief b{font-size:19px}.handover-context-row{padding:10px;align-items:flex-start}.handover-context-row #choose-handover-context{padding:6px 9px;font-size:10px}.handover-footer-actions{align-items:flex-start}.handover-brief span{font-size:8.5px}}
-@media print{.handover-more-body{display:grid}.handover-more:not([open]) .handover-more-body{display:grid}.handover-save,.handover-print,#choose-handover-context{display:none!important}}
-</style><style id="sho-multi-machine-style">
-.filters{position:relative;z-index:30;overflow:visible!important}
-.filters .card-body{overflow:visible!important}
-.filters .grid-filters .field{position:relative;min-width:0}
-.machine-picker{position:relative;min-width:0}
-.machine-trigger{display:flex;width:100%;min-height:43px;align-items:center;justify-content:space-between;gap:10px;text-align:left;padding:9px 11px;border:1px solid #dce4ef;background:#fff;color:#293c59;border-radius:11px;font-size:12px;font-weight:700;cursor:pointer}
-.machine-trigger:disabled{opacity:.55;cursor:not-allowed;background:#f4f7fb}
-.machine-trigger:focus-visible,.machine-picker.open .machine-trigger{outline:none;border-color:#78a9fc;box-shadow:0 0 0 3px #1268e815}
-#machine-trigger-text{display:block;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-.machine-chevron{flex:none;color:#7b91ad;font-size:20px;line-height:1}
-.machine-menu{position:absolute;top:calc(100% + 6px);right:0;z-index:150;width:max(100%,310px);max-width:min(400px,calc(100vw - 28px));border:1px solid #dce6f4;border-radius:13px;background:#fff;box-shadow:0 16px 40px rgba(13,39,82,.19);overflow:hidden}
-.machine-menu[hidden]{display:none!important}
-.machine-menu-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 12px 9px;border-bottom:1px solid #edf1f6}
-.machine-menu-toolbar b{font-size:10px;color:#415b7a}
-.machine-menu-toolbar button{border:0;background:none;color:#1766c9;font-size:10px;font-weight:800;cursor:pointer;padding:3px}
-.machine-options{max-height:260px;overflow:auto;padding:6px}
-.machine-option{display:flex;align-items:center;gap:9px;padding:9px;border-radius:8px;color:#40566f;font-size:11px;font-weight:700;cursor:pointer}
-.machine-option:hover{background:#eff5ff}
-.machine-option input{width:17px;height:17px;min-width:17px;margin:0;accent-color:#1268e8;cursor:pointer}
-.machine-menu-footer{display:flex;justify-content:space-between;gap:8px;padding:9px 11px;border-top:1px solid #edf1f6;background:#f8fbff}
-@media(max-width:740px){.machine-menu{right:0;width:max(100%,290px)}.machine-options{max-height:40vh}}
-</style><script src="sidebar.js" defer></script></head><body><header class="head"><div class="head-in"><div class="brand"><button type="button" data-kobe-sidebar-toggle aria-label="Buka menu navigasi"></button><span><b>PT KOBE BOGA UTAMA</b><small>BOJONEGORO · SHIFT HAND OVER</small></span></div><div class="head-actions"><span id="sho-connection" class="pill warn">Supabase: menghubungkan...</span><a class="btn btn-soft btn-sm" href="index.html">Dashboard</a></div></div></header><main class="wrap">
-<section class="hero"><div><div class="eyebrow">DAILY MANAGEMENT SYSTEM · SQCDP</div><h1>Shift Hand Over</h1><p>Satu halaman untuk memantau seluruh catatan Team Leader, menangani outstanding, dan mereview hasil akhir shift.</p></div><div class="hero-right"><button id="open-input" class="btn btn-white" type="button">＋ Form Input TL</button><small id="last-sync">Sinkronisasi otomatis setiap 15 detik</small></div></section>
-<div id="notice" class="notice" role="status" aria-live="polite"></div>
-<div class="card filters no-print" style="margin-bottom:17px"><div class="card-title"><div><b>Filter Monitoring</b><small>Pilih periode dan area untuk melihat output yang akan direview</small></div><button class="btn btn-quiet btn-sm" id="refresh" type="button">↻ Muat Ulang</button></div><div class="card-body"><div class="grid-filters"><div class="field"><label for="tanggal">Tanggal</label><input id="tanggal" type="date"></div><div class="field"><label for="shift">Shift</label><select id="shift"><option value="">Semua shift</option><option value="1">Shift 1</option><option value="2">Shift 2</option><option value="3">Shift 3</option></select></div><div class="field"><label for="gedung">Gedung</label><select id="gedung"><option value="">Semua gedung</option><option value="4">Gedung 4</option><option value="6">Gedung 6</option><option value="7">Gedung 7</option></select></div><div class="field"><label id="machine-filter-label">Mesin / Work Center</label>
-  <div id="machine-picker" class="machine-picker">
-    <button id="machine-trigger" type="button" class="machine-trigger" aria-haspopup="true" aria-expanded="false" aria-labelledby="machine-filter-label machine-trigger"><span id="machine-trigger-text">Pilih gedung dahulu</span><span class="machine-chevron">⌄</span></button>
-    <div id="machine-menu" class="machine-menu" hidden>
-      <div class="machine-menu-toolbar"><b>Pilih satu atau beberapa mesin</b><button id="machine-clear" type="button">Bersihkan</button></div>
-      <div id="machine-options" class="machine-options"></div>
-      <div class="machine-menu-footer"><button id="machine-all" type="button" class="btn btn-quiet btn-sm">Pilih semua</button><button id="machine-done" type="button" class="btn btn-primary btn-sm">Selesai</button></div>
+      <section class="surface" id="incident-panel"><div class="surface-head"><div><h2>Catatan Kejadian Operator</h2><p>Seluruh input untuk area dan periode yang dipilih.</p></div><span id="list-count" class="pill">0 kejadian</span></div><div class="surface-body"><div id="status-toggle" class="filter-tabs"><button type="button" data-status="all" class="active">Semua</button><button type="button" data-status="Open">Open</button><button type="button" data-status="In Progress">In Progress</button><button type="button" data-status="Closed">Closed</button></div><div id="issue-list"></div><div class="more-wrap"><button type="button" id="show-more-issues" class="btn btn-quiet btn-small" hidden>Lihat semua kejadian</button></div></div></section>
     </div>
-  </div><select id="mesin" class="hide" tabindex="-1" aria-hidden="true"><option value="">Semua mesin</option></select></div></div></div></div>
-<div class="stats"><div class="stat"><label>Issue pada Periode</label><strong id="kpi-issue">0</strong><small>Catatan SQCDP tersimpan</small></div><div class="stat"><label>Total Downtime TL</label><strong id="kpi-downtime">0</strong><small>Menit selesai · mesin berhenti Ya</small><small id="kpi-ongoing" style="display:block;margin-top:5px">0 downtime berlangsung</small></div><div class="stat"><label>Outstanding</label><strong id="kpi-open" class="red">0</strong><small>Open / In Progress di line</small></div><div class="stat" id="oee-gedung-card"><label>OEE Gedung / Target</label><strong id="kpi-oee" style="font-size:21px;white-space:nowrap">— / —</strong><div id="oee-building-list" class="oee-building-list" hidden></div><small id="oee-note">Otomatis dari OEE Monitoring</small></div></div>
 
-<section class="card" id="downtime-monitor" aria-labelledby="downtime-heading" style="margin-bottom:18px">
-  <div class="card-title">
-    <div><b id="downtime-heading">Downtime per Gedung</b><small>Top 5 berdasarkan menit mesin berhenti (semua kategori SQCDP). Peringkat 1–3 merah.</small></div>
-    <span class="downtime-filter-note" id="downtime-scope">Sesuai filter monitoring</span>
-  </div>
-  <div class="card-body"><div class="downtime-grid" id="downtime-by-gedung"></div></div>
-</section>
-<div class="layout"><div class="stack"><section class="card"><div class="card-title"><div><b>Live Issue Log</b><small>Seluruh input Team Leader ditampilkan sesuai filter</small></div><div class="sqcdp" id="category-totals"></div></div><div class="card-body"><div class="row no-print" style="margin-bottom:12px"><div class="toggle" id="status-toggle"><button class="active" type="button" data-status="all">Semua</button><button type="button" data-status="Open">Open</button><button type="button" data-status="In Progress">In Progress</button><button type="button" data-status="Closed">Closed</button></div><span class="muted" id="list-count">0 catatan</span></div><div id="issue-list"></div></div></section><section class="card"><div class="card-title"><div><b>Outstanding Antar-Shift</b><small>Issue belum selesai, tetap terbawa ke shift berikutnya</small></div><span id="open-count-chip" class="pill warn">0 outstanding</span></div><div class="card-body" id="open-list"></div></section></div>
-<div class="stack">
-<section class="card" id="handover-previous"><div class="card-title"><div><b>Informasi Shift Sebelumnya</b><small>Catatan dari Team Leader sebelumnya untuk ditindaklanjuti pada shift ini</small></div><span id="previous-shift-label" class="pill">Pilih shift</span></div><div class="card-body" id="previous-handover-body"><div class="empty">Pilih tanggal dan shift untuk melihat catatan handover sebelumnya.</div></div></section>
-<section class="card handover-simple" id="handover-review">
-  <div class="card-title handover-simple-head">
-    <div><b>Serah Terima Shift</b><small>Periksa ringkasan, isi nama TL, lalu simpan</small></div>
-    <span id="review-status" class="status open">Belum final</span>
-  </div>
-  <div class="card-body handover-simple-body">
-    <div class="handover-context-row">
-      <div>
-        <small class="handover-context-label">Shift yang diserahkan</small>
-        <strong id="handover-context-label">Belum dipilih</strong>
-      </div>
-      <button id="choose-handover-context" class="btn btn-soft btn-sm no-print" type="button">Ubah pilihan</button>
-    </div>
-    <div id="review-prereq" class="handover-missing" role="status">Pilih tanggal, shift, gedung, dan mesin pada Filter Monitoring terlebih dahulu.</div>
-    <div class="handover-brief" aria-label="Ringkasan shift">
-      <span><b id="rev-issue">—</b> Issue</span>
-      <span><b id="rev-downtime">—</b> Menit downtime</span>
-      <span><b id="rev-out">—</b> Belum selesai</span>
-    </div>
-    <div class="handover-pending" id="handover-pending" hidden><b>Perlu diteruskan:</b> <span id="handover-pending-text"></span></div>
-    <details class="handover-more" id="handover-details">
-      <summary>Lihat detail issue dan outstanding</summary>
-      <div class="handover-more-body">
-        <b>Ringkasan SQCDP</b>
-        <div id="review-summary" class="summary-text">Pilih shift untuk melihat ringkasan.</div>
-        <b>Untuk shift berikutnya</b>
-        <div id="review-open" class="summary-text">Pilih shift untuk melihat outstanding.</div>
-      </div>
-    </details>
-    <div class="handover-person-fields">
-      <div class="field"><label for="tl-sender">TL Penyerah <span class="handover-required">*</span></label><input id="tl-sender" placeholder="Nama TL saat ini" maxlength="100" autocomplete="off" required></div>
-      <div class="field"><label for="tl-receiver">TL Penerima <span class="handover-required">*</span></label><input id="tl-receiver" placeholder="Nama TL shift berikutnya" maxlength="100" autocomplete="off" required></div>
-    </div>
-    <details class="handover-more handover-note-option" id="handover-note-details">
-      <summary>+ Tambah catatan (opsional)</summary>
-      <div class="field"><label for="handover-notes">Pesan untuk shift berikutnya</label><textarea id="handover-notes" placeholder="Misalnya: mesin perlu dicek, prioritas perbaikan, atau tindakan lanjutan..." maxlength="1500"></textarea></div>
-    </details>
-    <button id="finalize" class="btn btn-green handover-save" type="button">Simpan Serah Terima</button>
-    <div class="handover-footer-actions"><span id="review-feedback" class="minor" role="status">Tersimpan sebagai riwayat yang dapat dibaca shift berikutnya.</span><button id="print" class="handover-print no-print" type="button">Cetak / PDF</button></div>
-  </div>
-</section><section class="card"><div class="card-title"><div><b>Riwayat Serah Terima</b><small>Lihat detail dan catatan seluruh handover antar-shift</small></div></div><div class="card-body"><div class="history-controls no-print"><div><label for="history-building">Gedung</label><select id="history-building"><option value="">Semua gedung</option><option value="4">Gedung 4</option><option value="6">Gedung 6</option><option value="7">Gedung 7</option></select></div><div><label for="history-shift">Shift</label><select id="history-shift"><option value="">Semua shift</option><option value="1">Shift 1</option><option value="2">Shift 2</option><option value="3">Shift 3</option></select></div><div><label for="history-date">Tanggal (opsional)</label><input id="history-date" type="date" /></div></div><div id="handover-history"></div><button type="button" id="history-more" class="btn btn-quiet btn-sm hide" style="margin-top:12px;width:100%">Tampilkan riwayat lainnya</button></div></section></div></div>
-<div class="footer">KOBE · SHIFT HAND OVER · SQCDP · BOJONEGORO<br><small>Data SHO terpusat di Supabase; status koneksi tampil di atas.</small></div>
-</main>
-<div class="review-overlay" id="review-overlay" role="presentation" hidden><section class="review-dialog" role="dialog" aria-modal="true" aria-labelledby="review-modal-heading" tabindex="-1"><div class="review-dialog-header"><div><h2 id="review-modal-heading">Detail Serah Terima</h2><p>Arsip finalisasi handover · hanya baca</p></div><button type="button" id="review-close" class="btn btn-quiet btn-sm" aria-label="Tutup detail review">✕ Tutup</button></div><div class="review-dialog-content" id="review-modal-content"></div></section></div>
-<script>
-'use strict';
-const BASE='https://bmnhtxalfsfaefacgtpm.supabase.co';
-const KEY='sb_publishable_VItBKenz-q2sYz7MsibODA_nYtLXv9Q';
-const MASTER={"4":[{"mesin":["SW 39","SW 40","SW 41","SW 42","SW 43","SW 44","SW 45","SW 46"],"sku":["BonCabe Cakar Naga LV15 25g","BonCabe Cakar Naga LV15 60g","Cakar Naga Jagung Bakar 23g","Cakar Naga Rumput Laut 23g","Cakar Naga Sapi Panggang 23g"]}],"6":[{"mesin":["BP 22","BP 23","BP 24"],"sku":["BonCabe Makaroni LV15 27g","BonCabe Makaroni LV10 27g","BonCabe Makaroni Keju LV2 27g"]},{"mesin":["CF 01","CF 02","CF 04","CF 05","CF 06","CF 08","CF 12","CF 13","CF 14","CF 15","CF 16","CF 17","CF 19","CF 20"],"sku":["BonCabe Makaroni LV15 27g","BonCabe Makaroni LV10 27g","BonCabe Makaroni LV50 20g","BigPuff Balado BBQ 13g","BonCabe Makaroni LV15 135g","BonCabe Makaroni LV10 135g","BonCabe Makaroni Keju LV2 135g","BigPuff LV0 13g"]},{"mesin":["Boato"],"sku":["BonCabe LV10 5,5g","BonCabe LV15 5,5g","BonCabe LV30 4,5g"]}],"7":[{"mesin":["SW 32","SW 33","SW 34","SW 35","SW 36","SW 37"],"sku":["BonCabe Kulit Pangsit LV10 27g","BonCabe Kulit Pangsit LV10 70g","BonCrispy Ubi Balado 20g","BonCrispy Ubi Original 20g","Kulit Pangsit Rumput Laut 27g","Kulit Pangsit Ayam Panggang 27g","Kulit Pangsit Rumput Laut 70g","Kulit Pangsit Ayam Panggang 70g"]},{"mesin":["SW 38"],"sku":["SBM LV15 10g","BCMK LV0 10g"]},{"mesin":["BOOSTAR 25","BOOSTAR 26","BOOSTAR 27","BOOSTAR 28","BOOSTAR 29"],"sku":["BonCabe Mi Krispi LV15 16g","BonCrispy Mi Krispi LV0 16g"]},{"mesin":["BOOSTAR 30","BOOSTAR 31"],"sku":["Mi BonCabe Chili Oil LV15 60g","BonChili Instant Noodle LV15 105g","Bali Bulan Noodles 200g","Wonton Noodles 200g","BonChili Instant Noodle LV10 105g"]}]};
-const $=id=>document.getElementById(id),esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const storeKeys={ctx:'kobe_sho_quick_context_v1',issues:'kobe_sho_quick_issues_v1',reviews:'kobe_sho_quick_reviews_v1',checkins:'kobe_sho_quick_checkins_v1',auth:'kobe_sho_quick_auth_v1'};
-const read=(key,fallback)=>{try{return JSON.parse(localStorage.getItem(storeKeys[key]))??fallback}catch{return fallback}};
-const write=(key,value)=>{try{localStorage.setItem(storeKeys[key],JSON.stringify(value));return true}catch{return false}};
-const clean=x=>String(x??'').trim(),norm=x=>clean(x).toUpperCase().replace(/\s+/g,' ');
-const id=()=>((typeof crypto!=='undefined'&&crypto.randomUUID)?crypto.randomUUID():null)||'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return(c==='x'?r:(r&3|8)).toString(16)});
-const today=()=>{const x=new Date();return [x.getFullYear(),String(x.getMonth()+1).padStart(2,'0'),String(x.getDate()).padStart(2,'0')].join('-')};
-const dt=s=>{const x=new Date(s);return Number.isNaN(x.getTime())?clean(s):x.toLocaleString('id-ID',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})};
-const n=x=>Number(x||0).toLocaleString('id-ID',{maximumFractionDigits:2});
-const cats={S:'Safety',Q:'Quality',C:'Cost',D:'Delivery',P:'People'};
-const state={ctx:read('ctx',{}),issues:[],reviews:[],checkins:[],oee:{actual:null,target:null,note:'Menunggu data OEE Admin'},online:false};
-const sameLine=(a,b)=>!!(a&&b&&a.gedung&&b.gedung&&a.gedung===b.gedung&&(a.mesin&&b.mesin?norm(a.mesin)===norm(b.mesin):a.line&&b.line&&norm(a.line)===norm(b.line)));
-const sameShift=(a,b)=>sameLine(a,b)&&a.tanggal===b.tanggal&&Number(a.shift)===Number(b.shift);
-const hasContext=c=>!!(c.tanggal&&c.shift&&c.gedung&&getCtxMachines(c).length);
-function notify(s,err=false){const el=$('notice');if(!el)return;el.className='notice show'+(err?' error':'');el.textContent=s;}
+    <details class="surface secondary" id="downtime-analysis"><summary><span><b>Analisis Downtime per Gedung</b><small>Top 5 mesin berdasarkan durasi downtime selesai</small></span></summary><div class="secondary-body"><div id="downtime-by-gedung" class="analysis-grid"></div></div></details>
+    <details class="surface secondary" id="handover-history-section"><summary><span><b>Riwayat Serah Terima</b><small>Arsip handover, dikelompokkan per gedung dan shift</small></span></summary><div class="secondary-body"><div class="history-filters"><div class="field"><label for="history-building">Gedung</label><select id="history-building"><option value="">Semua gedung</option><option value="4">Gedung 4</option><option value="6">Gedung 6</option><option value="7">Gedung 7</option></select></div><div class="field"><label for="history-shift">Shift</label><select id="history-shift"><option value="">Semua shift</option><option value="1">Shift 1</option><option value="2">Shift 2</option><option value="3">Shift 3</option></select></div><div class="field"><label for="history-date">Tanggal (opsional)</label><input id="history-date" type="date"></div></div><div id="handover-history"></div><div class="more-wrap"><button type="button" id="history-more" class="btn btn-quiet btn-small" hidden>Tampilkan riwayat lainnya</button></div></div></details>
+    <footer class="footer">KOBE · SHIFT HAND OVER · BOJONEGORO</footer>
+  </main>
 
-function options(sel,placeholder,vals,selected=''){sel.replaceChildren(new Option(placeholder,''));for(const x of vals)sel.add(new Option(x,x));sel.disabled=!vals.length;if(selected&&vals.includes(selected))sel.value=selected;}
-function machineList(g){return [...new Set((MASTER[g]||[]).flatMap(x=>x.mesin))]}
-function skusFor(g,mesin){const group=(MASTER[g]||[]).find(x=>x.mesin.some(m=>norm(m)===norm(mesin)));return group?[...new Set(group.sku)]:[]}
-function accessHeaders(auth=false){return {apikey:KEY,'Content-Type':'application/json'}}
-async function req(path,{method='GET',body=null,auth=false,authApi=false}={}){const ctrl=new AbortController(),timeout=setTimeout(()=>ctrl.abort(),11000);try{const resp=await fetch(BASE+(authApi?'/auth/v1/':'/rest/v1/')+path,{method,headers:accessHeaders(auth),signal:ctrl.signal,body:body===null?undefined:JSON.stringify(body)});if(!resp.ok)throw Error('HTTP '+resp.status+': '+(await resp.text()).slice(0,170));if(resp.status===204)return null;return await resp.json()}finally{clearTimeout(timeout)}}
+  <div class="review-overlay" id="review-overlay" hidden><section class="review-dialog" role="dialog" aria-modal="true" aria-labelledby="review-modal-heading" tabindex="-1"><div class="review-dialog-head"><h2 id="review-modal-heading">Detail Serah Terima</h2><button id="review-close" type="button" class="btn btn-quiet btn-small">Tutup ✕</button></div><div class="review-dialog-body" id="review-modal-content"></div></section></div>
 
-
-
-async function persist(table,row,update=false){
-  if(!window.SHO_API)throw Error('Koneksi Supabase belum siap. Muat ulang halaman.');
-  return window.SHO_API.save(table,row,update);
-}
-
-async function loadOee(ctx){state.oee={actual:null,target:null,note:'Belum ada laporan Admin'};if(!(ctx.tanggal&&ctx.shift&&ctx.mesin)){document.dispatchEvent(new Event('sho-oee-updated'));return}try{const rows=await req('oee_shiftly_line?select=tanggal,shift,mesin,oee,target&tanggal=eq.'+encodeURIComponent(ctx.tanggal)+'&shift=eq.'+encodeURIComponent(ctx.shift)+'&limit=600',{auth:state.online});const matched=(rows||[]).find(x=>[ctx.mesin].some(w=>w&&norm(w)===norm(x.mesin)));const parse=v=>v===null||v===undefined||v===''||!Number.isFinite(+v)?null:Number(v);state.oee={actual:matched?parse(matched.oee):null,target:matched?parse(matched.target):null,note:matched?'Dari laporan OEE Admin':'Belum ada laporan Admin untuk line/mesin ini'}}catch{state.oee.note='OEE Admin belum dapat diakses'}document.dispatchEvent(new Event('sho-oee-updated'))}
-function eventCard(e,{actions=false}={}){
-const status=e.status==='Closed'?'closed':e.status==='In Progress'?'progress':'open';
-const duration=Number(e.duration_minutes ?? e.downtime_minutes ?? 0);
-const timeLabel=e.time_start&&e.time_end?`${esc(e.time_start)}–${esc(e.time_end)}${e.time_end<e.time_start?' (+1 hari)':''}`:'';
-const stopped=isMachineStopped(e);
-const durationLabel=stopped&&ongoingMachineStop(e)?'<span class="status progress">Mesin masih berhenti</span>':
-  stopped&&issueDurationMinutes(e)>0?`<span class="chip">Downtime ${n(issueDurationMinutes(e))} menit</span>`:
-  Number.isFinite(duration)&&duration>0?`<span class="chip">Durasi issue: ${n(duration)} menit · Mesin berjalan</span>`:
-  '<span class="chip">Mesin berjalan</span>';
-return `<article class="event"><span class="sq ${esc(e.category)}">${esc(e.category)}</span><div><div class="meta">${esc(dt(e.occurred_at))} · ${esc(e.mesin)} · ${esc(e.sku)}${timeLabel?' · Jam '+timeLabel:''}</div><h4>${esc(e.problem)}</h4>${e.action?`<p><b>Action:</b> ${esc(e.action)}</p>`:''}<div class="sqcdp"><span class="status ${status}">${esc(e.status)}</span>${durationLabel}${e.pic?`<span class="chip">PIC: ${esc(e.pic)}</span>`:''}${e.priority==='High'?'<span class="status open">Prioritas tinggi</span>':''}</div></div>${actions?`<div class="event-end"><button class="btn btn-soft btn-sm" data-edit="${esc(e.id)}" type="button">Update</button></div>`:''}</article>`}
-function getCtxMachines(c){return Array.isArray(c?.mesins)?c.mesins.filter(Boolean):(c?.mesin?[c.mesin]:[])}
-function issueMatchesMachines(e,c){const selected=getCtxMachines(c);if(!selected.length)return true;const issueNames=String(e.mesin||e.line||'').split(/[,;|]/).map(norm).filter(Boolean);return selected.some(m=>issueNames.includes(norm(m)))}
-function filterIssues(ctx){return state.issues.filter(x=>(!ctx.tanggal||x.tanggal===ctx.tanggal)&&(!ctx.shift||Number(x.shift)===Number(ctx.shift))&&(!ctx.gedung||String(x.gedung)===String(ctx.gedung))&&issueMatchesMachines(x,ctx)).sort((a,b)=>clean(b.occurred_at).localeCompare(clean(a.occurred_at)))}
-function openIssues(ctx){return state.issues.filter(x=>(!ctx.gedung||String(x.gedung)===String(ctx.gedung))&&issueMatchesMachines(x,ctx)&&(!ctx.tanggal||x.tanggal<=ctx.tanggal)&&(!(ctx.tanggal&&ctx.shift&&x.tanggal===ctx.tanggal)||Number(x.shift)<=Number(ctx.shift))&&x.status!=='Closed').sort((a,b)=>(b.priority==='High'?1:0)-(a.priority==='High'?1:0)||clean(b.occurred_at).localeCompare(clean(a.occurred_at)))}
-function refreshLocal(){/* Data SHO hanya diambil dari Supabase; browser bukan database. */}
-function isHttp(){return location.protocol==='http:'||location.protocol==='https:'}
-function initStorage(){
-  state.online=false;
-  window.addEventListener('storage',e=>{
-    if(['ctx','issues','reviews','checkins'].some(k=>storeKeys[k]===e.key)) refreshLocal();
-  });
-}
-
-</script><script>
-let formWindow=null,selectedStatus='all',activeOeeReq=0,selectedMachines=[];
-const ctx=()=>({tanggal:$('tanggal').value,shift:$('shift').value,gedung:$('gedung').value,mesins:[...selectedMachines],line:selectedMachines.length===1?selectedMachines[0]:'',mesin:selectedMachines.length===1?selectedMachines[0]:''});
-function setMachineMenu(open){const picker=$('machine-picker'),menu=$('machine-menu');menu.hidden=!open;picker.classList.toggle('open',open);$('machine-trigger').setAttribute('aria-expanded',String(open));}
-function updateMachineDisplay(){
-  const g=$('gedung').value,trigger=$('machine-trigger');trigger.disabled=!g;
-  const label=!g?'Pilih gedung dahulu':!selectedMachines.length?'Semua mesin':selectedMachines.length<=2?selectedMachines.join(', '):selectedMachines.length+' mesin dipilih';
-  $('machine-trigger-text').textContent=label;
-  $('mesin').value=selectedMachines.length===1?selectedMachines[0]:'';
-  $('machine-options').querySelectorAll('input[type=checkbox]').forEach(cb=>{cb.checked=selectedMachines.includes(cb.value)});
-}
-function refreshControls(preserve={}){
-  const g=$('gedung').value,available=machineList(g);
-  const prior=Array.isArray(preserve.mesins)?preserve.mesins:(preserve.mesin?[preserve.mesin]:selectedMachines);
-  selectedMachines=[...new Set(prior.filter(v=>available.includes(v)))];
-  options($('mesin'),'Semua mesin',available,selectedMachines.length===1?selectedMachines[0]:'');
-  $('machine-options').replaceChildren();
-  for(const machine of available){const label=document.createElement('label');label.className='machine-option';const check=document.createElement('input');check.type='checkbox';check.value=machine;check.checked=selectedMachines.includes(machine);label.append(check,document.createTextNode(machine));$('machine-options').append(label)}
-  if(!available.length)setMachineMenu(false);
-  updateMachineDisplay();
-}
-function changeMachines(list){
-  const available=machineList($('gedung').value);
-  const next=[...new Set(list.filter(x=>available.includes(x)))];
-  if(JSON.stringify(next)===JSON.stringify(selectedMachines))return;
-  selectedMachines=next;updateMachineDisplay();saveFilters();
-}
-function setFilters(v){$('tanggal').value=v.tanggal||today();$('shift').value=v.shift?String(v.shift):'';$('gedung').value=v.gedung||'';refreshControls(v)}
-function saveFilters(){
-  const previous=state.ctx||{},current=ctx();
-  const prevMachines=getCtxMachines(previous).map(norm).sort().join('|');
-  const nextMachines=current.mesins.map(norm).sort().join('|');
-  const changed=['tanggal','shift','gedung'].some(k=>String(previous[k]||'')!==String(current[k]||''))||prevMachines!==nextMachines;
-  if(changed){$('tl-sender').value='';$('tl-receiver').value='';$('handover-notes').value='';$('handover-note-details').open=false;$('handover-details').open=false;}
-  state.ctx={...state.ctx,...current};write('ctx',state.ctx);render();loadOee(current);
-}
-function scoped(){return filterIssues(ctx())}
-function scopedOutstanding(){return openIssues(ctx())}
-
-
-// Mesin berhenti adalah atribut independen dari kategori SQCDP dan status action.
-// Catatan lama tanpa flag memakai kategori D, bukan semua durasi SQCDP.
-function isMachineStopped(e){
-  if(typeof e.machine_stopped==='boolean')return e.machine_stopped;
-  return norm(e.category)==='D';
-}
-function ongoingMachineStop(e){return isMachineStopped(e)&&!!e.time_start&&!e.time_end;}
-function issueDurationMinutes(e){
-  if(!isMachineStopped(e)||!e.time_end)return 0;
-  const duration=Number(e.duration_minutes);
-  if(Number.isFinite(duration)&&duration>0)return duration;
-  const fallback=Number(e.downtime_minutes);
-  return Number.isFinite(fallback)&&fallback>0?fallback:0;
-}
-function renderDowntimeByGedung(c){
-  // Top 5 hanya menggunakan mesin berhenti Ya dan durasi final yang tercatat.
-  // Status Open tidak menghapus durasi; peristiwa aktif ditampilkan terpisah.
-  const eligible=filterIssues(c);
-  const buildings=c.gedung?[String(c.gedung)]:['4','6','7'];
-  let totalAll=0;
-  const html=buildings.map(g=>{
-    const running=eligible.filter(e=>String(e.gedung)===g && ongoingMachineStop(e));
-    const list=eligible.filter(e=>String(e.gedung)===g && issueDurationMinutes(e)>0);
-    const minutes=list.reduce((sum,e)=>sum+issueDurationMinutes(e),0);
-    totalAll+=minutes;
-    const machines=new Map();
-    for(const issue of list){
-      const name=clean(issue.mesin||issue.line)||'Mesin tidak tercatat';
-      const key=norm(name);
-      if(!machines.has(key))machines.set(key,{name,minutes:0,events:0});
-      const machine=machines.get(key);
-      machine.minutes+=issueDurationMinutes(issue);
-      machine.events+=1;
-    }
-    const ranked=[...machines.values()].sort((a,b)=>b.minutes-a.minutes||b.events-a.events||a.name.localeCompare(b.name,'id')).slice(0,5);
-    const maxMinutes=ranked.length?ranked[0].minutes:1;
-    const ranks=ranked.map((m,i)=>{
-      const top=i<3;
-      const ratio=Math.max(2,Math.min(100,m.minutes/maxMinutes*100));
-      return `<div class="downtime-rank${top?' top-three':''}">
-        <div class="downtime-rank-top"><span class="downtime-position">${i+1}</span>
-          <span class="downtime-machine" title="${esc(m.name)}">${esc(m.name)}</span>
-          <strong class="downtime-minutes">${n(m.minutes)} menit</strong></div>
-        <div class="downtime-track"><div class="downtime-bar" style="width:${ratio}%"></div></div>
-        <div class="downtime-occurrences">${n(m.events)} kejadian downtime</div>
-      </div>`;
-    }).join('');
-    return `<article class="downtime-building">
-      <div class="downtime-building-head"><div><h3>Gedung ${esc(g)}</h3>
-        <div class="downtime-total">${n(minutes)} <small>menit</small></div>
-        <div class="downtime-count">${n(list.length)} kejadian · ${n(running.length)} berlangsung</div></div>
-        <span class="downtime-building-number">G${esc(g)}</span></div>
-      <div class="downtime-rank-heading">Top 5 Mesin</div>
-      <div class="downtime-ranking">${ranks||'<div class="downtime-empty">Belum ada downtime selesai pada filter ini.</div>'}</div>
-    </article>`;
-  }).join('');
-  $('downtime-by-gedung').innerHTML=html;
-  const ongoingCount=eligible.filter(ongoingMachineStop).length;
-  $('downtime-scope').textContent='Total '+n(totalAll)+' menit · '+n(ongoingCount)+' berlangsung · '+(c.shift?'Shift '+c.shift:'Semua shift');
-}
-
-
-// Arsip dan catatan sebelumnya selalu dibaca dari daftar review Supabase.
-// Filter tanggal/shift monitoring tidak membatasi riwayat antar-shift.
-let historyShown=12,reviewReturnFocus=null;
-function reviewSort(a,b){
-  return clean(b.tanggal).localeCompare(clean(a.tanggal)) || Number(b.shift||0)-Number(a.shift||0) || clean(b.reviewed_at).localeCompare(clean(a.reviewed_at));
-}
-function previousShift(c){
-  if(!c.tanggal||!c.shift)return null;
-  const shift=Number(c.shift);
-  if(![1,2,3].includes(shift))return null;
-  const day=new Date(c.tanggal+'T12:00:00');
-  if(Number.isNaN(day.getTime()))return null;
-  if(shift===1)day.setDate(day.getDate()-1);
-  return {tanggal:[day.getFullYear(),String(day.getMonth()+1).padStart(2,'0'),String(day.getDate()).padStart(2,'0')].join('-'),shift:shift===1?3:shift-1};
-}
-function matchesReviewArea(r,c){
-  return (!c.gedung||String(r.gedung)===String(c.gedung)) && (!getCtxMachines(c).length||getCtxMachines(c).some(m=>norm(r.mesin||r.line)===norm(m)));
-}
-function reviewLabel(r){return `${esc(r.tanggal)} · Shift ${esc(r.shift)} · G${esc(r.gedung)} · ${esc(r.mesin||r.line||'Mesin tidak tercatat')}`}
-function reviewIssueCount(r){return Number(r.issues_count||0)}
-function reviewOpenCount(r){return Number(r.open_count||0)}
-function reviewOpenTag(r){const v=reviewOpenCount(r);return `<span class="status ${v?'open':'closed'}">${n(v)} outstanding saat finalisasi</span>`}
-function previousMini(r){
-  const note=clean(r.review_notes);
-  return `<div class="prev-shift-record"><div class="row"><div><b>${reviewLabel(r)}</b><div class="minor">${esc(r.tl_serah||'TL penyerah tidak tercatat')} → ${esc(r.tl_terima||'TL penerima tidak tercatat')}</div></div>${reviewOpenTag(r)}</div>
-    <p class="prev-shift-note">${esc(note||'Tidak ada catatan tambahan saat finalisasi.')}</p>
-    <div class="row"><span class="muted">${n(reviewIssueCount(r))} issue · ${n(r.downtime_total)} menit downtime saat finalisasi</span><button class="btn btn-soft btn-sm" type="button" data-open-review="${esc(r.id)}">Lihat Review</button></div></div>`;
-}
-function renderPreviousHandover(c){
-  const slot=previousShift(c),box=$('previous-handover-body'),label=$('previous-shift-label');
-  if(!slot){label.textContent='Pilih shift';box.innerHTML='<div class="empty">Pilih tanggal dan shift pada Filter Monitoring untuk melihat catatan shift sebelumnya.</div>';return;}
-  label.textContent=`Shift ${slot.shift} · ${slot.tanggal}`;
-  const records=state.reviews.filter(r=>r.tanggal===slot.tanggal&&Number(r.shift)===slot.shift&&matchesReviewArea(r,c)).sort(reviewSort);
-  if(records.length){
-    box.innerHTML=`<div class="prev-shift-grid">${records.slice(0,8).map(previousMini).join('')}</div>${records.length>8?'<p class="muted" style="margin-top:10px">Tampilkan gedung dan mesin tertentu untuk mempersempit daftar. Arsip lengkap bisa dibuka pada Riwayat Serah Terima.</p>':''}`;
-    return;
-  }
-  const nearest=state.reviews.filter(r=>matchesReviewArea(r,c)&&(clean(r.tanggal)<slot.tanggal || (r.tanggal===slot.tanggal&&Number(r.shift)<slot.shift))).sort(reviewSort)[0];
-  box.innerHTML=`<div class="alert-note">Belum ada finalisasi handover untuk Shift ${slot.shift}, ${esc(slot.tanggal)} pada area yang dipilih. Ini bukan berarti tidak ada issue.</div>${nearest?`<div style="margin-top:11px"><div class="muted" style="margin-bottom:7px">Serah terima terakhir yang tersedia (bukan shift tepat sebelumnya):</div>${previousMini(nearest)}</div>`:''}`;
-}
-function renderHistory(){
-  const building=$('history-building').value,shift=$('history-shift').value,date=$('history-date').value;
-  const records=state.reviews.filter(r=>(!building||String(r.gedung)===building)&&(!shift||String(r.shift)===shift)&&(!date||r.tanggal===date)).sort(reviewSort);
-  const shown=records.slice(0,historyShown);
-  $('handover-history').innerHTML=shown.length?shown.map(r=>`<div class="history-item"><div class="history-item-text"><b>${reviewLabel(r)}</b><div class="muted">${esc(r.tl_serah||'-')} → ${esc(r.tl_terima||'-')} · ${n(r.issues_count)} issue · ${n(r.downtime_total)} menit</div>${reviewOpenTag(r)}</div><button class="btn btn-soft btn-sm" data-open-review="${esc(r.id)}" type="button">Lihat Review</button></div>`).join(''):'<div class="empty">Belum ada riwayat finalisasi sesuai filter ini.</div>';
-  $('history-more').classList.toggle('hide',shown.length>=records.length);
-}
-function matchingReviewIssues(r){return state.issues.filter(e=>e.tanggal===r.tanggal&&Number(e.shift)===Number(r.shift)&&String(e.gedung)===String(r.gedung)&&norm(e.mesin||e.line)===norm(r.mesin||r.line)).sort((a,b)=>clean(a.occurred_at).localeCompare(clean(b.occurred_at)))}
-function showReview(idValue,trigger){
-  const r=state.reviews.find(x=>String(x.id)===String(idValue));
-  if(!r){notify('Riwayat belum tersedia. Coba Muat Ulang.',true);return;}
-  reviewReturnFocus=trigger||document.activeElement;
-  const issues=matchingReviewIssues(r),changed=issues.some(e=>e.updated_at&&r.reviewed_at&&new Date(e.updated_at)>new Date(r.reviewed_at));
-  const oee=v=>v===null||v===undefined||v===''?'—':n(v)+'%';
-  $('review-modal-heading').textContent=`Review Shift ${r.shift} · ${r.tanggal}`;
-  $('review-modal-content').innerHTML=`<b style="font-size:13px;color:#193052">G${esc(r.gedung)} · ${esc(r.mesin||r.line||'Mesin tidak tercatat')}</b>
-    <div class="review-meta"><span class="chip">TL penyerah: ${esc(r.tl_serah||'-')}</span><span class="chip">TL penerima: ${esc(r.tl_terima||'-')}</span><span class="chip">Finalisasi: ${esc(dt(r.reviewed_at))}</span></div>
-    <div class="review-facts"><div><b>${n(r.issues_count)}</b><small>Total issue saat finalisasi</small></div><div><b>${n(r.downtime_total)}</b><small>Menit durasi saat finalisasi</small></div><div><b style="color:${reviewOpenCount(r)>0?'#c32c42':'#098661'}">${n(r.open_count)}</b><small>Outstanding saat finalisasi</small></div></div>
-    <div class="muted">OEE aktual / target: ${oee(r.oee_actual)} / ${oee(r.oee_target)}</div>
-    <div class="review-sub">Catatan yang Diserahkan untuk Shift Berikutnya</div><div class="review-note-full">${esc(clean(r.review_notes)||'Tidak ada catatan handover tambahan yang disimpan saat finalisasi.')}</div>
-    <div class="review-sub">Detail Issue pada Shift Ini</div>
-    <p class="minor" style="margin:-4px 0 8px">${changed?'Sebagian issue telah diperbarui setelah handover. ':''}Status issue di bawah adalah status terbaru, bukan snapshot saat finalisasi.</p>
-    ${issues.length?`<div class="review-issue-list">${issues.map(e=>eventCard(e,{actions:false})).join('')}</div>`:`<div class="empty">${reviewIssueCount(r)>0?'Ringkasan finalisasi tersedia, tetapi detail issue lama belum ditemukan pada data yang tersinkronisasi.':'Tidak ada issue yang ditemukan pada data yang tersinkronisasi.'}</div>`}`;
-  $('review-overlay').hidden=false;
-  document.body.classList.add('review-modal-open');
-  $('review-close').focus();
-}
-function closeReview(){
-  $('review-overlay').hidden=true;
-  document.body.classList.remove('review-modal-open');
-  if(reviewReturnFocus?.isConnected)reviewReturnFocus.focus();
-  reviewReturnFocus=null;
-}
-function onReviewButton(e){const btn=e.target.closest('[data-open-review]');if(btn)showReview(btn.dataset.openReview,btn)}
-
-function render(){const c=ctx();renderDowntimeByGedung(c);renderPreviousHandover(c);renderHistory();const filtered=scoped(),o=scopedOutstanding(),total=filtered.reduce((a,e)=>a+issueDurationMinutes(e),0);$('kpi-issue').textContent=filtered.length;$('kpi-downtime').textContent=n(total);$('kpi-ongoing').textContent=n(filtered.filter(ongoingMachineStop).length)+' downtime berlangsung';$('kpi-open').textContent=o.length;$('open-count-chip').textContent=o.length+' outstanding';$('list-count').textContent=filtered.length+' catatan';const catsCount=Object.fromEntries(Object.keys(cats).map(x=>[x,filtered.filter(e=>e.category===x).length]));$('category-totals').innerHTML=Object.entries(catsCount).map(([k,v])=>`<span class="chip"><b>${k}</b> ${v}</span>`).join('');const list=filtered.filter(e=>selectedStatus==='all'||e.status===selectedStatus);$('issue-list').innerHTML=list.length?list.map(x=>eventCard(x,{actions:true})).join(''):'<div class="empty">Belum ada issue pada filter ini. Gunakan tombol Form Input TL saat terjadi masalah.</div>';$('open-list').innerHTML=o.length?o.slice(0,25).map(x=>eventCard(x,{actions:true})).join(''):'<div class="empty">Tidak ada issue terbuka untuk area yang dipilih.</div>';
-const exact=hasContext(c)&&!!c.shift,cur=exact?filterIssues(c):[],open=exact?openIssues(c):[];
-const exactTotal=cur.reduce((a,e)=>a+issueDurationMinutes(e),0);
-$('rev-issue').textContent=exact?n(cur.length):'—';$('rev-downtime').textContent=exact?n(exactTotal):'—';$('rev-out').textContent=exact?n(open.length):'—';
-$('rev-out').classList.toggle('has-open',exact&&open.length>0);
-$('review-prereq').style.display=exact?'none':'';
-$('handover-context-label').textContent=exact?`${c.tanggal} · Shift ${c.shift} · Gedung ${c.gedung} · ${getCtxMachines(c).join(", ")}`:'Pilih tanggal, shift, gedung, dan mesin';
-$('handover-pending').hidden=!exact||!open.length;
-$('handover-pending-text').textContent=exact&&open.length?open.slice(0,2).map(e=>e.problem).join(' · ')+(open.length>2?` (+${open.length-2} lainnya)`:''):'';
-const bycat=Object.entries(cats).map(([k,label])=>{const rows=cur.filter(e=>e.category===k);return rows.length?`${label} (${rows.length}): ${rows.map(e=>e.problem).slice(0,3).join(' · ')}`:''}).filter(Boolean).join('\n');$('review-summary').textContent=exact?(bycat||'Tidak ada issue pada shift ini.'):'Pilih filter tanggal, shift, gedung, dan mesin agar ringkasan handover tepat.';$('review-open').textContent=exact?(open.length?open.slice(0,12).map(e=>`• ${e.problem} [${e.status}]${e.pic?' · PIC '+e.pic:''}`).join('\n'):'Tidak ada outstanding.'):'Pilih mesin dan shift terlebih dahulu.';
-const records=exact?getCtxMachines(c).map(m=>state.reviews.find(r=>sameShift(r,{...c,mesin:m,line:m}))):[];
-const saved=records.filter(Boolean),allFinal=exact&&saved.length===records.length;
-const stale=saved.some(r=>cur.some(e=>issueMatchesMachines(e,{mesins:[r.mesin]})&&new Date(e.updated_at)>new Date(r.reviewed_at)));
-$('review-status').className='status '+(!saved.length?'open':stale||!allFinal?'progress':'closed');
-$('review-status').textContent=!saved.length?'Belum final':stale?'Perlu review ulang':allFinal?'Sudah final':`${saved.length}/${records.length} mesin final`;
-$('review-feedback').textContent=saved.length?`${saved.length} dari ${records.length} mesin sudah tersimpan${stale?' · Ada perubahan issue setelah finalisasi':''}.`:'Tersimpan sebagai riwayat yang dapat dibaca shift berikutnya.';
-$('finalize').disabled=!exact;
-}
-function renderOee(){
-  const selected=String($('gedung')?.value||'');
-  const value=$('kpi-oee'), summary=$('oee-building-list');
-  $('oee-note').textContent=state.oee.note||'Dari OEE Monitoring';
-  if(selected){
-    summary.hidden=true;
-    value.hidden=false;
-    value.style.display='';
-    value.textContent=(state.oee.actual===null?'—':n(state.oee.actual)+'%')+' / '+(state.oee.target===null?'—':n(state.oee.target)+'%');
-  }else{
-    // Semua gedung: tampilkan tiga OEE terpisah, bukan angka rata-rata pabrik.
-    value.hidden=true;
-    value.style.display='none';
-    summary.hidden=false;
-    const data=state.oee.buildings||{};
-    summary.innerHTML=['4','6','7'].map(g=>{
-      const entry=data[g]||{},actual=entry.actual,target=entry.target;
-      const missing=actual===null||actual===undefined;
-      return '<div class="oee-building-item"><span class="oee-building-name">Gedung '+g+'</span><span class="oee-building-number'+(missing?' empty':'')+'">'+(missing?'—':n(actual)+'%')+' <small>/ '+(target===null||target===undefined?'—':n(target)+'%')+'</small></span></div>';
-    }).join('');
-  }
-}
-function openInput(edit=''){
- const url='sho_input.html'+(edit?'?edit='+encodeURIComponent(edit):'');
- if(isHttp()){
-   // Same-tab navigation works reliably on Chrome Android and mobile browsers.
-   // Data SHO disimpan pada Supabase; pilihan form disimpan di browser ini.
-   saveFilters();
-   window.location.assign(url);
-   return;
- }
- // Retain the old bridge only for direct file:// use.
- formWindow=window.open(url,'SHO_TL_INPUT');
- if(!formWindow){notify('Browser memblokir tab input. Gunakan versi GitHub Pages untuk mencoba.',true);return}
- try{formWindow.focus()}catch{}
-}
-function bridgeReply(to,type,reqId,extra={}){try{to.postMessage({type,reqId,...extra},location.protocol==='file:'?'*':location.origin)}catch{}}
-function bridgeHandler(e){if(isHttp())return;if(!formWindow||e.source!==formWindow||!e.data||typeof e.data!=='object')return;const msg=e.data;if(msg.type==='SHO_CONTEXT'&&msg.ctx){state.ctx=msg.ctx;write('ctx',state.ctx);setFilters(state.ctx);render();loadOee(ctx());return}if(msg.type==='SHO_HELLO'){bridgeReply(e.source,'SHO_SNAPSHOT',msg.reqId,{snapshot:{ctx:state.ctx,issues:state.issues,reviews:state.reviews,checkins:state.checkins}});return}if(!['SHO_SAVE','SHO_CHECKIN'].includes(msg.type)||state.online)return;const dest=msg.type==='SHO_CHECKIN'?'checkins':'issues';const row=msg.row;if(!row||typeof row!=='object'||!row.id)return;const isUpdate=msg.type==='SHO_SAVE'&&state.issues.some(x=>x.id===row.id);persist(dest,row,isUpdate).then(()=>{bridgeReply(e.source,'SHO_ACK',msg.reqId,{ok:true,snapshot:{ctx:state.ctx,issues:state.issues,reviews:state.reviews,checkins:state.checkins}});render()}).catch(err=>bridgeReply(e.source,'SHO_ACK',msg.reqId,{ok:false,error:err.message}))}
-async function finalize(){
-  const c=ctx(),machines=getCtxMachines(c);
-  if(!(hasContext(c)&&c.shift)){notify('Pilih tanggal, shift, gedung, dan minimal satu mesin dahulu.',true);return}
-  const sender=clean($('tl-sender').value);if(!sender){notify('Isi nama Team Leader penyerah.',true);$('tl-sender').focus();return}
-  const receiver=clean($('tl-receiver').value);if(!receiver){notify('Isi nama Team Leader penerima.',true);$('tl-receiver').focus();return}
-  const existing=machines.map(m=>state.reviews.find(r=>sameShift(r,{...c,mesin:m,line:m})));
-  const previouslySaved=existing.filter(Boolean).length;
-  if(previouslySaved&&!confirm(`${previouslySaved} mesin sudah pernah difinalisasi. Perbarui data serah terima mesin tersebut?`))return;
-  const outstanding=openIssues(c);
-  if(outstanding.length&&!confirm(`${outstanding.length} outstanding masih terbuka pada mesin yang dipilih. Lanjutkan serah terima?`))return;
-  const now=new Date().toISOString(),notes=clean($('handover-notes').value);
-  let success=0;
-  $('finalize').disabled=true;
-  try{
-    for(let i=0;i<machines.length;i++){
-      const machine=machines[i],perMachine={...c,mesin:machine,line:machine,mesins:[machine]};
-      const old=existing[i],issues=filterIssues(perMachine),open=openIssues(perMachine);
-      const row={id:old?.id||id(),tanggal:c.tanggal,shift:Number(c.shift),gedung:c.gedung,line:machine,mesin:machine,tl_serah:sender,tl_terima:receiver,issues_count:issues.length,open_count:open.length,downtime_total:issues.reduce((v,e)=>v+issueDurationMinutes(e),0),oee_actual:state.oee.actual,oee_target:state.oee.target,review_notes:notes,reviewed_at:now};
-      await persist('reviews',row,!!old);success++;
-    }
-    try{await window.SHO_API.sync(true)}catch(syncError){console.warn('Serah terima tersimpan, sinkronisasi tampilan tertunda:',syncError)}
-    notify(`Serah terima berhasil disimpan untuk ${success} mesin. Shift berikutnya dapat membuka setiap mesin di riwayat.`);
-  }catch(e){
-    notify(success?`Tersimpan ${success} dari ${machines.length} mesin. Mesin berikutnya gagal: ${e.message}. Periksa riwayat sebelum mencoba lagi.`:'Gagal menyimpan serah terima: '+e.message,true);
-  }finally{$('finalize').disabled=false;render()}
-}
-
-
-async function reload(){try{if(!window.SHO_API)throw Error('Koneksi belum siap');await window.SHO_API.sync(true);await loadOee(ctx());render();notify('Data terbaru berhasil diambil dari Supabase.')}catch(e){notify('Gagal memuat data online: '+e.message,true)}}
-function setup(){initStorage();setFilters(state.ctx);render();renderOee();$('open-input').addEventListener('click',()=>openInput());$('previous-handover-body').addEventListener('click',onReviewButton);$('handover-history').addEventListener('click',onReviewButton);for(const key of ['history-building','history-shift','history-date'])$(key).addEventListener('change',()=>{historyShown=12;renderHistory()});$('history-more').addEventListener('click',()=>{historyShown+=12;renderHistory()});$('review-close').addEventListener('click',closeReview);$('review-overlay').addEventListener('click',e=>{if(e.target===$('review-overlay'))closeReview()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('review-overlay').hidden)closeReview()});$('issue-list').addEventListener('click',e=>{const b=e.target.closest('[data-edit]');if(b)openInput(b.dataset.edit)});$('open-list').addEventListener('click',e=>{const b=e.target.closest('[data-edit]');if(b)openInput(b.dataset.edit)});$('status-toggle').addEventListener('click',e=>{const b=e.target.closest('[data-status]');if(!b)return;selectedStatus=b.dataset.status;document.querySelectorAll('[data-status]').forEach(x=>x.classList.toggle('active',x===b));render()});$('gedung').addEventListener('change',()=>{refreshControls({mesins:[]});saveFilters()});
-for(const el of ['tanggal','shift'])$(el).addEventListener('change',saveFilters);
-$('machine-trigger').addEventListener('click',()=>setMachineMenu($('machine-menu').hidden));
-$('machine-done').addEventListener('click',()=>setMachineMenu(false));
-$('machine-all').addEventListener('click',()=>changeMachines(machineList($('gedung').value)));
-$('machine-clear').addEventListener('click',()=>changeMachines([]));
-$('machine-options').addEventListener('change',e=>{if(e.target.matches('input[type=checkbox]'))changeMachines([...$('machine-options').querySelectorAll('input:checked')].map(x=>x.value))});
-document.addEventListener('click',e=>{if(!$('machine-picker').contains(e.target))setMachineMenu(false)});
-document.addEventListener('keydown',e=>{if(e.key==='Escape')setMachineMenu(false)});$('choose-handover-context').addEventListener('click',()=>{document.querySelector('.filters')?.scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>{if(!$('shift').value)$('shift').focus();else if(!$('gedung').value)$('gedung').focus();else $('machine-trigger').focus()},300)});$('finalize').addEventListener('click',finalize);$('refresh').addEventListener('click',reload);$('print').addEventListener('click',()=>window.print());window.addEventListener('message',bridgeHandler);window.addEventListener('focus',()=>{if(!state.online)refreshLocal();render()});window.addEventListener('pageshow',()=>{if(!state.online)refreshLocal();render()});document.addEventListener('sho-masters-updated',()=>{const c=ctx();refreshControls(c);render()});document.addEventListener('sho-data-updated',render);document.addEventListener('sho-oee-updated',renderOee);loadOee(ctx());setInterval(()=>{if(!document.hidden){refreshLocal();loadOee(ctx())}},30000)}
-setup();
-</script><script id="sho-hide-legacy-browser-import">
-/* Tombol impor dari penyimpanan browser tidak diperlukan di monitoring online.
-   Hanya sembunyikan kontrol ini, jangan ubah data atau sinkronisasi SHO. */
-(() => {
+  <script>
   'use strict';
-  const labels = ['impor data lama browser', 'import data lama browser'];
-  function removeLegacyImportButton() {
-    for (const el of document.querySelectorAll('button, a, [role="button"], input[type="button"], input[type="submit"]')) {
-      const name = String(el.tagName === 'INPUT' ? el.value : (el.textContent || el.getAttribute('aria-label') || ''))
-        .replace(/\s+/g, ' ').trim().toLowerCase();
-      if (labels.some(label => name.includes(label))) el.remove();
-    }
-  }
-  removeLegacyImportButton();
-  const observer = new MutationObserver(removeLegacyImportButton);
-  observer.observe(document.body, { childList:true, subtree:true });
-})();
-</script><script src="sho-online.js?v=20261027-sw37-fix2" onerror="document.getElementById('sho-connection').textContent='File sinkronisasi tidak ditemukan';document.getElementById('sho-connection').className='pill warn';"></script><script id="sho-oee-from-admin">
-/* OEE shift handover per gedung. Reads the SAME oee_shiftly_line records as oee.html.
-   Machine selection is intentionally ignored for the OEE card. */
-(function () {
-  'use strict';
-  const API = 'https://bmnhtxalfsfaefacgtpm.supabase.co/rest/v1/';
-  const PUBLIC_KEY = 'sb_publishable_VItBKenz-q2sYz7MsibODA_nYtLXv9Q';
-  const DEFAULT_TARGET = 55;
-  const BUILDINGS = ['4','6','7'];
-  let currentRequest=0;
-
-  const parseNumber = x => x===null || x===undefined || x==='' || !Number.isFinite(Number(x)) ? null : Number(x);
-  const cleanLabel = x => String(x??'').toUpperCase().replace(/[^A-Z0-9]+/g,' ').replace(/\s+/g,' ').trim();
-  const normalizeGedung = x => { const match=String(x??'').match(/(?:^|\D)(4|6|7)(?:\D|$)/); return match?match[1]:''; };
-  const validOee = r => parseNumber(r?.oee)!==null;
-
-  // Canonical names follow OEE_LINE_MASTER in oee.html.
-  const LINE_TO_BUILDING = new Map([
-    ['BOATO','6'],
-    ['LINE 1A FILLING CF 4 MSN','6'],
-    ['LINE 1B FILLING BOPACK 3 MSN','6'],
-    ['LINE 2 FILLING CF 12 MSN','6'],
-    ['LINE 4 FILLING SW','7'],
-    ['LINE 5A FILLING BOOSTAR 5 MSN','7'],
-    ['LINE 5B FILLING SW 1 MSN','7'],
-    ['LINE 6 FILLING DRIED NOODLE 2MESIN','7'],
-    ['LINE 7 FILLING SW','4'],
-  ]);
-  function buildingForRow(r) {
-    const key=cleanLabel(r.line||r.mesin);
-    // Prefer the published line master to avoid misclassified gedung values.
-    if(LINE_TO_BUILDING.has(key)) return LINE_TO_BUILDING.get(key);
-    if(key.startsWith('LINE 6 FILLING DRIED NOODLE')) return '7';
-    return normalizeGedung(r.gedung);
-  }
-  function aggregate(rows) {
-    const valid=rows.filter(validOee);
-    if(!valid.length) return null;
-    const weighted=valid.every(r=>parseNumber(r.target_pcs)>0 && parseNumber(r.output_pcs)!==null);
-    const totalTarget=weighted?valid.reduce((sum,r)=>sum+Number(r.target_pcs),0):0;
-    const actual=weighted&&totalTarget>0
-      ? valid.reduce((sum,r)=>sum+Number(r.output_pcs),0)/totalTarget*100
-      : valid.reduce((sum,r)=>sum+Number(r.oee),0)/valid.length;
-    const targets=valid.map(r=>parseNumber(r.target));
-    const target=targets.every(v=>v!==null)
-      ? (weighted&&totalTarget>0
-        ? valid.reduce((sum,r,i)=>sum+targets[i]*Number(r.target_pcs),0)/totalTarget
-        : targets.reduce((a,b)=>a+b,0)/targets.length)
-      : DEFAULT_TARGET;
-    return {actual:Math.round(actual*100)/100,target:Math.round(target*100)/100,count:valid.length,weighted:weighted&&totalTarget>0};
-  }
-  function setOee(selected, data, note) {
-    const value=selected ? (data[selected]||null) : null;
-    state.oee={actual:value?.actual??null,target:value?.target??null,buildings:data,note};
-    document.dispatchEvent(new Event('sho-oee-updated'));
-  }
-  async function getLineRows(date,shift,signal) {
-    const search=new URLSearchParams({select:'*',tanggal:'eq.'+date,limit:'2000'});
-    if(['1','2','3'].includes(shift)) search.set('shift','eq.'+shift);
-    const response=await fetch(API+'oee_shiftly_line?'+search.toString(),{
-      method:'GET',headers:{apikey:PUBLIC_KEY,Accept:'application/json'},signal,cache:'no-store'
-    });
-    if(!response.ok){
-      const body=await response.text().catch(()=> '');
-      throw Error('HTTP '+response.status+(body.includes('permission')?' · akses baca OEE ditolak':''));
-    }
-    const rows=await response.json();
-    if(!Array.isArray(rows)) throw Error('format data OEE tidak sesuai');
-    return rows;
-  }
-  async function readOeePerGedung(selection){
-    const token=++currentRequest;
-    // Mesin tidak dipakai dalam perhitungan atau filter OEE.
-    const date=String(selection?.tanggal||'');
-    const shift=String(selection?.shift||'');
-    const gedung=normalizeGedung(selection?.gedung);
-    if(!date){setOee(gedung,{},'Pilih tanggal untuk melihat OEE per gedung');return;}
-    setOee(gedung,{},'Memuat OEE per gedung dari OEE Monitoring...');
-    const controller=new AbortController();
-    const timeout=setTimeout(()=>controller.abort(),12000);
-    try{
-      const rows=await getLineRows(date,shift,controller.signal);
-      if(token!==currentRequest)return;
-      const results={};
-      for(const g of BUILDINGS) results[g]=aggregate(rows.filter(r=>buildingForRow(r)===g));
-      const shiftLabel=['1','2','3'].includes(shift)?'Shift '+shift:'semua shift';
-      const suffix=gedung?'Gedung '+gedung:'Gedung 4, 6, dan 7';
-      const active=gedung?[gedung]:BUILDINGS;
-      const available=active.filter(g=>results[g]);
-      let note=available.length?`OEE ${suffix} · ${shiftLabel} · OEE Monitoring`:`Belum ada data OEE ${suffix} · ${date}`;
-      if(available.some(g=>results[g]&&!results[g].weighted&&results[g].count>1)) note+=' · rerata line';
-      setOee(gedung,results,note);
-    }catch(error){
-      if(token!==currentRequest)return;
-      setOee(gedung,{},'Gagal membaca OEE: '+(error?.name==='AbortError'?'koneksi terlalu lama':String(error?.message||error)));
-    }finally{clearTimeout(timeout);}
-  }
-
-  // sho-online.js loads first; replace only its old exact-machine OEE reader.
-  window.loadOee=readOeePerGedung;
-  readOeePerGedung(typeof ctx==='function'?ctx():{});
-  // An outstanding request from the old connector may finish late.
-  const legacyNotes=new Set([
-    'Belum ada laporan Admin','Dari laporan OEE Admin','Belum ada laporan Admin untuk mesin ini',
-    'OEE Admin belum dapat diakses','Pilih tanggal, shift, dan mesin',
-    'Aktifkan perangkat untuk membaca OEE Admin'
-  ]);
-  document.addEventListener('sho-oee-updated',()=>{
-    if(legacyNotes.has(state.oee?.note))Promise.resolve().then(()=>readOeePerGedung(typeof ctx==='function'?ctx():{}));
-  });
-})();
-</script></body></html>
+  // Master mesin hanya dipakai untuk filter, data kejadian tetap dari Supabase.
+  const BASE='https://bmnhtxalfsfaefacgtpm.supabase.co';
+  const KEY='sb_publishable_VItBKenz-q2sYz7MsibODA_nYtLXv9Q';
+  const MACHINES={
+    '4':['SW 39','SW 40','SW 41','SW 42','SW 43','SW 44','SW 45','SW 46'],
+    '6':['BP 22','BP 23','BP 24','CF 01','CF 02','CF 04','CF 05','CF 06','CF 08','CF 12','CF 13','CF 14','CF 15','CF 16','CF 17','CF 19','CF 20','Boato'],
+    '7':['SW 32','SW 33','SW 34','SW 35','SW 36','SW 37','SW 38','BOOSTAR 25','BOOSTAR 26','BOOSTAR 27','BOOSTAR 28','BOOSTAR 29','BOOSTAR 30','BOOSTAR 31']
+  };
+  const BUILDING_HANDOVER='SEMUA MESIN';
+  const CTX_KEY='kobe_sho_quick_context_v1';
+  const $=id=>document.getElementById(id);
+  const clean=v=>String(v??'').trim();
+  const norm=v=>clean(v).toUpperCase().replace(/\s+/g,' ');
+  const esc=v=>String(v??'').replace(/[&<>"']/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
+  const num=v=>Number(v||0).toLocaleString('id-ID',{maximumFractionDigits:2});
+  const today=()=>{const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-')};
+  const uuid=()=>globalThis.crypto?.randomUUID?.()||'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{let r=Math.random()*16|0;return(c==='x'?r:r&3|8).toString(16)});
+  const dt=v=>{const d=new Date(v);return Number.isNaN(d.getTime())?'—':d.toLocaleString('id-ID',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})};
+  function getSavedCtx(){try{return JSON.parse(localStorage.getItem(CTX_KEY)||'{}')||{}}catch{return {}}}
+  const state={ctx:getSavedCtx(),issues:[],reviews:[],checkins:[],online:false};
+  let selectedMachines=[],selectedStatus='all',issueLimit=6,historyLimit=8,saving=false,reviewReturnFocus=null;
+  let notificationTimeout=null,groupLookup=new Map();
+  function notify(message,error=false){const el=$('notice');el.textContent=message;el.className='toast show'+(error?' error':'');clearTimeout(notificationTimeout);notificationTimeout=setTimeout(()=>el.classList.remove('show'),9000)}
+  function current(){return {tanggal:$('tanggal').value,shift:$('shift').value,gedung:$('gedung').value,mesins:[...selectedMachines],mesin:selectedMachines.length===1?selectedMachines[0]:'',line:selectedMachines.length===1?selectedMachines[0]:''}}
+  function selected(c){return Array.isArray(c.mesins)?c.mesins.filter(Boolean):(c.mesin?[c.mesin]:[])}
+  function hasArea(c){return !!(c.tanggal&&['1','2','3'].includes(String(c.shift))&&['4','6','7'].includes(String(c.gedung)))}
+  function machineMatches(row,c){const list=selected(c);if(!list.length)return true;const names=clean(row.mesin||row.line).split(/[,;|]/).map(norm);return list.some(x=>names.includes(norm(x)))}
+  function issueMatches(row,c,includeTime=false){if(c.gedung&&String(row.gedung)!==String(c.gedung))return false;if(!machineMatches(row,c))return false;if(includeTime){if(c.tanggal&&row.tanggal!==c.tanggal)return false;if(c.shift&&String(row.shift)!==String(c.shift))return false}return true}
+  function currentIssues(c){return state.issues.filter(x=>issueMatches(x,c,true)).sort((a,b)=>clean(b.occurred_at).localeCompare(clean(a.occurred_at)))}
+  function outstanding(c){return state.issues.filter(x=>{if(!issueMatches(x,c))return false;if(clean(x.status).toLowerCase()==='closed')return false;if(c.tanggal&&x.tanggal>c.tanggal)return false;if(c.tanggal&&c.shift&&x.tanggal===c.tanggal&&Number(x.shift)>Number(c.shift))return false;return true}).sort((a,b)=>clean(b.occurred_at).localeCompare(clean(a.occurred_at)))}
+  function stopped(e){return typeof e.machine_stopped==='boolean'?e.machine_stopped:norm(e.category)==='D'}
+  function downtime(e){if(!stopped(e)||!e.time_end)return 0;const minutes=Number(e.duration_minutes);if(Number.isFinite(minutes)&&minutes>0)return minutes;const fallback=Number(e.downtime_minutes);return Number.isFinite(fallback)&&fallback>0?fallback:0}
+  function ongoing(e){return stopped(e)&&!!e.time_start&&!e.time_end}
+  function renderMachinePicker(){const g=$('gedung').value,allowed=MACHINES[g]||[];selectedMachines=selectedMachines.filter(m=>allowed.includes(m));const btn=$('machine-trigger');btn.disabled=!g;const text=!g?'Pilih gedung dahulu':!selectedMachines.length?'Semua mesin':selectedMachines.length<3?selectedMachines.join(', '):selectedMachines.length+' mesin dipilih';$('machine-trigger-text').textContent=text;const box=$('machine-options');box.replaceChildren();for(const name of allowed){const label=document.createElement('label');label.className='machine-option';const check=document.createElement('input');check.type='checkbox';check.value=name;check.checked=selectedMachines.includes(name);label.append(check,document.createTextNode(name));box.append(label)}if(!g)setMachineMenu(false)}
+  function setMachineMenu(open){$('machine-menu').hidden=!open;$('machine-trigger').setAttribute('aria-expanded',String(!!open))}
+  function applyFilters(c){$('tanggal').value=c.tanggal||today();$('shift').value=c.shift?String(c.shift):'';$('gedung').value=c.gedung||'';selectedMachines=selected(c).filter(m=>(MACHINES[c.gedung]||[]).includes(m));renderMachinePicker()}
+  function saveFilters(resetPeople=false){if(resetPeople){$('tl-sender').value='';$('tl-receiver').value='';$('handover-notes').value='';$('handover-note-details').open=false}const c=current();let lineGroup='';if(c.gedung===state.ctx.gedung&&selected(c).join('|')===selected(state.ctx).join('|'))lineGroup=state.ctx.lineGroup||'';state.ctx={...state.ctx,...c,lineGroup};try{localStorage.setItem(CTX_KEY,JSON.stringify(state.ctx))}catch{}render()}
+  function changeMachines(list){const allowed=MACHINES[$('gedung').value]||[];selectedMachines=[...new Set(list.filter(x=>allowed.includes(x)))];renderMachinePicker();saveFilters(true)}
+  function statusBadge(e){const v=clean(e.status);return `<span class="status ${v==='Closed'?'closed':v==='In Progress'?'progress':'open'}">${esc(v||'Open')}</span>`}
+  function eventCard(e,{actions=true}={}){const meta=`${esc(e.mesin||e.line||'—')} · ${esc(e.sku||'—')}`;const amount=downtime(e);const duration=ongoing(e)?'<span class="tag">Mesin berhenti</span>':amount?`<span class="tag">${num(amount)} menit downtime</span>`:'';return `<article class="incident-row"><span class="sq ${esc(e.category||'')}">${esc(e.category||'•')}</span><div><div class="incident-meta">${esc(e.time_start||dt(e.occurred_at))} · ${meta}</div><p class="incident-problem">${esc(e.problem||'Tanpa keterangan')}</p><div class="incident-footer">${statusBadge(e)}${duration}${e.pic?`<span class="tag">PIC: ${esc(e.pic)}</span>`:''}${actions?`<button class="btn btn-plain" type="button" data-edit="${esc(e.id)}">Perbarui</button>`:''}</div>${e.action?`<p class="incident-action">Tindakan: ${esc(e.action)}</p>`:''}</div></article>`}
+  function renderIssuePanel(c){const items=currentIssues(c),list=items.filter(x=>selectedStatus==='all'||clean(x.status)===selectedStatus);$('list-count').textContent=num(items.length)+' kejadian';$('issue-list').innerHTML=list.length?list.slice(0,issueLimit).map(x=>eventCard(x)).join(''):'<div class="empty">Belum ada catatan untuk filter ini.</div>';const more=$('show-more-issues');more.hidden=list.length<=issueLimit;more.textContent='Lihat '+num(list.length-issueLimit)+' kejadian lainnya';$('status-toggle').querySelectorAll('button[data-status]').forEach(btn=>btn.classList.toggle('active',btn.dataset.status===selectedStatus))}
+  function renderDowntime(c){const gList=c.gedung?[c.gedung]:['4','6','7'];$('downtime-by-gedung').innerHTML=gList.map(g=>{const rows=currentIssues({...c,gedung:g}).filter(e=>downtime(e)>0);const byMachine=new Map();for(const e of rows){const name=clean(e.mesin||e.line)||'Tidak diketahui';if(!byMachine.has(name))byMachine.set(name,{name,mins:0});byMachine.get(name).mins+=downtime(e)}const ranked=[...byMachine.values()].sort((a,b)=>b.mins-a.mins).slice(0,5);const total=rows.reduce((sum,r)=>sum+downtime(r),0);return `<div class="analysis-card"><div class="analysis-title">Gedung ${esc(g)}</div><div class="analysis-total">${num(total)} <span style="font-size:10px;color:#849ab1;font-weight:600">menit</span></div>${ranked.length?ranked.map((m,i)=>`<div class="rank"><span>${i+1}. ${esc(m.name)}</span><strong class="${i<3?'bad':''}">${num(m.mins)} menit</strong></div>`).join(''):'<p class="analysis-empty">Tidak ada downtime selesai.</p>'}</div>`}).join('')}
+  function previousShift(c){if(!hasArea(c))return null;const d=new Date(c.tanggal+'T12:00:00');if(Number(c.shift)===1)d.setDate(d.getDate()-1);return {tanggal:[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-'),shift:Number(c.shift)===1?3:Number(c.shift)-1}}
+  function groupReviews(rows){const groups=new Map();for(const r of rows){const key=[r.tanggal,r.shift,r.gedung,norm(r.tl_serah),norm(r.tl_terima)].join('|');if(!groups.has(key))groups.set(key,{key,tanggal:r.tanggal,shift:r.shift,gedung:String(r.gedung),tl_serah:r.tl_serah,tl_terima:r.tl_terima,rows:[]});groups.get(key).rows.push(r)}const list=[...groups.values()];for(const g of list){const aggregate=g.rows.find(r=>norm(r.mesin)===BUILDING_HANDOVER);g.displayRows=aggregate?[aggregate]:g.rows;g.issues=g.displayRows.reduce((n,r)=>n+Number(r.issues_count||0),0);g.open=g.displayRows.reduce((n,r)=>n+Number(r.open_count||0),0);g.minutes=g.displayRows.reduce((n,r)=>n+Number(r.downtime_total||0),0);g.reviewed_at=g.rows.reduce((latest,r)=>clean(r.reviewed_at)>latest?clean(r.reviewed_at):latest,'');g.note=g.displayRows.map(r=>clean(r.review_notes)).find(Boolean)||'';g.allBuilding=!!aggregate}return list.sort((a,b)=>clean(b.tanggal).localeCompare(clean(a.tanggal))||Number(b.shift)-Number(a.shift)||clean(b.reviewed_at).localeCompare(clean(a.reviewed_at)))}
+  function scopedReviews(c){const machineNames=selected(c).map(norm);return state.reviews.filter(r=>String(r.gedung)===String(c.gedung)&&(!machineNames.length||norm(r.mesin)===BUILDING_HANDOVER||machineNames.includes(norm(r.mesin))))}
+  function renderPrevious(c){const box=$('previous-handover-body'),slot=previousShift(c);if(!slot){box.hidden=true;box.textContent='';return}const groups=groupReviews(scopedReviews(c).filter(r=>r.tanggal===slot.tanggal&&Number(r.shift)===slot.shift));if(!groups.length){box.hidden=true;box.textContent='';return}const group=groups[0];box.hidden=false;groupLookup.set(group.key,group);const badge=group.open?`<span class="status open">${num(group.open)} outstanding</span>`:'<span class="status closed">Tidak ada outstanding</span>';box.className='previous-mini';box.innerHTML=`<span><b>Dari Shift ${slot.shift} · ${esc(group.tl_serah||'TL sebelumnya')} → ${esc(group.tl_terima||'TL berikutnya')}</b>${num(group.issues)} kejadian · ${num(group.minutes)} menit downtime · ${badge}</span><button class="btn btn-quiet btn-small" type="button" data-review="${esc(group.key)}">Detail</button>`}
+  function renderPending(c){const box=$('handover-pending'),o=hasArea(c)?outstanding(c):[];$('open-count-chip').hidden=!o.length;$('open-count-chip').textContent=num(o.length)+' outstanding';$('pending-heading').hidden=!hasArea(c);if(!hasArea(c)){box.innerHTML='';return}if(!o.length){box.innerHTML='<p class="pending-none">✓ Tidak ada issue terbuka yang perlu diteruskan.</p>';return}box.innerHTML=`<ul class="focus-list">${o.slice(0,4).map(e=>`<li><span class="item-meta">${esc(e.mesin||e.line||'—')} · ${esc(e.pic||'PIC belum dicatat')}</span><div class="problem">${esc(e.problem||'Issue tanpa keterangan')} · <b>${esc(e.status||'Open')}</b></div></li>`).join('')}</ul>${o.length>4?`<details class="optional-note" style="margin-top:7px"><summary>Lihat ${num(o.length-4)} outstanding lainnya</summary><div><ul class="focus-list">${o.slice(4).map(e=>`<li><span class="item-meta">${esc(e.mesin||'—')}</span><div class="problem">${esc(e.problem||'Issue tanpa keterangan')}</div></li>`).join('')}</ul></div></details>`:''}`}
+  function handoverTargets(c){return selected(c).length?selected(c):[BUILDING_HANDOVER]}
+  function reviewRecordFor(c,machine){return state.reviews.find(r=>r.tanggal===c.tanggal&&String(r.shift)===String(c.shift)&&String(r.gedung)===String(c.gedung)&&norm(r.mesin)===norm(machine))}
+  function modifiedAfter(row,reviewedAt){if(!reviewedAt)return false;const a=Date.parse(row.updated_at||row.occurred_at),b=Date.parse(reviewedAt);return Number.isFinite(a)&&Number.isFinite(b)&&a>b}
+  function renderHandover(c){const valid=hasArea(c),cur=valid?currentIssues(c):[],o=valid?outstanding(c):[],total=cur.reduce((n,e)=>n+downtime(e),0);$('review-prereq').hidden=valid;$('handover-context-label').textContent=valid?`${c.tanggal} · Shift ${c.shift} · Gedung ${c.gedung} · ${selected(c).length?selected(c).join(', '):'Semua mesin'}`:'Pilih tanggal, shift, dan gedung';renderPending(c);renderPrevious(c);const targets=valid?handoverTargets(c):[];const saved=targets.map(m=>reviewRecordFor(c,m)).filter(Boolean);const allSaved=valid&&targets.length===saved.length;const stale=saved.some(r=>cur.some(e=>(norm(r.mesin)===BUILDING_HANDOVER||machineMatches(e,{mesins:[r.mesin]}))&&modifiedAfter(e,r.reviewed_at)));const status=$('review-status');status.className='status '+(!saved.length?'open':stale||!allSaved?'progress':'closed');status.textContent=!saved.length?'Belum diserahkan':stale?'Perlu review ulang':allSaved?'Sudah diserahkan':'Sebagian tersimpan';$('finalize').disabled=!valid||saving;$('review-feedback').textContent=allSaved&&!stale?'Tersimpan untuk shift berikutnya.':stale?'Ada catatan operator terbaru. Periksa kembali dan simpan ulang.':'';$('review-feedback').hidden=!saved.length}
+  function renderHistory(){groupLookup=new Map(groupLookup);const g=$('history-building').value,sh=$('history-shift').value,date=$('history-date').value;const groups=groupReviews(state.reviews.filter(r=>(!g||String(r.gedung)===g)&&(!sh||String(r.shift)===sh)&&(!date||r.tanggal===date)));for(const group of groups)groupLookup.set(group.key,group);$('handover-history').innerHTML=groups.length?groups.slice(0,historyLimit).map(gr=>`<div class="history-row"><div><b>${esc(gr.tanggal)} · Shift ${esc(gr.shift)} · Gedung ${esc(gr.gedung)}</b><p>${esc(gr.tl_serah||'—')} → ${esc(gr.tl_terima||'—')} · ${num(gr.issues)} kejadian · ${num(gr.minutes)} menit downtime · ${num(gr.open)} outstanding</p></div><button type="button" class="btn btn-soft btn-small" data-review="${esc(gr.key)}">Detail</button></div>`).join(''):'<div class="empty">Belum ada riwayat serah terima.</div>';$('history-more').hidden=groups.length<=historyLimit}
+  function render(){const c=current(),issues=currentIssues(c),o=outstanding(c);$('kpi-issue').textContent=num(issues.length);$('kpi-downtime').textContent=num(issues.reduce((n,e)=>n+downtime(e),0));$('kpi-ongoing').textContent=num(issues.filter(ongoing).length)+' masih berlangsung';$('kpi-open').textContent=num(o.length);renderHandover(c);renderIssuePanel(c);if($('downtime-analysis').open)renderDowntime(c);renderHistory()}
+  function showReview(key,trigger){const group=groupLookup.get(key);if(!group){notify('Data review tidak ditemukan. Perbarui data.',true);return}reviewReturnFocus=trigger||document.activeElement;const machineList=group.allBuilding?[]:group.displayRows.map(r=>r.mesin);const issues=state.issues.filter(e=>e.tanggal===group.tanggal&&String(e.shift)===String(group.shift)&&String(e.gedung)===String(group.gedung)&&(!machineList.length||machineList.some(m=>norm(m)===norm(e.mesin||e.line))));const stale=group.displayRows.some(r=>issues.some(e=>(group.allBuilding||norm(r.mesin)===norm(e.mesin||e.line))&&modifiedAfter(e,r.reviewed_at)));$('review-modal-heading').textContent=`Handover Shift ${group.shift} · Gedung ${group.gedung}`;$('review-modal-content').innerHTML=`<div class="eyebrow">${esc(group.tanggal)} · ${group.allBuilding?'Seluruh gedung':group.displayRows.length+' mesin'}</div><div style="font-size:12px;margin-top:6px"><b>${esc(group.tl_serah||'—')} → ${esc(group.tl_terima||'—')}</b> · ${esc(dt(group.reviewed_at))}</div><div class="review-facts"><div><b>${num(group.issues)}</b><small>Kejadian saat handover</small></div><div><b>${num(group.minutes)}</b><small>Downtime (menit)</small></div><div><b>${num(group.open)}</b><small>Outstanding saat handover</small></div></div>${group.note?`<div class="review-note">${esc(group.note)}</div>`:''}${stale?'<div class="scope-warning">Beberapa catatan sudah diperbarui setelah handover. Daftar kejadian berikut menunjukkan kondisi terbaru.</div>':''}<p class="section-title" style="margin-top:14px">Kejadian pada shift ini</p>${issues.length?`<div class="review-items">${issues.slice(0,35).map(e=>eventCard(e,{actions:false})).join('')}${issues.length>35?'<p class="filter-hint">Hanya 35 kejadian pertama yang ditampilkan.</p>':''}</div>`:'<div class="empty">Tidak ada detail kejadian untuk shift ini.</div>'}`;$('review-overlay').hidden=false;$('review-close').focus();document.body.style.overflow='hidden'}
+  function closeReview(){$('review-overlay').hidden=true;document.body.style.overflow='';if(reviewReturnFocus?.isConnected)reviewReturnFocus.focus();reviewReturnFocus=null}
+  function composeNotes(notes,open){const parts=[];if(notes)parts.push('Catatan TL:\n'+notes);if(open.length){const max=12;parts.push('Outstanding saat handover:\n'+open.slice(0,max).map(e=>'- '+(clean(e.mesin)||'Mesin?')+': '+clean(e.problem)+(e.pic?' (PIC: '+clean(e.pic)+')':'')).join('\n')+(open.length>max?`\n+${open.length-max} issue lainnya` :''))}return parts.join('\n\n').slice(0,1500)}
+  async function finalize(){const c=current();if(!hasArea(c)){notify('Pilih tanggal, shift, dan gedung sebelum serah terima.',true);return}if(!window.SHO_API){notify('Koneksi Supabase belum siap, coba perbarui halaman.',true);return}const sender=clean($('tl-sender').value),receiver=clean($('tl-receiver').value);if(!sender){notify('Isi nama TL penyerah.',true);$('tl-sender').focus();return}if(!receiver){notify('Isi nama TL penerima.',true);$('tl-receiver').focus();return}const targets=handoverTargets(c),open=outstanding(c),already=targets.filter(m=>reviewRecordFor(c,m)).length;const confirmation=`Serah terima ${c.tanggal}, Shift ${c.shift}, Gedung ${c.gedung}\n${selected(c).length?targets.length+' mesin':'Semua mesin'}\n\n${sender} → ${receiver}\n${currentIssues(c).length} kejadian, ${open.length} outstanding.\n\n${already?'Data handover sebelumnya akan diperbarui.\n\n':''}Simpan serah terima ini?`;if(!window.confirm(confirmation))return;saving=true;$('finalize').disabled=true;let saved=0;const stamp=new Date().toISOString(),note=$('handover-notes').value.trim();try{if(!state.online)await window.SHO_API.sync(true);for(const machine of targets){const sub=machine===BUILDING_HANDOVER?{...c,mesins:[],mesin:'',line:''}:{...c,mesins:[machine],mesin:machine,line:machine};const old=reviewRecordFor(c,machine);const rows=currentIssues(sub),pending=outstanding(sub);const row={id:old?.id||uuid(),tanggal:c.tanggal,shift:Number(c.shift),gedung:String(c.gedung),line:machine,mesin:machine,tl_serah:sender,tl_terima:receiver,issues_count:rows.length,open_count:pending.length,downtime_total:rows.reduce((sum,e)=>sum+downtime(e),0),oee_actual:old?.oee_actual??null,oee_target:old?.oee_target??null,review_notes:composeNotes(note,pending),reviewed_at:stamp};await window.SHO_API.save('reviews',row,!!old,true);saved++}try{await window.SHO_API.sync(true)}catch(syncError){console.warn('Handover saved, refresh pending:',syncError)}notify('Handover berhasil disimpan. Shift berikutnya dapat melihat catatannya.')}catch(e){notify(saved?`${saved} dari ${targets.length} handover tersimpan. Sisanya gagal: ${e.message}`:'Gagal menyimpan handover: '+e.message,true)}finally{saving=false;render()}}
+  async function reload(){try{if(!window.SHO_API)throw Error('File koneksi SHO belum tersedia');await window.SHO_API.sync(true);render();notify('Data terbaru berhasil dimuat.')}catch(e){notify('Gagal memuat data: '+e.message,true)}}
+  function openInput(edit=''){saveFilters();const url='sho_input.html'+(edit?'?edit='+encodeURIComponent(edit):'');window.location.assign(url)}
+  function setup(){applyFilters({...state.ctx,mesins:[],mesin:'',line:''});$('open-input').addEventListener('click',()=>openInput());$('refresh').addEventListener('click',reload);for(const id of ['tanggal','shift'])$(id).addEventListener('change',()=>saveFilters(true));$('gedung').addEventListener('change',()=>{selectedMachines=[];renderMachinePicker();saveFilters(true)});$('machine-trigger').addEventListener('click',()=>setMachineMenu($('machine-menu').hidden));$('machine-done').addEventListener('click',()=>setMachineMenu(false));$('machine-clear').addEventListener('click',()=>changeMachines([]));$('machine-all').addEventListener('click',()=>changeMachines(MACHINES[$('gedung').value]||[]));$('machine-options').addEventListener('change',e=>{if(e.target.matches('input[type=checkbox]'))changeMachines([...$('machine-options').querySelectorAll('input:checked')].map(x=>x.value))});document.addEventListener('click',e=>{if(!$('machine-picker').contains(e.target))setMachineMenu(false)});document.addEventListener('keydown',e=>{if(e.key==='Escape'){setMachineMenu(false);if(!$('review-overlay').hidden)closeReview()}});$('status-toggle').addEventListener('click',e=>{const b=e.target.closest('[data-status]');if(!b)return;selectedStatus=b.dataset.status;issueLimit=6;renderIssuePanel(current())});$('show-more-issues').addEventListener('click',()=>{issueLimit+=100;renderIssuePanel(current())});$('issue-list').addEventListener('click',e=>{const btn=e.target.closest('[data-edit]');if(btn)openInput(btn.dataset.edit)});$('finalize').addEventListener('click',finalize);$('downtime-analysis').addEventListener('toggle',()=>{if($('downtime-analysis').open)renderDowntime(current())});for(const id of ['history-building','history-shift','history-date'])$(id).addEventListener('change',()=>{historyLimit=8;renderHistory()});$('history-more').addEventListener('click',()=>{historyLimit+=8;renderHistory()});for(const id of ['previous-handover-body','handover-history'])$(id).addEventListener('click',e=>{const btn=e.target.closest('[data-review]');if(btn)showReview(btn.dataset.review,btn)});$('review-close').addEventListener('click',closeReview);$('review-overlay').addEventListener('click',e=>{if(e.target===$('review-overlay'))closeReview()});document.addEventListener('sho-data-updated',render);window.addEventListener('pageshow',render);render()}
+  setup();
+  </script>
+  <script src="sho-online.js?v=20261104-clean-handover" onerror="document.getElementById('sho-connection').textContent='Koneksi SHO tidak tersedia';document.getElementById('sho-connection').className='pill warn'"></script>
+</body>
+</html>
