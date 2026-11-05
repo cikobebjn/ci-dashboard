@@ -29,6 +29,7 @@
     ] },
     { title: 'Data & Improvement', items: [
       { name: 'Shift Hand Over (SQCDP)', url: 'sho.html', icon: 'activity' },
+      { name: 'Serah Terima Maintenance', url: 'mtc-handover-monitoring.html', icon: 'form' },
       { name: 'Improvement Monitoring', url: 'improvement-monitoring.html', icon: 'spark' },
       { name: 'Monitoring Hasil Seleksi Admin Produksi', url: 'hasil-seleksi-admin.html', icon: 'form' },
       { name: 'Monitoring Gramasi', url: 'gramasi-monitoring.html', icon: 'chart' },
