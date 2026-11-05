@@ -47,6 +47,29 @@ td{padding:10px 11px;font-size:12px}
 .draft-panel{padding:15px 20px}.draft-panel .section-title{margin-bottom:10px}.draft-panel .section-title h2{font-size:14px}
 .draft-list{display:grid;gap:7px}.draft-item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;border:1px solid #e3eaf3;background:#f9fbfe;border-radius:10px}
 .draft-item b{display:block;font-size:12px;color:#29435e}.draft-item small{display:block;margin-top:3px;color:#8292a8;font-size:10px}
+
+/* MTC issue update: one compact editor, no main dashboard sidebar. */
+.issue-act{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px;align-items:center}
+.issue-act .btn{margin-top:0}
+.issue-current{border-left:3px solid #2f80d8;padding-left:10px;margin-top:9px}
+.issue-current p{margin:4px 0}
+.outstanding-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:7px}
+.outstanding-actions .btn{margin:0}
+.issue-dialog{width:min(96vw,590px);max-height:min(91vh,800px);overflow:auto;border:1px solid #dbe5f3;padding:0;border-radius:18px;box-shadow:0 28px 85px #0b28574a;background:#fff;color:#1d2e47}
+.issue-dialog::backdrop{background:rgba(11,29,52,.57);backdrop-filter:blur(3px)}
+.issue-dialog-inner{padding:21px 24px 23px}
+.issue-dialog-head{display:flex;align-items:start;gap:12px;justify-content:space-between;margin-bottom:16px}
+.issue-dialog-head h2{font-size:19px;margin:0;color:#203d5f}
+.issue-dialog-head p{color:#7b8da5;font-size:12px;margin:4px 0 0;overflow-wrap:anywhere}
+.issue-dialog-meta{padding:10px 12px;background:#f4f8fe;border-radius:10px;font-size:12px;color:#385776;margin-bottom:14px;overflow-wrap:anywhere}
+.issue-dialog .field{margin-bottom:13px}
+.issue-dialog .field textarea{min-height:72px}
+.issue-dialog .grid.two{gap:12px}
+.issue-dialog .btn-close{width:34px;min-width:34px;height:34px;border:1px solid #dae5f2;border-radius:10px;background:white;color:#52708e;cursor:pointer;font-weight:800}
+.issue-dialog .hint-time{color:#778ca5;font-size:11px;margin-top:-7px;margin-bottom:12px}
+.issue-dialog .form-footer{display:flex;gap:9px;justify-content:flex-end;flex-wrap:wrap;margin-top:7px}
+.issue-dialog #issueEditMessage{margin-top:12px;min-height:16px}
+@media(max-width:620px){.issue-dialog-inner{padding:18px 16px}.issue-dialog .grid.two{grid-template-columns:1fr}}
 </style></head>
 <body>
 <header class="topbar"><div class="brand"><strong>KOBE · BOJONEGORO</strong><small>Maintenance · Shift Hand Over</small></div><div class="top-actions"><a class="btn" href="mtc-handover-form.html">+ Form MTC</a></div></header>
@@ -67,7 +90,29 @@ td{padding:10px 11px;font-size:12px}
 </section><div class="overview-layout"><section class="panel"><div class="section-title"><div><h2>Riwayat Shift</h2></div></div>
 <div class="table-scroll"><table><thead><tr><th>Tanggal / Shift</th><th>Lokasi</th><th>Team Lead</th><th>Issue</th><th>Penerimaan</th><th>Aksi</th></tr></thead><tbody id="rows"><tr><td class="empty" colspan="6">Memuat handover...</td></tr></tbody></table></div></section><section class="panel"><div class="section-title"><div><h2>Outstanding <span class="pill open" id="outCount">0</span></h2></div></div><div class="outstanding-list" id="outstandingList"><div class="empty">Memuat outstanding...</div></div></section></div>
 <section class="panel" id="detailPanel"><div class="section-title"><div><h2>Detail &amp; Penerimaan</h2></div></div><div id="detailContent"><div class="empty">Pilih salah satu handover untuk menampilkan detail.</div></div></section>
-</main><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>'use strict';
+</main>
+<dialog class="issue-dialog" id="issueEditor" aria-labelledby="issueEditorTitle">
+ <div class="issue-dialog-inner">
+  <div class="issue-dialog-head"><div><h2 id="issueEditorTitle">Update Issue Maintenance</h2><p>Status pekerjaan dari shift sebelumnya</p></div><button type="button" class="btn-close" id="closeIssueEditor" aria-label="Tutup">X</button></div>
+  <div id="issueEditorMeta" class="issue-dialog-meta"></div>
+  <form id="issueEditorForm">
+   <div class="grid two">
+    <div class="field"><label for="issueEditStatus">Status <span class="required">*</span></label><select id="issueEditStatus" required></select></div>
+    <div class="field"><label for="issueEditBy">TL yang update <span class="required">*</span></label><input id="issueEditBy" maxlength="100" required placeholder="Nama Team Lead"></div>
+   </div>
+   <div class="grid two">
+    <div class="field"><label for="issueEditStart">Jam Mulai (24 jam) <span class="required">*</span></label><input id="issueEditStart" type="text" inputmode="numeric" maxlength="5" placeholder="HH:MM" required></div>
+    <div class="field"><label for="issueEditEnd" id="issueEditEndLabel">Jam Selesai (24 jam)</label><input id="issueEditEnd" type="text" inputmode="numeric" maxlength="5" placeholder="HH:MM"></div>
+   </div>
+   <div class="field"><label for="issueEditAction">Action pada shift ini <span class="required">*</span></label><textarea id="issueEditAction" maxlength="1500" required placeholder="Perbaikan / tindakan yang dilakukan"></textarea></div>
+   <div class="field" id="issueEditNextWrap"><label for="issueEditNext">Action lanjutan <span class="required">*</span></label><textarea id="issueEditNext" maxlength="1500" placeholder="Pekerjaan untuk shift berikutnya"></textarea></div>
+   <div class="hint-time">Closed: wajib Jam Mulai, Jam Selesai, dan Action. Open/Progress: Jam Selesai boleh kosong.</div>
+   <div class="form-footer"><button type="button" class="btn btn-outline" id="cancelIssueEdit">Batal</button><button type="submit" class="btn btn-green" id="saveIssueEdit">Simpan Update</button></div>
+   <div class="message" id="issueEditMessage" role="status"></div>
+  </form>
+ </div>
+</dialog>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>'use strict';
 const SB_URL='https://bmnhtxalfsfaefacgtpm.supabase.co';
 const SB_KEY='sb_publishable_VItBKenz-q2sYz7MsibODA_nYtLXv9Q';
 const db=window.supabase?window.supabase.createClient(SB_URL,SB_KEY):null;
@@ -75,12 +120,21 @@ const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const safeSignature=v=>typeof v==='string'&&/^data:image\/png;base64,[A-Za-z0-9+/=]+$/.test(v)&&v.length<=160000?v:null;
 const dateLabel=v=>v?new Date(v).toLocaleString('id-ID',{dateStyle:'medium',timeStyle:'short'}):'—';
-const clockLabel=v=>v?String(v).slice(0,5):'—';
+const clockLabel=v=>v?String(v).slice(0,5):'-';
+function normalizeClock(raw){
+ let v=String(raw||'').trim().replace('.',':');
+ if(/^\d{3,4}$/.test(v)){v=v.padStart(4,'0');v=v.slice(0,2)+':'+v.slice(2);}
+ if(/^\d{1,2}:\d{1,2}$/.test(v)){const [h,m]=v.split(':');v=h.padStart(2,'0')+':'+m.padStart(2,'0');}
+ return v;
+}
+const validClock=v=>/^([01]\d|2[0-3]):[0-5]\d$/.test(v);
+
 const issuesOf=x=>Array.isArray(x.mtc_handover_issues)?x.mtc_handover_issues:[];
 const receiptOf=x=>Array.isArray(x.mtc_handover_receipts)?x.mtc_handover_receipts[0]:(x.mtc_handover_receipts||null);
-const isOpen=x=>x.status!=='Closed';
+const currentState=x=>currentIssues.get(x.issue_id)||x;
+const isOpen=x=>currentState(x).status!=='Closed';
 const localToday=d=>new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10);
-let handovers=[],outstanding=[],drafts=[],visible=[],selectedId=new URLSearchParams(location.search).get('handover')||'',loading=false;
+let handovers=[],outstanding=[],drafts=[],visible=[],currentIssues=new Map(),editingIssue=null,selectedId=new URLSearchParams(location.search).get('handover')||'',loading=false;
 function notify(text,type=''){const p=$('msg');p.textContent=text;p.className='message'+(type?' '+type:'');}
 function makePad(canvas,btn){
  const c=canvas.getContext('2d');const scale=Math.min(window.devicePixelRatio||1,2);const w=canvas.clientWidth||360,h=canvas.clientHeight||138;
@@ -139,8 +193,16 @@ function renderDetail(h){
  <div><small>Jam Serah</small><strong>${esc(dateLabel(h.jam_serah))}</strong></div>
  <div><small>Jam Terima</small><strong>${esc(receipt?dateLabel(receipt.jam_terima):'Belum diterima')}</strong></div></div>
  <h3 style="font-size:13px;margin:0 0 12px">Issue selama shift (${issues.length})</h3>
- <div class="issue-detail">${issues.length?issues.map((x,i)=>`<article class="issue-detail-card"><div style="display:flex;gap:10px;justify-content:space-between;align-items:center"><strong>${i+1}. ${esc(x.mesin_area)}</strong><span class="pill ${x.status.toLowerCase()}">${esc(x.status)}</span></div>
- <p><b>Issue:</b> ${esc(x.issue)}</p><p class="issue-clock"><b>Jam Mulai:</b> ${esc(clockLabel(x.jam_mulai))} &nbsp;&nbsp; <b>Jam Selesai:</b> ${esc(clockLabel(x.jam_selesai))}</p><p><b>Action yang sudah dilakukan:</b> ${esc(x.action_dilakukan||'Belum ada')}</p><p><b>Action lanjutan:</b> ${esc(x.action_lanjutan||'Tidak diperlukan')}</p></article>`).join(''):'<div class="muted">Shift ini dicatat tanpa issue.</div>'}</div>
+ <div class="issue-detail">${issues.length?issues.map((x,i)=>{
+  const live=currentState(x),latestChanged=live.updated_at&&new Date(live.updated_at)>new Date(h.jam_serah);
+  return `<article class="issue-detail-card"><div style="display:flex;gap:10px;justify-content:space-between;align-items:center"><strong>${i+1}. ${esc(x.mesin_area)}</strong><span class="pill ${esc(live.status.toLowerCase())}">${esc(live.status)}</span></div>
+  <p><b>Issue:</b> ${esc(x.issue)}</p>
+  <p class="issue-clock"><b>Jam Mulai:</b> ${esc(clockLabel(live.jam_mulai||x.jam_mulai))} &nbsp;&nbsp; <b>Jam Selesai:</b> ${esc(clockLabel(live.jam_selesai))}</p>
+  <p><b>Status saat handover:</b> ${esc(x.status)} &nbsp; <b>Action saat handover:</b> ${esc(x.action_dilakukan||'Belum ada')}</p>
+  ${latestChanged?`<div class="issue-current"><p><b>Update terkini:</b> ${esc(live.action_dilakukan||'Belum ada')}</p><p><b>TL / Waktu:</b> ${esc(live.tl_update||'Dari handover berikutnya')} - ${esc(dateLabel(live.updated_at))}</p></div>`:''}
+  <p><b>Action lanjutan:</b> ${esc(live.action_lanjutan||'Tidak diperlukan')}</p>
+  ${live.status!=='Closed'?`<div class="issue-act"><button type="button" class="btn btn-outline btn-sm" data-edit-issue="${esc(x.issue_id)}">Update / Close Issue</button></div>`:''}</article>`;
+ }).join(''):'<div class="muted">Shift ini dicatat tanpa issue.</div>'}</div>
  <div class="soft-divider"></div><h3 style="font-size:13px;margin:0 0 8px">Catatan tambahan</h3><p style="font-size:12px;color:#4d627c;white-space:pre-wrap;overflow-wrap:anywhere">${esc(h.catatan||'Tidak ada catatan tambahan.')}</p>
  <div class="soft-divider"></div><h3 style="font-size:13px;margin:0 0 12px">Pengesahan</h3>
  <div class="sign-views"><div><h4>Menyerahkan</h4>${imgTag(h.tanda_penyerah,'Tanda tangan penyerah')}<div class="tiny">${esc(h.tl_penyerah)} · ${esc(dateLabel(h.jam_serah))}</div></div>
@@ -150,6 +212,7 @@ function renderDetail(h){
  <div class="field" style="margin-top:11px"><label>Tanda tangan penerima <span class="required">*</span></label><div class="signature-box"><canvas id="receiverSign" aria-label="Area gambar tanda tangan penerima"></canvas></div><div class="sign-controls"><small class="tiny">Jam terima dicatat otomatis oleh server.</small><button type="button" class="btn btn-outline btn-sm" id="clearReceiverSign">Bersihkan</button></div></div>
  <label class="checkbox-line"><input id="ackReceive" type="checkbox" required><span>Saya telah membaca issue, action, dan pekerjaan yang diteruskan dari shift sebelumnya.</span></label>
  <button type="submit" class="btn btn-green" id="acceptBtn">Konfirmasi Terima Shift</button><div class="message" id="receiveMsg" role="status"></div></form>`}`;
+ container.querySelectorAll('button[data-edit-issue]').forEach(btn=>btn.addEventListener('click',()=>openIssueEditor(btn.dataset.editIssue)));
  if(!receipt){const pad=makePad($('receiverSign'),$('clearReceiverSign'));$('acceptForm').addEventListener('submit',e=>handleAccept(e,h.id,pad));}
 }
 async function handleAccept(event,id,pad){
@@ -178,8 +241,9 @@ function renderDrafts(){
 function renderOutstanding(){
  const list=$('outstandingList');$('outCount').textContent=outstanding.length;
  if(!outstanding.length){list.innerHTML='<div class="muted">Tidak ada outstanding aktif untuk lokasi ini.</div>';return;}
- list.innerHTML=outstanding.map(x=>`<div class="outstanding-item"><div><b>${esc(x.mesin_area)}</b> <span class="pill ${x.status.toLowerCase()}">${esc(x.status)}</span><p>${esc(x.issue)}</p><p><b>Next action:</b> ${esc(x.action_lanjutan||'Belum ditentukan')}</p><small>${esc(clockLabel(x.jam_mulai))} – ${esc(clockLabel(x.jam_selesai))} · ${esc(x.gedung)} · Terakhir ${esc(x.tanggal)} (${esc(x.shift)})</small></div>
- <a class="btn btn-outline btn-sm" href="mtc-handover-form.html?gedung=${encodeURIComponent(x.gedung)}&amp;carry=${encodeURIComponent(x.issue_id)}">Bawa ke Shift</a></div>`).join('');
+ list.innerHTML=outstanding.map(x=>`<div class="outstanding-item"><div><b>${esc(x.mesin_area)}</b> <span class="pill ${esc(x.status.toLowerCase())}">${esc(x.status)}</span><p>${esc(x.issue)}</p><p><b>Next action:</b> ${esc(x.action_lanjutan||'Belum ditentukan')}</p><small>${esc(clockLabel(x.jam_mulai))} - ${esc(clockLabel(x.jam_selesai))} | ${esc(x.gedung)} | ${esc(x.tanggal)} (${esc(x.shift)})</small></div>
+ <div class="outstanding-actions"><button class="btn btn-outline btn-sm" type="button" data-edit-issue="${esc(x.issue_id)}">Update / Close</button><a class="btn btn-light btn-sm" href="mtc-handover-form.html?gedung=${encodeURIComponent(x.gedung)}&amp;carry=${encodeURIComponent(x.issue_id)}">Bawa ke Shift</a></div></div>`).join('');
+ list.querySelectorAll('button[data-edit-issue]').forEach(btn=>btn.addEventListener('click',()=>openIssueEditor(btn.dataset.editIssue)));
 }
 async function loadAll(){
  if(loading)return;loading=true;notify('Memuat data...');
@@ -198,6 +262,16 @@ async function loadAll(){
      all.push(...data);if(data.length<500)break;offset+=500;if(offset>=5000){cut=true;break;}
    }
    handovers=all;
+   // Fetch current status for shown issues, including updates made in later shifts.
+   currentIssues=new Map();
+   const ids=[...new Set(handovers.flatMap(h=>issuesOf(h).map(i=>i.issue_id)).filter(Boolean))];
+   for(let index=0;index<ids.length;index+=180){
+     const {data:states,error:stateError}=await db.rpc('mtc_get_issue_current',{
+       p_issue_ids:ids.slice(index,index+180),p_gedung:null
+     });
+     if(stateError)throw Error('Aktifkan SQL 05_UPGRADE_UPDATE_ISSUE_MTC.sql: '+stateError.message);
+     (states||[]).forEach(item=>currentIssues.set(item.issue_id,item));
+   }
    let dq=db.from('mtc_shift_drafts')
      .select('id,tanggal,shift,gedung,tl_penyerah,items,updated_at')
      .eq('status','Draft').order('updated_at',{ascending:false}).limit(200);
@@ -216,13 +290,82 @@ async function loadAll(){
 function csvCell(v){let s=String(v??'');if(/^[\s]*[=+@-]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"';}
 function exportCsv(){
  if(!visible.length){notify('Tidak ada data untuk diekspor.','error');return;}
- const headers=['Tanggal','Shift','Lokasi','TL Penyerah','TL Penerima','Jam Serah','Status Penerimaan','Jam Terima','Mesin Area','Issue','Status Issue','Jam Mulai','Jam Selesai','Action Dilakukan','Action Lanjutan','Catatan'];
+ const headers=['Tanggal','Shift','Lokasi','TL Penyerah','TL Penerima','Jam Serah','Status Penerimaan','Jam Terima','Mesin Area','Issue','Status Saat Handover','Status Terkini','Jam Mulai','Jam Selesai Saat Handover','Jam Selesai Terkini','Action Saat Handover','Action Terkini','Action Lanjutan Terkini','TL Update','Waktu Update','Catatan'];
  const output=[headers.map(csvCell).join(',')];
  for(const h of visible){const rec=receiptOf(h),items=issuesOf(h);for(const it of items.length?items:[{}]){
-   output.push([h.tanggal,h.shift,h.gedung,h.tl_penyerah,h.tl_penerima,h.jam_serah,rec?'Diterima':'Menunggu',rec?.jam_terima||'',it.mesin_area||'',it.issue||'',it.status||'',clockLabel(it.jam_mulai)==='—'?'':clockLabel(it.jam_mulai),clockLabel(it.jam_selesai)==='—'?'':clockLabel(it.jam_selesai),it.action_dilakukan||'',it.action_lanjutan||'',h.catatan||''].map(csvCell).join(','));
+   const live=currentState(it);
+   output.push([h.tanggal,h.shift,h.gedung,h.tl_penyerah,h.tl_penerima,h.jam_serah,rec?'Diterima':'Menunggu',rec?.jam_terima||'',it.mesin_area||'',it.issue||'',it.status||'',live.status||'',live.jam_mulai||it.jam_mulai||'',it.jam_selesai||'',live.jam_selesai||'',it.action_dilakukan||'',live.action_dilakukan||'',live.action_lanjutan||'',live.tl_update||'',live.updated_at||'',h.catatan||''].map(csvCell).join(','));
  }}
  const file=new Blob(['\ufeff'+output.join('\r\n')],{type:'text/csv;charset=utf-8'}),link=document.createElement('a'),url=URL.createObjectURL(file);link.href=url;link.download='maintenance_handover_'+localToday(new Date())+'.csv';link.click();setTimeout(()=>URL.revokeObjectURL(url),2000);
 }
+
+function syncIssueEdit(){
+ const closed=$('issueEditStatus').value==='Closed';
+ $('issueEditEndLabel').innerHTML=closed?'Jam Selesai (24 jam) <span class="required">*</span>':'Jam Selesai (24 jam)';
+ $('issueEditEnd').required=closed;
+ $('issueEditNextWrap').hidden=closed;
+ $('issueEditNext').required=!closed;
+}
+function issueEditMessage(message,type=''){
+ $('issueEditMessage').textContent=message;
+ $('issueEditMessage').className='message'+(type?' '+type:'');
+}
+function openIssueEditor(id){
+ const item=currentIssues.get(id)||outstanding.find(x=>x.issue_id===id);
+ if(!item){notify('Issue tidak ditemukan. Klik Terapkan lalu coba lagi.','error');return;}
+ if(item.status==='Closed'){notify('Issue sudah Closed. Muat ulang monitoring.','error');return;}
+ editingIssue={...item};
+ $('issueEditorMeta').textContent=item.mesin_area+' | '+item.issue;
+ const allowed=item.status==='Progress'?['Progress','Closed']:['Open','Progress','Closed'];
+ $('issueEditStatus').innerHTML=allowed.map(status=>'<option value="'+status+'">'+status+'</option>').join('');
+ $('issueEditStatus').value='Closed'; // A single click to prepare issue closure.
+ $('issueEditStart').value=clockLabel(item.jam_mulai)==='-'?'':clockLabel(item.jam_mulai);
+ $('issueEditEnd').value=clockLabel(item.jam_selesai)==='-'?'':clockLabel(item.jam_selesai);
+ $('issueEditAction').value='';
+ $('issueEditNext').value=item.action_lanjutan||'';
+ $('issueEditBy').value='';
+ issueEditMessage('');syncIssueEdit();
+ const dlg=$('issueEditor');if(!dlg.open)dlg.showModal();
+ $('issueEditBy').focus();
+}
+function closeIssueEditor(){if($('issueEditor').open)$('issueEditor').close();editingIssue=null;}
+$('issueEditStatus').addEventListener('change',syncIssueEdit);
+$('closeIssueEditor').addEventListener('click',closeIssueEditor);
+$('cancelIssueEdit').addEventListener('click',closeIssueEditor);
+$('issueEditor').addEventListener('close',()=>{editingIssue=null;});
+for(const id of ['issueEditStart','issueEditEnd']){
+ $(id).addEventListener('blur',()=>{$(id).value=normalizeClock($(id).value);});
+}
+$('issueEditorForm').addEventListener('submit',async e=>{
+ e.preventDefault();if(!editingIssue)return;
+ const item=editingIssue;
+ const status=$('issueEditStatus').value;
+ const start=normalizeClock($('issueEditStart').value);
+ const end=normalizeClock($('issueEditEnd').value);
+ const action=$('issueEditAction').value.trim();
+ const next=status==='Closed'?'':$('issueEditNext').value.trim();
+ const tl=$('issueEditBy').value.trim();
+ if(!validClock(start)){issueEditMessage('Jam Mulai harus HH:MM (00:00 sampai 23:59).','error');return;}
+ if(end&&!validClock(end)){issueEditMessage('Jam Selesai harus HH:MM (00:00 sampai 23:59).','error');return;}
+ if(status==='Closed'&&!end){issueEditMessage('Closed wajib isi Jam Selesai.','error');return;}
+ if(action.length<3){issueEditMessage('Tulis action yang dilakukan (min. 3 huruf).','error');return;}
+ if(status!=='Closed'&&!next){issueEditMessage('Open/Progress wajib ada action lanjutan.','error');return;}
+ if(tl.length<2){issueEditMessage('Isi nama TL yang update.','error');return;}
+ if(status==='Closed'&&!window.confirm('Close issue '+item.mesin_area+'? Status Closed tidak dapat dibuka ulang.'))return;
+ const btn=$('saveIssueEdit');btn.disabled=true;btn.textContent='Menyimpan...';issueEditMessage('Menyimpan update...');
+ try{
+   if(!db)throw Error('Koneksi Supabase tidak tersedia.');
+   const {error}=await db.rpc('mtc_update_issue',{
+     p_issue_id:item.issue_id,p_expected_updated_at:item.updated_at,
+     p_status:status,p_jam_mulai:start,p_jam_selesai:end||null,
+     p_action_dilakukan:action,p_action_lanjutan:next,p_tl_update:tl
+   });
+   if(error)throw Error(error.message);
+   closeIssueEditor();await loadAll();
+   notify('Issue '+item.mesin_area+' berhasil '+(status==='Closed'?'ditutup.':'diperbarui.') ,'success');
+ }catch(ex){issueEditMessage('Gagal update: '+ex.message,'error');}
+ finally{btn.disabled=false;btn.textContent='Simpan Update';}
+});
 $('reload').addEventListener('click',loadAll);
 $('export').addEventListener('click',exportCsv);
 $('keyword').addEventListener('input',applyFilters);
