@@ -4,8 +4,8 @@
   Gunakan hanya anon / publishable key, JANGAN service_role key.
 */
 window.CILT_CONFIG = {
-  SUPABASE_URL: '',
-  SUPABASE_ANON_KEY: '',
+  SUPABASE_URL: 'https://bmnhtxalfsfaefacgtpm.supabase.co/rest/v1/',
+  SUPABASE_ANON_KEY: 'sb_publishable_VItBKenz-q2sYz7MsibODA_nYtLXv9Q',
   TABLE: 'cilt_hourly_checks',
   BUILDING: '6',
   TIMEZONE: 'Asia/Jakarta',
