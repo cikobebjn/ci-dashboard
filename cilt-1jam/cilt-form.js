@@ -55,13 +55,20 @@
   async function loadExisting(){
     const date=$('checkDate').value,machine=$('machineSelect').value,hour=Number($('hourSelect').value);
     const stamp=++loadVersion;currentRecord=null;
-    clearResults();$('saveBtn').textContent='Simpan Pengecekan';
+    clearResults();$('saveBtn').disabled=false;$('saveBtn').textContent='Simpan Pengecekan';
     $('recordNotice').textContent=machine?'Memeriksa data untuk mesin dan jam ini...':'Pilih mesin untuk memulai.';
     if(!date||!machine||Number.isNaN(hour))return;
     try{
       const record=await app.getOne(date,machine,hour);
       if(stamp!==loadVersion)return;
       currentRecord=record;
+      if(record?.locked){
+        currentRecord=record;
+        $('saveBtn').disabled=true;
+        $('saveBtn').textContent='Sudah Terisi';
+        $('recordNotice').textContent='Slot ini sudah terisi dari perangkat lain. Hubungi SPV untuk koreksi atau pilih mesin/jam yang belum terisi.';
+        return;
+      }
       if(record){
         $('shiftSelect').value=String(record.shift);
         $('operatorName').value=record.operator_name||'';
@@ -92,12 +99,12 @@
     return true;
   }
   async function save(){
-    if(busy||!validate())return;
+    if(busy||currentRecord?.locked||!validate())return;
     const date=$('checkDate').value,machine=$('machineSelect').value,hour=Number($('hourSelect').value);
     if(!window.confirm(`${currentRecord?'Perbarui':'Simpan'} hasil CILT untuk ${machine}, ${app.niceDate(date)}, jam ${app.hourLabel(hour)}?`))return;
     const record={check_date:date,hour_slot:hour,building:app.cfg.BUILDING,machine,shift:Number($('shiftSelect').value),operator_name:$('operatorName').value.trim(),checks:tasks.map(t=>({task_id:t.id,status:state[t.id].status,note:(state[t.id].status==='done'?'':state[t.id].note||'').trim()})),general_note:$('generalNote').value.trim()};
     busy=true;const btn=$('saveBtn');btn.disabled=true;btn.textContent='Menyimpan...';
-    try{currentRecord=await app.upsert(record);app.toast('Pengecekan CILT berhasil disimpan.');$('recordNotice').innerHTML='<strong>Data tersimpan.</strong> Bisa diperbarui kembali pada jam yang sama.';btn.textContent='Perbarui Pengecekan';}
+    try{currentRecord=await app.upsert(record);app.toast('Pengecekan CILT berhasil disimpan.');$('recordNotice').innerHTML='<strong>Data tersimpan.</strong> Bisa diperbarui dari perangkat yang sama.';btn.textContent='Perbarui Pengecekan';}
     catch(e){app.toast('Gagal menyimpan: '+e.message,'bad');btn.textContent=currentRecord?'Perbarui Pengecekan':'Simpan Pengecekan';}
     finally{busy=false;btn.disabled=false;}
   }
