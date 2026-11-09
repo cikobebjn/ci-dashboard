@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#ffffff"><title>Form CIL 4 Jam | Packaging Chingfong</title>
+  <link rel="stylesheet" href="cil4.css?v=cil4-20261109-1">
+</head>
+<body>
+<header class="app-header"><div class="header-inner">
+  <div class="brand"><span class="brand-mark">K</span><span class="brand-copy"><strong>KOBE · CIL</strong><span>PACKAGING CHINGFONG</span></span></div>
+  <span class="mode-chip"><span class="mode-dot"></span><span data-storage-label>Lokal • Perangkat ini</span></span>
+</div></header>
+<main class="page-shell">
+  <div class="page-head"><div><p class="eyebrow">AUTONOMOUS MAINTENANCE / CHECKLIST</p><h1>Form Pengecekan CIL <span style="color:#236de4">4 Jam</span></h1><p class="subheading">Packaging Chingfong · Cleaning &amp; Inspection · 3 titik pengecekan setiap 4 jam</p></div></div>
+  <div class="notice local-warning" data-local-note><span class="note-icon">ⓘ</span> Mode lokal aktif. Data hanya tersimpan di browser ini, belum tersinkron antarperangkat. Konfigurasi Supabase tersedia dalam paket file.</div>
+  <section class="panel panel-pad" aria-label="Identitas Pengecekan">
+    <div class="panel-head"><div><h2>Identitas Pengecekan</h2><p>Pilih mesin dan jam yang sedang diperiksa. Data pada jam yang sama dapat diperbarui dari perangkat pengisi.</p></div><span class="tag">Gedung 6 · Packing</span></div>
+    <div class="form-filters">
+      <div class="form-control"><label class="field-label" for="checkDate">Tanggal <span class="required">*</span></label><input id="checkDate" class="control" type="date" required></div>
+      <div class="form-control"><label class="field-label" for="machineSelect">Mesin Chingfong <span class="required">*</span></label><select id="machineSelect" class="control" required><option value="">Pilih mesin</option><option value="CF 01">CF 01</option><option value="CF 02">CF 02</option><option value="CF 04">CF 04</option><option value="CF 05">CF 05</option><option value="CF 06">CF 06</option><option value="CF 08">CF 08</option><option value="CF 12">CF 12</option><option value="CF 13">CF 13</option><option value="CF 14">CF 14</option><option value="CF 15">CF 15</option><option value="CF 16">CF 16</option><option value="CF 17">CF 17</option><option value="CF 19">CF 19</option><option value="CF 20">CF 20</option></select></div>
+      <div class="form-control"><label class="field-label" for="hourSelect">Jam Pengecekan <span class="required">*</span></label><select id="hourSelect" class="control" required></select></div>
+      <div class="form-control"><label class="field-label" for="shiftSelect">Shift <span class="required">*</span></label><select id="shiftSelect" class="control" required><option value="">Pilih shift</option><option value="1">Shift 1</option><option value="2">Shift 2</option><option value="3">Shift 3</option></select></div>
+      <div class="form-control"><label class="field-label" for="operatorName">Nama Operator <span class="required">*</span></label><input id="operatorName" class="control" type="text" maxlength="100" placeholder="Masukkan nama operator" required autocomplete="name"></div>
+    </div>
+    <div class="form-status-bar"><p id="recordNotice">Pilih tanggal, mesin, dan jam untuk memulai.</p><span class="tag">6 periode / hari · 00.00–20.00</span></div>
+  </section>
+  <div class="task-heading"><div><h2>Checklist Pengecekan</h2><p>Setiap item wajib dipilih salah satu hasilnya.</p></div><div class="task-progress"><span id="taskCounter">0 / 3</span><div class="progress-track"><div id="taskProgress" class="progress-fill"></div></div></div></div>
+  <div class="task-grid" id="taskGrid" aria-label="Item pengecekan"></div>
+  <section class="general-section panel panel-pad"><label for="generalNote">Keterangan tambahan <span style="font-size:11px;color:#8fa0b2;font-weight:500">(opsional)</span></label><textarea class="control note-general" id="generalNote" maxlength="2000" placeholder="Catatan umum, tindak lanjut, atau informasi untuk shift berikutnya..."></textarea></section>
+  <section class="panel save-panel"><div class="save-caption"><strong id="saveCaption">Siap mengisi pengecekan?</strong><span>Pastikan 3 status terisi. Abnormality dan tidak dilakukan harus disertai alasan.</span></div><div class="save-buttons"><button id="resetBtn" class="btn btn-secondary" type="button">Reset Isian</button><button id="saveBtn" class="btn btn-primary" type="button">Simpan Pengecekan</button></div></section>
+  <p class="smallprint" style="margin-top:18px;text-align:center">CIL 4 Jam · PT KOBE BOGA UTAMA · Packaging Chingfong</p>
+</main>
+<dialog id="cilActionDialog" class="cil-action-dialog" aria-labelledby="cilActionTitle" aria-describedby="cilActionDescription">
+  <div class="cil-dialog-topline"></div>
+  <div class="cil-dialog-content">
+    <div class="cil-dialog-icon" aria-hidden="true">✓</div>
+    <p id="cilActionEyebrow" class="cil-dialog-eyebrow">KONFIRMASI PENGECEKAN</p>
+    <h2 id="cilActionTitle" tabindex="-1">Simpan hasil pengecekan?</h2>
+    <p id="cilActionDescription" class="cil-dialog-description">Pastikan data yang akan disimpan sudah sesuai.</p>
+    <dl id="cilActionSummary" class="cil-dialog-summary">
+      <div><dt>Mesin</dt><dd id="cilSummaryMachine">—</dd></div>
+      <div><dt>Jam</dt><dd id="cilSummaryHour">—</dd></div>
+      <div><dt>Tanggal</dt><dd id="cilSummaryDate">—</dd></div>
+      <div><dt>Shift</dt><dd id="cilSummaryShift">—</dd></div>
+      <div class="cil-summary-wide"><dt>Nama Operator</dt><dd id="cilSummaryOperator">—</dd></div>
+    </dl>
+    <p id="cilActionHint" class="cil-dialog-hint"><span aria-hidden="true">ⓘ</span> Tiga item pemeriksaan telah diisi.</p>
+    <div class="cil-dialog-actions">
+      <button type="button" id="cilActionCancel" class="cil-modal-cancel">Kembali</button>
+      <button type="button" id="cilActionApprove" class="cil-modal-approve"><span aria-hidden="true">✓</span> Ya, Simpan</button>
+    </div>
+  </div>
+</dialog>
+<script src="../cilt-1jam/cilt-config.js?v=cil4-20261109-1"></script><script src="cil4-config.js?v=cil4-20261109-1"></script><script src="cil4-catalog.js?v=cil4-20261109-1"></script><script src="cil4-core.js?v=cil4-20261109-1"></script><script src="cil4-form.js?v=cil4-20261109-1"></script>
+</body>
+</html>
