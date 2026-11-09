@@ -59,7 +59,7 @@
     $('recordsBody').innerHTML=segment.length?segment.map((r,i)=>{
       const stats=app.evaluate(r),statusText={done:'Seluruh task dilakukan',abnormal:'Abnormality',skipped:'Tidak dilakukan',incomplete:'Belum lengkap'}[stats.status]||'Belum dinilai';
       return `<tr><td>${app.safeText(app.niceDate(r.check_date))}</td><td class="strong-cell">${app.hourLabel(r.hour_slot)}</td><td class="strong-cell">${app.safeText(r.machine)}</td><td>${r.shift}</td><td>${app.safeText(r.operator_name)}</td><td><span class="pill ${stats.status}">${statusText}</span></td><td><button type="button" class="btn btn-secondary btn-sm" data-detail-index="${page*PAGE_SIZE+i}">Lihat</button></td></tr>`;
-    }).join(''):'<tr><td colspan="7"><div class="empty-state"><span class="empty-icon">▦</span>Belum ada pengecekan untuk filter ini.<br>Gunakan tombol <b>Input CILT</b> untuk menambahkan data.</div></td></tr>';
+    }).join(''):'<tr><td colspan="7"><div class="empty-state"><span class="empty-icon">▦</span>Belum ada pengecekan untuk filter ini.<br>Gunakan tombol <b>Input CIL</b> untuk menambahkan data.</div></td></tr>';
     $('pageInfo').textContent=dayRecords.length?`${page*PAGE_SIZE+1}–${Math.min(dayRecords.length,(page+1)*PAGE_SIZE)} dari ${dayRecords.length} data`:'0 data';
     $('prevPage').disabled=page===0;$('nextPage').disabled=page>=count-1;
   }
@@ -87,14 +87,14 @@
   function hideDetail(){ $('detailModal').hidden=true; }
   function exportData(){
     if(!dayRecords.length){app.toast('Belum ada data untuk diekspor.','bad');return;}
-    const rows=[['Tanggal','Jam','Gedung','Area','Mesin','Shift','Nama Operator','Urutan Task','Jenis CILT','Sub Equipment','Nama Part','Status','Keterangan per Item','Keterangan Umum','Terakhir Diperbarui']];
+    const rows=[['Tanggal','Jam','Gedung','Area','Mesin','Shift','Nama Operator','Urutan Task','Jenis CIL','Sub Equipment','Nama Part','Status','Keterangan per Item','Keterangan Umum','Terakhir Diperbarui']];
     dayRecords.forEach(record=>{
       tasks.forEach(t=>{
         const result=(record.checks||[]).find(x=>Number(x.task_id)===t.id)||{};
         rows.push([record.check_date,app.hourLabel(record.hour_slot),record.building||'6','Packing',record.machine,'Shift '+record.shift,record.operator_name,t.id,t.type,t.equipment,t.part,app.statusLabels[result.status]||'Belum diisi',result.note||'',record.general_note||'',record.updated_at||'']);
       });
     });
-    app.exportCSV(`CILT_1Jam_${$('dayFilter').value}_${$('machineFilter').value||'SemuaMesin'}.csv`,rows);
+    app.exportCSV(`CIL_1Jam_${$('dayFilter').value}_${$('machineFilter').value||'SemuaMesin'}.csv`,rows);
     app.toast('File CSV siap dibuka di Excel.');
   }
   async function main(){
