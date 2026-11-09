@@ -38,8 +38,7 @@
       { name: 'Smart Way', url: 'smartway.html', icon: 'activity' },
       { name: 'Baopack', url: 'baopack.html', icon: 'activity' },
       { name: 'ChingFong', url: 'chingfong.html', icon: 'activity' },
-      { name: 'Monitoring CIL 1 Jam', url: 'cilt-1jam/cilt-1jam-monitoring.html', icon: 'chart' },
-      { name: 'Form Pengecekan CIL 1 Jam', url: 'cilt-1jam/cilt-1jam-form.html', icon: 'form' },
+      { name: 'Monitoring CIL', url: 'cilt-1jam/cilt-1jam-monitoring.html', icon: 'chart' },
       { name: 'Extruder', url: 'import-extruder.html', icon: 'activity' }
     ] }
   ];
