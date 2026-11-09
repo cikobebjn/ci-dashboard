@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#ffffff"><title>Monitoring CILT 1 Jam | Packaging Chingfong</title><link rel="stylesheet" href="cilt.css">
+</head>
+<body>
+<header class="app-header"><div class="header-inner">
+  <a class="brand" href="cilt-1jam-monitoring.html"><span class="brand-mark">K</span><span class="brand-copy"><strong>KOBE · CILT</strong><span>PACKAGING CHINGFONG</span></span></a>
+  <nav class="header-links" aria-label="Navigasi CILT"><a href="cilt-1jam-form.html" class="nav-link">✎ &nbsp;Form Input</a><a href="cilt-1jam-monitoring.html" class="nav-link is-active">▦ &nbsp;Monitoring</a></nav>
+  <span class="mode-chip"><span class="mode-dot"></span><span data-storage-label>Lokal • Perangkat ini</span></span><button class="btn-link" data-logout hidden>Keluar</button>
+</div></header>
+<main class="page-shell">
+  <div class="page-head"><div><p class="eyebrow">OPERATIONAL EXCELLENCE / PACKAGING</p><h1>CILT Monitoring <span style="color:#236de4">1 Jam</span></h1><p class="subheading">Pemantauan pelaksanaan Cleaning &amp; Inspection · Mesin Chingfong · Gedung 6</p></div><div class="head-actions"><button class="btn btn-secondary" id="downloadCSV" type="button">⇩ &nbsp;Export Excel (CSV)</button><a class="btn btn-primary" href="cilt-1jam-form.html">+ &nbsp;Input CILT</a></div></div>
+  <div class="notice local-warning" data-local-note><span class="note-icon">ⓘ</span> Mode lokal aktif. Data hanya berasal dari browser ini; sinkron antarperangkat membutuhkan konfigurasi Supabase.</div>
+  <section class="panel panel-pad filter-panel"><div class="dashboard-filters">
+    <div class="form-control"><label class="field-label" for="dayFilter">Tanggal Pengecekan</label><input class="control" id="dayFilter" type="date"></div>
+    <div class="form-control"><label class="field-label" for="machineFilter">Mesin</label><select class="control" id="machineFilter"><option value="">Semua Mesin</option></select></div>
+    <div class="form-control"><label class="field-label" for="shiftFilter">Shift</label><select class="control" id="shiftFilter"><option value="">Semua Shift</option><option value="1">Shift 1</option><option value="2">Shift 2</option><option value="3">Shift 3</option></select></div>
+    <button class="btn btn-secondary" type="button" id="refreshBtn">↻ &nbsp;Refresh</button>
+  </div><div class="record-hint"><span class="dot"></span><span id="filterCaption">Menampilkan data sesuai filter</span></div></section>
+  <section class="kpi-grid" aria-label="Ringkasan KPI CILT">
+    <div class="panel kpi"><span class="kpi-icon">▦</span><p class="kpi-label">Jam Terinput</p><div class="kpi-value" id="kpiSlots">0</div><p class="kpi-foot" id="kpiSlotsFoot">Jumlah pengecekan yang tercatat</p></div>
+    <div class="panel kpi"><span class="kpi-icon">✓</span><p class="kpi-label">Task Dilakukan</p><div class="kpi-value" id="kpiRate">—</div><p class="kpi-foot">Persentase task berstatus sudah dilakukan dari semua task tercatat</p></div>
+    <div class="panel kpi"><span class="kpi-icon">!</span><p class="kpi-label">Temuan Abnormality</p><div class="kpi-value" id="kpiAbnormal">0</div><p class="kpi-foot">Jumlah task dengan abnormality</p></div>
+    <div class="panel kpi"><span class="kpi-icon">/</span><p class="kpi-label">Tidak Dilakukan</p><div class="kpi-value" id="kpiSkipped">0</div><p class="kpi-foot">Jumlah task dengan alasan tidak dilakukan</p></div>
+  </section>
+  <section class="dash-grid">
+    <div class="panel panel-pad"><div class="panel-head"><div><h2>Peta Pengecekan 24 Jam</h2><p id="heatmapSubtitle">Tinjauan harian menurut mesin dan jam pengecekan</p></div></div>
+      <div class="heatmap-scroll"><table class="heatmap-table" id="heatmapTable" aria-label="Peta pengecekan 24 jam"></table></div>
+      <div class="heatmap-foot"><div class="legend"><span class="legend-item"><i class="legend-dot done"></i> Seluruh task ✓</span><span class="legend-item"><i class="legend-dot abnormal"></i> Abnormal</span><span class="legend-item"><i class="legend-dot skipped"></i> Tidak dilakukan</span><span class="legend-item"><i class="legend-dot none"></i> Belum ada data</span></div><span class="caption">Klik kotak untuk detail/input</span></div>
+    </div>
+    <div class="panel panel-pad"><div class="panel-head"><div><h2>Tren 7 Hari</h2><p>Jumlah slot pengecekan yang tercatat per hari</p></div><span class="tag">7 Hari</span></div><div class="day-chart" id="sevenDayChart" aria-label="Grafik pengecekan 7 hari"></div><div class="chart-caption" id="chartCaption">Rekap dihitung dari entri yang tersimpan, bukan estimasi target produksi.</div></div>
+  </section>
+  <section class="panel list-panel"><div class="panel-pad" style="padding-bottom:17px"><div class="panel-head" style="margin-bottom:0"><div><h2>Riwayat Pengecekan</h2><p>Data terbaru pada tanggal dan filter yang dipilih.</p></div><span class="section-caption" id="recordTotal">0 DATA</span></div></div><div class="table-wrap"><table class="records-table"><thead><tr><th>Tanggal</th><th>Jam</th><th>Mesin</th><th>Shift</th><th>Operator</th><th>Hasil</th><th>Detail</th></tr></thead><tbody id="recordsBody"><tr><td colspan="7" class="empty-state">Memuat data...</td></tr></tbody></table></div><div class="table-footer"><span id="pageInfo">—</span><div class="pager"><button class="btn btn-sm btn-secondary" id="prevPage" type="button">‹ Sebelumnya</button><button class="btn btn-sm btn-secondary" id="nextPage" type="button">Berikutnya ›</button></div></div></section>
+  <p class="smallprint" style="text-align:center;margin-top:23px">CILT 1 Jam · PT KOBE BOGA UTAMA · Packaging Chingfong</p>
+</main>
+<div class="modal-backdrop" id="detailModal" hidden><div class="modal" role="dialog" aria-modal="true" aria-labelledby="detailTitle"><div class="modal-header"><div><h2 id="detailTitle">Detail Pengecekan</h2><p id="detailSubtitle"></p></div><button type="button" class="icon-button" id="closeDetail" aria-label="Tutup detail">×</button></div><div id="detailContents"></div><div class="modal-actions"><button type="button" class="btn btn-secondary" id="detailCancel">Tutup</button><a href="cilt-1jam-form.html" class="btn btn-primary" id="detailEdit">Edit Pengecekan</a></div></div></div>
+<script src="cilt-config.js"></script><script src="cilt-catalog.js"></script><script src="cilt-core.js"></script><script src="cilt-dashboard.js"></script>
+</body>
+</html>
