@@ -2,9 +2,9 @@
   'use strict';
   const cfg = window.CILT_CONFIG;
   const STORE_KEY = 'kobe-cilt-chingfong-hourly-v1';
-  const AUTH_KEY = 'kobe-cilt-cloud-auth-v1';
+  const OWNER_KEY = 'kobe-cilt-slot-tokens-v1';
   const isCloud = Boolean(cfg.SUPABASE_URL.trim() && cfg.SUPABASE_ANON_KEY.trim());
-  let runningAuthCallback = null;
+  // Tanpa akun; token slot dibuat otomatis saat penyimpanan pertama.
 
   const statusLabels = { done: 'Sudah dilakukan', abnormal: 'Abnormality', skipped: 'Tidak dilakukan' };
   const statusShort = { done: '✓', abnormal: 'O', skipped: '/' };
@@ -30,51 +30,29 @@
   function addDays(ymd, offset) {
     const d = new Date(ymd + 'T00:00:00Z');d.setUTCDate(d.getUTCDate() + offset);return d.toISOString().slice(0,10);
   }
-  function getSession() { try { return JSON.parse(sessionStorage.getItem(AUTH_KEY) || 'null'); } catch (_) { return null; } }
-  function setSession(data) {
-    sessionStorage.setItem(AUTH_KEY, JSON.stringify({access_token:data.access_token,refresh_token:data.refresh_token,expires_at:Date.now() + (Number(data.expires_in || 3600)*1000)}));
+  const slotKey=(date,machine,hour)=>`${date}|${machine}|${Number(hour)}`;
+  function tokenMap(){
+    try{const m=JSON.parse(localStorage.getItem(OWNER_KEY)||'{}');return m&&typeof m==='object'&&!Array.isArray(m)?m:{};}
+    catch(_){return {};}
   }
-  async function authRequest(grantType, body) {
-    const resp = await fetch(cfg.SUPABASE_URL.replace(/\/$/, '') + '/auth/v1/token?grant_type=' + grantType, {
-      method:'POST',headers:{'Content-Type':'application/json','apikey':cfg.SUPABASE_ANON_KEY},body:JSON.stringify(body)
-    });
-    let json;try { json=await resp.json(); } catch (_) {json={};}
-    if(!resp.ok) throw new Error(json.msg || json.error_description || json.message || 'Autentikasi gagal.');
-    return json;
+  function tokenFor(d,m,h){return tokenMap()[slotKey(d,m,h)]||'';}
+  function saveToken(d,m,h,token){
+    const mapp=tokenMap();mapp[slotKey(d,m,h)]=token;
+    for(const k of Object.keys(mapp)){if(k.slice(0,10)<addDays(today(),-370))delete mapp[k];}
+    localStorage.setItem(OWNER_KEY,JSON.stringify(mapp));
   }
-  async function accessToken() {
-    if (!isCloud) return null;
-    let s = getSession();
-    if (!s || !s.access_token) throw new Error('Silakan masuk menggunakan akun Supabase Auth.');
-    if (s.expires_at && s.expires_at < Date.now()+90000) {
-      if (!s.refresh_token) throw new Error('Sesi telah habis. Silakan masuk kembali.');
-      try {s=await authRequest('refresh_token',{refresh_token:s.refresh_token});setSession(s);}
-      catch(e){sessionStorage.removeItem(AUTH_KEY);throw e;}
-    }
-    return getSession().access_token;
+  function generateToken(){
+    if(crypto.randomUUID)return crypto.randomUUID();
+    const random=new Uint8Array(24);crypto.getRandomValues(random);
+    return Array.from(random,x=>x.toString(16).padStart(2,'0')).join('');
   }
-  async function login(email, password) {
-    if (!isCloud) return;
-    const session = await authRequest('password', {email, password});setSession(session);
-  }
-  async function logout() {
-    if (isCloud) {
-      const s = getSession();
-      if (s?.access_token) {
-        try { await fetch(cfg.SUPABASE_URL.replace(/\/$/,'')+'/auth/v1/logout', {method:'POST',headers:{apikey:cfg.SUPABASE_ANON_KEY,Authorization:'Bearer '+s.access_token}}); }catch(_){}
-      }
-      sessionStorage.removeItem(AUTH_KEY);
-      location.reload();
-    }
-  }
-  async function rest(query, method='GET', body=null, extra={}) {
-    const token = await accessToken();
-    const headers = {'apikey':cfg.SUPABASE_ANON_KEY,'Authorization':'Bearer '+token,'Content-Type':'application/json',...extra};
-    const result = await fetch(cfg.SUPABASE_URL.replace(/\/$/,'') + '/rest/v1/' + cfg.TABLE + query,{method,headers,body:body===null?undefined:JSON.stringify(body)});
-    const raw=await result.text();let json;
-    try{json=raw?JSON.parse(raw):null;}catch(_){json=null;}
-    if(!result.ok) throw new Error(json?.message || json?.hint || 'Gagal mengambil atau menyimpan data ('+result.status+').');
-    return json;
+  async function request(resource,method='GET',body=null,extra={}){
+    const headers={'apikey':cfg.SUPABASE_ANON_KEY,'Content-Type':'application/json',...extra};
+    const resp=await fetch(cfg.SUPABASE_URL.replace(/\/$/,'')+'/rest/v1/'+resource,{method,headers,body:body===null?undefined:JSON.stringify(body)});
+    const raw=await resp.text();let data;
+    try{data=raw?JSON.parse(raw):null;}catch(_){data=null;}
+    if(!resp.ok)throw new Error(data?.message||data?.hint||'Koneksi Supabase gagal ('+resp.status+').');
+    return data;
   }
   function allLocal() {
     try{const obj=JSON.parse(localStorage.getItem(STORE_KEY)||'[]');return Array.isArray(obj)?obj:[];}catch(_){return [];}
@@ -87,33 +65,46 @@
     localStorage.setItem(STORE_KEY,JSON.stringify(kept));
     window.dispatchEvent(new Event('cilt-data-updated'));
   }
-  async function getRange(from,to) {
-    if (!isCloud) return allLocal().filter(x=>x.check_date>=from && x.check_date<=to).sort((a,b)=> b.check_date.localeCompare(a.check_date)||b.hour_slot-a.hour_slot);
-    let all=[];let offset=0;const page=1000;
-    while(true) {
-      const q='?select=*&check_date=gte.'+encodeURIComponent(from)+'&check_date=lte.'+encodeURIComponent(to)+'&order=check_date.desc,hour_slot.desc&limit='+page+'&offset='+offset;
-      const rows=await rest(q);
+  async function getRange(from,to){
+    if(!isCloud)return allLocal().filter(x=>x.check_date>=from&&x.check_date<=to).sort((a,b)=>b.check_date.localeCompare(a.check_date)||b.hour_slot-a.hour_slot);
+    let all=[],offset=0;const page=1000;
+    while(true){
+      const query='cilt_hourly_public?select=*&check_date=gte.'+encodeURIComponent(from)+'&check_date=lte.'+encodeURIComponent(to)+'&order=check_date.desc,hour_slot.desc&limit='+page+'&offset='+offset;
+      const rows=await request(query);
       all=all.concat(rows||[]);
-      if(!rows || rows.length<page) break;
+      if(!rows||rows.length<page)break;
       offset+=rows.length;
-      if(offset>40000) throw new Error('Data melebihi batas tampilan. Filter tanggal lebih sempit.');
+      if(offset>40000)throw new Error('Terlalu banyak data. Gunakan filter tanggal lebih sempit.');
     }
     return all;
   }
-  async function getOne(ymd, machine, hour) {
-    if(!isCloud) return allLocal().find(x=>x.check_date===ymd && x.machine===machine && Number(x.hour_slot)===Number(hour)) || null;
-    const q='?select=*&check_date=eq.'+encodeURIComponent(ymd)+'&machine=eq.'+encodeURIComponent(machine)+'&hour_slot=eq.'+Number(hour)+'&limit=1';
-    const rows=await rest(q); return rows?.[0]||null;
+  async function getOne(date,machine,hour){
+    if(!isCloud)return allLocal().find(x=>x.check_date===date&&x.machine===machine&&Number(x.hour_slot)===Number(hour))||null;
+    const token=tokenFor(date,machine,hour);
+    if(token){
+      const full=await request('rpc/cilt_public_get_record','POST',{p_date:date,p_machine:machine,p_hour:Number(hour),p_token:token});
+      if(full)return full;
+    }
+    const query='cilt_hourly_public?select=*&check_date=eq.'+encodeURIComponent(date)+'&machine=eq.'+encodeURIComponent(machine)+'&hour_slot=eq.'+Number(hour)+'&limit=1';
+    const rows=await request(query);
+    return rows?.length?{...rows[0],locked:true}:null;
   }
-  async function upsert(record) {
-    if(!isCloud) {
-      const all=allLocal();const i=all.findIndex(x=>x.check_date===record.check_date && x.machine===record.machine && Number(x.hour_slot)===Number(record.hour_slot));
-      const now=new Date().toISOString(); const saved={...record,id:i<0?('local-'+Date.now()+'-'+Math.random().toString(36).slice(2,7)):all[i].id,created_at:i<0?now:all[i].created_at,updated_at:now};
+  async function upsert(record){
+    if(!isCloud){
+      const all=allLocal(),i=all.findIndex(x=>x.check_date===record.check_date&&x.machine===record.machine&&Number(x.hour_slot)===Number(record.hour_slot));
+      const now=new Date().toISOString();const saved={...record,id:i<0?('local-'+Date.now()+'-'+Math.random().toString(36).slice(2,7)):all[i].id,created_at:i<0?now:all[i].created_at,updated_at:now};
       if(i<0)all.push(saved);else all[i]=saved;
       writeLocal(all);return saved;
     }
-    const rows=await rest('?on_conflict=check_date,machine,hour_slot','POST',record,{'Prefer':'resolution=merge-duplicates,return=representation'});
-    return rows?.[0]||record;
+    const token=tokenFor(record.check_date,record.machine,record.hour_slot)||generateToken();
+    const saved=await request('rpc/cilt_public_save','POST',{
+      p_date:record.check_date,p_machine:record.machine,p_hour:Number(record.hour_slot),
+      p_shift:Number(record.shift),p_operator_name:record.operator_name,
+      p_checks:record.checks,p_general_note:record.general_note||'',p_token:token
+    });
+    if(!saved)throw new Error('Server tidak mengembalikan data yang tersimpan.');
+    saveToken(record.check_date,record.machine,record.hour_slot,token);
+    return saved;
   }
   function evaluate(entry) {
     const checks=Array.isArray(entry?.checks)?entry.checks:[];
@@ -133,26 +124,11 @@
     const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});const url=URL.createObjectURL(blob);
     const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),500);
   }
-  async function withAuth(afterAuth) {
-    runningAuthCallback=afterAuth;
+  async function withAuth(onReady){
     document.querySelectorAll('[data-storage-label]').forEach(el=>{el.textContent=isCloud?'Online • Supabase':'Lokal • Perangkat ini';});
     document.querySelectorAll('[data-local-note]').forEach(el=>{el.hidden=isCloud;});
-    document.querySelectorAll('[data-logout]').forEach(btn=>{btn.hidden=!isCloud;btn.addEventListener('click',logout);});
-    if(!isCloud){await afterAuth();return;}
-    if(getSession()?.access_token){try{await accessToken();await afterAuth();return;}catch(e){toast(e.message,'bad');}}
-    showLogin();
+    document.querySelectorAll('[data-logout]').forEach(el=>el.remove());
+    await onReady();
   }
-  function showLogin() {
-    let gate=document.querySelector('#authGate');
-    if(!gate){gate=document.createElement('div');gate.id='authGate';gate.className='auth-gate';document.body.appendChild(gate);}
-    gate.innerHTML=`<div class="auth-card"><div class="brand-mark">K</div><h2>Akses CILT Online</h2><p>Masuk menggunakan akun yang sudah dibuat di Supabase Auth agar data sinkron antarpengguna.</p><form id="authForm"><label>Email akun</label><input type="email" id="authEmail" required autocomplete="username" placeholder="email@perusahaan.com"><label>Password</label><input type="password" id="authPassword" required autocomplete="current-password"><div class="auth-error" id="authError" role="alert"></div><button class="btn btn-primary" type="submit" id="authSubmit">Masuk</button></form></div>`;
-    gate.hidden=false;
-    gate.querySelector('form').addEventListener('submit', async event=>{
-      event.preventDefault();const btn=gate.querySelector('#authSubmit');const err=gate.querySelector('#authError');btn.disabled=true;btn.textContent='Memeriksa...';err.textContent='';
-      try{await login(gate.querySelector('#authEmail').value.trim(),gate.querySelector('#authPassword').value);gate.hidden=true;await runningAuthCallback();}
-      catch(e){err.textContent=e.message;}
-      finally{btn.disabled=false;btn.textContent='Masuk';}
-    });
-  }
-  window.CILT={cfg,isCloud,safeText,dateParts,today,currentHour,hourLabel,niceDate,addDays,getRange,getOne,upsert,evaluate,statusLabels,statusShort,toast,exportCSV,withAuth,logout};
+  window.CILT={cfg,isCloud,safeText,dateParts,today,currentHour,hourLabel,niceDate,addDays,getRange,getOne,upsert,evaluate,statusLabels,statusShort,toast,exportCSV,withAuth};
 })();
