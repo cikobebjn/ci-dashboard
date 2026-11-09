@@ -12,3 +12,36 @@
 .dash-grid,.main-grid,.panel,.panel-pad,.heatmap-scroll,.table-wrap{min-width:0}
 .heatmap-table{min-width:620px;border-spacing:3px 7px}
 .heatmap-cell{min-width:13px}
+
+/* ===== CIL 1 JAM: Konfirmasi simpan/reset custom (tanpa popup browser) ===== */
+.cil-action-dialog{position:fixed;inset:0;margin:auto;padding:0;width:min(468px,calc(100vw - 32px));max-width:calc(100vw - 32px);max-height:min(92vh,700px);overflow:auto;border:1px solid rgba(220,232,249,.9);border-radius:24px;background:#fff;color:#183152;box-shadow:0 32px 100px rgba(9,33,69,.25);font-family:Inter,"Segoe UI",Arial,sans-serif;animation:cil-pop .20s cubic-bezier(.2,.8,.2,1)}
+.cil-action-dialog::backdrop{background:rgba(8,24,48,.60)}
+.cil-dialog-topline{height:5px;background:linear-gradient(90deg,#1766e3 0%,#7b62e6 100%)}
+.cil-dialog-content{padding:28px 30px 26px}
+.cil-dialog-icon{width:52px;height:52px;display:grid;place-items:center;border-radius:17px;background:linear-gradient(135deg,#e6f1ff,#edf2ff);color:#1a64d9;font-size:28px;font-weight:850;box-shadow:0 6px 15px rgba(41,108,220,.1);margin-bottom:19px}
+.cil-dialog-eyebrow{margin:0 0 7px;color:#3973cc;letter-spacing:.1em;font-size:10px;font-weight:900}
+.cil-action-dialog h2{margin:0;font-size:23px;line-height:1.25;letter-spacing:-.04em;font-weight:850;color:#14243d}
+.cil-action-dialog h2:focus{outline:none}.cil-dialog-description{margin:10px 0 20px;color:#71829a;font-size:13px;line-height:1.65}
+.cil-dialog-summary{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0;padding:15px 17px;border-radius:15px;border:1px solid #e7edf5;background:linear-gradient(145deg,#f8fbff,#fff)}
+.cil-dialog-summary[hidden]{display:none!important}
+.cil-dialog-summary>div{min-width:0}.cil-dialog-summary dt{color:#8999af;font-size:10px;font-weight:700;margin-bottom:4px}.cil-dialog-summary dd{margin:0;color:#253950;font-size:13px;line-height:1.4;font-weight:850;overflow-wrap:anywhere}.cil-summary-wide{grid-column:1/-1;padding-top:10px;border-top:1px solid #e8eef6}
+.cil-dialog-hint{margin:16px 0 20px;display:flex;gap:9px;align-items:flex-start;line-height:1.5;color:#6c819b;font-size:11px;background:#f5f9ff;border-radius:11px;padding:10px 12px}
+.cil-dialog-hint span{color:#3973cc}
+.cil-dialog-actions{display:flex;gap:10px;justify-content:flex-end}
+.cil-dialog-actions button{appearance:none;border-radius:11px;min-height:45px;padding:11px 19px;font-weight:850;font-size:13px;transition:transform .16s ease,box-shadow .16s ease,background .16s ease}
+.cil-modal-cancel{background:#fff;color:#576c84;border:1px solid #dfe7f1}.cil-modal-cancel:hover{background:#f6f9fc}
+.cil-modal-approve{background:linear-gradient(135deg,#2673ee,#155bc9);color:#fff;border:1px solid transparent;box-shadow:0 8px 18px rgba(36,108,223,.22)}.cil-modal-approve:hover{transform:translateY(-1px);box-shadow:0 11px 23px rgba(36,108,223,.3)}
+.cil-modal-approve span{margin-right:5px;font-weight:900}
+.cil-action-dialog[data-kind="reset"] .cil-dialog-topline{background:linear-gradient(90deg,#f2b94b,#ec8f49)}
+.cil-action-dialog[data-kind="reset"] .cil-dialog-icon{background:#fff4e3;color:#aa6a13}
+.cil-action-dialog[data-kind="reset"] .cil-dialog-eyebrow{color:#a76b1c}
+.cil-action-dialog[data-kind="reset"] .cil-modal-approve{background:linear-gradient(135deg,#e09d36,#c87721);box-shadow:0 8px 18px rgba(169,105,28,.2)}
+@keyframes cil-pop{from{opacity:0;transform:translateY(12px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(max-width:520px){.cil-action-dialog{border-radius:20px}.cil-dialog-content{padding:22px 20px 20px}.cil-action-dialog h2{font-size:21px}.cil-dialog-actions{flex-direction:column-reverse}.cil-dialog-actions button{width:100%}.cil-dialog-summary{gap:9px;padding:13px}}
+@media(prefers-reduced-motion:reduce){.cil-action-dialog{animation:none}.cil-dialog-actions button{transition:none}}
+/* Notifikasi hasil setelah simpan dibuat lebih rapi, tidak menutup isian operator. */
+.toast-host{z-index:95;max-width:min(440px,calc(100vw - 32px))}
+.toast{display:flex;align-items:center;gap:12px;padding:15px 18px;border-radius:14px;border:1px solid #d2eddf;background:#f4fff9;color:#17634c;box-shadow:0 16px 38px rgba(13,49,37,.12);font-size:12px;font-weight:750;line-height:1.5}
+.toast::before{content:"✓";flex:0 0 28px;display:grid;place-items:center;width:28px;height:28px;border-radius:9px;background:#ddf7e9;color:#16865c;font-size:15px;font-weight:900}
+.toast.bad{border-color:#f3c5cb;background:#fff6f6;color:#ab3646}
+.toast.bad::before{content:"!";background:#ffe4e7;color:#c54d5b}
