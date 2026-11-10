@@ -457,24 +457,41 @@ async function saveImprovement(event) {
     saveButton.disabled = true;
     saveButton.textContent = 'Menyimpan...';
 
-    let error;
-    if (id) {
-        ({ error } = await db.from('improvement_monitoring').update(payload).eq('id', id));
-    } else {
-        ({ error } = await db.from('improvement_monitoring').insert([payload]));
+    try {
+        if (id) {
+            // RETURNING memastikan UPDATE benar-benar mengenai satu data.
+            // Supabase dapat mengembalikan error=null meski RLS membuat 0 baris ter-update.
+            const { data, error } = await db
+                .from('improvement_monitoring')
+                .update(payload)
+                .eq('id', id)
+                .select('id, progress');
+            if (error) throw error;
+            if (!data || data.length !== 1) {
+                showToast('Perubahan belum tersimpan. UPDATE tidak mengubah data; periksa izin UPDATE/RLS di Supabase.', 'error');
+                return;
+            }
+            if (Number(data[0].progress) !== progress) {
+                showToast('Progres di database tidak sesuai dengan nilai yang disimpan.', 'error');
+                return;
+            }
+        } else {
+            const { error } = await db
+                .from('improvement_monitoring')
+                .insert([payload]);
+            if (error) throw error;
+        }
+
+        resetForm();
+        await loadImprovements();
+        showToast(id ? 'Improvement dan progres berhasil diperbarui' : 'Improvement berhasil ditambahkan');
+    } catch (err) {
+        showToast('Gagal menyimpan: ' + (err && err.message ? err.message : String(err)), 'error');
+    } finally {
+        saveButton.disabled = false;
+        saveButton.textContent = document.getElementById('edit-id').value
+            ? 'Simpan Perubahan' : 'Simpan Improvement';
     }
-
-    saveButton.disabled = false;
-    saveButton.textContent = id ? 'Simpan Perubahan' : 'Simpan Improvement';
-
-    if (error) {
-        showToast('Gagal menyimpan: ' + error.message, 'error');
-        return;
-    }
-
-    showToast(id ? '✅ Improvement diperbarui' : '✅ Improvement ditambahkan');
-    resetForm();
-    await loadImprovements();
 }
 
 function editImprovement(id) {
