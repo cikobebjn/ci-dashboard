@@ -267,7 +267,18 @@ tr:hover td { background:#fafafa; }
 const SUPABASE_URL = 'https://bmnhtxalfsfaefacgtpm.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_VItBKenz-q2sYz7MsibODA_nYtLXv9Q';
 const { createClient } = supabase;
-const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+// Halaman monitoring ini memang tanpa login.
+// Jangan gunakan sesi login Supabase yang mungkin disimpan halaman lain
+// dengan project URL yang sama pada domain GitHub Pages ini.
+// Tanpa konfigurasi ini, query bisa berjalan sebagai 'authenticated',
+// padahal izin UPDATE project ini diberikan ke role 'anon'.
+const db = createClient(SUPABASE_URL, SUPABASE_KEY, {
+    auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+        detectSessionInUrl: false
+    }
+});
 
 let improvementData = [];
 
