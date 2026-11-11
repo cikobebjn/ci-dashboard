@@ -1,5 +1,5 @@
 /*
- * KOBE Bojonegoro | Shared Sidebar v2.3 - Accordion + DMC DOR Navigation
+ * KOBE Bojonegoro | Shared Sidebar v2.6 - Accordion + DMC DOR Navigation
  * The only source of truth for navigation items, sidebar CSS and interactions.
  * Install ONCE in every HTML page: <script src="sidebar.js" defer></script>
  * For a page inside a subfolder: <script src="../sidebar.js" defer></script>
@@ -7,7 +7,8 @@
  */
 (function () {
   'use strict';
-  if (window.KobeSidebar && window.KobeSidebar.version === '2.3') return;
+  const VERSION = '2.6';
+  if (window.KobeSidebar && window.KobeSidebar.version === VERSION) return;
 
   // Accordion: grup aktif terbuka otomatis, grup lain tertutup.
   // Klik header untuk expand/collapse. Pencarian otomatis membuka grup hasil.
@@ -25,9 +26,9 @@
       { name: '02 - Review MoM & Action Plan', url: 'dmc-dor.html#mom-action-plan', icon: 'form', planned: true },
       { name: '03 - HSE Monitoring (Safety Patrol)', url: 'hse.html', icon: 'shield' },
       { name: '04 - Quality / QC (FTQ)', url: 'dmc-dor.html#quality', icon: 'gauge', planned: true },
-      { name: '05A - PRD Gedung 4', url: 'dmc-dor.html#prd-g4', icon: 'chart', planned: true },
-      { name: '05B - PRD Gedung 6', url: 'dmc-dor.html#prd-g6', icon: 'chart', planned: true },
-      { name: '05C - PRD Gedung 7', url: 'dmc-dor.html#prd-g7', icon: 'chart', planned: true },
+      { name: '05A - PRD Gedung 4', url: 'prd-gedung.html?gedung=4', icon: 'chart' },
+      { name: '05B - PRD Gedung 6', url: 'prd-gedung.html?gedung=6', icon: 'chart' },
+      { name: '05C - PRD Gedung 7', url: 'prd-gedung.html?gedung=7', icon: 'chart' },
       { name: '06 - Maintenance / MTC', url: 'dmc-dor.html#maintenance', icon: 'activity', planned: true },
       { name: '07 - Utility (Listrik & Gas)', url: 'dmc-dor.html#utility', icon: 'bolt', planned: true },
       { name: '08 - Logistic (Kapasitas Gudang)', url: 'dmc-dor.html#logistic', icon: 'chart', planned: true },
@@ -179,6 +180,8 @@
     const target = new URL(linkUrl, BASE);
     const here = current();
     if (normalizedPath(target.pathname) !== normalizedPath(here.pathname)) return false;
+    // PRD gedung memakai satu halaman dengan parameter ?gedung=4/6/7.
+    if (target.search && target.search !== here.search) return false;
     if (target.hash) return target.hash === here.hash;
     return !here.hash || !['#dor-jargon', '#dor-opening'].includes(here.hash);
   }
@@ -327,11 +330,14 @@
   }
   function initialize() {
     if (!document.body || sidebar) return;
-    // Remove legacy hardcoded sidebar: the new sidebar is always owned by this file.
-    const oldSidebar = document.getElementById('sidebar');
-    if (oldSidebar && !oldSidebar.classList.contains('kobe-sidebar-v2')) oldSidebar.remove();
-    const oldBackdrop = document.getElementById('kobe-sidebar-backdrop');
-    if (oldBackdrop) oldBackdrop.remove();
+    // Reinitialize safely if a previous sidebar version ran in this page.
+    // Avoid duplicate panels, backdrops, CSS, and stale click handlers.
+    document.querySelectorAll('#sidebar, #kobe-sidebar-backdrop, #kobe-sidebar-shared-css').forEach(node => node.remove());
+    document.body.classList.remove('kobe-sidebar-locked');
+    document.querySelectorAll('button.kobe-sidebar-trigger').forEach(button => {
+      const fresh = button.cloneNode(true); // clears listeners from older sidebar versions
+      button.replaceWith(fresh);
+    });
     const css = document.createElement('style');
     css.id = 'kobe-sidebar-shared-css';
     css.textContent = CSS;
@@ -339,6 +345,7 @@
 
     sidebar = buildElement('aside','kobe-sidebar-v2');
     sidebar.id = 'sidebar';
+    sidebar.dataset.sidebarVersion = VERSION;
     sidebar.setAttribute('aria-label','Navigasi KOBE Bojonegoro');
     sidebar.setAttribute('aria-hidden','true');
     sidebar.inert = true;
@@ -367,7 +374,7 @@
 
     const nav = buildElement('nav','kb-nav');
     nav.setAttribute('aria-label','Menu dashboard');
-    const groupIcons = ['home', 'monitor', 'chart', 'spark'];
+    const groupIcons = { 'Overview':'home', 'DMC':'monitor', 'Performance':'chart', 'Data & Improvement':'spark' };
     MENU.forEach((group, i) => {
       const section = buildElement('section','kb-section');
       section.dataset.groupName = `${group.title} ${group.subtitle || ''}`.toLocaleLowerCase('id-ID');
@@ -377,7 +384,7 @@
       button.setAttribute('aria-controls', `kb-group-links-${i}`);
       button.setAttribute('aria-expanded', 'false');
       const groupIcon = buildElement('span','kb-group-icon');
-      groupIcon.append(buildIcon(groupIcons[i] || 'chart'));
+      groupIcon.append(buildIcon(groupIcons[group.title] || 'chart'));
       const groupLabel = buildElement('span','kb-section-label');
       if (group.subtitle) {
         groupLabel.append(buildElement('span','kb-label-main',group.title), buildElement('small','kb-section-subtitle',group.subtitle));
@@ -445,7 +452,7 @@
     updateActive(); revealHash();
   }
 
-  window.KobeSidebar = { version:'2.3', open, close, toggle, updateActive };
+  window.KobeSidebar = { version:VERSION, open, close, toggle, updateActive };
   window.toggleMenu = toggle; // Backward-compatible with older inline onclick handlers.
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded',initialize,{once:true});
   else initialize();
