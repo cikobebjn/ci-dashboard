@@ -3,28 +3,71 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HSE Monitoring | Kobe Bojonegoro</title>
+<meta name="theme-color" content="#f5f7fc">
+<title>HSE Safety Performance | DMC Kobe Bojonegoro</title>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root{--navy:#10284a;--navy2:#0f1f39;--blue:#1268e8;--purple:#7c3aed;--green:#16a34a;--red:#dc2626;--amber:#d97706;--teal:#0f9f93;--ink:#172033;--muted:#6b7a90;--line:#e5ebf3;--bg:#f4f7fb;--surface:#fff;--shadow:0 16px 38px rgba(31,63,108,.08);--radius:20px}
-*{box-sizing:border-box}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);background:radial-gradient(circle at 7% 3%,rgba(18,104,232,.11),transparent 26%),radial-gradient(circle at 95% 5%,rgba(124,58,237,.08),transparent 24%),var(--bg);min-height:100vh}
-.topbar{height:68px;position:fixed;inset:0 0 auto 0;z-index:1000;display:flex;align-items:center;gap:14px;padding:0 24px;background:rgba(255,255,255,.88);backdrop-filter:blur(16px);border-bottom:1px solid rgba(226,232,240,.9);box-shadow:0 4px 18px rgba(15,23,42,.04)}
-.topbar h2{margin:0;font-size:18px;letter-spacing:-.02em}.topbar h2 small{display:block;margin-top:2px;color:#94a3b8;font-size:9px;letter-spacing:.08em;text-transform:uppercase}
 
-.main{max-width:1540px;margin:0 auto;padding:92px 28px 42px}
-.hero{position:relative;overflow:hidden;display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:28px;align-items:center;padding:32px 36px;border-radius:26px;color:#fff;background:linear-gradient(135deg,#073e72 0%,#0c6b78 52%,#0f9f93 100%);box-shadow:0 24px 58px rgba(7,62,114,.20)}.hero:after{content:"";position:absolute;width:360px;height:360px;right:-120px;top:-190px;border-radius:50%;border:1px solid rgba(255,255,255,.16);box-shadow:0 0 0 46px rgba(255,255,255,.035),0 0 0 92px rgba(255,255,255,.02)}.hero>*{position:relative;z-index:1}.kicker{display:inline-flex;align-items:center;gap:8px;padding:7px 11px;border:1px solid rgba(255,255,255,.22);border-radius:999px;background:rgba(255,255,255,.10);font-size:10px;font-weight:800;letter-spacing:.09em;text-transform:uppercase}.kicker:before{content:"";width:8px;height:8px;border-radius:50%;background:#80f4c2;box-shadow:0 0 0 5px rgba(128,244,194,.14)}.hero h1{margin:14px 0 8px;font-size:clamp(31px,4vw,50px);line-height:1;letter-spacing:-.04em}.hero p{max-width:760px;margin:0;color:rgba(255,255,255,.78);font-size:13px;line-height:1.6}.import-box{padding:18px;border:1px solid rgba(255,255,255,.22);border-radius:19px;background:rgba(255,255,255,.11);backdrop-filter:blur(12px)}.import-label{font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.68)}.import-name{margin:6px 0 10px;font-size:13px;font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.import-actions{display:flex;gap:8px}.btn{border:0;border-radius:11px;min-height:38px;padding:9px 13px;font-weight:800;font-size:11px;cursor:pointer}.btn-light{background:#fff;color:#0d5965}.btn-soft{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.18)}.import-note{margin-top:9px;color:rgba(255,255,255,.68);font-size:9px;line-height:1.45}
-.filterbar{display:grid;grid-template-columns:1.15fr repeat(4,minmax(140px,.8fr)) auto;gap:10px;align-items:end;margin:18px 0;padding:15px 16px;border:1px solid var(--line);border-radius:17px;background:rgba(255,255,255,.94);box-shadow:var(--shadow)}.field label{display:block;margin:0 0 5px 2px;color:#64748b;font-size:8px;font-weight:850;letter-spacing:.07em;text-transform:uppercase}.field select,.field input{width:100%;height:39px;border:1px solid #dbe3ee;border-radius:10px;background:#fff;color:#334155;padding:0 10px;font-size:11px;outline:none}.field select:focus,.field input:focus{border-color:#61a2f8;box-shadow:0 0 0 3px rgba(18,104,232,.10)}.reset{height:39px;background:#edf5ff;color:#1257b5;border:1px solid #d7e7ff}
-.sec-title{display:flex;align-items:center;gap:9px;margin:26px 0 12px;color:#3f5068;font-size:11px;font-weight:850;letter-spacing:.065em;text-transform:uppercase}.sec-title:before{content:"";width:8px;height:8px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--teal));box-shadow:0 0 0 5px rgba(18,104,232,.09)}
-.kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:13px}.card,.panel{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:var(--radius);background:rgba(255,255,255,.95);box-shadow:var(--shadow)}.card{min-height:142px;padding:18px}.card:after{content:"";position:absolute;width:90px;height:90px;right:-36px;bottom:-44px;border-radius:50%;background:var(--soft,#eaf3ff)}.card>*{position:relative;z-index:1}.card h3{margin:0 0 11px;color:#728197;font-size:9px;font-weight:850;letter-spacing:.06em;text-transform:uppercase}.metric{font-size:32px;font-weight:850;line-height:1;letter-spacing:-.04em}.sub{margin-top:8px;color:#8b98aa;font-size:9px;line-height:1.4}.total{--soft:#eaf3ff}.open{--soft:#ffebed}.close{--soft:#e8f8ef}.rate{--soft:#e8f7f5}.top-pic{--soft:#fff5df}.week-now{--soft:#f1eaff}.open .metric{color:var(--red)}.close .metric,.rate .metric{color:var(--green)}
-.grid2{display:grid;grid-template-columns:1.35fr .85fr;gap:16px}.panel{padding:19px 20px}.panel-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:13px}.panel-title{font-size:13px;font-weight:850;color:#26354a}.panel-note{margin-top:3px;color:#94a3b8;font-size:8.5px}.chart-wrap{height:300px;position:relative}.chart-wrap.small{height:260px}.triple{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:16px}
-.table-panel{margin-top:16px}.table-tools{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}.search{width:min(360px,100%);height:36px;border:1px solid #dbe3ee;border-radius:10px;padding:0 11px;font-size:10px}.count-pill{padding:6px 9px;border-radius:999px;background:#f1f5f9;color:#64748b;font-size:9px;font-weight:800}.tbl-wrap{overflow:auto;border:1px solid #e9edf4;border-radius:13px;max-height:480px}.tbl{width:100%;border-collapse:collapse;min-width:1050px;font-size:9.5px}.tbl th{position:sticky;top:0;z-index:2;padding:9px 10px;background:#f7f9fc;border-bottom:1px solid #e5eaf1;color:#708095;text-align:left;font-size:7.5px;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}.tbl td{padding:9px 10px;border-bottom:1px solid #f0f3f7;vertical-align:top;color:#4b5a6e}.tbl tr:hover td{background:#fbfdff}.badge{display:inline-flex;align-items:center;padding:4px 7px;border-radius:999px;font-size:8px;font-weight:850;white-space:nowrap}.b-open{background:#fff0f1;color:#c91d29}.b-close{background:#edf9f2;color:#148348}.b-cat{background:#edf5ff;color:#245caa}.b-pic{background:#f3efff;color:#6d4cc5}.empty{padding:34px;text-align:center;color:#94a3b8;font-size:11px}.foot{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:12px;color:#94a3b8;font-size:8.5px}.warn{color:#b45309}
-@media(max-width:1250px){.kpis{grid-template-columns:repeat(3,1fr)}.filterbar{grid-template-columns:repeat(3,1fr)}.triple{grid-template-columns:1fr 1fr}.triple .panel:last-child{grid-column:1/-1}}
-@media(max-width:900px){.main{padding:84px 16px 34px}.hero{grid-template-columns:1fr}.grid2{grid-template-columns:1fr}.filterbar{grid-template-columns:1fr 1fr}.kpis{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:600px){.topbar{height:62px;padding:0 12px}.main{padding:76px 10px 28px}.hero{padding:25px 20px;border-radius:21px}.hero h1{font-size:35px}.filterbar{grid-template-columns:1fr}.kpis{grid-template-columns:1fr}.triple{grid-template-columns:1fr}.triple .panel:last-child{grid-column:auto}.panel{padding:16px}.chart-wrap{height:260px}}
+:root {
+  --brand:#2563eb; --brand-deep:#1d4ed8; --purple:#6d28d9;
+  --ink:#24324b; --muted:#64748b; --line:#e4eaf3; --bg:#f5f7fc;
+  --danger:#ef4444; --green:#10b981; --amber:#f59e0b;
+  --shadow:0 13px 38px rgba(25,53,99,.055);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;min-height:100vh;background:var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit}button{cursor:pointer}button:disabled{cursor:default;opacity:.45}
+.topbar{height:68px;position:sticky;top:0;z-index:1000;display:flex;align-items:center;gap:13px;padding:0 max(22px,calc((100vw - 1540px)/2 + 25px));background:rgba(255,255,255,.94);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid #e8edf6}
+.topbar-logo{display:grid;place-items:center;width:36px;height:36px;flex:0 0 36px;border-radius:12px;color:#245fe8;background:#eaf1ff}
+.topbar-logo svg{width:21px;height:21px}.topbar-name{display:flex;flex-direction:column;gap:2px;min-width:0}.topbar-name strong{font-size:13px;line-height:1.2;font-weight:850;letter-spacing:.02em}.topbar-name span{font-size:10px;color:#8995aa;letter-spacing:.015em}
+.topbar-end{display:flex;align-items:center;gap:10px;margin-left:auto;font-size:11px;color:#64748b;font-weight:650;white-space:nowrap}.live-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#10b981;box-shadow:0 0 0 4px #e6f8f0}.topbar-date{margin-left:8px;border-left:1px solid #e2e8f0;padding-left:16px;color:#8592a7;font-weight:600}
+.main{max-width:1540px;margin:0 auto;padding:23px 24px 50px}
+.hero{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 310px;align-items:center;gap:20px;overflow:hidden;min-height:208px;padding:28px 33px 29px;border-radius:25px;color:#fff;background:linear-gradient(115deg,#153c8b 0%,#225dd4 48%,#6229c8 100%);box-shadow:0 21px 48px rgba(46,68,153,.18)}
+.hero::before{content:'';position:absolute;width:540px;height:380px;right:200px;top:-260px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.12),transparent 68%)}.hero::after{content:'';position:absolute;width:365px;height:365px;right:-120px;bottom:-280px;border:1px solid rgba(255,255,255,.24);border-radius:50%;box-shadow:0 0 0 45px rgba(255,255,255,.04),0 0 0 95px rgba(255,255,255,.025)}.hero>*{position:relative;z-index:1}
+.eyebrow{display:flex;align-items:center;gap:8px;font-size:10px;letter-spacing:.15em;font-weight:850;color:#cbd9ff}.eyebrow .pulse{width:7px;height:7px;border-radius:50%;background:#78eccb;box-shadow:0 0 0 4px rgba(120,236,203,.13)}
+.hero h1{font-size:clamp(30px,3.4vw,44px);line-height:1.11;letter-spacing:-.042em;font-weight:850;margin:14px 0 11px}.hero h1 span{color:#d4dbff}.hero p{color:rgba(242,247,255,.84);font-size:12.5px;line-height:1.65;margin:0;max-width:650px}.hero-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}.hero-tags span{font-size:10px;font-weight:680;color:#e9efff;padding:6px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.09)}
+.hero-brief{border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.10);backdrop-filter:blur(12px);border-radius:18px;padding:19px 20px;min-width:0}.hero-brief-header{display:flex;align-items:center;justify-content:space-between;gap:6px}.hero-brief-header>span:first-child{font-size:9px;font-weight:850;letter-spacing:.12em;color:#cbd8ff}.hero-tag{display:inline-block;background:rgba(255,255,255,.15);border-radius:8px;padding:5px 8px;font-size:9px;font-weight:750}.hero-brief-date{font-size:17px;font-weight:850;letter-spacing:-.02em;margin:11px 0 17px}.hero-brief-bottom{display:grid;grid-template-columns:1fr 1fr;gap:13px}.hero-brief-bottom>div+div{border-left:1px solid rgba(255,255,255,.20);padding-left:15px}.hero-brief-bottom strong{display:block;font-size:25px;line-height:1;font-weight:850;font-variant-numeric:tabular-nums}.hero-brief-bottom small{display:block;font-size:9px;color:#d0dbff;margin-top:7px;font-weight:650}
+.syncbar{position:relative;display:flex;align-items:center;gap:14px;padding:15px 19px;margin:15px 0 0;background:#fff;border:1px solid var(--line);border-radius:17px;box-shadow:var(--shadow)}.sync-icon{height:39px;width:39px;flex:0 0 39px;border-radius:12px;display:grid;place-items:center;background:#edf3ff;color:#346be0}.sync-icon svg{width:19px;height:19px}.sync-main{flex:1;min-width:0}.import-label{font-weight:850;font-size:9px;letter-spacing:.11em;color:#8a98ac;text-transform:uppercase}.import-name{font-size:12px;font-weight:770;color:#293c5c;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:4px 0 2px}.import-note{color:#8d99ab;font-size:10px;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sync-actions{display:flex;align-items:center;gap:8px;flex-shrink:0}.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:37px;padding:9px 14px;border:1px solid transparent;border-radius:10px;font-size:11px;line-height:1.1;font-weight:800;transition:transform .15s,background .15s,border-color .15s}.btn:hover:not(:disabled){transform:translateY(-1px)}.btn svg{width:15px;height:15px}.btn-primary{color:#fff;background:#2563eb;box-shadow:0 7px 17px rgba(37,99,235,.15)}.btn-primary:hover{background:#1d4ed8}.btn-subtle{color:#33527e;background:#f0f5fd;border-color:#e3ebf8}.btn-subtle:hover{background:#e8f0fb}.btn-reset{min-width:92px}
+.filterbar{display:grid;grid-template-columns:minmax(120px,1.14fr) repeat(4,minmax(100px,.90fr)) auto;gap:11px;align-items:end;margin-top:15px;padding:16px 18px;background:#fff;border:1px solid var(--line);border-radius:17px;box-shadow:var(--shadow)}.field{min-width:0}.field label{display:block;font-size:9px;font-weight:800;letter-spacing:.055em;color:#70819a;margin:0 0 7px 2px;text-transform:uppercase}.field select,.field input{height:39px;width:100%;border:1px solid #e0e7f2;border-radius:10px;outline:0;color:#294060;background:#fbfcff;padding:0 11px;font-size:11px;font-weight:650}.field select:focus,.field input:focus{background:#fff;border-color:#709bf8;box-shadow:0 0 0 3px #e6eeff}
+.section-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:27px 1px 13px}.section-title h2{margin:0;font-size:16px;font-weight:850;letter-spacing:-.025em;color:#263a5b}.section-title p{font-size:10.5px;color:#8e9bab;margin:0}.section-kicker{font-size:10px;font-weight:850;letter-spacing:.07em;color:#456aca}.section-hd{display:flex;align-items:center;gap:9px}.section-hd svg{width:16px;height:16px;color:#3469d8}
 
-/* ===== Upload / loading status ===== */
+/* Ringkasan HSE - enam kartu sesuai desain existing */
+.kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:18px}
+.card,.panel{border:1px solid var(--line);border-radius:18px;background:#fff;box-shadow:var(--shadow);min-width:0}
+.kpi-section-dot{width:11px;height:11px;border-radius:50%;background:#168ddc;box-shadow:0 0 0 7px rgba(31,147,231,.11);flex:0 0 11px}
+.kpi-section h2{font-size:15px;font-weight:850;letter-spacing:.015em;text-transform:uppercase}
+.kpi-card{position:relative;isolation:isolate;overflow:hidden;min-height:194px;padding:23px 24px;border:1px solid rgba(224,233,247,.66);border-radius:29px;background:#fff;box-shadow:0 15px 34px rgba(32,57,104,.085)}
+.kpi-card::after{content:'';position:absolute;z-index:0;width:150px;height:150px;right:-75px;bottom:-75px;border-radius:50%;background:var(--kpi-soft,#eaf2ff);pointer-events:none}
+.kpi-card > h3,.kpi-card > .metric,.kpi-card > .sub{position:relative;z-index:1}
+.kpi-card h3{margin:0 0 15px;color:#7186a6;font-size:12px;font-weight:850;line-height:1.3;letter-spacing:.018em;text-transform:uppercase}
+.kpi-card .metric{color:var(--kpi-ink,#122342);font-size:43px;font-weight:850;line-height:1.02;letter-spacing:-.045em;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.kpi-card .sub{margin-top:9px;color:#899bb7;font-size:11px;line-height:1.4;font-weight:500}
+.kpi-total{--kpi-ink:#102143;--kpi-soft:#e9f2ff}
+.kpi-open{--kpi-ink:#ed272d;--kpi-soft:#ffe8ee}
+.kpi-close{--kpi-ink:#16a34a;--kpi-soft:#e6f7ed}
+.kpi-rate{--kpi-ink:#16a34a;--kpi-soft:#e8f8f5}
+.kpi-pic{--kpi-ink:#102143;--kpi-soft:#fff3dc}
+.kpi-week{--kpi-ink:#102143;--kpi-soft:#f1e8ff}
+.kpi-pic .metric{font-size:34px;letter-spacing:-.035em}
+
+.context-strip{display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap;background:#f0f4fd;border:1px solid #e4ecf9;border-radius:13px;margin-top:13px;padding:10px 16px}.context-strip span{font-size:10px;color:#7c8da4}.context-strip strong{font-weight:800;color:#354c72}.context-strip .context-item{display:inline-flex;align-items:center;gap:9px}.context-strip svg{width:14px;height:14px;color:#668ad1}
+.analytics-primary{display:grid;grid-template-columns:minmax(0,1.72fr) minmax(290px,.82fr);gap:15px}.analytics-secondary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px;margin-top:15px}.panel{padding:19px 21px 18px}.panel-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px}.panel-title{color:#263a59;font-size:14px;font-weight:850;letter-spacing:-.015em}.panel-note{margin-top:5px;font-size:10px;color:#8a98aa;line-height:1.4}.panel-chip{border-radius:8px;background:#f1f5ff;color:#5375b0;font-size:9px;font-weight:800;padding:6px 9px;flex-shrink:0}.chart-wrap{position:relative;height:282px}.chart-wrap.small{height:240px}.chart-wrap.medium{height:252px}
+.category-key{display:flex;justify-content:space-around;gap:6px;flex-wrap:wrap;border-top:1px solid #f0f3f8;margin-top:12px;padding-top:10px}.category-key span{color:#71829a;font-size:9px;font-weight:650}.color-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;vertical-align:middle}.dot-amber{background:#f59e0b}.dot-violet{background:#805de8}.dot-blue{background:#2563eb}
+.dor-panel{display:grid;grid-template-columns:260px minmax(0,1fr);gap:19px;padding:20px 22px}.dor-left{border-right:1px solid #eaf0f8;padding-right:20px}.dor-title{display:flex;align-items:center;gap:8px;font-size:10px;font-weight:850;letter-spacing:.10em;color:#406cbe}.dor-title svg{width:15px;height:15px}.dor-left h3{font-size:21px;letter-spacing:-.03em;color:#243957;margin:13px 0 8px;line-height:1.17}.dor-left p{font-size:11px;color:#8593a7;line-height:1.6;margin:0}.dor-date{display:inline-flex;margin-top:17px;padding:7px 10px;border-radius:8px;background:#eff4ff;color:#5373a8;font-size:10px;font-weight:760}
+.dor-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;align-content:start}.dor-issue{display:flex;align-items:flex-start;gap:11px;padding:13px 14px;border:1px solid #e9edf5;border-radius:13px;background:#fbfcff;min-width:0}.dor-indicator{width:7px;height:7px;border-radius:50%;background:#f59e0b;flex:0 0 7px;margin-top:6px}.dor-indicator.overdue{background:#ef4444}.dor-issue-content{min-width:0;flex:1}.dor-issue-title{font-size:11px;font-weight:820;color:#293e60;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.dor-issue-copy{font-size:10px;color:#8290a4;margin-top:5px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.dor-issue-bottom{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:8px;font-size:9px;color:#76859b}.dor-status{color:#c64242;background:#fff1f2;border-radius:6px;padding:3px 6px;font-weight:760}.dor-status.pending{color:#ad7613;background:#fff7e8}.dor-empty{display:flex;align-items:center;justify-content:center;min-height:135px;grid-column:1/-1;color:#92a0b3;font-size:12px;border:1px dashed #dae5f2;border-radius:12px;background:#fbfcff}
+.table-panel{margin-top:15px;padding:20px 21px}.table-tools{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0 0 14px}.table-search{position:relative;display:flex;align-items:center;flex:1;max-width:380px}.table-search svg{width:16px;height:16px;color:#99a7b9;position:absolute;left:12px}.search{width:100%;height:39px;border:1px solid #e0e7f0;background:#fbfcff;border-radius:10px;color:#344765;font-size:11px;padding:0 13px 0 35px;outline:none}.search:focus{border-color:#7da3f7;box-shadow:0 0 0 3px #eef3ff}.count-pill{color:#5b73a5;font-size:10px;font-weight:800;border-radius:999px;background:#f0f4ff;padding:7px 10px}
+.tbl-wrap{overflow:auto;max-height:475px;border:1px solid #edf0f7;border-radius:12px}.tbl{width:100%;min-width:1010px;border-collapse:collapse;font-size:10.5px}.tbl thead th{position:sticky;top:0;background:#f6f8fc;color:#7788a1;font-size:9px;font-weight:830;text-align:left;letter-spacing:.045em;padding:13px 11px;border-bottom:1px solid #e5ebf3;white-space:nowrap;z-index:1}.tbl tbody td{border-bottom:1px solid #edf1f7;padding:13px 11px;color:#4d5f79;vertical-align:top;line-height:1.45}.tbl tbody tr:hover{background:#f9fbff}.tbl tbody tr:last-child td{border-bottom:0}.tbl .issue-col{min-width:240px;max-width:370px;color:#304461;font-weight:650}.tbl .date-col{white-space:nowrap}.badge{display:inline-block;padding:5px 9px;border-radius:7px;font-size:9px;font-weight:810;white-space:nowrap}.b-open{background:#fff0f2;color:#e34557}.b-close{background:#e9f9f2;color:#129b70}.b-cat{background:#eef3ff;color:#4d67a5}.b-pic{background:#f1edff;color:#7456b8}.empty{text-align:center;padding:38px 14px;color:#99a7b9;font-size:11px}.table-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-top:12px;font-size:10px;color:#8b98aa}.table-pagination{display:flex;align-items:center;gap:8px}.page-control{display:grid;place-items:center;width:29px;height:29px;border:1px solid #e2e9f4;border-radius:8px;background:#f7faff;color:#5774a8}.page-control svg{width:13px;height:13px}.table-pagination span{min-width:60px;text-align:center;font-size:10px;font-weight:750;color:#6c819f}.warn{color:#bb7613}.data-meta{max-width:600px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}
+.toast{position:fixed;right:20px;bottom:20px;z-index:40000;max-width:410px;background:#153052;color:white;font-size:12px;line-height:1.55;border-radius:12px;padding:14px 17px;box-shadow:0 14px 35px rgba(13,34,66,.23);display:none}.toast.show{display:block}.toast.error{background:#9f2734}
+@media(max-width:1270px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.filterbar{grid-template-columns:repeat(3,minmax(0,1fr))}.analytics-secondary{grid-template-columns:repeat(2,minmax(0,1fr))}.analytics-secondary .panel:last-child{grid-column:1/-1}.dor-panel{grid-template-columns:240px 1fr}}
+@media(max-width:930px){.main{padding:20px 16px 40px}.topbar{padding:0 15px}.hero{grid-template-columns:1fr;padding:26px}.hero-brief{max-width:500px}.analytics-primary{grid-template-columns:1fr}.analytics-secondary{grid-template-columns:1fr 1fr}.dor-panel{grid-template-columns:1fr}.dor-left{border-right:none;padding-right:0;border-bottom:1px solid #edf1f8;padding-bottom:16px}.dor-left h3{font-size:18px}.topbar-end .topbar-date{display:none}}
+@media(max-width:630px){.main{padding:13px 11px 28px}.topbar{height:60px;padding:0 11px;gap:8px}.topbar-name strong{font-size:11px}.topbar-name span{font-size:9px}.topbar-end{font-size:0}.hero{padding:24px 20px;border-radius:19px}.hero h1{font-size:31px}.hero-brief-date{font-size:15px}.hero-brief{padding:14px}.hero-tags{gap:5px}.syncbar{padding:13px;gap:10px;flex-wrap:wrap}.sync-main{min-width:200px}.sync-actions{width:100%}.sync-actions .btn{flex:1}.filterbar{grid-template-columns:1fr 1fr;padding:13px;gap:9px}.filterbar .btn-reset{grid-column:1/-1}.kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.kpi-card{padding:16px 14px;min-height:143px;border-radius:20px}.kpi-card h3{font-size:9px;margin-bottom:13px}.kpi-card .metric{font-size:29px}.kpi-pic .metric{font-size:26px}.kpi-card .sub{font-size:9px}.kpi-card::after{width:110px;height:110px;right:-55px;bottom:-55px}.section-title{margin:22px 1px 12px}.section-title h2{font-size:14px}.section-title p{display:none}.analytics-secondary{grid-template-columns:1fr}.analytics-secondary .panel:last-child{grid-column:auto}.panel{padding:17px 14px}.chart-wrap{height:245px}.chart-wrap.small{height:220px}.dor-panel{padding:16px 14px}.dor-list{grid-template-columns:1fr}.context-strip{align-items:flex-start;flex-direction:column;gap:9px}.table-panel{padding:16px 12px}.table-tools{align-items:stretch}.table-search{max-width:none;min-width:100%}.data-meta{max-width:100%}.topbar-logo{display:none}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+
+/* ===== Existing upload progress overlay, kept compatible ===== */
+
 .upload-loading{display:none;position:fixed;inset:0;z-index:30000;align-items:center;justify-content:center;padding:20px;background:rgba(7,20,38,.58);backdrop-filter:blur(7px)}
 .upload-loading.show{display:flex}
 .upload-loading-card{width:min(470px,100%);padding:26px 26px 22px;border:1px solid rgba(255,255,255,.7);border-radius:22px;background:#fff;box-shadow:0 28px 80px rgba(7,20,38,.28)}
@@ -40,68 +83,85 @@
 .upload-loading-note{margin-top:11px;color:#94a3b8;font-size:9px;line-height:1.5}
 body.is-busy{overflow:hidden}
 
+
 </style>
-<script src="sidebar.js" defer></script>
+<script src="sidebar.js?v=hse-dmc-20261111-2" defer></script>
 </head>
 <body>
-
 <div class="upload-loading" id="uploadLoading" role="status" aria-live="polite" aria-busy="true">
   <div class="upload-loading-card">
-    <div class="upload-loading-top">
-      <div class="upload-spinner" aria-hidden="true"></div>
-      <div><div class="upload-loading-kicker" id="uploadLoadingKicker">HSE DATA</div><div class="upload-loading-title" id="uploadLoadingTitle">Memproses data...</div></div>
-    </div>
-    <div class="upload-loading-text" id="uploadLoadingText">Mohon tunggu. Jangan tutup atau refresh halaman sampai proses selesai.</div>
-    <div class="upload-progress"><span></span></div>
-    <div class="upload-loading-note" id="uploadLoadingNote">Foto/dokumentasi tidak diproses dan tidak dikirim ke database.</div>
+    <div class="upload-loading-top"><div class="upload-spinner" aria-hidden="true"></div><div><div class="upload-loading-kicker" id="uploadLoadingKicker">HSE DATA</div><div class="upload-loading-title" id="uploadLoadingTitle">Memproses data...</div></div></div>
+    <div class="upload-loading-text" id="uploadLoadingText">Mohon tunggu hingga pemrosesan data selesai.</div><div class="upload-progress"><span></span></div><div class="upload-loading-note" id="uploadLoadingNote">Hanya data non-dokumentasi yang diproses.</div>
   </div>
 </div>
-
-<!-- Navigation and menu are generated by central sidebar.js -->
-<div class="topbar"><h2>HSE Monitoring <small>Safety Observation Dashboard · Factory Bojonegoro</small></h2></div>
+<header class="topbar">
+  <div class="topbar-logo"><svg class="" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg></div>
+  <div class="topbar-name"><strong>HSE MONITORING</strong><span>Kobe Bojonegoro / Daily Management Center</span></div>
+  <div class="topbar-end"><i class="live-dot"></i>Safety Performance<span class="topbar-date" id="liveDate">-</span></div>
+</header>
 <main class="main">
   <section class="hero">
-    <div><span class="kicker">Health · Safety · Environment</span><h1>Safety Monitoring</h1><p>Monitoring temuan safety dari master Excel berdasarkan minggu Minggu–Sabtu, kategori, PIC, dan status verifikasi. Kolom dokumentasi/foto tidak dibaca oleh dashboard.</p></div>
-    <div class="import-box"><div class="import-label">Sumber Data Online</div><div class="import-name" id="fileName">Menghubungkan ke Supabase...</div><div class="import-actions"><button class="btn btn-light" id="uploadBtn" onclick="document.getElementById('fileInput').click()">Upload & Replace</button><button class="btn btn-soft" onclick="loadOnlineData()">Refresh Data</button></div><input id="fileInput" type="file" accept=".xlsx,.xls" hidden><div class="import-note" id="importNote">Dataset aktif dibaca dari Supabase. Upload Excel mengganti dataset HSE lama setelah validasi berhasil.</div></div>
+    <div>
+      <div class="eyebrow"><span class="pulse"></span> DAILY MANAGEMENT CENTER / HSE</div>
+      <h1>Safety <span>Performance</span></h1>
+      <p>Monitoring Safety Patrol, temuan terbuka, progres penyelesaian, dan tindak lanjut prioritas untuk Daily Operational Review.</p>
+      <div class="hero-tags"><span>Safety Patrol H-1</span><span>Open &amp; Close Monitoring</span><span>Weekly Performance</span></div>
+    </div>
+    <div class="hero-brief">
+      <div class="hero-brief-header"><span>SAFETY PATROL H-1</span><span class="hero-tag">DOR SNAPSHOT</span></div>
+      <div class="hero-brief-date" id="heroH1">-</div>
+      <div class="hero-brief-bottom"><div><strong id="heroYesterdayCount">0</strong><small>Total temuan H-1</small></div><div><strong id="heroOpenCount">0</strong><small>Masih open H-1</small></div></div>
+    </div>
+  </section>
+  <section class="syncbar">
+    <div class="sync-icon"><svg class="" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-7 4 14 3-7h4"/></svg></div>
+    <div class="sync-main"><div class="import-label">DATA HSE ONLINE</div><div class="import-name" id="fileName">Menghubungkan data...</div><div class="import-note" id="importNote">Memuat dataset aktif</div></div>
+    <div class="sync-actions"><button class="btn btn-subtle" type="button" onclick="loadOnlineData()"><svg class="" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M5.6 9A8 8 0 0 1 19 7l1 5M4 12l1 5a8 8 0 0 0 13.4-2"/></svg> Refresh</button><button class="btn btn-primary" type="button" id="uploadBtn" onclick="document.getElementById('fileInput').click()"><svg class="" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V3m0 0L7 8m5-5 5 5M4 16v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/></svg> Upload &amp; Replace</button><input id="fileInput" type="file" accept=".xlsx,.xls" hidden></div>
+  </section>
+  <section class="filterbar" aria-label="Filter HSE">
+    <div class="field"><label for="weekFilter">Week (Minggu-Sabtu)</label><select id="weekFilter"><option value="all">Semua Week</option></select></div>
+    <div class="field"><label for="catFilter">Kategori</label><select id="catFilter"><option value="all">Semua Kategori</option><option>Unsafe Condition</option><option>Unsafe Behavior</option><option>Near Miss</option></select></div>
+    <div class="field"><label for="picFilter">PIC</label><select id="picFilter"><option value="all">Semua PIC</option><option>MTC</option><option>UTILITY</option><option>GA</option><option>PRODUKSI</option><option>HSE</option><option>WH</option><option>QC</option><option>RMPM</option><option>GDSP</option><option value="PROJECT">Project</option></select></div>
+    <div class="field"><label for="statusFilter">Status</label><select id="statusFilter"><option value="all">Semua Status</option><option>Open</option><option>Close</option></select></div>
+    <div class="field"><label for="yearFilter">Tahun</label><select id="yearFilter"><option value="all">Semua Tahun</option></select></div>
+    <button class="btn btn-subtle btn-reset" type="button" onclick="resetFilters()">Reset Filter</button>
   </section>
 
-  <section class="filterbar">
-    <div class="field"><label>Week (Minggu–Sabtu)</label><select id="weekFilter"><option value="all">Semua Week</option></select></div>
-    <div class="field"><label>Kategori</label><select id="catFilter"><option value="all">Semua Kategori</option><option>Unsafe Condition</option><option>Unsafe Behavior</option><option>Near Miss</option></select></div>
-    <div class="field"><label>PIC</label><select id="picFilter"><option value="all">Semua PIC</option><option>MTC</option><option>UTILITY</option><option>GA</option><option>PRODUKSI</option><option>HSE</option><option>WH</option><option>QC</option><option>RMPM</option><option>GDSP</option><option>LAINNYA</option></select></div>
-    <div class="field"><label>Status Verifikasi</label><select id="statusFilter"><option value="all">Semua Status</option><option>Open</option><option>Close</option></select></div>
-    <div class="field"><label>Tahun</label><select id="yearFilter"><option value="all">Semua Tahun</option></select></div>
-    <button class="btn reset" onclick="resetFilters()">Reset Filter</button>
+  <div class="section-title kpi-section"><div class="section-hd"><span class="kpi-section-dot" aria-hidden="true"></span><h2>Ringkasan HSE</h2></div><p>Indikator otomatis mengikuti filter yang dipilih</p></div>
+  <section class="kpis" aria-label="Indikator HSE">
+    <article class="card kpi-card kpi-total"><h3>Total Temuan</h3><div class="metric" id="kTotal">—</div><div class="sub" id="sTotal">Sesuai filter aktif</div></article>
+    <article class="card kpi-card kpi-open"><h3>Open</h3><div class="metric" id="kOpen">—</div><div class="sub" id="sOpen">Temuan belum selesai</div></article>
+    <article class="card kpi-card kpi-close"><h3>Close</h3><div class="metric" id="kClose">—</div><div class="sub" id="sClose">Temuan selesai</div></article>
+    <article class="card kpi-card kpi-rate"><h3>Closure Rate</h3><div class="metric" id="kRate">—</div><div class="sub">Close ÷ total temuan</div></article>
+    <article class="card kpi-card kpi-pic"><h3>PIC Temuan Terbanyak</h3><div class="metric" id="kPic">—</div><div class="sub" id="sPic">Berdasarkan filter aktif</div></article>
+    <article class="card kpi-card kpi-week"><h3>Week Aktif Terakhir</h3><div class="metric" id="kWeek">—</div><div class="sub" id="sWeek">Minggu dimulai hari Minggu</div></article>
   </section>
 
-  <div class="sec-title">Ringkasan HSE</div>
-  <section class="kpis">
-    <article class="card total"><h3>Total Temuan</h3><div class="metric" id="kTotal">—</div><div class="sub" id="sTotal">Data belum dimuat</div></article>
-    <article class="card open"><h3>Open</h3><div class="metric" id="kOpen">—</div><div class="sub" id="sOpen">Belum terverifikasi close</div></article>
-    <article class="card close"><h3>Close</h3><div class="metric" id="kClose">—</div><div class="sub" id="sClose">Sudah ditutup</div></article>
-    <article class="card rate"><h3>Closure Rate</h3><div class="metric" id="kRate">—</div><div class="sub">Close ÷ total temuan</div></article>
-    <article class="card top-pic"><h3>PIC Temuan Terbanyak</h3><div class="metric" id="kPic" style="font-size:24px">—</div><div class="sub" id="sPic">Berdasarkan filter aktif</div></article>
-    <article class="card week-now"><h3>Week Aktif Terakhir</h3><div class="metric" id="kWeek">—</div><div class="sub" id="sWeek">Minggu dimulai hari Minggu</div></article>
+  <div class="section-title"><div class="section-hd"><svg class="" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 17 6-6 4 4 8-8M15 7h6v6"/></svg><h2>Analisis &amp; Tren Safety</h2></div><p>Pola temuan dan status verifikasi</p></div>
+  <section class="analytics-primary">
+    <article class="panel"><div class="panel-heading"><div><div class="panel-title">Tren Temuan Weekly</div><div class="panel-note">Komposisi kategori per week, periode Minggu-Sabtu</div></div><span class="panel-chip">WEEKLY</span></div><div class="chart-wrap"><canvas id="weeklyChart" aria-label="Tren temuan HSE per week" role="img"></canvas></div><div class="category-key"><span><i class="color-dot dot-amber"></i>Unsafe Condition</span><span><i class="color-dot dot-violet"></i>Unsafe Behavior</span><span><i class="color-dot dot-blue"></i>Near Miss</span></div></article>
+    <article class="panel"><div class="panel-heading"><div><div class="panel-title">Status Penyelesaian</div><div class="panel-note">Proporsi Open dan Close</div></div><span class="panel-chip">STATUS</span></div><div class="chart-wrap"><canvas id="statusChart" aria-label="Status open dan close" role="img"></canvas></div><div class="category-key"><span><i class="color-dot" style="background:#ef4444"></i>Open</span><span><i class="color-dot" style="background:#10b981"></i>Close</span></div></article>
+  </section>
+  <section class="analytics-secondary">
+    <article class="panel"><div class="panel-heading"><div><div class="panel-title">Kategori Temuan</div><div class="panel-note">Unsafe Condition, Behavior, Near Miss</div></div></div><div class="chart-wrap small"><canvas id="categoryChart" aria-label="Kategori temuan" role="img"></canvas></div></article>
+    <article class="panel"><div class="panel-heading"><div><div class="panel-title">Sebaran Temuan per PIC</div><div class="panel-note">Kontribusi temuan menurut departemen</div></div></div><div class="chart-wrap small"><canvas id="picChart" aria-label="Temuan per PIC" role="img"></canvas></div></article>
+    <article class="panel"><div class="panel-heading"><div><div class="panel-title">Open per PIC</div><div class="panel-note">Departemen dengan tindak lanjut terbuka</div></div></div><div class="chart-wrap small"><canvas id="openPicChart" aria-label="Temuan open menurut PIC" role="img"></canvas></div></article>
   </section>
 
-  <div class="sec-title">Tren & Distribusi</div>
-  <section class="grid2">
-    <article class="panel"><div class="panel-head"><div><div class="panel-title">Temuan per Week</div><div class="panel-note">Week dihitung dari tanggal dengan awal minggu hari Minggu dan akhir hari Sabtu.</div></div></div><div class="chart-wrap"><canvas id="weeklyChart"></canvas></div></article>
-    <article class="panel"><div class="panel-head"><div><div class="panel-title">Status Verifikasi</div><div class="panel-note">Komposisi Open dan Close pada filter aktif.</div></div></div><div class="chart-wrap small"><canvas id="statusChart"></canvas></div></article>
-  </section>
-  <section class="triple">
-    <article class="panel"><div class="panel-head"><div><div class="panel-title">Kategori</div><div class="panel-note">Unsafe Condition, Unsafe Behavior, Near Miss.</div></div></div><div class="chart-wrap small"><canvas id="categoryChart"></canvas></div></article>
-    <article class="panel"><div class="panel-head"><div><div class="panel-title">Temuan per PIC</div><div class="panel-note">Nama PIC dinormalisasi ke kelompok monitoring.</div></div></div><div class="chart-wrap small"><canvas id="picChart"></canvas></div></article>
-    <article class="panel"><div class="panel-head"><div><div class="panel-title">Open per PIC</div><div class="panel-note">Prioritas tindak lanjut berdasarkan jumlah temuan Open.</div></div></div><div class="chart-wrap small"><canvas id="openPicChart"></canvas></div></article>
+  <div class="section-title"><div class="section-hd"><svg class="" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m10.3 3.4-8 14A2 2 0 0 0 4 20h16a2 2 0 0 0 1.7-3l-8-14a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg><h2>Safety Follow-up DOR</h2></div><p>Temuan open dan due date yang perlu ditindaklanjuti</p></div>
+  <section class="panel dor-panel">
+    <div class="dor-left"><div class="dor-title"><svg class="" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 2 7 7 2-7 2-2 7-2-7-7-2 7-2z"/></svg> SAFETY PRIORITY</div><h3>Review Temuan<br> &amp; Action Plan</h3><p>Temuan open dengan due date terlewat ditampilkan lebih dahulu, dilanjutkan temuan terbaru untuk review.</p><span class="dor-date" id="dorDay">-</span></div>
+    <div class="dor-list" id="dorList"><div class="dor-empty">Memuat temuan...</div></div>
   </section>
 
-  <article class="panel table-panel">
-    <div class="panel-head"><div><div class="panel-title">Daftar Temuan</div><div class="panel-note">Dokumentasi/foto tidak dibaca, tidak dikirim, dan tidak disimpan ke Supabase.</div></div></div>
-    <div class="table-tools"><input class="search" id="searchInput" placeholder="Cari lokasi, ketidaksesuaian, pelapor, PIC..."><span class="count-pill" id="rowCount">0 data</span></div>
-    <div class="tbl-wrap"><table class="tbl"><thead><tr><th>No</th><th>Tanggal</th><th>Week</th><th>Kategori</th><th>Lokasi</th><th>Ketidaksesuaian</th><th>Pelapor</th><th>PIC</th><th>Status</th><th>Due Date</th></tr></thead><tbody id="tbody"></tbody></table></div>
-    <div class="foot"><span id="sourceInfo">Sumber belum dimuat.</span><span class="warn" id="qualityInfo"></span></div>
-  </article>
+  <div class="section-title"><div class="section-hd"><svg class="" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg><h2>Detail Temuan HSE</h2></div><p>Daftar observasi sesuai filter aktif</p></div>
+  <section class="panel table-panel">
+    <div class="table-tools"><div class="table-search"><svg class="" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/></svg><input class="search" id="searchInput" placeholder="Cari lokasi, masalah, pelapor, atau PIC..." aria-label="Cari temuan HSE"></div><span class="count-pill" id="rowCount">0 data</span></div>
+    <div class="tbl-wrap"><table class="tbl"><thead><tr><th>No</th><th>Tanggal</th><th>Week</th><th>Kategori</th><th>Lokasi</th><th>Temuan / Ketidaksesuaian</th><th>Pelapor</th><th>PIC</th><th>Status</th><th>Due Date</th></tr></thead><tbody id="tbody"></tbody></table></div>
+    <div class="table-footer"><div class="data-meta"><span id="sourceInfo">Belum ada data aktif.</span> <span id="qualityInfo" class="warn"></span></div><div class="table-pagination"><button type="button" class="page-control" id="prevPage" onclick="changeTablePage(-1)" aria-label="Halaman sebelumnya"><svg class="" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button><span id="tablePageLabel">1 / 1</span><button type="button" class="page-control" id="nextPage" onclick="changeTablePage(1)" aria-label="Halaman berikutnya"><svg class="" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button></div></div>
+  </section>
 </main>
+<div class="toast" id="hseToast" role="status" aria-live="polite"></div>
 <script>
 const SUPABASE_URL='https://bmnhtxalfsfaefacgtpm.supabase.co';
 const SUPABASE_KEY='sb_publishable_VItBKenz-q2sYz7MsibODA_nYtLXv9Q';
@@ -115,7 +175,23 @@ function weekSunday(d){const start=new Date(d.getFullYear(),0,1);const day=start
 function isoDate(d){if(!d)return null;const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');return`${y}-${m}-${day}`}
 function normalizeCategory(v){const s=String(v||'').trim().toLowerCase().replace(/\s+/g,' ');if(s==='unsafe condition')return'Unsafe Condition';if(s==='unsafe behavior')return'Unsafe Behavior';if(s==='near miss'||s==='nearmiss'||s==='near-miss')return'Near Miss';return null}
 function normalizeStatus(v){const s=String(v||'').trim().toLowerCase();if(s==='open')return'Open';if(s==='close'||s==='closed')return'Close';return null}
-function normalizePic(v){const s=String(v||'').trim().toUpperCase().replace(/\s+/g,' ');if(['MAINTENANCE','MTC'].includes(s))return'MTC';if(s==='UTILITY')return'UTILITY';if(['HRGA','GA','GENERAL AFFAIR','GENERAL AFFAIRS'].includes(s))return'GA';if(s==='PRODUKSI'||s==='PRODUCTION')return'PRODUKSI';if(s==='HSE')return'HSE';if(['WAREHOUSE','WH'].includes(s))return'WH';if(s==='QC'||s==='QUALITY CONTROL')return'QC';if(['RMPM','RM PM','RM/PM'].includes(s))return'RMPM';if(['GDSP','SPAREPART','SPARE PART','GUDANG SPARE PART'].includes(s))return'GDSP';return'LAINNYA'}
+function normalizePic(v){
+  const s = String(v || '').trim().toUpperCase().replace(/\s+/g,' ');
+  if(['MAINTENANCE','MTC'].includes(s))return'MTC';
+  if(s==='UTILITY')return'UTILITY';
+  if(['HRGA','GA','GENERAL AFFAIR','GENERAL AFFAIRS'].includes(s))return'GA';
+  if(['PRODUKSI','PRODUCTION'].includes(s))return'PRODUKSI';
+  if(s==='HSE')return'HSE';
+  if(['WAREHOUSE','WH'].includes(s))return'WH';
+  if(s==='QC'||s==='QUALITY CONTROL')return'QC';
+  if(['RMPM','RM PM','RM/PM'].includes(s))return'RMPM';
+  if(['GDSP','SPAREPART','SPARE PART','GUDANG SPARE PART'].includes(s))return'GDSP';
+  if(['PROJECT','PROYEK','LAINNYA','OTHER','OTHERS'].includes(s))return'PROJECT';
+  // Keep legacy behavior: unmatched PIC values were grouped as LAINNYA.
+  // The group is now displayed as Project, including records already in Supabase.
+  return 'PROJECT';
+}
+function picLabel(v){return v==='PROJECT'?'Project':v}
 function pick(obj,names){for(const n of names){const key=Object.keys(obj).find(k=>String(k).trim().toLowerCase()===n.toLowerCase());if(key!==undefined)return obj[key]}return null}
 function parseRawRows(raw,name,fileName){let droppedCat=0,badDate=0,badStatus=0;const out=[];raw.forEach((r,i)=>{const d=excelDate(pick(r,['DATE','Date','Tanggal']));if(!d){badDate++;return}const cat=normalizeCategory(pick(r,['KATEGORI','Kategori','CATEGORY']));if(!cat){droppedCat++;return}const status=normalizeStatus(pick(r,['VERIFIKASI','Verifikasi','STATUS','Status']));if(!status){badStatus++;return}const due=excelDate(pick(r,['DUE DATE','Due Date']));out.push({source_no:String(pick(r,['No','NO','No.'])??i+1),date:isoDate(d),year:d.getFullYear(),week:weekSunday(d),category:cat,location:String(pick(r,['LOKASI','Lokasi'])||'').trim(),issue:String(pick(r,['KETIDAKSESUAIAN','Ketidaksesuaian'])||'').trim(),reporter:String(pick(r,['NAMA PELAPOR','Nama Pelapor'])||'').trim(),pic:normalizePic(pick(r,['PIC','Pic'])),status,due_date:due?isoDate(due):null})});return{rows:out,meta:{sheet:name,droppedCat,badDate,badStatus,rawCount:raw.length,fileName}}}
 function setUploadLoading(title,text,kicker='HSE DATA'){const box=$('uploadLoading');$('uploadLoadingKicker').textContent=kicker;$('uploadLoadingTitle').textContent=title;$('uploadLoadingText').textContent=text;box.classList.add('show');document.body.classList.add('is-busy')}
@@ -124,20 +200,131 @@ function nextPaint(){return new Promise(resolve=>requestAnimationFrame(()=>reque
 async function readExcelInWorker(buffer){if(!window.Worker)throw new Error('Worker tidak tersedia');const workerCode=`importScripts('https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js');self.onmessage=function(e){try{const wb=XLSX.read(e.data,{type:'array',cellDates:true});const name=wb.SheetNames.find(n=>n.trim().toLowerCase()==='data base safety 2026')||wb.SheetNames[0];const raw=XLSX.utils.sheet_to_json(wb.Sheets[name],{defval:null,raw:true});self.postMessage({ok:true,name,raw});}catch(err){self.postMessage({ok:false,error:err&&err.message?err.message:String(err)});}};`;const url=URL.createObjectURL(new Blob([workerCode],{type:'application/javascript'}));try{return await new Promise((resolve,reject)=>{const w=new Worker(url);w.onmessage=e=>{w.terminate();e.data?.ok?resolve(e.data):reject(new Error(e.data?.error||'Gagal membaca Excel'));};w.onerror=e=>{w.terminate();reject(new Error(e.message||'Worker gagal'));};w.postMessage(buffer,[buffer]);});}finally{URL.revokeObjectURL(url)}}
 async function readExcelSafely(file){const buffer=await file.arrayBuffer();try{return await readExcelInWorker(buffer)}catch(workerErr){console.warn('Worker fallback:',workerErr);await nextPaint();const wb=XLSX.read(buffer,{type:'array',cellDates:true});const name=wb.SheetNames.find(n=>n.trim().toLowerCase()==='data base safety 2026')||wb.SheetNames[0];return{name,raw:XLSX.utils.sheet_to_json(wb.Sheets[name],{defval:null,raw:true})}}}
 async function replaceOnlineData(parsed){if(!parsed.rows.length)throw new Error('Tidak ada data HSE valid untuk di-upload.');const payload=parsed.rows.map(r=>({source_no:r.source_no,date:r.date,year:r.year,week:r.week,category:r.category,location:r.location,issue:r.issue,reporter:r.reporter,pic:r.pic,status:r.status,due_date:r.due_date}));const{data,error}=await db.rpc('hse_replace_dataset',{p_rows:payload,p_file_name:parsed.meta.fileName,p_source_rows:parsed.meta.rawCount});if(error)throw error;return data}
-$('fileInput').addEventListener('change',async e=>{const f=e.target.files?.[0];if(!f)return;const btn=$('uploadBtn');try{btn.disabled=true;btn.textContent='Memproses...';$('fileName').textContent=f.name;$('importNote').textContent='Membaca file Excel...';setUploadLoading('Membaca file Excel','File sedang dibuka dan data HSE sedang disiapkan. Untuk file besar proses dapat memerlukan beberapa saat.','LANGKAH 1 DARI 4');await nextPaint();const excel=await readExcelSafely(f);setUploadLoading('Memvalidasi data HSE','Memeriksa tanggal, kategori, PIC, status verifikasi, dan menghitung week Minggu-Sabtu.','LANGKAH 2 DARI 4');await nextPaint();const parsed=parseRawRows(excel.raw,excel.name,f.name);if(!parsed.rows.length)throw new Error('Tidak ada baris valid. Pastikan DATE, KATEGORI, PIC, dan VERIFIKASI tersedia.');btn.textContent='Upload...';setUploadLoading('Mengunggah ke database',`${parsed.rows.length.toLocaleString('id-ID')} baris sedang dikirim ke Supabase. Dataset lama tetap aman sampai proses replace berhasil. Kami sarankan jangan menutup halaman.`, 'LANGKAH 3 DARI 4');await nextPaint();await replaceOnlineData(parsed);setUploadLoading('Menyegarkan dashboard','Upload berhasil. Dashboard sedang mengambil kembali dataset aktif terbaru dari Supabase.','LANGKAH 4 DARI 4');$('importNote').textContent=`Upload berhasil. ${parsed.rows.length.toLocaleString('id-ID')} baris menjadi dataset aktif. Foto/dokumentasi tidak dikirim.`;$('qualityInfo').textContent=[parsed.meta.droppedCat?`${parsed.meta.droppedCat} kategori diabaikan`:null,parsed.meta.badDate?`${parsed.meta.badDate} tanggal tidak valid`:null,parsed.meta.badStatus?`${parsed.meta.badStatus} status bukan Open/Close`:null].filter(Boolean).join(' · ');await loadOnlineData();await new Promise(r=>setTimeout(r,450))}catch(err){console.error(err);hideUploadLoading();alert(`Upload HSE gagal: ${err.message||err}`);$('importNote').textContent='Upload gagal. Dataset lama tetap aman dan tidak berubah.'}finally{hideUploadLoading();btn.disabled=false;btn.textContent='Upload & Replace';e.target.value=''}})
+$('fileInput').addEventListener('change',async e=>{const f=e.target.files?.[0];if(!f)return;const btn=$('uploadBtn');try{btn.disabled=true;btn.textContent='Memproses...';$('fileName').textContent=f.name;$('importNote').textContent='Membaca file Excel...';setUploadLoading('Membaca file Excel','File sedang dibuka dan data HSE sedang disiapkan. Untuk file besar proses dapat memerlukan beberapa saat.','LANGKAH 1 DARI 4');await nextPaint();const excel=await readExcelSafely(f);setUploadLoading('Memvalidasi data HSE','Memeriksa tanggal, kategori, PIC, status verifikasi, dan menghitung week Minggu-Sabtu.','LANGKAH 2 DARI 4');await nextPaint();const parsed=parseRawRows(excel.raw,excel.name,f.name);if(!parsed.rows.length)throw new Error('Tidak ada baris valid. Pastikan DATE, KATEGORI, PIC, dan VERIFIKASI tersedia.');btn.textContent='Upload...';setUploadLoading('Mengunggah ke database',`${parsed.rows.length.toLocaleString('id-ID')} baris sedang dikirim ke Supabase. Dataset lama tetap aman sampai proses replace berhasil. Kami sarankan jangan menutup halaman.`, 'LANGKAH 3 DARI 4');await nextPaint();await replaceOnlineData(parsed);setUploadLoading('Menyegarkan dashboard','Upload berhasil. Dashboard sedang mengambil kembali dataset aktif terbaru dari Supabase.','LANGKAH 4 DARI 4');$('importNote').textContent=`Upload berhasil. ${parsed.rows.length.toLocaleString('id-ID')} baris menjadi dataset aktif. Foto/dokumentasi tidak dikirim.`;$('qualityInfo').textContent=[parsed.meta.droppedCat?`${parsed.meta.droppedCat} kategori diabaikan`:null,parsed.meta.badDate?`${parsed.meta.badDate} tanggal tidak valid`:null,parsed.meta.badStatus?`${parsed.meta.badStatus} status bukan Open/Close`:null].filter(Boolean).join(' · ');await loadOnlineData();notifyHse('Dataset HSE berhasil diperbarui.');await new Promise(r=>setTimeout(r,450))}catch(err){console.error(err);hideUploadLoading();notifyHse(`Upload HSE gagal: ${err.message||err}`,true);$('importNote').textContent='Upload gagal. Dataset lama tetap aman dan tidak berubah.'}finally{hideUploadLoading();btn.disabled=false;btn.textContent='Upload & Replace';e.target.value=''}})
 async function fetchAllFindings(){const all=[];const pageSize=1000;for(let from=0;;from+=pageSize){const{data,error}=await db.from('hse_findings').select('source_no,date,year,week,category,location,issue,reporter,pic,status,due_date').order('date',{ascending:true}).range(from,from+pageSize-1);if(error)throw error;all.push(...(data||[]));if(!data||data.length<pageSize)break}return all}
-async function loadOnlineData(){try{$('fileName').textContent='Memuat data online...';$('importNote').textContent='Mengambil dataset aktif dari Supabase...';const[dataResult,metaResult]=await Promise.all([fetchAllFindings(),db.from('hse_dataset_meta').select('*').eq('id',1).maybeSingle()]);const data=dataResult,meta=metaResult.data;if(metaResult.error)console.warn(metaResult.error);rows=(data||[]).map(r=>({no:r.source_no,date:r.date,year:r.year,week:r.week,category:r.category,location:r.location||'—',issue:r.issue||'—',reporter:r.reporter||'—',pic:r.pic,status:r.status,due:r.due_date}));refreshControls();applyFilters();if(meta){$('fileName').textContent=meta.file_name||'Dataset HSE Online';$('importNote').textContent=`${rows.length.toLocaleString('id-ID')} baris aktif · update ${meta.updated_at?fmtDate(new Date(meta.updated_at)):'—'} · dapat dipantau dari semua device.`;$('sourceInfo').textContent=`${meta.file_name||'HSE'} · ${Number(meta.source_rows||rows.length).toLocaleString('id-ID')} baris sumber · ${rows.length.toLocaleString('id-ID')} baris tersimpan`}else{$('fileName').textContent='Dataset HSE Online';$('importNote').textContent=rows.length?`${rows.length.toLocaleString('id-ID')} baris aktif di Supabase.`:'Belum ada dataset HSE. Gunakan Upload & Replace.';$('sourceInfo').textContent=rows.length?'Supabase · dataset aktif':'Sumber belum dimuat.'}}catch(err){console.error(err);rows=[];refreshControls();applyFilters();$('fileName').textContent='Supabase belum siap';$('importNote').textContent='Tabel/RPC HSE belum tersedia atau koneksi gagal. Jalankan file supabase_hse_setup.sql satu kali di SQL Editor Supabase.';$('sourceInfo').textContent='Data online belum dapat dibaca.'}}
-function refreshControls(){const weeks=[...new Set(rows.map(r=>`${r.year}-${r.week}`))].sort((a,b)=>{const[ya,wa]=a.split('-').map(Number),[yb,wb]=b.split('-').map(Number);return ya-yb||wa-wb});$('weekFilter').innerHTML='<option value="all">Semua Week</option>'+weeks.map(x=>{const[y,w]=x.split('-');return`<option value="${x}">Week ${w} · ${y}</option>`}).join('');const years=[...new Set(rows.map(r=>r.year))].sort();$('yearFilter').innerHTML='<option value="all">Semua Tahun</option>'+years.map(y=>`<option>${y}</option>`).join('')}
+async function loadOnlineData(){try{$('fileName').textContent='Memuat data online...';$('importNote').textContent='Mengambil dataset aktif dari Supabase...';const[dataResult,metaResult]=await Promise.all([fetchAllFindings(),db.from('hse_dataset_meta').select('*').eq('id',1).maybeSingle()]);const data=dataResult,meta=metaResult.data;if(metaResult.error)console.warn(metaResult.error);rows=(data||[]).map(r=>({no:r.source_no,date:r.date,year:r.year,week:r.week,category:r.category,location:r.location||'—',issue:r.issue||'—',reporter:r.reporter||'—',pic:normalizePic(r.pic),status:r.status,due:r.due_date}));refreshControls();applyFilters();if(meta){$('fileName').textContent=meta.file_name||'Dataset HSE Online';$('importNote').textContent=`${rows.length.toLocaleString('id-ID')} baris aktif · update ${meta.updated_at?fmtDate(new Date(meta.updated_at)):'—'} · dapat dipantau dari semua device.`;$('sourceInfo').textContent=`${meta.file_name||'HSE'} · ${Number(meta.source_rows||rows.length).toLocaleString('id-ID')} baris sumber · ${rows.length.toLocaleString('id-ID')} baris tersimpan`}else{$('fileName').textContent='Dataset HSE Online';$('importNote').textContent=rows.length?`${rows.length.toLocaleString('id-ID')} baris aktif di Supabase.`:'Belum ada dataset HSE. Gunakan Upload & Replace.';$('sourceInfo').textContent=rows.length?'Supabase · dataset aktif':'Sumber belum dimuat.'}}catch(err){console.error(err);rows=[];refreshControls();applyFilters();$('fileName').textContent='Supabase belum siap';$('importNote').textContent='Tabel/RPC HSE belum tersedia atau koneksi gagal. Jalankan file supabase_hse_setup.sql satu kali di SQL Editor Supabase.';$('sourceInfo').textContent='Data online belum dapat dibaca.'}}
+function refreshControls(){const weeks=[...new Set(rows.map(r=>`${r.year}-${r.week}`))].sort((a,b)=>{const[ya,wa]=a.split('-').map(Number),[yb,wb]=b.split('-').map(Number);return yb-ya||wb-wa});$('weekFilter').innerHTML='<option value="all">Semua Week</option>'+weeks.map(x=>{const[y,w]=x.split('-');return`<option value="${x}">Week ${w} · ${y}</option>`}).join('');const years=[...new Set(rows.map(r=>r.year))].sort((a,b)=>b-a);$('yearFilter').innerHTML='<option value="all">Semua Tahun</option>'+years.map(y=>`<option>${y}</option>`).join('')}
 function resetFilters(){['weekFilter','catFilter','picFilter','statusFilter','yearFilter'].forEach(id=>$(id).value='all');$('searchInput').value='';applyFilters()}
 ['weekFilter','catFilter','picFilter','statusFilter','yearFilter'].forEach(id=>$(id).addEventListener('change',applyFilters));$('searchInput').addEventListener('input',renderTable);
-function applyFilters(){const wf=$('weekFilter').value,cf=$('catFilter').value,pf=$('picFilter').value,sf=$('statusFilter').value,yf=$('yearFilter').value;filtered=rows.filter(r=>(wf==='all'||`${r.year}-${r.week}`===wf)&&(cf==='all'||r.category===cf)&&(pf==='all'||r.pic===pf)&&(sf==='all'||r.status===sf)&&(yf==='all'||String(r.year)===yf));renderKpis();renderCharts();renderTable()}
+function applyFilters(){const wf=$('weekFilter').value,cf=$('catFilter').value,pf=$('picFilter').value,sf=$('statusFilter').value,yf=$('yearFilter').value;filtered=rows.filter(r=>(wf==='all'||`${r.year}-${r.week}`===wf)&&(cf==='all'||r.category===cf)&&(pf==='all'||r.pic===pf)&&(sf==='all'||r.status===sf)&&(yf==='all'||String(r.year)===yf));tablePage=1;renderKpis();renderCharts();renderFollowUps();renderTable()}
 function counts(arr,key){return arr.reduce((a,r)=>(a[r[key]]=(a[r[key]]||0)+1,a),{})}
-function renderKpis(){const t=filtered.length,o=filtered.filter(r=>r.status==='Open').length,c=filtered.filter(r=>r.status==='Close').length;$('kTotal').textContent=t.toLocaleString('id-ID');$('kOpen').textContent=o.toLocaleString('id-ID');$('kClose').textContent=c.toLocaleString('id-ID');$('kRate').textContent=t?`${(c/t*100).toFixed(1)}%`:'—';$('sTotal').textContent=t?'Sesuai filter aktif':'Tidak ada data pada filter';$('sOpen').textContent=t?`${(o/t*100).toFixed(1)}% dari total temuan`:'Belum terverifikasi close';$('sClose').textContent=t?`${(c/t*100).toFixed(1)}% dari total temuan`:'Sudah ditutup';const pc=counts(filtered,'pic'),top=Object.entries(pc).sort((a,b)=>b[1]-a[1])[0];$('kPic').textContent=top?top[0]:'—';$('sPic').textContent=top?`${top[1]} temuan`:'Berdasarkan filter aktif';const last=[...filtered].sort((a,b)=>new Date(b.date)-new Date(a.date))[0];$('kWeek').textContent=last?`W${last.week}`:'—';$('sWeek').textContent=last?`${fmtDate(new Date(last.date))} · ${last.year}`:'Minggu dimulai hari Minggu'}
+function fmtNumber(n){return Number(n||0).toLocaleString('id-ID')}
+function localDateAtOffset(days){const d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()+days);return d}
+function yesterdayISO(){return isoDate(localDateAtOffset(-1))}
+function todayISO(){return isoDate(localDateAtOffset(0))}
+function updatePeriodLabels(){
+  const y=localDateAtOffset(-1),t=localDateAtOffset(0);
+  const fd = new Intl.DateTimeFormat('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  $('heroH1').textContent=fd.format(y);
+  $('dorDay').textContent='Review: '+fd.format(y);
+  $('liveDate').textContent=new Intl.DateTimeFormat('id-ID',{day:'2-digit',month:'short',year:'numeric'}).format(t);
+}
+function renderKpis(){
+  updatePeriodLabels();
+  const t=filtered.length,o=filtered.filter(r=>r.status==='Open').length,c=filtered.filter(r=>r.status==='Close').length;
+  const y=filtered.filter(r=>r.date===yesterdayISO());
+  const yo=y.filter(r=>r.status==='Open').length;
+  const rate=t?c/t*100:0;
+  $('kTotal').textContent=fmtNumber(t);
+  $('kOpen').textContent=fmtNumber(o);
+  $('kClose').textContent=fmtNumber(c);
+  $('kRate').textContent=t?rate.toFixed(1)+'%':'-';
+  $('heroYesterdayCount').textContent=fmtNumber(y.length);
+  $('heroOpenCount').textContent=fmtNumber(yo);
+  $('sTotal').textContent=t?'Sesuai filter aktif':'Belum ada data pada filter';
+  $('sOpen').textContent=t?(o/t*100).toFixed(1)+'% dari total temuan':'Belum ada temuan open';
+  $('sClose').textContent=t?(c/t*100).toFixed(1)+'% dari total temuan':'Belum ada temuan close';
+  const pc=counts(filtered,'pic'),top=Object.entries(pc).sort((a,b)=>b[1]-a[1])[0];
+  $('kPic').textContent=top?picLabel(top[0]):'-';
+  $('sPic').textContent=top?fmtNumber(top[1])+' temuan':'Berdasarkan filter aktif';
+  const last=[...filtered].sort((a,b)=>String(b.date).localeCompare(String(a.date)))[0];
+  $('kWeek').textContent=last?'W'+last.week:'-';
+  $('sWeek').textContent=last?fmtDate(new Date(last.date+'T00:00:00'))+' · '+last.year:'Minggu dimulai hari Minggu';
+}
+function renderFollowUps(){
+  const openRows=filtered.filter(r=>r.status==='Open');
+  const now=todayISO();
+  const sorted=[...openRows].sort((a,b)=>{
+    const aLate=a.due&&a.due<now?1:0,bLate=b.due&&b.due<now?1:0;
+    if(aLate!==bLate)return bLate-aLate;
+    if(aLate&&bLate)return a.due.localeCompare(b.due);
+    const aYesterday=a.date===yesterdayISO()?1:0,bYesterday=b.date===yesterdayISO()?1:0;
+    if(aYesterday!==bYesterday)return bYesterday-aYesterday;
+    return String(b.date).localeCompare(String(a.date));
+  }).slice(0,4);
+  if(!sorted.length){$('dorList').innerHTML='<div class="dor-empty">Tidak ada temuan Open pada filter ini.</div>';return}
+  $('dorList').innerHTML=sorted.map(r=>{
+    const late=Boolean(r.due&&r.due<now);
+    const label=late?'Overdue':'Open';
+    const when=r.due?'Due '+fmtDate(new Date(r.due+'T00:00:00')):'Due belum ditentukan';
+    return `<article class="dor-issue"><span class="dor-indicator ${late?'overdue':''}"></span><div class="dor-issue-content"><div class="dor-issue-title" title="${esc(r.location||'Lokasi belum dicatat')}">${esc(r.location||'Lokasi belum dicatat')}</div><div class="dor-issue-copy" title="${esc(r.issue||'')}">${esc(r.issue||'Temuan belum dideskripsikan')}</div><div class="dor-issue-bottom"><span>${esc(picLabel(r.pic||'-'))}</span><span>&bull;</span><span>${esc(when)}</span><span class="dor-status ${late?'':'pending'}">${label}</span></div></div></article>`;
+  }).join('');
+}
 function destroy(name){if(charts[name]){charts[name].destroy();delete charts[name]}}
 const common={responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{boxWidth:10,usePointStyle:true,font:{size:9}}}},scales:{x:{grid:{display:false},ticks:{font:{size:8}}},y:{beginAtZero:true,ticks:{precision:0,font:{size:8}},grid:{color:'#eef2f7'}}}};
-function renderCharts(){const byWeek={};filtered.forEach(r=>{const k=`${r.year}-W${String(r.week).padStart(2,'0')}`;byWeek[k]??={'Unsafe Condition':0,'Unsafe Behavior':0,'Near Miss':0};byWeek[k][r.category]++});const labels=Object.keys(byWeek).sort();destroy('weekly');charts.weekly=new Chart($('weeklyChart'),{type:'bar',data:{labels,datasets:[{label:'Unsafe Condition',data:labels.map(k=>byWeek[k]['Unsafe Condition']),backgroundColor:'#f59e0b'},{label:'Unsafe Behavior',data:labels.map(k=>byWeek[k]['Unsafe Behavior']),backgroundColor:'#7c3aed'},{label:'Near Miss',data:labels.map(k=>byWeek[k]['Near Miss']),backgroundColor:'#1268e8'}]},options:{...common,scales:{x:{stacked:true,grid:{display:false},ticks:{font:{size:8}}},y:{stacked:true,beginAtZero:true,ticks:{precision:0,font:{size:8}},grid:{color:'#eef2f7'}}}}});const sc=counts(filtered,'status');destroy('status');charts.status=new Chart($('statusChart'),{type:'doughnut',data:{labels:['Open','Close'],datasets:[{data:[sc.Open||0,sc.Close||0],backgroundColor:['#ef4444','#16a34a'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:'67%',plugins:{legend:{position:'bottom',labels:{usePointStyle:true,boxWidth:9,font:{size:9}}}}}});const cc=counts(filtered,'category');destroy('cat');charts.cat=new Chart($('categoryChart'),{type:'doughnut',data:{labels:['Unsafe Condition','Unsafe Behavior','Near Miss'],datasets:[{data:['Unsafe Condition','Unsafe Behavior','Near Miss'].map(x=>cc[x]||0),backgroundColor:['#f59e0b','#7c3aed','#1268e8'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'bottom',labels:{usePointStyle:true,boxWidth:9,font:{size:8}}}}}});const pc=counts(filtered,'pic'),pl=Object.keys(pc).sort((a,b)=>pc[b]-pc[a]);destroy('pic');charts.pic=new Chart($('picChart'),{type:'bar',data:{labels:pl,datasets:[{label:'Temuan',data:pl.map(x=>pc[x]),backgroundColor:'#0f9f93',borderRadius:6}]},options:{...common,indexAxis:'y',plugins:{legend:{display:false}}}});const op=counts(filtered.filter(r=>r.status==='Open'),'pic'),ol=Object.keys(op).sort((a,b)=>op[b]-op[a]);destroy('openPic');charts.openPic=new Chart($('openPicChart'),{type:'bar',data:{labels:ol,datasets:[{label:'Open',data:ol.map(x=>op[x]),backgroundColor:'#ef4444',borderRadius:6}]},options:{...common,indexAxis:'y',plugins:{legend:{display:false}}}})}
+function barLabelsPlugin(){return {id:'hseBarValueLabels',afterDatasetsDraw(chart){
+  if(!['picChart','openPicChart','categoryChart'].includes(chart.canvas.id))return;
+  const meta=chart.getDatasetMeta(0);const vals=chart.data.datasets[0].data;
+  const ctx=chart.ctx;ctx.save();ctx.font='700 10px Inter, system-ui, sans-serif';ctx.fillStyle='#65748d';ctx.textAlign='left';ctx.textBaseline='middle';
+  meta.data.forEach((el,i)=>{if(Number(vals[i])>0)ctx.fillText(fmtNumber(vals[i]),Math.min(el.x+8,chart.chartArea.right-16),el.y)});ctx.restore();
+}}}
+function weeklyTotalsPlugin(){return {id:'hseWeeklyTotals',afterDatasetsDraw(chart){
+  const ctx=chart.ctx;ctx.save();ctx.font='800 10px Inter,system-ui,sans-serif';ctx.fillStyle='#566981';ctx.textAlign='center';ctx.textBaseline='bottom';
+  chart.data.labels.forEach((lab,i)=>{const sum=chart.data.datasets.reduce((acc,d)=>acc+Number(d.data[i]||0),0);if(!sum)return;const x=chart.getDatasetMeta(0).data[i]?.x;const y=chart.scales.y.getPixelForValue(sum)-5;if(Number.isFinite(x)&&y>chart.chartArea.top+9)ctx.fillText(fmtNumber(sum),x,y)});ctx.restore();
+}}}
+function donutCenterPlugin(){return {id:'hseDonutCenter',afterDraw(chart){
+  const p=chart.getDatasetMeta(0).data[0];if(!p)return;
+  const t=filtered.length,c=filtered.filter(x=>x.status==='Close').length,rate=t?(c/t*100).toFixed(1)+'%':'-';
+  const ctx=chart.ctx;ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#24385b';ctx.font='850 31px Inter,system-ui,sans-serif';ctx.fillText(rate,p.x,p.y-4);ctx.fillStyle='#8997aa';ctx.font='700 10px Inter,system-ui,sans-serif';ctx.fillText('CLOSURE RATE',p.x,p.y+23);ctx.restore();
+}}}
+function renderCharts(){
+  const font={family:'Inter,system-ui,sans-serif',size:10};
+  const tooltip={backgroundColor:'#203b67',padding:11,titleFont:{size:11},bodyFont:{size:11},displayColors:true};
+  const axisX={grid:{display:false},ticks:{font,color:'#8a97aa',maxRotation:0,minRotation:0},border:{display:false}};
+  const axisY={beginAtZero:true,ticks:{precision:0,color:'#8a97aa',font},grid:{color:'#edf1f7'},border:{display:false}};
+  const cats=['Unsafe Condition','Unsafe Behavior','Near Miss'];
+  const byWeek={};
+  filtered.forEach(r=>{const k=String(r.year)+'-W'+String(r.week).padStart(2,'0');
+    if(!byWeek[k])byWeek[k]={'Unsafe Condition':0,'Unsafe Behavior':0,'Near Miss':0};
+    if(cats.includes(r.category))byWeek[k][r.category]++;
+  });
+  const labels=Object.keys(byWeek).sort();
+  destroy('weekly');
+  charts.weekly=new Chart($('weeklyChart'),{type:'bar',data:{labels:labels.map(k=>k.split('-')[1]),datasets:[
+    {label:cats[0],data:labels.map(k=>byWeek[k][cats[0]]),backgroundColor:'#f5b449',borderRadius:5,maxBarThickness:23,stack:'safety'},
+    {label:cats[1],data:labels.map(k=>byWeek[k][cats[1]]),backgroundColor:'#7957dc',borderRadius:5,maxBarThickness:23,stack:'safety'},
+    {label:cats[2],data:labels.map(k=>byWeek[k][cats[2]]),backgroundColor:'#4076ee',borderRadius:5,maxBarThickness:23,stack:'safety'}
+  ]},options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:18,right:12}},plugins:{legend:{display:false},tooltip},scales:{x:{...axisX,stacked:true},y:{...axisY,stacked:true}}},plugins:[weeklyTotalsPlugin()]});
+  const sc=counts(filtered,'status');
+  destroy('status');
+  charts.status=new Chart($('statusChart'),{type:'doughnut',data:{labels:['Open','Close'],datasets:[{data:[sc.Open||0,sc.Close||0],backgroundColor:['#f16671','#10b981'],borderWidth:0,hoverOffset:4,spacing:2,borderRadius:7}]},options:{responsive:true,maintainAspectRatio:false,cutout:'77%',plugins:{legend:{display:false},tooltip},layout:{padding:17}},plugins:[donutCenterPlugin()]});
+  const cc=counts(filtered,'category');
+  destroy('cat');
+  charts.cat=new Chart($('categoryChart'),{type:'bar',data:{labels:cats.map(x=>x.replace('Unsafe ','Unsafe\n')),datasets:[{label:'Temuan',data:cats.map(x=>cc[x]||0),backgroundColor:['#f5b449','#7957dc','#4076ee'],borderRadius:7,barThickness:12}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,layout:{padding:{right:27}},plugins:{legend:{display:false},tooltip},scales:{x:{...axisY,grid:{color:'#edf1f7'}},y:{...axisX,ticks:{...axisX.ticks,callback:function(v){return this.getLabelForValue(v).replace('Unsafe\n','Unsafe ')}}}}},plugins:[barLabelsPlugin()]});
+  const pc=counts(filtered,'pic'),pl=Object.keys(pc).sort((a,b)=>pc[b]-pc[a]).slice(0,8);
+  destroy('pic');
+  charts.pic=new Chart($('picChart'),{type:'bar',data:{labels:pl.map(picLabel),datasets:[{label:'Temuan',data:pl.map(x=>pc[x]),backgroundColor:'#4e82ed',borderRadius:7,barThickness:11}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,layout:{padding:{right:29}},plugins:{legend:{display:false},tooltip},scales:{x:axisY,y:axisX}},plugins:[barLabelsPlugin()]});
+  const op=counts(filtered.filter(r=>r.status==='Open'),'pic'),ol=Object.keys(op).sort((a,b)=>op[b]-op[a]).slice(0,8);
+  destroy('openPic');
+  charts.openPic=new Chart($('openPicChart'),{type:'bar',data:{labels:ol.map(picLabel),datasets:[{label:'Open',data:ol.map(x=>op[x]),backgroundColor:'#f06a72',borderRadius:7,barThickness:11}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,layout:{padding:{right:29}},plugins:{legend:{display:false},tooltip},scales:{x:axisY,y:axisX}},plugins:[barLabelsPlugin()]});
+}
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
-function renderTable(){const q=$('searchInput').value.trim().toLowerCase();const data=filtered.filter(r=>!q||[r.no,r.location,r.issue,r.reporter,r.pic,r.category,r.status].some(v=>String(v).toLowerCase().includes(q))).sort((a,b)=>new Date(b.date)-new Date(a.date));$('rowCount').textContent=`${data.length.toLocaleString('id-ID')} data`;if(!data.length){$('tbody').innerHTML='<tr><td colspan="10"><div class="empty">Tidak ada data yang sesuai filter.</div></td></tr>';return}$('tbody').innerHTML=data.map(r=>`<tr><td>${esc(r.no)}</td><td>${fmtDate(new Date(r.date+'T00:00:00'))}</td><td>W${r.week}</td><td><span class="badge b-cat">${esc(r.category)}</span></td><td>${esc(r.location)}</td><td style="min-width:320px">${esc(r.issue)}</td><td>${esc(r.reporter)}</td><td><span class="badge b-pic">${esc(r.pic)}</span></td><td><span class="badge ${r.status==='Open'?'b-open':'b-close'}">${esc(r.status)}</span></td><td>${r.due?fmtDate(new Date(r.due+'T00:00:00')):'—'}</td></tr>`).join('')}
+const ROWS_PER_PAGE=17;
+let tablePage=1;
+function changeTablePage(delta){tablePage+=delta;renderTable()}
+function renderTable(){
+  const q=$('searchInput').value.trim().toLocaleLowerCase('id-ID');
+  const data=filtered.filter(r=>!q||[r.no,r.location,r.issue,r.reporter,r.picLabel||picLabel(r.pic),r.category,r.status].some(v=>String(v).toLocaleLowerCase('id-ID').includes(q))).sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+  $('rowCount').textContent=fmtNumber(data.length)+' data';
+  const pages=Math.max(1,Math.ceil(data.length/ROWS_PER_PAGE));
+  tablePage=Math.min(pages,Math.max(1,tablePage));
+  $('tablePageLabel').textContent=tablePage+' / '+pages;
+  $('prevPage').disabled=tablePage<=1;
+  $('nextPage').disabled=tablePage>=pages;
+  if(!data.length){$('tbody').innerHTML='<tr><td colspan="10"><div class="empty">Tidak ada temuan yang sesuai dengan filter.</div></td></tr>';return}
+  const slice=data.slice((tablePage-1)*ROWS_PER_PAGE,tablePage*ROWS_PER_PAGE);
+  $('tbody').innerHTML=slice.map(r=>`<tr><td>${esc(r.no)}</td><td class="date-col">${fmtDate(new Date(r.date+'T00:00:00'))}</td><td>W${r.week}</td><td><span class="badge b-cat">${esc(r.category)}</span></td><td>${esc(r.location)}</td><td class="issue-col">${esc(r.issue)}</td><td>${esc(r.reporter)}</td><td><span class="badge b-pic">${esc(picLabel(r.pic))}</span></td><td><span class="badge ${r.status==='Open'?'b-open':'b-close'}">${esc(r.status)}</span></td><td class="date-col">${r.due?fmtDate(new Date(r.due+'T00:00:00')):'-'}</td></tr>`).join('');
+}
 loadOnlineData();
 </script>
 </body>
