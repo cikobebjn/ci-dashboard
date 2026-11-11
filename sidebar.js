@@ -1,5 +1,5 @@
 /*
- * KOBE Bojonegoro | Shared Sidebar v2.1 - Accordion Navigation
+ * KOBE Bojonegoro | Shared Sidebar v2.2 - Accordion + DMC DOR Navigation
  * The only source of truth for navigation items, sidebar CSS and interactions.
  * Install ONCE in every HTML page: <script src="sidebar.js" defer></script>
  * For a page inside a subfolder: <script src="../sidebar.js" defer></script>
@@ -7,7 +7,7 @@
  */
 (function () {
   'use strict';
-  if (window.KobeSidebar && window.KobeSidebar.version === '2.1') return;
+  if (window.KobeSidebar && window.KobeSidebar.version === '2.2') return;
 
   // Accordion: grup aktif terbuka otomatis, grup lain tertutup.
   // Klik header untuk expand/collapse. Pencarian otomatis membuka grup hasil.
@@ -17,6 +17,26 @@
       { name: 'Dashboard Utama', url: 'index.html', icon: 'home' },
       { name: 'Jargon KMS', url: 'index.html#dor-jargon', icon: 'spark' },
       { name: 'Komitmen & Kebijakan KOBE', url: 'index.html#dor-opening', icon: 'book' }
+    ] },
+    { title: 'DMC', subtitle: 'Daily Management Center', items: [
+      // DOR 30 menit: urutan mengikuti script resmi. Productivity dibagi per gedung.
+      // Materi presentasi per agenda akan ditambahkan pada tahap berikutnya.
+      { name: '01 - Opening & Nilai KOBE', url: 'dmc-dor.html#opening', icon: 'book', planned: true },
+      { name: '02 - Review MoM & Action Plan', url: 'dmc-dor.html#mom-action-plan', icon: 'form', planned: true },
+      { name: '03 - Safety / HSE Patrol', url: 'dmc-dor.html#safety', icon: 'shield', planned: true },
+      { name: '04 - Quality / QC (FTQ)', url: 'dmc-dor.html#quality', icon: 'gauge', planned: true },
+      { name: '05A - PRD Gedung 4', url: 'dmc-dor.html#prd-g4', icon: 'chart', planned: true },
+      { name: '05B - PRD Gedung 6', url: 'dmc-dor.html#prd-g6', icon: 'chart', planned: true },
+      { name: '05C - PRD Gedung 7', url: 'dmc-dor.html#prd-g7', icon: 'chart', planned: true },
+      { name: '06 - Maintenance / MTC', url: 'dmc-dor.html#maintenance', icon: 'activity', planned: true },
+      { name: '07 - Utility (Listrik & Gas)', url: 'dmc-dor.html#utility', icon: 'bolt', planned: true },
+      { name: '08 - Logistic (Kapasitas Gudang)', url: 'dmc-dor.html#logistic', icon: 'chart', planned: true },
+      { name: '09 - Warehouse (Delivery)', url: 'dmc-dor.html#warehouse', icon: 'chart', planned: true },
+      { name: '10 - GA (Fasilitas Umum)', url: 'dmc-dor.html#ga', icon: 'home', planned: true },
+      { name: '11 - Spare Part (Kedatangan & PO)', url: 'dmc-dor.html#spare-part', icon: 'form', planned: true },
+      { name: '12 - HR / HC (People & Training)', url: 'dmc-dor.html#hr', icon: 'form', planned: true },
+      { name: '13 - Project (Improvement)', url: 'dmc-dor.html#project', icon: 'spark', planned: true },
+      { name: '14 - Closing & Yel-yel KMS', url: 'dmc-dor.html#closing', icon: 'spark', planned: true }
     ] },
     { title: 'Performance', items: [
       { name: 'OEE', url: 'oee.html', icon: 'gauge' },
@@ -52,6 +72,7 @@
     spark: '<path d="m12 3 1.9 6.1L20 11l-6.1 1.9L12 19l-1.9-6.1L4 11l6.1-1.9z"/>',
     book: '<path d="M4 4.5h6a3 3 0 0 1 3 3V21a3 3 0 0 0-3-3H4zM20 4.5h-4a3 3 0 0 0-3 3V21a3 3 0 0 1 3-3h4z"/>',
     gauge: '<path d="M5.2 17.8a9 9 0 1 1 13.6 0"/><path d="m12 14 4-5"/><circle cx="12" cy="14" r="1"/>',
+    monitor: '<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/>',
     chart: '<rect x="4" y="12" width="3" height="8" rx="1"/><rect x="10.5" y="8" width="3" height="12" rx="1"/><rect x="17" y="4" width="3" height="16" rx="1"/>',
     bolt: '<path d="m13 2-9 11h7l-1 9 10-12h-7z"/>',
     shield: '<path d="M12 2 4 5v6c0 5.6 3.1 9.6 8 11 4.9-1.4 8-5.4 8-11V5z"/><path d="m9 12 2 2 4-4"/>',
@@ -105,6 +126,8 @@
     #sidebar.kobe-sidebar-v2 .kb-section-toggle > .kb-group-icon { display:grid;place-items:center;flex:0 0 16px; color:#92accd; }
     #sidebar.kobe-sidebar-v2 .kb-group-icon svg { width:16px;height:16px; }
     #sidebar.kobe-sidebar-v2 .kb-section-label { flex:1;min-width:0; }
+    #sidebar.kobe-sidebar-v2 .kb-section-label .kb-label-main { display:block;font-size:12px;font-weight:800; }
+    #sidebar.kobe-sidebar-v2 .kb-section-label .kb-section-subtitle { display:block;margin-top:2px;color:#a5bcdd;font-size:9px;font-weight:600;letter-spacing:0;line-height:1.3; }
     #sidebar.kobe-sidebar-v2 .kb-group-count { display:grid;place-items:center;min-width:20px;height:19px;padding:0 5px;border-radius:6px;background:rgba(164,193,235,.10);color:#94aacc;font-size:10px;font-weight:750;letter-spacing:0; }
     #sidebar.kobe-sidebar-v2 .kb-chevron { flex:0 0 14px;width:14px;height:14px;opacity:.8;transition:transform .2s ease; }
     #sidebar.kobe-sidebar-v2 .kb-section.kb-expanded .kb-chevron { transform:rotate(180deg); }
@@ -117,6 +140,11 @@
     #sidebar.kobe-sidebar-v2 .kb-link:hover { color:#fff;background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.08); }
     #sidebar.kobe-sidebar-v2 .kb-link.kb-active { color:#fff;background:linear-gradient(100deg,rgba(54,118,227,.34),rgba(113,85,218,.21));border-color:rgba(115,172,255,.22);box-shadow:inset 3px 0 0 #67a4ff; }
     #sidebar.kobe-sidebar-v2 .kb-link.kb-active svg { color:#8fbaff;opacity:1; }
+    #sidebar.kobe-sidebar-v2 .kb-link.kb-planned { color:#b5c4dc; }
+    #sidebar.kobe-sidebar-v2 .kb-link.kb-planned::after { content:'';display:block;width:5px;height:5px;flex:0 0 5px;border-radius:50%;background:#6f8eaf;opacity:.8; }
+    #sidebar.kobe-sidebar-v2 .kb-notice { margin:0 14px 10px;padding:10px 12px;border-radius:10px;border:1px solid rgba(134,187,255,.26);background:#173758;color:#dcecff;font-size:11px;font-weight:500;line-height:1.45;flex-shrink:0; }
+    #sidebar.kobe-sidebar-v2 .kb-notice[hidden] { display:none!important; }
+
     #sidebar.kobe-sidebar-v2 .kb-footer { flex-shrink:0;display:flex;align-items:center;gap:9px;margin:0 14px;padding:14px 4px 17px;border-top:1px solid rgba(255,255,255,.09);color:#91a9c7;font-size:10px;font-weight:650; }
     #sidebar.kobe-sidebar-v2 .kb-dot { width:7px;height:7px;border-radius:99px;flex:0 0 7px;background:#34ce92;box-shadow:0 0 0 4px rgba(52,206,146,.11); }
     #kobe-sidebar-backdrop { position:fixed;inset:0;z-index:2147482999;background:rgba(8,20,40,.57);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px); }
@@ -168,6 +196,8 @@
     links.hidden = !expanded;
   }
   function toggleSection(section) {
+    const notice = sidebar && sidebar.querySelector('.kb-notice');
+    if (notice) notice.hidden = true;
     const willOpen = !section.classList.contains('kb-expanded');
     if (willOpen && !searching) {
       sidebar.querySelectorAll('.kb-section').forEach(other => {
@@ -227,6 +257,8 @@
   }
   function toggle() { sidebar && sidebar.classList.contains('kobe-sidebar-open') ? close() : open(); }
   function filterItems(term) {
+    const notice = sidebar && sidebar.querySelector('.kb-notice');
+    if (notice) notice.hidden = true;
     if (!sidebar) return;
     const query = (term || '').toLocaleLowerCase('id-ID').trim();
     const sections = [...sidebar.querySelectorAll('.kb-section')];
@@ -332,13 +364,16 @@
     searchInput.setAttribute('aria-label','Cari halaman dalam navigasi');
     searchInput.addEventListener('input', () => filterItems(searchInput.value));
     search.append(searchIcon,searchInput);
+    const notice = buildElement('div','kb-notice');
+    notice.hidden = true;
+    notice.setAttribute('role','status');
 
     const nav = buildElement('nav','kb-nav');
     nav.setAttribute('aria-label','Menu dashboard');
-    const groupIcons = ['home', 'chart', 'shield', 'spark'];
+    const groupIcons = ['home', 'monitor', 'chart', 'shield', 'spark'];
     MENU.forEach((group, i) => {
       const section = buildElement('section','kb-section');
-      section.dataset.groupName = group.title.toLocaleLowerCase('id-ID');
+      section.dataset.groupName = `${group.title} ${group.subtitle || ''}`.toLocaleLowerCase('id-ID');
       const heading = buildElement('h3','kb-section-heading');
       const button = buildElement('button','kb-section-toggle');
       button.type = 'button';
@@ -346,7 +381,11 @@
       button.setAttribute('aria-expanded', 'false');
       const groupIcon = buildElement('span','kb-group-icon');
       groupIcon.append(buildIcon(groupIcons[i] || 'chart'));
-      button.append(groupIcon, buildElement('span','kb-section-label',group.title), buildElement('span','kb-group-count',String(group.items.length)));
+      const groupLabel = buildElement('span','kb-section-label');
+      if (group.subtitle) {
+        groupLabel.append(buildElement('span','kb-label-main',group.title), buildElement('small','kb-section-subtitle',group.subtitle));
+      } else groupLabel.textContent = group.title;
+      button.append(groupIcon, groupLabel, buildElement('span','kb-group-count',String(group.items.length)));
       const chevron = buildIcon('chevron'); chevron.classList.add('kb-chevron');
       button.append(chevron);
       button.addEventListener('click', () => toggleSection(section));
@@ -358,8 +397,21 @@
         const link = buildElement('a','kb-link');
         link.href = fullUrl(item.url);
         link.dataset.route = item.url;
+        if (item.planned) {
+          link.classList.add('kb-planned');
+          link.title = 'Materi presentasi DOR belum ditambahkan';
+        }
         link.append(buildIcon(item.icon),buildElement('span','',item.name));
-        link.addEventListener('click', () => {
+        link.addEventListener('click', (event) => {
+          if (item.planned) {
+            event.preventDefault();
+            const notice = sidebar.querySelector('.kb-notice');
+            if (notice) {
+              notice.textContent = `${item.name}: menu sudah tersedia. Materi presentasi DOR akan ditambahkan pada tahap selanjutnya.`;
+              notice.hidden = false;
+            }
+            return;
+          }
           const target = new URL(item.url, BASE);
           if (normalizedPath(target.pathname) === normalizedPath(location.pathname) && target.hash) {
             const dest = document.getElementById(decodeURIComponent(target.hash.slice(1)));
@@ -374,7 +426,7 @@
     });
     const footer = buildElement('div','kb-footer');
     footer.append(buildElement('span','kb-dot'),buildElement('span','', 'KOBE Manufacturing System'));
-    sidebar.append(head,search,nav,footer);
+    sidebar.append(head,search,notice,nav,footer);
 
     backdrop = document.createElement('div');
     backdrop.id = 'kobe-sidebar-backdrop'; backdrop.hidden = true;
@@ -396,7 +448,7 @@
     updateActive(); revealHash();
   }
 
-  window.KobeSidebar = { version:'2.1', open, close, toggle, updateActive };
+  window.KobeSidebar = { version:'2.2', open, close, toggle, updateActive };
   window.toggleMenu = toggle; // Backward-compatible with older inline onclick handlers.
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded',initialize,{once:true});
   else initialize();
