@@ -1,5 +1,5 @@
 /*
- * KOBE Bojonegoro | Shared Sidebar v2.0
+ * KOBE Bojonegoro | Shared Sidebar v2.1 - Accordion Navigation
  * The only source of truth for navigation items, sidebar CSS and interactions.
  * Install ONCE in every HTML page: <script src="sidebar.js" defer></script>
  * For a page inside a subfolder: <script src="../sidebar.js" defer></script>
@@ -7,8 +7,10 @@
  */
 (function () {
   'use strict';
-  if (window.KobeSidebar && window.KobeSidebar.version === '2.0') return;
+  if (window.KobeSidebar && window.KobeSidebar.version === '2.1') return;
 
+  // Accordion: grup aktif terbuka otomatis, grup lain tertutup.
+  // Klik header untuk expand/collapse. Pencarian otomatis membuka grup hasil.
   // SINGLE MENU MASTER. All linked HTML pages share these same items.
   const MENU = [
     { title: 'Overview', items: [
@@ -57,7 +59,8 @@
     activity: '<path d="M3 12h5l3-7 4 14 3-7h3"/>',
     menu: '<path d="M4 7h16M4 12h16M4 17h16"/>',
     close: '<path d="M5 5 19 19M19 5 5 19"/>',
-    search: '<circle cx="11" cy="11" r="6.5"/><path d="m16 16 5 5"/>'
+    search: '<circle cx="11" cy="11" r="6.5"/><path d="m16 16 5 5"/>',
+    chevron: '<path d="m6 9 6 6 6-6"/>'
   };
   const svg = (name) => `<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">${ICONS[name] || ICONS.activity}</svg>`;
   const CSS = `
@@ -94,10 +97,21 @@
     #sidebar.kobe-sidebar-v2 .kb-search::placeholder { color:#8fa8c5; }
     #sidebar.kobe-sidebar-v2 .kb-search:focus { border-color:#77acff;box-shadow:0 0 0 3px rgba(77,136,251,.15); }
     #sidebar.kobe-sidebar-v2 .kb-nav { flex:1;min-height:0;display:block;overflow:auto;padding:2px 11px 10px;scrollbar-width:thin;scrollbar-color:#416080 transparent; }
-    #sidebar.kobe-sidebar-v2 .kb-section { display:block;margin:3px 0 14px; }
-    #sidebar.kobe-sidebar-v2 .kb-section[hidden], #sidebar.kobe-sidebar-v2 .kb-link[hidden] { display:none !important; }
-    #sidebar.kobe-sidebar-v2 .kb-section-title { display:block;margin:0 0 6px;padding:9px 12px 4px;color:#8fa6c4;font-size:9px;font-weight:850;letter-spacing:.11em;text-transform:uppercase; }
-    #sidebar.kobe-sidebar-v2 .kb-link { box-sizing:border-box !important;display:flex;align-items:center;gap:11px;min-height:39px;padding:9px 11px;margin:2px 0;border:1px solid transparent;border-radius:11px;color:#c7d5e9;text-decoration:none;font-size:11.5px;font-weight:650;line-height:1.35;transition: background .15s ease,color .15s ease,border-color .15s ease;white-space:normal; }
+    #sidebar.kobe-sidebar-v2 .kb-section { display:block;margin:5px 0; }
+    #sidebar.kobe-sidebar-v2 .kb-section[hidden], #sidebar.kobe-sidebar-v2 .kb-link[hidden], #sidebar.kobe-sidebar-v2 .kb-section-links[hidden] { display:none !important; }
+    #sidebar.kobe-sidebar-v2 .kb-section-heading { margin:0; padding:0; font:inherit; }
+    #sidebar.kobe-sidebar-v2 .kb-section-toggle { box-sizing:border-box!important; display:flex; width:100%; align-items:center; gap:10px; padding:12px 11px; border:1px solid rgba(181,204,239,.11); border-radius:11px; background:rgba(255,255,255,.035); color:#aebfda; font:750 11px Inter,system-ui,sans-serif; letter-spacing:.055em; text-align:left; cursor:pointer; transition:background .18s ease,border-color .18s ease,color .18s ease; }
+    #sidebar.kobe-sidebar-v2 .kb-section-toggle:hover { background:rgba(255,255,255,.095); color:#fff; border-color:rgba(168,206,255,.20); }
+    #sidebar.kobe-sidebar-v2 .kb-section-toggle > .kb-group-icon { display:grid;place-items:center;flex:0 0 16px; color:#92accd; }
+    #sidebar.kobe-sidebar-v2 .kb-group-icon svg { width:16px;height:16px; }
+    #sidebar.kobe-sidebar-v2 .kb-section-label { flex:1;min-width:0; }
+    #sidebar.kobe-sidebar-v2 .kb-group-count { display:grid;place-items:center;min-width:20px;height:19px;padding:0 5px;border-radius:6px;background:rgba(164,193,235,.10);color:#94aacc;font-size:10px;font-weight:750;letter-spacing:0; }
+    #sidebar.kobe-sidebar-v2 .kb-chevron { flex:0 0 14px;width:14px;height:14px;opacity:.8;transition:transform .2s ease; }
+    #sidebar.kobe-sidebar-v2 .kb-section.kb-expanded .kb-chevron { transform:rotate(180deg); }
+    #sidebar.kobe-sidebar-v2 .kb-section.kb-expanded .kb-section-toggle { background:linear-gradient(105deg,rgba(55,110,199,.21),rgba(70,76,159,.16));color:#fff;border-color:rgba(119,170,250,.26); }
+    #sidebar.kobe-sidebar-v2 .kb-section.kb-expanded .kb-group-icon { color:#99c4ff; }
+    #sidebar.kobe-sidebar-v2 .kb-section-links { margin:6px 0 12px 12px;padding:0 0 0 8px;border-left:1px solid rgba(143,172,211,.22); }
+    #sidebar.kobe-sidebar-v2 .kb-link { box-sizing:border-box !important;display:flex;align-items:center;gap:10px;min-height:37px;padding:8px 10px;margin:2px 0;border:1px solid transparent;border-radius:10px;color:#c7d5e9;text-decoration:none;font-size:11.5px;font-weight:650;line-height:1.35;transition: background .15s ease,color .15s ease,border-color .15s ease;white-space:normal; }
     #sidebar.kobe-sidebar-v2 .kb-link svg { width:16px;height:16px;flex:0 0 16px;opacity:.85; }
     #sidebar.kobe-sidebar-v2 .kb-link span { flex:1;min-width:0; }
     #sidebar.kobe-sidebar-v2 .kb-link:hover { color:#fff;background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.08); }
@@ -112,6 +126,7 @@
     button.kobe-sidebar-trigger:hover { background:#eaf3ff!important;box-shadow:0 7px 16px rgba(22,92,170,.13)!important; }
     button.kobe-sidebar-trigger.kb-floating { position:fixed !important;top:16px !important;left:16px !important;z-index:2147482900 !important; }
     #sidebar.kobe-sidebar-v2 a:focus-visible, #sidebar.kobe-sidebar-v2 button:focus-visible, button.kobe-sidebar-trigger:focus-visible { outline:2px solid #83baff;outline-offset:3px; }
+    @media(prefers-reduced-motion:reduce){ #sidebar.kobe-sidebar-v2 .kb-chevron { transition:none; } }
     @media(max-width:640px){
       #sidebar.kobe-sidebar-v2 { width:264px!important;max-width:91vw!important; }
       #sidebar.kobe-sidebar-v2 .kb-head { padding:18px 13px 15px; }
@@ -133,6 +148,7 @@
   let searchInput = null;
   let opener = null;
   let triggers = [];
+  let searching = false;
 
   function isActive(linkUrl) {
     const target = new URL(linkUrl, BASE);
@@ -141,14 +157,39 @@
     if (target.hash) return target.hash === here.hash;
     return !here.hash || !['#dor-jargon', '#dor-opening'].includes(here.hash);
   }
+  // Hanya satu grup aktif ketika tidak sedang menggunakan fitur pencarian.
+  function setSectionOpen(section, expanded) {
+    if (!section) return;
+    const button = section.querySelector('.kb-section-toggle');
+    const links = section.querySelector('.kb-section-links');
+    if (!button || !links) return;
+    section.classList.toggle('kb-expanded', expanded);
+    button.setAttribute('aria-expanded', String(expanded));
+    links.hidden = !expanded;
+  }
+  function toggleSection(section) {
+    const willOpen = !section.classList.contains('kb-expanded');
+    if (willOpen && !searching) {
+      sidebar.querySelectorAll('.kb-section').forEach(other => {
+        if (other !== section) setSectionOpen(other, false);
+      });
+    }
+    setSectionOpen(section, willOpen);
+  }
   function updateActive() {
     if (!sidebar) return;
+    let activeSection = null;
     sidebar.querySelectorAll('.kb-link').forEach(a => {
       const active = isActive(a.dataset.route);
       a.classList.toggle('kb-active',active);
-      if (active) a.setAttribute('aria-current','page');
-      else a.removeAttribute('aria-current');
+      if (active) {
+        a.setAttribute('aria-current','page');
+        activeSection = a.closest('.kb-section');
+      } else a.removeAttribute('aria-current');
     });
+    if (activeSection && !searching) {
+      sidebar.querySelectorAll('.kb-section').forEach(section => setSectionOpen(section, section === activeSection));
+    }
   }
   function revealHash() {
     const id = decodeURIComponent(location.hash.replace(/^#/,''));
@@ -188,15 +229,30 @@
   function filterItems(term) {
     if (!sidebar) return;
     const query = (term || '').toLocaleLowerCase('id-ID').trim();
-    sidebar.querySelectorAll('.kb-section').forEach(section => {
+    const sections = [...sidebar.querySelectorAll('.kb-section')];
+    // Simpan posisi dropdown pengguna sebelum mengetik pencarian.
+    if (query && !searching) {
+      searching = true;
+      sections.forEach(section => { section.dataset.beforeSearchOpen = String(section.classList.contains('kb-expanded')); });
+    }
+    sections.forEach(section => {
+      const groupMatch = !!query && section.dataset.groupName.includes(query);
       let visible = 0;
       section.querySelectorAll('.kb-link').forEach(link => {
-        const show = link.textContent.toLocaleLowerCase('id-ID').includes(query);
+        const show = groupMatch || !query || link.textContent.toLocaleLowerCase('id-ID').includes(query);
         link.hidden = !show;
         if (show) visible++;
       });
       section.hidden = visible === 0;
+      if (query) setSectionOpen(section, visible > 0);
     });
+    if (!query && searching) {
+      searching = false;
+      sections.forEach(section => {
+        setSectionOpen(section, section.dataset.beforeSearchOpen === 'true');
+        delete section.dataset.beforeSearchOpen;
+      });
+    }
   }
   function buildIcon(name) {
     const wrapper = document.createElement('span');
@@ -279,9 +335,25 @@
 
     const nav = buildElement('nav','kb-nav');
     nav.setAttribute('aria-label','Menu dashboard');
-    for (const group of MENU) {
+    const groupIcons = ['home', 'chart', 'shield', 'spark'];
+    MENU.forEach((group, i) => {
       const section = buildElement('section','kb-section');
-      section.append(buildElement('h3','kb-section-title',group.title));
+      section.dataset.groupName = group.title.toLocaleLowerCase('id-ID');
+      const heading = buildElement('h3','kb-section-heading');
+      const button = buildElement('button','kb-section-toggle');
+      button.type = 'button';
+      button.setAttribute('aria-controls', `kb-group-links-${i}`);
+      button.setAttribute('aria-expanded', 'false');
+      const groupIcon = buildElement('span','kb-group-icon');
+      groupIcon.append(buildIcon(groupIcons[i] || 'chart'));
+      button.append(groupIcon, buildElement('span','kb-section-label',group.title), buildElement('span','kb-group-count',String(group.items.length)));
+      const chevron = buildIcon('chevron'); chevron.classList.add('kb-chevron');
+      button.append(chevron);
+      button.addEventListener('click', () => toggleSection(section));
+      heading.append(button);
+      const links = buildElement('div','kb-section-links');
+      links.id = `kb-group-links-${i}`;
+      links.hidden = true;
       for (const item of group.items) {
         const link = buildElement('a','kb-link');
         link.href = fullUrl(item.url);
@@ -295,10 +367,11 @@
           }
           close(false);
         });
-        section.append(link);
+        links.append(link);
       }
+      section.append(heading, links);
       nav.append(section);
-    }
+    });
     const footer = buildElement('div','kb-footer');
     footer.append(buildElement('span','kb-dot'),buildElement('span','', 'KOBE Manufacturing System'));
     sidebar.append(head,search,nav,footer);
@@ -323,7 +396,7 @@
     updateActive(); revealHash();
   }
 
-  window.KobeSidebar = { version:'2.0', open, close, toggle, updateActive };
+  window.KobeSidebar = { version:'2.1', open, close, toggle, updateActive };
   window.toggleMenu = toggle; // Backward-compatible with older inline onclick handlers.
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded',initialize,{once:true});
   else initialize();
