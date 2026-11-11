@@ -12,20 +12,13 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; color:#1f293
     display:flex; align-items:center;
     position:fixed; top:0; left:0; width:100%; z-index:1000;
 }
-
-
-
-
-
 .main { padding:84px 24px 40px; max-width:1500px; margin:0 auto; }
-
 .page-header {
     display:flex; justify-content:space-between; align-items:flex-start;
     gap:16px; margin-bottom:20px; flex-wrap:wrap;
 }
 .page-title { margin:0 0 5px; font-size:24px; }
 .page-subtitle { margin:0; color:#6b7280; font-size:13px; }
-
 .summary-grid {
     display:grid; grid-template-columns:repeat(4, minmax(160px, 1fr));
     gap:14px; margin-bottom:20px;
@@ -37,15 +30,13 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; color:#1f293
 .summary-label { font-size:11px; color:#6b7280; text-transform:uppercase; letter-spacing:.05em; font-weight:700; }
 .summary-value { font-size:27px; font-weight:800; margin-top:7px; }
 .summary-note { font-size:11px; color:#9ca3af; margin-top:3px; }
-
 .card {
     background:white; border-radius:12px; padding:22px;
     box-shadow:0 1px 3px rgba(0,0,0,0.08); margin-bottom:20px;
 }
 .card-title { font-size:15px; font-weight:700; margin:0 0 16px; }
-
 .form-grid {
-    display:grid; grid-template-columns:2fr repeat(2, minmax(150px, 1fr)) 1.1fr 1fr;
+    display:grid; grid-template-columns:1fr 2fr repeat(4, minmax(130px, 1fr));
     gap:12px; align-items:end;
 }
 .fg { display:flex; flex-direction:column; gap:5px; }
@@ -63,18 +54,17 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; color:#1f293
 .progress-input-wrap input[type="range"] { padding:0; }
 .progress-number { width:75px !important; text-align:right; }
 .form-actions { display:flex; justify-content:flex-end; gap:8px; margin-top:14px; }
-
 .btn {
     border:none; border-radius:8px; padding:9px 15px; cursor:pointer;
     font-size:13px; font-weight:700; white-space:nowrap;
 }
+.btn:disabled { opacity:.65; cursor:not-allowed; }
 .btn-primary { background:#1f2937; color:white; }
 .btn-primary:hover { background:#374151; }
 .btn-secondary { background:#f3f4f6; color:#4b5563; }
 .btn-secondary:hover { background:#e5e7eb; }
 .btn-edit { background:#eff6ff; color:#2563eb; border:1px solid #bfdbfe; padding:5px 10px; border-radius:6px; cursor:pointer; }
 .btn-delete { background:#fff5f5; color:#dc2626; border:1px solid #fecaca; padding:5px 10px; border-radius:6px; cursor:pointer; }
-
 .toolbar {
     display:flex; justify-content:space-between; gap:12px; align-items:end;
     margin-bottom:14px; flex-wrap:wrap;
@@ -83,7 +73,7 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; color:#1f293
 .filters .fg input, .filters .fg select { min-width:160px; }
 .result-count { color:#6b7280; font-size:12px; }
 .table-wrap { overflow:auto; border:1px solid #eef0f3; border-radius:10px; }
-table { width:100%; border-collapse:collapse; font-size:13px; min-width:1100px; }
+table { width:100%; border-collapse:collapse; font-size:13px; min-width:1200px; }
 th {
     background:#f9fafb; color:#6b7280; font-size:11px; font-weight:700;
     text-align:left; padding:11px 12px; border-bottom:2px solid #e5e7eb;
@@ -93,6 +83,7 @@ td { padding:11px 12px; border-bottom:1px solid #f3f4f6; vertical-align:top; col
 tr:last-child td { border-bottom:none; }
 tr:hover td { background:#fafafa; }
 .project-name { font-weight:700; min-width:200px; }
+.index-value { font-weight:700; color:#1f2937; white-space:nowrap; }
 .notes { color:#6b7280; font-size:12px; margin-top:4px; max-width:280px; white-space:pre-wrap; }
 .badge { display:inline-flex; align-items:center; border-radius:999px; padding:3px 9px; font-size:11px; font-weight:700; white-space:nowrap; }
 .badge-not-started { background:#f3f4f6; color:#6b7280; }
@@ -104,7 +95,6 @@ tr:hover td { background:#fafafa; }
 .progress-fill.done { background:#16a34a; }
 .actions { display:flex; gap:6px; }
 .empty-row td { text-align:center; color:#9ca3af; padding:30px; }
-
 .toast {
     position:fixed; bottom:24px; right:24px; background:#1f2937; color:white;
     padding:12px 20px; border-radius:10px; font-size:13px; font-weight:700;
@@ -114,8 +104,7 @@ tr:hover td { background:#fafafa; }
 .toast.show { opacity:1; transform:translateY(0); }
 .toast.success { background:#15803d; }
 .toast.error { background:#dc2626; }
-
-@media (max-width:1000px) {
+@media (max-width:1100px) {
     .summary-grid { grid-template-columns:repeat(2, minmax(150px, 1fr)); }
     .form-grid { grid-template-columns:1fr 1fr; }
 }
@@ -128,22 +117,18 @@ tr:hover td { background:#fafafa; }
 <script src="sidebar.js" defer></script>
 </head>
 <body>
-
 <!-- Navigasi disediakan oleh sidebar.js master. -->
-
 <div class="topbar">
     <h2 style="margin:0;">📈 Improvement Monitoring</h2>
 </div>
-
 <main class="main">
     <div class="page-header">
         <div>
-            <h1 class="page-title">Monitoring Project & Improvement</h1>
+            <h1 class="page-title">Monitoring Project &amp; Improvement</h1>
             <p class="page-subtitle">Pantau timeline, realisasi, PIC, dan progres setiap improvement.</p>
         </div>
         <button class="btn btn-primary" onclick="focusForm()">+ Tambah Improvement</button>
     </div>
-
     <section class="summary-grid">
         <div class="summary-card">
             <div class="summary-label">Total Project</div>
@@ -166,12 +151,15 @@ tr:hover td { background:#fafafa; }
             <div class="summary-note">Lewat target selesai</div>
         </div>
     </section>
-
     <section class="card" id="form-card">
         <h2 class="card-title" id="form-title">➕ Tambah Improvement</h2>
         <form id="improvement-form" onsubmit="saveImprovement(event)">
             <input type="hidden" id="edit-id">
             <div class="form-grid">
+                <div class="fg">
+                    <label for="no-index">No. Index</label>
+                    <input type="text" id="no-index" placeholder="Contoh: IMP-001" maxlength="50" autocomplete="off">
+                </div>
                 <div class="fg">
                     <label for="project-name">Nama Project / Improvement *</label>
                     <input type="text" id="project-name" placeholder="Contoh: Reduksi Waste Kemasan Line 3" required maxlength="200">
@@ -210,13 +198,12 @@ tr:hover td { background:#fafafa; }
             </div>
         </form>
     </section>
-
     <section class="card">
         <div class="toolbar">
             <div class="filters">
                 <div class="fg">
                     <label for="search-input">Cari</label>
-                    <input type="search" id="search-input" placeholder="Project atau PIC..." oninput="renderTable()">
+                    <input type="search" id="search-input" placeholder="No. Index, Project atau PIC..." oninput="renderTable()">
                 </div>
                 <div class="fg">
                     <label for="status-filter">Status</label>
@@ -237,12 +224,12 @@ tr:hover td { background:#fafafa; }
             </div>
             <div class="result-count" id="result-count">0 data</div>
         </div>
-
         <div class="table-wrap">
             <table>
                 <thead>
                     <tr>
                         <th style="width:45px;">No</th>
+                        <th>No. Index</th>
                         <th>Project / Improvement</th>
                         <th>PIC</th>
                         <th>Timeline</th>
@@ -253,25 +240,19 @@ tr:hover td { background:#fafafa; }
                     </tr>
                 </thead>
                 <tbody id="improvement-body">
-                    <tr class="empty-row"><td colspan="8">Memuat data...</td></tr>
+                    <tr class="empty-row"><td colspan="9">Memuat data...</td></tr>
                 </tbody>
             </table>
         </div>
     </section>
 </main>
-
 <div class="toast" id="toast"></div>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const SUPABASE_URL = 'https://bmnhtxalfsfaefacgtpm.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_VItBKenz-q2sYz7MsibODA_nYtLXv9Q';
 const { createClient } = supabase;
-// Halaman monitoring ini memang tanpa login.
-// Jangan gunakan sesi login Supabase yang mungkin disimpan halaman lain
-// dengan project URL yang sama pada domain GitHub Pages ini.
-// Tanpa konfigurasi ini, query bisa berjalan sebagai 'authenticated',
-// padahal izin UPDATE project ini diberikan ke role 'anon'.
+// Halaman monitoring ini tanpa login. Tidak gunakan sesi login dari halaman lain.
 const db = createClient(SUPABASE_URL, SUPABASE_KEY, {
     auth: {
         persistSession: false,
@@ -279,16 +260,16 @@ const db = createClient(SUPABASE_URL, SUPABASE_KEY, {
         detectSessionInUrl: false
     }
 });
-
 let improvementData = [];
+let toastTimeout;
 
 function showToast(message, type = 'success') {
     const toast = document.getElementById('toast');
     toast.textContent = message;
     toast.className = 'toast show ' + type;
-    setTimeout(() => toast.classList.remove('show'), 3000);
+    clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(() => toast.classList.remove('show'), 3000);
 }
-
 function escapeHtml(value) {
     return String(value ?? '')
         .replaceAll('&', '&amp;')
@@ -297,7 +278,6 @@ function escapeHtml(value) {
         .replaceAll('"', '&quot;')
         .replaceAll("'", '&#039;');
 }
-
 function formatDate(value) {
     if (!value) return '—';
     const date = new Date(value + 'T00:00:00');
@@ -305,7 +285,6 @@ function formatDate(value) {
         day: '2-digit', month: 'short', year: 'numeric'
     }).format(date);
 }
-
 function syncProgress(source) {
     const range = document.getElementById('progress-range');
     const number = document.getElementById('progress-number');
@@ -316,53 +295,43 @@ function syncProgress(source) {
         range.value = safeValue;
     }
 }
-
 function getStatus(item) {
     const progress = Number(item.progress) || 0;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const target = item.timeline_end ? new Date(item.timeline_end + 'T00:00:00') : null;
-
     if (progress >= 100) return { key:'completed', label:'Selesai', cls:'badge-completed' };
     if (target && target < today) return { key:'overdue', label:'Terlambat', cls:'badge-overdue' };
     if (progress > 0) return { key:'in-progress', label:'On Progress', cls:'badge-progress' };
     return { key:'not-started', label:'Belum Mulai', cls:'badge-not-started' };
 }
-
 async function loadImprovements() {
     const body = document.getElementById('improvement-body');
-    body.innerHTML = '<tr class="empty-row"><td colspan="8">Memuat data...</td></tr>';
-
+    body.innerHTML = '<tr class="empty-row"><td colspan="9">Memuat data...</td></tr>';
     const { data, error } = await db
         .from('improvement_monitoring')
         .select('*')
         .order('timeline_end', { ascending:true })
         .order('created_at', { ascending:false });
-
     if (error) {
-        body.innerHTML = '<tr class="empty-row"><td colspan="8">Gagal memuat data. Pastikan tabel improvement_monitoring sudah dibuat.</td></tr>';
+        body.innerHTML = '<tr class="empty-row"><td colspan="9">Gagal memuat data. Periksa koneksi dan tabel improvement_monitoring.</td></tr>';
         showToast('Gagal memuat data: ' + error.message, 'error');
         return;
     }
-
     improvementData = data || [];
     refreshPicFilter();
     updateSummary();
     renderTable();
 }
-
 function refreshPicFilter() {
     const select = document.getElementById('pic-filter');
     const previous = select.value;
     const pics = [...new Set(improvementData.map(item => item.pic).filter(Boolean))]
         .sort((a, b) => a.localeCompare(b, 'id'));
-
     select.innerHTML = '<option value="all">Semua PIC</option>' +
         pics.map(pic => `<option value="${escapeHtml(pic)}">${escapeHtml(pic)}</option>`).join('');
-
     if (pics.includes(previous)) select.value = previous;
 }
-
 function updateSummary() {
     const statuses = improvementData.map(getStatus);
     document.getElementById('sum-total').textContent = improvementData.length;
@@ -370,16 +339,15 @@ function updateSummary() {
     document.getElementById('sum-completed').textContent = statuses.filter(s => s.key === 'completed').length;
     document.getElementById('sum-overdue').textContent = statuses.filter(s => s.key === 'overdue').length;
 }
-
 function renderTable() {
     const body = document.getElementById('improvement-body');
     const search = document.getElementById('search-input').value.trim().toLowerCase();
     const statusFilter = document.getElementById('status-filter').value;
     const picFilter = document.getElementById('pic-filter').value;
-
     const filtered = improvementData.filter(item => {
         const status = getStatus(item);
         const matchesSearch = !search ||
+            String(item.no_index || '').toLowerCase().includes(search) ||
             String(item.project_name || '').toLowerCase().includes(search) ||
             String(item.pic || '').toLowerCase().includes(search) ||
             String(item.notes || '').toLowerCase().includes(search);
@@ -387,20 +355,18 @@ function renderTable() {
         const matchesPic = picFilter === 'all' || item.pic === picFilter;
         return matchesSearch && matchesStatus && matchesPic;
     });
-
     document.getElementById('result-count').textContent = `${filtered.length} dari ${improvementData.length} data`;
-
     if (filtered.length === 0) {
-        body.innerHTML = '<tr class="empty-row"><td colspan="8">Tidak ada data yang sesuai.</td></tr>';
+        body.innerHTML = '<tr class="empty-row"><td colspan="9">Tidak ada data yang sesuai.</td></tr>';
         return;
     }
-
     body.innerHTML = filtered.map((item, index) => {
         const status = getStatus(item);
         const progress = Math.min(100, Math.max(0, Number(item.progress) || 0));
         return `
             <tr>
                 <td>${index + 1}</td>
+                <td><span class="index-value">${escapeHtml(item.no_index || '—')}</span></td>
                 <td>
                     <div class="project-name">${escapeHtml(item.project_name)}</div>
                     ${item.notes ? `<div class="notes">${escapeHtml(item.notes)}</div>` : ''}
@@ -426,16 +392,14 @@ function renderTable() {
         `;
     }).join('');
 }
-
 function focusForm() {
     document.getElementById('form-card').scrollIntoView({ behavior:'smooth', block:'start' });
-    setTimeout(() => document.getElementById('project-name').focus(), 350);
+    setTimeout(() => document.getElementById('no-index').focus(), 350);
 }
-
 async function saveImprovement(event) {
     event.preventDefault();
-
     const id = document.getElementById('edit-id').value;
+    const noIndex = document.getElementById('no-index').value.trim() || null;
     const projectName = document.getElementById('project-name').value.trim();
     const timelineStart = document.getElementById('timeline-start').value;
     const timelineEnd = document.getElementById('timeline-end').value;
@@ -443,7 +407,6 @@ async function saveImprovement(event) {
     const pic = document.getElementById('pic').value.trim();
     const progress = Math.min(100, Math.max(0, Number(document.getElementById('progress-number').value) || 0));
     const notes = document.getElementById('notes').value.trim() || null;
-
     if (!projectName || !timelineStart || !timelineEnd || !pic) {
         showToast('Nama project, timeline, dan PIC wajib diisi.', 'error');
         return;
@@ -452,8 +415,8 @@ async function saveImprovement(event) {
         showToast('Target selesai tidak boleh sebelum tanggal mulai.', 'error');
         return;
     }
-
     const payload = {
+        no_index: noIndex,
         project_name: projectName,
         timeline_start: timelineStart,
         timeline_end: timelineEnd,
@@ -463,27 +426,24 @@ async function saveImprovement(event) {
         notes,
         updated_at: new Date().toISOString()
     };
-
     const saveButton = document.getElementById('btn-save');
     saveButton.disabled = true;
     saveButton.textContent = 'Menyimpan...';
-
     try {
         if (id) {
-            // RETURNING memastikan UPDATE benar-benar mengenai satu data.
-            // Supabase dapat mengembalikan error=null meski RLS membuat 0 baris ter-update.
+            // RETURNING memastikan UPDATE mengenai tepat satu baris, bukan 0 baris karena RLS.
             const { data, error } = await db
                 .from('improvement_monitoring')
                 .update(payload)
                 .eq('id', id)
-                .select('id, progress');
+                .select('id, progress, no_index');
             if (error) throw error;
             if (!data || data.length !== 1) {
                 showToast('Perubahan belum tersimpan. UPDATE tidak mengubah data; periksa izin UPDATE/RLS di Supabase.', 'error');
                 return;
             }
-            if (Number(data[0].progress) !== progress) {
-                showToast('Progres di database tidak sesuai dengan nilai yang disimpan.', 'error');
+            if (Number(data[0].progress) !== progress || (data[0].no_index || null) !== noIndex) {
+                showToast('Data No. Index / progres di database berbeda dari nilai yang disimpan.', 'error');
                 return;
             }
         } else {
@@ -492,7 +452,6 @@ async function saveImprovement(event) {
                 .insert([payload]);
             if (error) throw error;
         }
-
         resetForm();
         await loadImprovements();
         showToast(id ? 'Improvement dan progres berhasil diperbarui' : 'Improvement berhasil ditambahkan');
@@ -504,12 +463,11 @@ async function saveImprovement(event) {
             ? 'Simpan Perubahan' : 'Simpan Improvement';
     }
 }
-
 function editImprovement(id) {
     const item = improvementData.find(row => String(row.id) === String(id));
     if (!item) return;
-
     document.getElementById('edit-id').value = item.id;
+    document.getElementById('no-index').value = item.no_index || '';
     document.getElementById('project-name').value = item.project_name || '';
     document.getElementById('timeline-start').value = item.timeline_start || '';
     document.getElementById('timeline-end').value = item.timeline_end || '';
@@ -518,38 +476,33 @@ function editImprovement(id) {
     document.getElementById('progress-range').value = Number(item.progress) || 0;
     document.getElementById('progress-number').value = Number(item.progress) || 0;
     document.getElementById('notes').value = item.notes || '';
-
     document.getElementById('form-title').textContent = '✏️ Edit Improvement';
     document.getElementById('btn-save').textContent = 'Simpan Perubahan';
     document.getElementById('btn-cancel').style.display = 'inline-block';
     focusForm();
 }
-
 function resetForm() {
     document.getElementById('improvement-form').reset();
     document.getElementById('edit-id').value = '';
+    document.getElementById('no-index').value = '';
     document.getElementById('progress-range').value = 0;
     document.getElementById('progress-number').value = 0;
     document.getElementById('form-title').textContent = '➕ Tambah Improvement';
     document.getElementById('btn-save').textContent = 'Simpan Improvement';
     document.getElementById('btn-cancel').style.display = 'none';
 }
-
 async function deleteImprovement(id) {
     const item = improvementData.find(row => String(row.id) === String(id));
     if (!item) return;
     if (!confirm(`Hapus improvement "${item.project_name}"?`)) return;
-
     const { error } = await db.from('improvement_monitoring').delete().eq('id', id);
     if (error) {
         showToast('Gagal menghapus: ' + error.message, 'error');
         return;
     }
-
     showToast('🗑 Improvement dihapus');
     await loadImprovements();
 }
-
 loadImprovements();
 </script>
 </body>
