@@ -1,5 +1,5 @@
 /*
- * KOBE Bojonegoro | Shared Sidebar v2.6 - Accordion + DMC DOR Navigation
+ * KOBE Bojonegoro | Shared Sidebar v2.7 - Accordion + DMC DOR Navigation
  * The only source of truth for navigation items, sidebar CSS and interactions.
  * Install ONCE in every HTML page: <script src="sidebar.js" defer></script>
  * For a page inside a subfolder: <script src="../sidebar.js" defer></script>
@@ -7,7 +7,7 @@
  */
 (function () {
   'use strict';
-  const VERSION = '2.6';
+  const VERSION = '2.7';
   if (window.KobeSidebar && window.KobeSidebar.version === VERSION) return;
 
   // Accordion: grup aktif terbuka otomatis, grup lain tertutup.
@@ -30,7 +30,7 @@
       { name: '05B - PRD Gedung 6', url: 'prd-gedung.html?gedung=6', icon: 'chart' },
       { name: '05C - PRD Gedung 7', url: 'prd-gedung.html?gedung=7', icon: 'chart' },
       { name: '06 - Maintenance / MTC', url: 'dmc-dor.html#maintenance', icon: 'activity', planned: true },
-      { name: '07 - Utility (Listrik & Gas)', url: 'dmc-dor.html#utility', icon: 'bolt', planned: true },
+      { name: '07 - Utility (Listrik & Gas)', url: 'utility-dmc.html', icon: 'bolt' },
       { name: '08 - Logistic (Kapasitas Gudang)', url: 'dmc-dor.html#logistic', icon: 'chart', planned: true },
       { name: '09 - Warehouse (Delivery)', url: 'dmc-dor.html#warehouse', icon: 'chart', planned: true },
       { name: '10 - GA (Fasilitas Umum)', url: 'dmc-dor.html#ga', icon: 'home', planned: true },
