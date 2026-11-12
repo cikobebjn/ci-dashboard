@@ -71,25 +71,41 @@ td{padding:10px 11px;font-size:12px}
 .issue-dialog #issueEditMessage{margin-top:12px;min-height:16px}
 @media(max-width:620px){.issue-dialog-inner{padding:18px 16px}.issue-dialog .grid.two{grid-template-columns:1fr}}
 
-/* Report WhatsApp: hanya tersedia setelah penerimaan handover dikonfirmasi. */
-.mtc-wa-panel{margin-top:16px;padding:16px 18px;border:1px solid #cee7dc;border-radius:14px;background:linear-gradient(120deg,#f8fdfb,#f5faff)}
-.mtc-wa-head{display:flex;align-items:center;justify-content:space-between;gap:13px;flex-wrap:wrap}
-.mtc-wa-head h3{font-size:14px;margin:0 0 4px;color:#254462}
-.mtc-wa-head p{font-size:11px;margin:0;color:#71839c;line-height:1.6}
-.mtc-wa-preview{margin-top:10px}
-.mtc-wa-preview summary{cursor:pointer;font-size:11px;font-weight:750;color:#3e6489;user-select:none}
-.mtc-wa-preview textarea{display:block;width:100%;height:245px;min-height:125px;margin-top:10px;padding:12px;border:1px solid #dce7f2;border-radius:10px;resize:vertical;background:#fff;color:#344e69;font:12px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace}
-.mtc-wa-feedback{min-height:16px;margin-top:8px;font-size:11px;color:#11835a}
-.mtc-wa-feedback.error{color:#b94545}
-@media(max-width:650px){.mtc-wa-panel{padding:14px}.mtc-wa-head button{width:100%}}
+/* Pilihan report WA: mengikuti filter aktif, hanya handover yang sudah diterima. */
+.wa-selectall{display:inline-flex;align-items:center;gap:7px;color:#4d6a88;font-size:11px;font-weight:650;cursor:pointer;white-space:nowrap}
+.wa-row-check,.wa-selectall input{width:16px;height:16px;accent-color:#137f6a;vertical-align:middle;cursor:pointer}
+.wa-row-check:disabled,.wa-selectall input:disabled{cursor:not-allowed;opacity:.45}
+.wa-check-col{width:67px;text-align:center!important;white-space:nowrap}
+.wa-bulk{margin-top:13px;padding:15px 17px;border:1px solid #cee7dc;border-radius:13px;background:linear-gradient(120deg,#f7fcfa,#f7faff)}
+.wa-bulk-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.wa-bulk-title{font-size:13px;font-weight:820;color:#244567}
+.wa-bulk-desc{margin-top:4px;color:#687f95;font-size:11px;line-height:1.5}
+.wa-bulk-actions{display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+.wa-bulk-feedback{min-height:14px;margin-top:7px;font-size:11px;color:#0e855d}
+.wa-bulk-feedback.error{color:#bc4545}
+.wa-bulk-preview{margin-top:9px}
+.wa-bulk-preview summary{cursor:pointer;color:#35638d;font-weight:700;font-size:11px}
+.wa-bulk-preview select{margin-top:10px;padding:8px 10px;border:1px solid #d7e4ee;border-radius:8px;background:#fff;color:#334e6d;font-size:11px}
+.wa-bulk-preview textarea{display:block;width:100%;height:235px;min-height:120px;margin-top:9px;border:1px solid #d7e4ee;border-radius:9px;padding:12px;font:12px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace;color:#34506b;background:#fff;resize:vertical}
+/* WA report is the last step, after both parties have signed the handover. */
+#waReportPanel{margin-top:22px}
+#waReportPanel[hidden]{display:none!important}
+/* Filter harian default. Mode rentang tetap tersedia untuk laporan beberapa hari. */
+.filter .field[hidden]{display:none!important}
+.filter.is-range{grid-template-columns:repeat(5,minmax(0,1fr))}
+@media(max-width:1000px){.filter.is-range{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){.wa-bulk-top{align-items:stretch}.wa-bulk-actions{width:100%}.wa-bulk-actions .btn{flex:1}.wa-selectall{white-space:normal}}
+@media(max-width:450px){.wa-bulk-actions{flex-direction:column}.wa-bulk-actions .btn{width:100%}}
 </style></head>
 <body>
 <header class="topbar"><div class="brand"><strong>KOBE · BOJONEGORO</strong><small>Maintenance · Shift Hand Over</small></div><div class="top-actions"><a class="btn" href="mtc-handover-form.html">+ Form MTC</a></div></header>
 <main class="wrap">
 <section class="hero"><div><h1>Monitoring Shift Hand Over (MTC)</h1></div></section>
 <section class="panel filter-panel"><div class="section-title"><div><h2>Filter</h2></div></div>
-<div class="filter"><div class="field"><label for="fromDate">Dari</label><input id="fromDate" title="Riwayat maksimal 1 tahun" type="date"/></div>
-<div class="field"><label for="toDate">Sampai</label><input id="toDate" title="Riwayat maksimal 1 tahun" type="date"/></div>
+<div class="filter" id="filterFields"><div class="field"><label for="dateMode">Filter Tanggal</label><select id="dateMode" aria-label="Mode filter tanggal"><option value="single">Per Tanggal</option><option value="range">Rentang Tanggal</option></select></div>
+<div class="field" id="singleDateField"><label for="singleDate">Tanggal</label><input id="singleDate" type="date" title="Hanya menampilkan handover pada tanggal ini"/></div>
+<div class="field" id="fromDateField" hidden><label for="fromDate">Dari Tanggal</label><input id="fromDate" title="Riwayat maksimal 1 tahun" type="date"/></div>
+<div class="field" id="toDateField" hidden><label for="toDate">Sampai Tanggal</label><input id="toDate" title="Riwayat maksimal 1 tahun" type="date"/></div>
 <div class="field"><label for="gedungFilter">Lokasi</label><select id="gedungFilter"><option value="">Semua lokasi</option><option>Gedung 4</option><option>Gedung 6</option><option>Gedung 7</option><option>Utility</option><option>Workshop</option><option>Area Lain</option></select></div>
 <div class="field"><label for="shiftFilter">Shift</label><select id="shiftFilter"><option value="">Semua shift</option><option>Pagi</option><option>Siang</option><option>Malam</option></select></div>
 </div>
@@ -99,9 +115,16 @@ td{padding:10px 11px;font-size:12px}
 <section class="panel draft-panel" hidden="" id="draftPanel">
 <div class="section-title"><h2>Draft Aktif <span class="pill" id="draftCount">0</span></h2></div>
 <div class="draft-list" id="draftList"></div>
-</section><div class="overview-layout"><section class="panel"><div class="section-title"><div><h2>Riwayat Shift</h2></div></div>
-<div class="table-scroll"><table><thead><tr><th>Tanggal / Shift</th><th>Lokasi</th><th>Team Lead</th><th>Issue</th><th>Penerimaan</th><th>Aksi</th></tr></thead><tbody id="rows"><tr><td class="empty" colspan="6">Memuat handover...</td></tr></tbody></table></div></section><section class="panel"><div class="section-title"><div><h2>Outstanding <span class="pill open" id="outCount">0</span></h2></div></div><div class="outstanding-list" id="outstandingList"><div class="empty">Memuat outstanding...</div></div></section></div>
-<section class="panel" id="detailPanel"><div class="section-title"><div><h2>Detail &amp; Penerimaan</h2></div></div><div id="detailContent"><div class="empty">Pilih salah satu handover untuk menampilkan detail.</div></div></section>
+</section><div class="overview-layout"><section class="panel"><div class="section-title"><div><h2>Riwayat Shift</h2></div><label class="wa-selectall no-print" for="waSelectAll"><input type="checkbox" id="waSelectAll" disabled> Pilih semua yang diterima</label></div>
+<div class="table-scroll"><table><thead><tr><th class="wa-check-col no-print">Pilih WA</th><th>Tanggal / Shift</th><th>Lokasi</th><th>Team Lead</th><th>Issue</th><th>Penerimaan</th><th>Aksi</th></tr></thead><tbody id="rows"><tr><td class="empty" colspan="7">Memuat handover...</td></tr></tbody></table></div>
+</section><section class="panel"><div class="section-title"><div><h2>Outstanding <span class="pill open" id="outCount">0</span></h2></div></div><div class="outstanding-list" id="outstandingList"><div class="empty">Memuat outstanding...</div></div></section></div>
+<section class="panel" id="detailPanel"><div class="section-title"><div><h2>Detail &amp; Penerimaan</h2></div></div><div id="detailContent"><div class="empty">Pilih salah satu handover untuk menampilkan detail.</div></div>
+<div class="wa-bulk no-print" id="waReportPanel" hidden aria-label="Report WhatsApp setelah serah terima dikonfirmasi">
+ <div class="wa-bulk-top"><div><div class="wa-bulk-title">Report WhatsApp · Handover Diterima</div><div class="wa-bulk-desc" id="waBulkInfo">Memuat handover yang sudah diterima...</div></div>
+ <div class="wa-bulk-actions"><button class="btn btn-green btn-sm" id="copyWaFiltered" type="button" disabled>Salin Hasil Filter</button><button class="btn btn-outline btn-sm" id="copyWaSelected" type="button" disabled>Salin Terpilih</button></div></div>
+ <div class="wa-bulk-feedback" id="waBulkFeedback" role="status" aria-live="polite"></div>
+ <details class="wa-bulk-preview" id="waBulkPreview"><summary>Lihat teks laporan sebelum disalin</summary><select id="waBulkMode" aria-label="Jenis pratinjau laporan"><option value="filtered">Semua hasil filter yang diterima</option><option value="selected">Hanya handover yang dicentang</option></select><textarea id="waBulkText" readonly spellcheck="false" aria-label="Pratinjau report WhatsApp sesuai filter"></textarea></details>
+</div></section>
 </main>
 <dialog class="issue-dialog" id="issueEditor" aria-labelledby="issueEditorTitle">
  <div class="issue-dialog-inner">
@@ -147,6 +170,11 @@ const currentState=x=>currentIssues.get(x.issue_id)||x;
 const isOpen=x=>currentState(x).status!=='Closed';
 const localToday=d=>new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10);
 let handovers=[],outstanding=[],drafts=[],visible=[],currentIssues=new Map(),editingIssue=null,selectedId=new URLSearchParams(location.search).get('handover')||'',loading=false;
+let appliedWaScope='', waSelectedIds=new Set(),queuedReload=false,reloadTimer=null;
+function activeDates(){return $('dateMode').value==='single'?[$('singleDate').value,$('singleDate').value]:[$('fromDate').value,$('toDate').value];}
+const waScope=()=>[$('dateMode').value,...activeDates(),$('gedungFilter').value,$('shiftFilter').value].join('|');
+function syncDateFields(){const range=$('dateMode').value==='range';$('singleDateField').hidden=range;$('fromDateField').hidden=!range;$('toDateField').hidden=!range;$('filterFields').classList.toggle('is-range',range);}
+function scheduleReload(){if(reloadTimer)clearTimeout(reloadTimer);reloadTimer=setTimeout(()=>{reloadTimer=null;loadAll();},140);}
 function notify(text,type=''){const p=$('msg');p.textContent=text;p.className='message'+(type?' '+type:'');}
 function makePad(canvas,btn){
  const c=canvas.getContext('2d');const scale=Math.min(window.devicePixelRatio||1,2);const w=canvas.clientWidth||360,h=canvas.clientHeight||138;
@@ -208,34 +236,84 @@ async function copyMtcWhatsapp(text){
   try{copied=document.execCommand('copy');}finally{temporary.remove();}
   return copied;
 }
-function showMtcWhatsappPanel(h,receipt){
-  if(!receipt)return; // Draft / handover belum diterima tidak boleh menyalin report.
-  const report=makeMtcWhatsappReport(h,receipt);
-  if(!report)return;
-  const content=$('detailContent');
-  const section=document.createElement('section');
-  section.className='mtc-wa-panel no-print';
-  section.innerHTML=`<div class="mtc-wa-head"><div><h3>Report Handover untuk WhatsApp</h3><p>Serah terima sudah dikonfirmasi. Salin laporan lalu tempel di grup WhatsApp.</p></div><button id="copyMtcWA" type="button" class="btn btn-green">Salin Report WA</button></div>
-    <details class="mtc-wa-preview"><summary>Lihat teks laporan</summary><textarea id="mtcWAPreview" readonly spellcheck="false" aria-label="Pratinjau report WhatsApp"></textarea></details>
-    <div id="mtcWAFeedback" class="mtc-wa-feedback" role="status" aria-live="polite"></div>`;
-  content.appendChild(section);
-  $('mtcWAPreview').value=report;
-  $('copyMtcWA').addEventListener('click',async()=>{
-    // Defense in depth: receipt confirmation is also validated on click.
-    if(!receiptOf(h))return;
-    const button=$('copyMtcWA'),feedback=$('mtcWAFeedback');
-    try{
-      const ok=await copyMtcWhatsapp(report);
-      if(!ok)throw new Error('Clipboard ditolak browser');
-      button.textContent='Berhasil Disalin';
-      feedback.className='mtc-wa-feedback';
-      feedback.textContent='Report tersalin. Buka grup WhatsApp dan tempel/paste.';
-      setTimeout(()=>{if(button.isConnected)button.textContent='Salin Report WA';},2400);
-    }catch(error){
-      const preview=$('mtcWAPreview');preview.parentElement.open=true;preview.focus();preview.select();
-      feedback.className='mtc-wa-feedback error';
-      feedback.textContent='Salin otomatis diblokir browser. Teks laporan sudah dipilih; tekan Ctrl+C atau Salin.';
-    }
+// Filter tanggal, lokasi, shift berasal dari data hasil klik Terapkan (loadAll).
+// Filter pencarian/status di sisi browser tetap diperhitungkan.
+function waEligible(){return visible.filter(h=>Boolean(receiptOf(h)));}
+function waBulkReport(mode){
+  const accepted=waEligible();
+  const list=mode==='selected'?accepted.filter(h=>waSelectedIds.has(h.id)):accepted;
+  const texts=list.map(h=>makeMtcWhatsappReport(h,receiptOf(h))).filter(Boolean);
+  return {count:texts.length,text:texts.join('\n\n--------------------\n\n')};
+}
+function waScopeReady(){return !loading&&!!appliedWaScope&&waScope()===appliedWaScope;}
+function refreshWaPreview(){
+  if(!$('waBulkPreview').open)return;
+  $('waBulkText').value=waScopeReady()?(waBulkReport($('waBulkMode').value).text||'Tidak ada laporan untuk pilihan ini.'):'Klik Terapkan untuk memperbarui filter sebelum menyalin.';
+}
+function updateWaBulkToolbar(){
+  const accepted=waEligible();
+  const acceptedIds=new Set(accepted.map(h=>h.id));
+  for(const id of waSelectedIds){if(!acceptedIds.has(id))waSelectedIds.delete(id);}
+  const selected=accepted.filter(h=>waSelectedIds.has(h.id));
+  const ready=waScopeReady();
+  const all=$('waSelectAll');
+  all.disabled=!ready||!accepted.length;
+  all.checked=!!accepted.length&&selected.length===accepted.length;
+  all.indeterminate=selected.length>0&&selected.length<accepted.length;
+  const allBtn=$('copyWaFiltered'),selBtn=$('copyWaSelected');
+  allBtn.disabled=!ready||!accepted.length;
+  selBtn.disabled=!ready||!selected.length;
+  allBtn.textContent='Salin Hasil Filter ('+accepted.length+')';
+  selBtn.textContent='Salin Terpilih ('+selected.length+')';
+  $('waBulkInfo').textContent=!ready?'Filter belum diterapkan. Klik Terapkan untuk memperbarui data.':
+    accepted.length?accepted.length+' handover sudah diterima sesuai filter · '+selected.length+' dipilih. Handover belum diterima tidak bisa disalin.':
+    'Tidak ada handover yang sudah diterima pada filter ini.';
+  for(const input of document.querySelectorAll('.wa-row-check')){
+    input.checked=waSelectedIds.has(input.dataset.waId);
+    input.disabled=!ready||!acceptedIds.has(input.dataset.waId);
+  }
+  refreshWaPreview();
+}
+async function copyWaBulk(mode){
+  if(!waScopeReady()){$('waBulkFeedback').textContent='Klik Terapkan terlebih dahulu agar report sesuai filter terbaru.';$('waBulkFeedback').className='wa-bulk-feedback error';return;}
+  const report=waBulkReport(mode);
+  if(!report.count){$('waBulkFeedback').textContent='Tidak ada handover yang sudah diterima untuk disalin.';$('waBulkFeedback').className='wa-bulk-feedback error';return;}
+  if(report.text.length>60000){$('waBulkFeedback').textContent='Laporan terlalu panjang untuk satu pesan. Persempit tanggal/gedung/shift atau pilih lebih sedikit handover.';$('waBulkFeedback').className='wa-bulk-feedback error';return;}
+  const button=$(mode==='selected'?'copyWaSelected':'copyWaFiltered');
+  const defaultLabel=button.textContent;
+  try{
+    const ok=await copyMtcWhatsapp(report.text);
+    if(!ok)throw new Error('Clipboard tidak tersedia');
+    $('waBulkFeedback').className='wa-bulk-feedback';
+    $('waBulkFeedback').textContent=report.count+' report berhasil disalin. Tempel di grup WhatsApp.';
+    button.textContent='Berhasil Disalin';
+    setTimeout(()=>{if(button.isConnected)button.textContent=defaultLabel;updateWaBulkToolbar();},2200);
+  }catch(error){
+    $('waBulkMode').value=mode;
+    $('waBulkPreview').open=true;
+    $('waBulkText').value=report.text;
+    $('waBulkText').focus();$('waBulkText').select();
+    $('waBulkFeedback').className='wa-bulk-feedback error';
+    $('waBulkFeedback').textContent='Browser memblokir salin otomatis. Teks sudah dipilih; tekan Ctrl+C atau Salin.';
+  }
+}
+$('waSelectAll').addEventListener('change',e=>{
+  if(!waScopeReady())return;
+  for(const h of waEligible()){if(e.target.checked)waSelectedIds.add(h.id);else waSelectedIds.delete(h.id);}
+  updateWaBulkToolbar();
+});
+$('copyWaFiltered').addEventListener('click',()=>copyWaBulk('filtered'));
+$('copyWaSelected').addEventListener('click',()=>copyWaBulk('selected'));
+$('waBulkMode').addEventListener('change',refreshWaPreview);
+$('waBulkPreview').addEventListener('toggle',refreshWaPreview);
+for(const id of ['dateMode','singleDate','fromDate','toDate','gedungFilter','shiftFilter']){
+  $(id).addEventListener('change',()=>{
+    if(id==='dateMode')syncDateFields();
+    waSelectedIds.clear();
+    $('waBulkFeedback').textContent='';
+    appliedWaScope='';
+    updateWaBulkToolbar();
+    scheduleReload();
   });
 }
 
@@ -257,27 +335,42 @@ function applyFilters(){
  
  const chosen=visible.find(h=>h.id===selectedId)||visible[0];
  if(chosen){selectedId=chosen.id;renderDetail(chosen);}
- else {selectedId='';$('detailContent').innerHTML='<div class="empty">Belum ada data handover yang sesuai filter.</div>';}
- renderTable();renderDrafts();
+ else {selectedId='';$('waReportPanel').hidden=true;$('detailContent').innerHTML='<div class="empty">Belum ada data handover yang sesuai filter.</div>';}
+ renderTable();renderDrafts();updateWaBulkToolbar();
 }
 function renderTable(){
  const body=$('rows');
- if(!visible.length){body.innerHTML='<tr><td colspan="6" class="empty">Belum ada serah terima.</td></tr>';return;}
+ if(!visible.length){body.innerHTML='<tr><td colspan="7" class="empty">Belum ada serah terima.</td></tr>';return;}
  body.innerHTML=visible.map(x=>{
    const issues=issuesOf(x),pending=issues.filter(isOpen).length,receipt=receiptOf(x);
    return `<tr class="clickable-row ${selectedId===x.id?'selected':''}" data-id="${esc(x.id)}">
+   <td class="wa-check-col no-print"><input class="wa-row-check" type="checkbox" data-wa-id="${esc(x.id)}" aria-label="Pilih laporan ${esc(x.tanggal)} ${esc(x.shift)} ${esc(x.gedung)}" ${receipt?'':'disabled title="Belum diterima TL penerima"'} ${waSelectedIds.has(x.id)?'checked':''}></td>
    <td>${esc(x.tanggal)}<div class="tiny">${esc(x.shift)}</div></td><td>${esc(x.gedung)}</td>
    <td>${esc(x.tl_penyerah)}<div class="tiny">→ ${esc(x.tl_penerima)}</div></td>
    <td>${issues.length} ${pending?`<span class="pill open">${pending} aktif</span>`:''}</td>
    <td><span class="pill ${receipt?'received':'pending'}">${receipt?'Diterima':'Menunggu'}</span></td>
    <td><button type="button" class="btn btn-outline btn-sm" aria-label="Lihat detail serah terima">Detail</button></td></tr>`;
  }).join('');
- body.querySelectorAll('tr[data-id]').forEach(row=>row.addEventListener('click',()=>{selectedId=row.dataset.id;renderDetail(handovers.find(x=>x.id===selectedId));renderTable();$('detailPanel').scrollIntoView({behavior:'smooth',block:'start'});}));
+ body.querySelectorAll('input.wa-row-check').forEach(input=>input.addEventListener('click',e=>e.stopPropagation()));
+ body.querySelectorAll('input.wa-row-check').forEach(input=>input.addEventListener('change',e=>{
+   if(!waScopeReady())return;
+   if(e.target.checked)waSelectedIds.add(e.target.dataset.waId);else waSelectedIds.delete(e.target.dataset.waId);
+   updateWaBulkToolbar();
+ }));
+ body.querySelectorAll('tr[data-id]').forEach(row=>row.addEventListener('click',e=>{
+   if(e.target.closest('input'))return;
+   selectedId=row.dataset.id;renderDetail(handovers.find(x=>x.id===selectedId));renderTable();updateWaBulkToolbar();
+   $('detailPanel').scrollIntoView({behavior:'smooth',block:'start'});
+ }));
 }
 function imgTag(value,alt){const s=safeSignature(value);return s?`<img class="sign-thumb" src="${s}" alt="${esc(alt)}">`:'<div class="muted">Tidak tersedia</div>';}
 function renderDetail(h){
- const container=$('detailContent');if(!h){container.innerHTML='<div class="empty">Pilih serah terima untuk melihat detail.</div>';return;}
+ const container=$('detailContent');
+ const reportPanel=$('waReportPanel');
+ if(!h){reportPanel.hidden=true;container.innerHTML='<div class="empty">Pilih serah terima untuk melihat detail.</div>';return;}
  const issues=issuesOf(h),receipt=receiptOf(h);
+ // Copy WA tersedia hanya bila TL penerima sudah mengesahkan handover.
+ reportPanel.hidden=!receipt;
  container.innerHTML=`<div class="detail-meta"><div><small>Tanggal / Shift</small><strong>${esc(h.tanggal)} · ${esc(h.shift)}</strong></div>
  <div><small>Lokasi</small><strong>${esc(h.gedung)}</strong></div>
  <div><small>TL Menyerahkan</small><strong>${esc(h.tl_penyerah)}</strong></div>
@@ -306,7 +399,6 @@ function renderDetail(h){
  <button type="submit" class="btn btn-green" id="acceptBtn">Konfirmasi Terima Shift</button><div class="message" id="receiveMsg" role="status"></div></form>`}`;
  container.querySelectorAll('button[data-edit-issue]').forEach(btn=>btn.addEventListener('click',()=>openIssueEditor(btn.dataset.editIssue)));
   if(!receipt){const pad=makePad($('receiverSign'),$('clearReceiverSign'));$('acceptForm').addEventListener('submit',e=>handleAccept(e,h.id,pad));}
-  if(receipt)showMtcWhatsappPanel(h,receipt);
 }
 async function handleAccept(event,id,pad){
  event.preventDefault();const msg=$('receiveMsg'),btn=$('acceptBtn');
@@ -316,7 +408,9 @@ async function handleAccept(event,id,pad){
  btn.disabled=true;btn.textContent='Menyimpan...';msg.textContent='Menyimpan penerimaan shift...';
  const {error}=await db.rpc('mtc_accept_handover',{p_handover_id:id,p_tl_penerima:$('receiveName').value.trim(),p_tanda_penerima:pad.data()});
  if(error){btn.disabled=false;btn.textContent='Konfirmasi Terima Shift';msg.textContent='Gagal menerima: '+error.message;msg.className='message error';return;}
- notify('Serah terima berhasil dikonfirmasi oleh TL penerima.','success');await loadAll();
+ notify('Serah terima berhasil dikonfirmasi oleh TL penerima.','success');
+ await loadAll();
+ if(selectedId===id&&!$('waReportPanel').hidden){$('waReportPanel').scrollIntoView({behavior:'smooth',block:'nearest'});}
 }
 
 function renderDrafts(){
@@ -339,13 +433,23 @@ function renderOutstanding(){
  list.querySelectorAll('button[data-edit-issue]').forEach(btn=>btn.addEventListener('click',()=>openIssueEditor(btn.dataset.editIssue)));
 }
 async function loadAll(){
- if(loading)return;loading=true;notify('Memuat data...');
+ if(loading){queuedReload=true;return;}
+ loading=true;notify('Memuat data sesuai tanggal...');
+ appliedWaScope='';waSelectedIds.clear();updateWaBulkToolbar();
+ // Jangan menampilkan riwayat lama selama filter tanggal baru dimuat.
+ handovers=[];drafts=[];visible=[];
+ $('rows').innerHTML='<tr><td colspan="7" class="empty">Memuat data sesuai tanggal...</td></tr>';
+ $('draftPanel').hidden=true;
+ $('waReportPanel').hidden=true;
+ $('detailContent').innerHTML='<div class="empty">Memuat detail sesuai tanggal...</div>';
+ const requestedScope=waScope();
  $('reload').disabled=true;
  try{
    if(!db)throw Error('Supabase gagal dimuat. Cek koneksi internet.');
-   const from=$('fromDate').value,to=$('toDate').value,gd=$('gedungFilter').value,shift=$('shiftFilter').value;
-   if(from&&to&&from>to)throw Error('Tanggal awal tidak boleh lebih besar daripada tanggal akhir.');
-   if((from&&from<$('fromDate').min)||(to&&to<$('toDate').min))throw Error('Riwayat hanya tersedia 1 tahun terakhir.');
+   const [from,to]=activeDates(),gd=$('gedungFilter').value,shift=$('shiftFilter').value;
+   if(!from||!to)throw Error('Pilih tanggal atau rentang tanggal terlebih dahulu.');
+   if(from>to)throw Error('Tanggal awal tidak boleh lebih besar daripada tanggal akhir.');
+   if(from<$('singleDate').min||to>$('singleDate').max)throw Error('Riwayat hanya tersedia 1 tahun terakhir.');
    let all=[],offset=0,cut=false;
    while(true){
      let q=db.from('mtc_handovers').select('id,tanggal,shift,gedung,tl_penyerah,tl_penerima,catatan,jam_serah,tanda_penyerah,mtc_handover_issues(id,issue_id,mesin_area,issue,status,jam_mulai,jam_selesai,action_dilakukan,action_lanjutan,created_at),mtc_handover_receipts(id,tl_penerima,tanda_penerima,jam_terima)')
@@ -375,10 +479,16 @@ async function loadAll(){
    drafts=activeDrafts||[];
    const {data:pending,error:outError}=await db.rpc('mtc_get_outstanding_with_times',{p_gedung:gd||null});
    if(outError)throw Error('Outstanding: '+outError.message);
-   outstanding=pending||[];renderOutstanding();applyFilters();
+   outstanding=pending||[];appliedWaScope=requestedScope;renderOutstanding();applyFilters();
    notify(cut?'Data terlalu banyak. Persempit periode.':'','success');
- }catch(err){notify('Gagal memuat: '+err.message,'error');}
- finally{loading=false;$('reload').disabled=false;}
+ }catch(err){
+   handovers=[];drafts=[];visible=[];currentIssues=new Map();
+   applyFilters();
+   notify('Gagal memuat: '+err.message,'error');
+ }finally{
+   loading=false;$('reload').disabled=false;updateWaBulkToolbar();
+   if(queuedReload){queuedReload=false;scheduleReload();}
+ }
 }
 function csvCell(v){let s=String(v??'');if(/^[\s]*[=+@-]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"';}
 function exportCsv(){
@@ -459,12 +569,26 @@ $('issueEditorForm').addEventListener('submit',async e=>{
  }catch(ex){issueEditMessage('Gagal update: '+ex.message,'error');}
  finally{btn.disabled=false;btn.textContent='Simpan Update';}
 });
-$('reload').addEventListener('click',loadAll);
+$('reload').addEventListener('click',()=>{if(reloadTimer){clearTimeout(reloadTimer);reloadTimer=null;}loadAll();});
 $('export').addEventListener('click',exportCsv);
 $('keyword').addEventListener('input',applyFilters);
 $('stateFilter').addEventListener('change',applyFilters);
 const now=new Date(),yearAgo=new Date(now);yearAgo.setFullYear(yearAgo.getFullYear()-1);
-for(const input of [$('fromDate'),$('toDate')]){input.min=localToday(yearAgo);input.max=localToday(now);}
+for(const input of [$('singleDate'),$('fromDate'),$('toDate')]){input.min=localToday(yearAgo);input.max=localToday(now);}
+$('singleDate').value=localToday(now);
 $('toDate').value=localToday(now);const d=new Date(now);d.setDate(d.getDate()-29);$('fromDate').value=localToday(d);
-loadAll();
+syncDateFields();
+// Buka handover dari link form pada tanggal aslinya, bukan hari ini.
+async function initialLoad(){
+  if(selectedId&&db){
+    try{
+      const {data,error}=await db.from('mtc_handovers').select('tanggal').eq('id',selectedId).maybeSingle();
+      if(!error&&data?.tanggal&&data.tanggal>=$('singleDate').min&&data.tanggal<=$('singleDate').max){
+        $('singleDate').value=data.tanggal;
+      }
+    }catch(error){console.warn('Tanggal handover dari URL tidak dapat dibaca:',error);}
+  }
+  await loadAll();
+}
+initialLoad();
 </script></body></html>
