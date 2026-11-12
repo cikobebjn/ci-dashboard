@@ -55,6 +55,39 @@ header.topbar{height:64px;box-shadow:none}
 .final-details[open]{padding-bottom:14px}.final-details>.soft-divider{margin:0 15px 16px}.final-details>.grid,.final-details>.checkbox-line,.final-details>.actions{margin-left:15px;margin-right:15px}
 .finalized .signature-box{pointer-events:none}
 @media(max-width:540px){.state-panel{align-items:flex-start}.state-left{flex-direction:column;align-items:flex-start;gap:4px}}
+
+/* MASTER TEAM LEADER - compact selector and shared management dialog */
+.tl-field-row{display:flex;align-items:stretch;gap:8px}
+.tl-field-row select{flex:1;min-width:0}
+.tl-manage-btn{width:40px;min-width:40px;padding:0;flex:0 0 40px;display:grid;place-items:center;font-size:22px;line-height:1;border-radius:10px}
+.tl-field-note{font-size:10px;color:#8291a8;margin-top:5px;min-height:14px}
+.tl-dialog{border:1px solid #dce6f2;padding:0;width:min(790px,calc(100vw - 22px));max-height:min(90vh,860px);border-radius:19px;background:#fff;color:#233b59;box-shadow:0 35px 100px rgba(11,39,77,.27);overflow:auto}
+.tl-dialog::backdrop{background:rgba(12,30,53,.55);backdrop-filter:blur(3px)}
+.tl-dialog-head{display:flex;gap:15px;align-items:flex-start;justify-content:space-between;padding:21px 23px 14px;border-bottom:1px solid #e9eef5}
+.tl-dialog-head h2{margin:0;font-size:18px;letter-spacing:-.025em}
+.tl-dialog-head p{margin:5px 0 0;font-size:11px;color:#8191a5}
+.tl-close{border:1px solid #dae5f1;border-radius:9px;background:#fff;color:#57718f;font-size:20px;width:32px;height:32px;cursor:pointer;flex-shrink:0}
+.tl-dialog-main{padding:17px 21px 21px}
+.tl-manage-layout{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:15px}
+.tl-pane{border:1px solid #e1eaf4;background:#fbfdff;border-radius:13px;padding:14px;min-width:0}
+.tl-pane-title{font-size:12px;font-weight:850;color:#25435f;margin:0 0 11px}
+.tl-search{width:100%;border:1px solid #dce6f1;border-radius:9px;padding:9px 10px;font-size:12px;background:#fff;outline:none}
+.tl-roster{display:grid;gap:7px;max-height:346px;overflow-y:auto;margin-top:10px}
+.tl-roster-item{display:flex;justify-content:space-between;align-items:center;gap:9px;border:1px solid #e6edf5;border-radius:10px;background:#fff;padding:9px 10px}
+.tl-roster-item .tl-person{min-width:0}
+.tl-roster-item b{display:block;font-size:11px;overflow-wrap:anywhere;color:#27405b}
+.tl-roster-item small{display:block;font-size:10px;color:#7b8ea5;margin-top:3px}
+.tl-roster-item.off{opacity:.65}
+.tl-roster-item .btn{min-height:29px;flex-shrink:0}
+.tl-form-fields{display:grid;gap:10px}
+.tl-form-fields .field input,.tl-form-fields .field select{font-size:12px;padding:9px 10px}
+.tl-inline-check{display:flex;align-items:center;gap:8px;font-size:11px;color:#46617e;margin-top:2px}
+.tl-inline-check input{width:16px;height:16px;accent-color:#1167d4}
+.tl-manager-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:13px}
+.tl-manager-message{font-size:11px;color:#5b708a;margin:12px 0 0;line-height:1.55;min-height:18px}
+.tl-manager-message.error{color:#bd3a3a}.tl-manager-message.success{color:#148262}
+.tl-online-note{border:1px solid #e2eafb;border-radius:10px;background:#f0f6ff;color:#52749a;padding:9px 11px;font-size:10px;margin-bottom:13px}
+@media(max-width:640px){.tl-dialog-main{padding:13px}.tl-dialog-head{padding:15px}.tl-manage-layout{grid-template-columns:1fr}.tl-roster{max-height:208px}.tl-pane{padding:12px}}
 </style></head>
 <body>
 <header class="topbar"><div class="brand"><strong>KOBE · BOJONEGORO</strong><small>Maintenance · Input Shift</small></div><div class="top-actions"><a class="btn btn-light" href="mtc-handover-monitoring.html">Monitoring MTC</a></div></header>
@@ -68,8 +101,8 @@ header.topbar{height:64px;box-shadow:none}
 <div class="grid form-grid"><div class="field"><label for="tanggal">Tanggal <span class="required">*</span></label><input id="tanggal" required="" type="date"/></div>
 <div class="field"><label for="shift">Shift <span class="required">*</span></label><select id="shift" required=""><option value="">Pilih shift</option><option>Pagi</option><option>Siang</option><option>Malam</option></select></div>
 <div class="field"><label for="gedung">Lokasi / Gedung <span class="required">*</span></label><select id="gedung" required=""><option value="">Pilih lokasi</option><option>Gedung 4</option><option>Gedung 6</option><option>Gedung 7</option><option>Utility</option><option>Workshop</option><option>Area Lain</option></select></div>
-<div class="field person"><label for="sender">TL Penyerah</label><input id="sender" maxlength="100" placeholder="Nama TL"/></div>
-<div class="field person"><label for="receiver">TL Penerima</label><input id="receiver" maxlength="100" placeholder="Nama TL"/></div></div></section>
+<div class="field person"><label for="sender">TL Penyerah</label><div class="tl-field-row"><select id="sender" aria-label="Pilih TL Penyerah"><option value="">Pilih TL penyerah</option></select><button class="btn btn-outline tl-manage-btn" id="manageSender" type="button" title="Tambah / edit nama Team Leader" aria-label="Tambah atau edit nama TL penyerah">+</button></div><div class="tl-field-note" id="senderTlNote">Pilih gedung untuk melihat daftar TL.</div></div>
+<div class="field person"><label for="receiver">TL Penerima</label><div class="tl-field-row"><select id="receiver" aria-label="Pilih TL Penerima"><option value="">Pilih TL penerima</option></select><button class="btn btn-outline tl-manage-btn" id="manageReceiver" type="button" title="Tambah / edit nama Team Leader" aria-label="Tambah atau edit nama TL penerima">+</button></div><div class="tl-field-note" id="receiverTlNote">Pilih gedung untuk melihat daftar TL.</div></div></div></section>
 <section class="panel"><div class="section-title"><div><h2>Issue Selama Shift</h2></div><span class="pill" id="countBadge">0 issue</span></div>
 <details class="carry-panel no-print" id="carryPanel"><summary><strong>Outstanding shift sebelumnya</strong><span class="pill" id="carryCount">0</span></summary><button class="btn btn-outline btn-sm refresh-carry" id="reloadCarry" type="button">Muat ulang</button><div class="carry-list" id="carryList">Pilih lokasi terlebih dahulu.</div></details>
 <div id="issueRows"></div><div class="actions no-print" style="margin-top:12px"><button class="btn btn-outline" id="addIssue" type="button">+ Tambah Issue</button></div>
@@ -79,7 +112,27 @@ header.topbar{height:64px;box-shadow:none}
 </div><label class="checkbox-line" style="margin-top:19px"><input id="ackSender" type="checkbox"/><span>Saya menyetujui serah terima shift.</span></label><div class="actions" style="margin-top:20px"><button class="btn btn-green" id="saveButton" type="submit">Finalisasi Handover</button></div></details>
 <div class="message" id="msg" role="status"></div><div hidden="" id="successWrap" style="margin-top:13px"><a class="btn btn-outline" href="mtc-handover-monitoring.html" id="successLink">Lihat Handover yang Baru Disimpan</a></div>
 </section></form>
-</main><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>'use strict';
+</main>
+<dialog class="tl-dialog" id="tlManagerDialog" aria-labelledby="tlManagerTitle">
+  <div class="tl-dialog-head"><div><h2 id="tlManagerTitle">Kelola Team Leader MTC</h2><p>Tambah, ubah, atau nonaktifkan nama TL untuk pilihan serah terima.</p></div><button type="button" id="tlCloseDialog" class="tl-close" aria-label="Tutup">×</button></div>
+  <div class="tl-dialog-main">
+    <div class="tl-online-note" id="tlOnlineNote">Memuat daftar nama dari Supabase...</div>
+    <div class="tl-manage-layout">
+      <section class="tl-pane" aria-label="Daftar Team Leader"><h3 class="tl-pane-title">Daftar TL</h3><input class="tl-search" type="search" id="tlSearch" placeholder="Cari nama atau ID pegawai..." aria-label="Cari Team Leader"><div class="tl-roster" id="tlRoster"></div></section>
+      <section class="tl-pane" aria-label="Form pengelolaan Team Leader"><h3 class="tl-pane-title" id="tlEditorTitle">Tambah TL Baru</h3>
+        <form id="tlMasterForm" class="tl-form-fields">
+          <div class="field"><label for="tlEmployeeId">ID Pegawai <span class="required">*</span></label><input id="tlEmployeeId" required maxlength="12" inputmode="numeric" pattern="[0-9]{6,12}" placeholder="Contoh: 32412366" autocomplete="off"></div>
+          <div class="field"><label for="tlEmployeeName">Nama Lengkap <span class="required">*</span></label><input id="tlEmployeeName" required maxlength="100" placeholder="Nama lengkap TL" autocomplete="off"></div>
+          <div class="field"><label for="tlEmployeeStructure">Struktur <span class="required">*</span></label><select id="tlEmployeeStructure" required><option value="GD4">GD4</option><option value="GD6">GD6</option><option value="GD7">GD7</option><option value="GG7">GG7 (sesuai data awal)</option><option value="UTILITY">Utility</option><option value="WORKSHOP">Workshop</option><option value="LAINNYA">Lainnya</option></select></div>
+          <label class="tl-inline-check"><input id="tlEmployeeActive" type="checkbox" checked> Aktif (ditampilkan pada pilihan TL)</label>
+          <div class="tl-manager-actions"><button type="submit" class="btn btn-green" id="tlSaveButton">Simpan TL</button><button type="button" class="btn btn-outline" id="tlNewButton">+ Tambah Baru</button></div>
+        </form>
+      </section>
+    </div>
+    <div id="tlManagerMessage" class="tl-manager-message" role="status" aria-live="polite"></div>
+  </div>
+</dialog>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>'use strict';
 const SB_URL='https://bmnhtxalfsfaefacgtpm.supabase.co';
 const SB_KEY='sb_publishable_VItBKenz-q2sYz7MsibODA_nYtLXv9Q';
 const db=window.supabase?window.supabase.createClient(SB_URL,SB_KEY):null;
@@ -90,6 +143,151 @@ const today=()=>{const d=new Date();return new Date(d.getTime()-d.getTimezoneOff
 const newId=()=>typeof crypto!=='undefined'&&typeof crypto.randomUUID==='function'
  ?crypto.randomUUID()
  :'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,ch=>{const r=Math.floor(Math.random()*16);return(ch==='x'?r:(r&3|8)).toString(16)});
+
+// Master TL is stored centrally in public.mtc_team_leaders.
+// The initial list remains selectable if the one-time SQL has not been installed.
+const DEFAULT_TL=[
+ {id_pegawai:'32412366',nama_lengkap:'SURYA ANGGA KUSUMA',struktur:'GD4',aktif:true},
+ {id_pegawai:'32307224',nama_lengkap:'TAMAM KHOIRUDIN',struktur:'GD4',aktif:true},
+ {id_pegawai:'32211155',nama_lengkap:'PUPUT SUBROTO',struktur:'GD4',aktif:true},
+ {id_pegawai:'32501381',nama_lengkap:'DIMAS OXNU SISWANTO',struktur:'GD6',aktif:true},
+ {id_pegawai:'32401244',nama_lengkap:'ABDUR RAHMAN NAJIB',struktur:'GD6',aktif:true},
+ {id_pegawai:'32301188',nama_lengkap:'MUHAMMAD IRFAN ARDIANTO',struktur:'GD6',aktif:true},
+ {id_pegawai:'32504658',nama_lengkap:'IRVAN NUGROHO',struktur:'GD7',aktif:true},
+ {id_pegawai:'32212182',nama_lengkap:'BAYU KISWAHYUDI',struktur:'GD7',aktif:true},
+ {id_pegawai:'32505037',nama_lengkap:'EKO FARID SETIAWAN',struktur:'GG7',aktif:true}
+];
+let tlEmployees=DEFAULT_TL.map(x=>({...x})),tlOnline=false,tlEditId='',tlManagerTarget='sender',tlMasterLoading=null;
+const tlStructuresForPlace=place=>place==='Gedung 4'?['GD4']:place==='Gedung 6'?['GD6']:place==='Gedung 7'?['GD7','GG7']:[];
+const tlSort=(a,b)=>a.nama_lengkap.localeCompare(b.nama_lengkap,'id');
+function setTlManagerMessage(text,type=''){
+ const el=$('tlManagerMessage');el.textContent=text;el.className='tl-manager-message'+(type?' '+type:'');
+}
+function addTlOption(parent,member){
+ const option=document.createElement('option');option.value=member.nama_lengkap;
+ option.textContent=member.nama_lengkap+' · '+member.id_pegawai;
+ option.dataset.employeeId=member.id_pegawai;parent.appendChild(option);
+}
+function syncTlInfo(id){
+ const select=$(id),name=select.value,member=tlEmployees.find(x=>x.nama_lengkap===name);
+ $(id+'TlNote').textContent=member?`ID ${member.id_pegawai} · ${member.struktur}`:name?'Nama dari handover sebelumnya':'Otomatis mengikuti lokasi / gedung';
+}
+function renderTlDropdown(id,requestedValue){
+ const select=$(id),desired=requestedValue===undefined?select.value:String(requestedValue||'');
+ const priority=tlStructuresForPlace($('gedung').value),active=tlEmployees.filter(x=>x.aktif).sort(tlSort);
+ select.replaceChildren();const blank=document.createElement('option');blank.value='';blank.textContent=id==='sender'?'Pilih TL penyerah':'Pilih TL penerima';select.appendChild(blank);
+ if(priority.length){
+   const matching=active.filter(x=>priority.includes(x.struktur));
+   if(matching.length){const group=document.createElement('optgroup');group.label='TL sesuai lokasi';matching.forEach(x=>addTlOption(group,x));select.append(group);}
+   const other=active.filter(x=>!priority.includes(x.struktur));
+   if(other.length){const group=document.createElement('optgroup');group.label='TL lokasi lain (pengganti)';other.forEach(x=>addTlOption(group,x));select.append(group);}
+ }else{
+   for(const structure of ['GD4','GD6','GD7','GG7','UTILITY','WORKSHOP','LAINNYA']){
+     const members=active.filter(x=>x.struktur===structure);if(!members.length)continue;
+     const group=document.createElement('optgroup');group.label=structure;members.forEach(x=>addTlOption(group,x));select.append(group);
+   }
+ }
+ if(desired&&!Array.from(select.options).some(x=>x.value===desired)){
+   const legacy=document.createElement('option');legacy.value=desired;legacy.textContent=desired+' (riwayat / nonaktif)';select.append(legacy);
+ }
+ select.value=desired;
+ syncTlInfo(id);
+}
+function renderTlDropdowns(sender,receiver){renderTlDropdown('sender',sender);renderTlDropdown('receiver',receiver);}
+function renderTlRoster(){
+ const search=$('tlSearch').value.toLocaleLowerCase('id-ID').trim();const list=$('tlRoster');list.replaceChildren();
+ const members=[...tlEmployees].sort((a,b)=>Number(b.aktif)-Number(a.aktif)||a.struktur.localeCompare(b.struktur)||tlSort(a,b));
+ for(const m of members){
+   if(search&&!`${m.nama_lengkap} ${m.id_pegawai} ${m.struktur}`.toLocaleLowerCase('id-ID').includes(search))continue;
+   const item=document.createElement('div');item.className='tl-roster-item'+(m.aktif?'':' off');
+   const info=document.createElement('div');info.className='tl-person';
+   const name=document.createElement('b');name.textContent=m.nama_lengkap;
+   const meta=document.createElement('small');meta.textContent=`${m.id_pegawai} · ${m.struktur}${m.aktif?'':' · Nonaktif'}`;
+   info.append(name,meta);
+   const edit=document.createElement('button');edit.type='button';edit.className='btn btn-outline btn-sm';edit.textContent='Edit';edit.addEventListener('click',()=>editTl(m.id_pegawai));
+   item.append(info,edit);list.append(item);
+ }
+ if(!list.children.length){const empty=document.createElement('div');empty.className='muted';empty.textContent='Tidak ada nama yang cocok.';list.append(empty);}
+}
+function resetTlEditor(){
+ tlEditId='';$('tlMasterForm').reset();$('tlEmployeeId').readOnly=false;$('tlEmployeeId').value='';
+ $('tlEmployeeStructure').value=tlStructuresForPlace($('gedung').value)[0]||'GD4';
+ $('tlEmployeeActive').checked=true;$('tlEditorTitle').textContent='Tambah TL Baru';$('tlSaveButton').textContent='Simpan TL';
+}
+function editTl(id){
+ const m=tlEmployees.find(x=>x.id_pegawai===id);if(!m)return;
+ tlEditId=id;$('tlEditorTitle').textContent='Edit Data TL';
+ $('tlEmployeeId').value=m.id_pegawai;$('tlEmployeeId').readOnly=true;
+ $('tlEmployeeName').value=m.nama_lengkap;$('tlEmployeeStructure').value=m.struktur;
+ $('tlEmployeeActive').checked=m.aktif;$('tlSaveButton').textContent='Simpan Perubahan';
+ setTlManagerMessage('Edit nama, struktur, atau status aktif. ID pegawai tidak dapat diubah.');
+}
+async function refreshTlMaster(){
+ if(!db){tlOnline=false;tlEmployees=DEFAULT_TL.map(x=>({...x}));$('tlOnlineNote').textContent='Daftar awal tersedia. Untuk tambah/edit online, jalankan SQL mtc_team_leaders_setup.sql di Supabase terlebih dahulu.';renderTlDropdowns();renderTlRoster();return;}
+ if(tlMasterLoading)return tlMasterLoading;
+ tlMasterLoading=(async()=>{
+   const oldSender=$('sender').value,oldReceiver=$('receiver').value;
+   try{
+     const {data,error}=await db.from('mtc_team_leaders').select('id_pegawai,nama_lengkap,struktur,aktif').order('nama_lengkap',{ascending:true});
+     if(error)throw error;
+     tlEmployees=(data||[]).map(m=>({...m,aktif:m.aktif!==false}));tlOnline=true;
+     $('tlOnlineNote').textContent='Daftar TL tersimpan online dan digunakan bersama oleh semua perangkat.';
+   }catch(err){
+     tlOnline=false;tlEmployees=DEFAULT_TL.map(x=>({...x}));
+     $('tlOnlineNote').textContent='Daftar awal tersedia. Untuk tambah/edit online, jalankan SQL mtc_team_leaders_setup.sql di Supabase terlebih dahulu.';
+     console.warn('Master TL belum tersedia:',err);
+   }
+   renderTlDropdowns(oldSender,oldReceiver);renderTlRoster();
+ })();
+ try{await tlMasterLoading;}finally{tlMasterLoading=null;}
+}
+async function openTlManager(target){
+ tlManagerTarget=target;resetTlEditor();$('tlSearch').value='';setTlManagerMessage('');renderTlRoster();
+ const dlg=$('tlManagerDialog');if(!dlg.open)dlg.showModal();
+ await refreshTlMaster();
+}
+async function saveTlMaster(event){
+ event.preventDefault();const id=$('tlEmployeeId').value.trim();
+ const name=$('tlEmployeeName').value.trim().replace(/\s+/g,' ').toUpperCase();
+ const structure=$('tlEmployeeStructure').value,aktif=$('tlEmployeeActive').checked;
+ if(!/^\d{6,12}$/.test(id)){setTlManagerMessage('ID pegawai harus berupa 6–12 angka.','error');return;}
+ if(name.length<3){setTlManagerMessage('Nama lengkap minimal 3 karakter.','error');return;}
+ if(tlEmployees.some(x=>x.id_pegawai!==tlEditId&&x.nama_lengkap.toUpperCase()===name)){
+   setTlManagerMessage('Nama TL sudah ada. Pilih Edit pada daftar.','error');return;
+ }
+ if(!tlOnline){setTlManagerMessage('Belum dapat menyimpan online. Jalankan mtc_team_leaders_setup.sql di Supabase, lalu buka kembali halaman.','error');return;}
+ const btn=$('tlSaveButton');btn.disabled=true;const label=btn.textContent;btn.textContent='Menyimpan...';
+ const before=tlEmployees.find(x=>x.id_pegawai===tlEditId);
+ const oldName=before?.nama_lengkap||'',oldSender=$('sender').value,oldReceiver=$('receiver').value;
+ try{
+   let result;
+   if(tlEditId){
+     result=await db.from('mtc_team_leaders').update({nama_lengkap:name,struktur:structure,aktif}).eq('id_pegawai',tlEditId).select('id_pegawai').single();
+   }else{
+     result=await db.from('mtc_team_leaders').insert({id_pegawai:id,nama_lengkap:name,struktur:structure,aktif}).select('id_pegawai').single();
+   }
+   if(result.error)throw result.error;
+   await refreshTlMaster();
+   // Keep existing choices when a TL's name is edited. No existing handover is overwritten.
+   const senderValue=oldSender===oldName?name:oldSender;
+   const receiverValue=oldReceiver===oldName?name:oldReceiver;
+   renderTlDropdowns(senderValue,receiverValue);
+   if(!tlEditId&&aktif){renderTlDropdown(tlManagerTarget,name);}
+   if(oldName&&name!==oldName&&(oldSender===oldName||oldReceiver===oldName))markDirty();
+   if(!tlEditId&&aktif)markDirty();
+   resetTlEditor();renderTlRoster();
+   setTlManagerMessage('Data TL berhasil disimpan di Supabase. Pilihan dropdown langsung diperbarui.','success');
+ }catch(err){setTlManagerMessage('Gagal menyimpan data TL: '+(err.message||err),'error');}
+ finally{btn.disabled=false;btn.textContent=tlEditId?'Simpan Perubahan':'Simpan TL';}
+}
+$('manageSender').addEventListener('click',()=>openTlManager('sender'));
+$('manageReceiver').addEventListener('click',()=>openTlManager('receiver'));
+$('tlCloseDialog').addEventListener('click',()=>$('tlManagerDialog').close());
+$('tlNewButton').addEventListener('click',()=>{resetTlEditor();setTlManagerMessage('Isi data TL yang akan ditambahkan.');});
+$('tlSearch').addEventListener('input',renderTlRoster);
+$('tlMasterForm').addEventListener('submit',saveTlMaster);
+for(const id of ['sender','receiver'])$(id).addEventListener('change',()=>syncTlInfo(id));
+
 let outstanding=[],draft=null,revision=0,loadedKey='',dirty=false,busy=false,loadToken=0,carryProcessed=false;
 function notify(text,type=''){const el=$('msg');el.textContent=text;el.className='message'+(type?' '+type:'');}
 function makePad(canvas,clearBtn){
@@ -111,7 +309,7 @@ const ready=()=>!!loadedKey&&selectionKey()===loadedKey;
 function syncControls(){
  const lock=busy||!ready()||draft?.status==='Final';
  for(const el of $('handoverForm').querySelectorAll('input,select,textarea,button')){
-   if(['tanggal','shift','gedung'].includes(el.id))el.disabled=busy;
+   if(['tanggal','shift','gedung','manageSender','manageReceiver'].includes(el.id))el.disabled=busy;
    else el.disabled=!!lock;
  }
  $('reloadDraft').disabled=busy||!selectionKey();
@@ -204,7 +402,7 @@ async function loadOutstanding(){
 }
 function hydrateDraft(data){
  draft=data||null;revision=data?.revision||0;dirty=false;
- $('sender').value=data?.tl_penyerah||'';$('receiver').value=data?.tl_penerima||'';$('notes').value=data?.catatan||'';
+ renderTlDropdowns(data?.tl_penyerah||'',data?.tl_penerima||'');$('notes').value=data?.catatan||'';
  $('noIssue').checked=false;$('ackSender').checked=false;senderPad.clear();
  $('successWrap').hidden=true;$('finalDetails').open=false;
  $('issueRows').replaceChildren();
@@ -214,10 +412,10 @@ function hydrateDraft(data){
 }
 async function loadDraft(force=false){
  const key=selectionKey();
- if(!key){loadedKey='';draft=null;revision=0;dirty=false;showDraftState();return;}
+ if(!key){loadedKey='';draft=null;revision=0;dirty=false;renderTlDropdowns('','');showDraftState();return;}
  if(!force&&key===loadedKey)return;
  if(dirty&&loadedKey&&!window.confirm('Perubahan draft belum disimpan. Pindah shift tanpa menyimpan?')){
-   const [date,shift,place]=loadedKey.split('|');$('tanggal').value=date;$('shift').value=shift;$('gedung').value=place;return;
+   const [date,shift,place]=loadedKey.split('|');$('tanggal').value=date;$('shift').value=shift;$('gedung').value=place;renderTlDropdowns();return;
  }
  const token=++loadToken;loadedKey='';dirty=false;setBusy(true);notify('');
  try{
@@ -265,7 +463,7 @@ $('handoverForm').addEventListener('input',e=>{if(!['tanggal','shift','gedung'].
 $('handoverForm').addEventListener('change',e=>{if(!['tanggal','shift','gedung'].includes(e.target.id))markDirty();});
 $('addIssue').addEventListener('click',()=>{if(!ready())return;addRow();$('noIssue').checked=false;markDirty();});
 $('reloadCarry').addEventListener('click',loadOutstanding);
-for(const id of ['tanggal','shift','gedung'])$(id).addEventListener('change',()=>loadDraft());
+for(const id of ['tanggal','shift','gedung'])$(id).addEventListener('change',()=>{if(id==='gedung')renderTlDropdowns();loadDraft();});
 $('reloadDraft').addEventListener('click',()=>loadDraft(true));
 $('saveDraftButton').addEventListener('click',async()=>{
  if(busy)return;
@@ -306,5 +504,5 @@ for(const id of ['tanggal','shift','gedung']){
  if(value&&[...$(id).options??[]].some(o=>o.value===value))$(id).value=value;
  else if(id==='tanggal'&&value&&/^\d{4}-\d{2}-\d{2}$/.test(value))$(id).value=value;
 }
-addRow();showDraftState();if(selectionKey())loadDraft();
+renderTlDropdowns();addRow();showDraftState();refreshTlMaster();if(selectionKey())loadDraft();
 </script></body></html>
