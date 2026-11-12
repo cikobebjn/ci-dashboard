@@ -70,6 +70,18 @@ td{padding:10px 11px;font-size:12px}
 .issue-dialog .form-footer{display:flex;gap:9px;justify-content:flex-end;flex-wrap:wrap;margin-top:7px}
 .issue-dialog #issueEditMessage{margin-top:12px;min-height:16px}
 @media(max-width:620px){.issue-dialog-inner{padding:18px 16px}.issue-dialog .grid.two{grid-template-columns:1fr}}
+
+/* Report WhatsApp: hanya tersedia setelah penerimaan handover dikonfirmasi. */
+.mtc-wa-panel{margin-top:16px;padding:16px 18px;border:1px solid #cee7dc;border-radius:14px;background:linear-gradient(120deg,#f8fdfb,#f5faff)}
+.mtc-wa-head{display:flex;align-items:center;justify-content:space-between;gap:13px;flex-wrap:wrap}
+.mtc-wa-head h3{font-size:14px;margin:0 0 4px;color:#254462}
+.mtc-wa-head p{font-size:11px;margin:0;color:#71839c;line-height:1.6}
+.mtc-wa-preview{margin-top:10px}
+.mtc-wa-preview summary{cursor:pointer;font-size:11px;font-weight:750;color:#3e6489;user-select:none}
+.mtc-wa-preview textarea{display:block;width:100%;height:245px;min-height:125px;margin-top:10px;padding:12px;border:1px solid #dce7f2;border-radius:10px;resize:vertical;background:#fff;color:#344e69;font:12px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace}
+.mtc-wa-feedback{min-height:16px;margin-top:8px;font-size:11px;color:#11835a}
+.mtc-wa-feedback.error{color:#b94545}
+@media(max-width:650px){.mtc-wa-panel{padding:14px}.mtc-wa-head button{width:100%}}
 </style></head>
 <body>
 <header class="topbar"><div class="brand"><strong>KOBE · BOJONEGORO</strong><small>Maintenance · Shift Hand Over</small></div><div class="top-actions"><a class="btn" href="mtc-handover-form.html">+ Form MTC</a></div></header>
@@ -147,6 +159,86 @@ function makePad(canvas,btn){
  btn.addEventListener('click',()=>{c.clearRect(0,0,w,h);used=false;});
  return {used:()=>used,data:()=>canvas.toDataURL('image/png')};
 }
+
+// Dibuat hanya dari snapshot issue ketika handover diserahkan, bukan status terbaru pada shift berikutnya.
+function makeMtcWhatsappReport(h,receipt){
+  if(!h||!receipt)return '';
+  // Laporan WA menggunakan data saat handover, tidak terpengaruh update shift berikutnya.
+  const values=issuesOf(h);
+  const safe=v=>String(v??'').trim()||'-';
+  const formatDate=d=>{
+    const s=String(d||'');
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(s))return safe(s);
+    const dt=new Date(s+'T12:00:00');
+    return new Intl.DateTimeFormat('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).format(dt);
+  };
+  const lines=[
+    '*LAPORAN SHIFT HAND OVER - MTC*',
+    '',
+    formatDate(h.tanggal),
+    'Shift: '+safe(h.shift),
+    'Lokasi: '+safe(h.gedung),
+    'TL Penyerah: '+safe(h.tl_penyerah),
+    'TL Penerima: '+safe(receipt.tl_penerima||h.tl_penerima),
+    '',
+    '*ISSUE*'
+  ];
+  if(!values.length)lines.push('','Tidak ada issue pada shift ini.');
+  values.forEach((item,i)=>{
+    lines.push(
+      '',
+      (i+1)+'. '+safe(item.mesin_area),
+      'Status: *'+safe(item.status)+'*',
+      'Jam: '+clockLabel(item.jam_mulai)+' - '+clockLabel(item.jam_selesai),
+      'Issue: '+safe(item.issue),
+      'Action dilakukan: '+safe(item.action_dilakukan),
+      'Action shift berikutnya: '+safe(item.action_lanjutan)
+    );
+  });
+  return lines.join('\n');
+}
+async function copyMtcWhatsapp(text){
+  if(navigator.clipboard&&window.isSecureContext){
+    try{await navigator.clipboard.writeText(text);return true;}catch(err){console.warn('Clipboard API:',err);}
+  }
+  const temporary=document.createElement('textarea');temporary.value=text;
+  temporary.style.cssText='position:fixed;top:0;left:-9999px;opacity:0';
+  document.body.appendChild(temporary);temporary.focus();temporary.select();
+  let copied=false;
+  try{copied=document.execCommand('copy');}finally{temporary.remove();}
+  return copied;
+}
+function showMtcWhatsappPanel(h,receipt){
+  if(!receipt)return; // Draft / handover belum diterima tidak boleh menyalin report.
+  const report=makeMtcWhatsappReport(h,receipt);
+  if(!report)return;
+  const content=$('detailContent');
+  const section=document.createElement('section');
+  section.className='mtc-wa-panel no-print';
+  section.innerHTML=`<div class="mtc-wa-head"><div><h3>Report Handover untuk WhatsApp</h3><p>Serah terima sudah dikonfirmasi. Salin laporan lalu tempel di grup WhatsApp.</p></div><button id="copyMtcWA" type="button" class="btn btn-green">Salin Report WA</button></div>
+    <details class="mtc-wa-preview"><summary>Lihat teks laporan</summary><textarea id="mtcWAPreview" readonly spellcheck="false" aria-label="Pratinjau report WhatsApp"></textarea></details>
+    <div id="mtcWAFeedback" class="mtc-wa-feedback" role="status" aria-live="polite"></div>`;
+  content.appendChild(section);
+  $('mtcWAPreview').value=report;
+  $('copyMtcWA').addEventListener('click',async()=>{
+    // Defense in depth: receipt confirmation is also validated on click.
+    if(!receiptOf(h))return;
+    const button=$('copyMtcWA'),feedback=$('mtcWAFeedback');
+    try{
+      const ok=await copyMtcWhatsapp(report);
+      if(!ok)throw new Error('Clipboard ditolak browser');
+      button.textContent='Berhasil Disalin';
+      feedback.className='mtc-wa-feedback';
+      feedback.textContent='Report tersalin. Buka grup WhatsApp dan tempel/paste.';
+      setTimeout(()=>{if(button.isConnected)button.textContent='Salin Report WA';},2400);
+    }catch(error){
+      const preview=$('mtcWAPreview');preview.parentElement.open=true;preview.focus();preview.select();
+      feedback.className='mtc-wa-feedback error';
+      feedback.textContent='Salin otomatis diblokir browser. Teks laporan sudah dipilih; tekan Ctrl+C atau Salin.';
+    }
+  });
+}
+
 function getStatus(h){return receiptOf(h)?'Diterima':'Menunggu';}
 function applyFilters(){
  const keyword=$('keyword').value.toLocaleLowerCase('id-ID').trim(),state=$('stateFilter').value;
@@ -213,7 +305,8 @@ function renderDetail(h){
  <label class="checkbox-line"><input id="ackReceive" type="checkbox" required><span>Saya telah membaca issue, action, dan pekerjaan yang diteruskan dari shift sebelumnya.</span></label>
  <button type="submit" class="btn btn-green" id="acceptBtn">Konfirmasi Terima Shift</button><div class="message" id="receiveMsg" role="status"></div></form>`}`;
  container.querySelectorAll('button[data-edit-issue]').forEach(btn=>btn.addEventListener('click',()=>openIssueEditor(btn.dataset.editIssue)));
- if(!receipt){const pad=makePad($('receiverSign'),$('clearReceiverSign'));$('acceptForm').addEventListener('submit',e=>handleAccept(e,h.id,pad));}
+  if(!receipt){const pad=makePad($('receiverSign'),$('clearReceiverSign'));$('acceptForm').addEventListener('submit',e=>handleAccept(e,h.id,pad));}
+  if(receipt)showMtcWhatsappPanel(h,receipt);
 }
 async function handleAccept(event,id,pad){
  event.preventDefault();const msg=$('receiveMsg'),btn=$('acceptBtn');
