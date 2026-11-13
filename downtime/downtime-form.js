@@ -10,16 +10,27 @@
     for(const item of choices)node.add(new Option(String(item),String(item)));
     if(preserve&&choices.includes(preserve))node.value=preserve;
   }
-  function updateLines(preserve=''){
+  // Line dan Mesin selalu aktif: tanpa filter tampilkan seluruh master.
+  // Setelah Gedung/Line dipilih, opsi menyempit sesuai data Excel.
+  const uniqueSorted = values => [...new Set(values.filter(Boolean))]
+    .sort((a,b)=>String(a).localeCompare(String(b),'id',{numeric:true}));
+  function updateLines(preserve=$('line').value){
     const b=$('workshop').value;
-    const lines=M.linesByBuilding?.[b]||[];
-    setOptions('line',lines,'Pilih Line',preserve);$('line').disabled=!b;updateMachines();
+    const lines=b ? (M.linesByBuilding?.[b]||[])
+      : uniqueSorted(Object.values(M.linesByBuilding||{}).flat());
+    setOptions('line',lines,'Pilih Line',preserve);
+    $('line').disabled=false;
+    updateMachines();
   }
-  function updateMachines(preserve=''){
+  function updateMachines(preserve=$('machine').value){
     const ln=$('line').value;
-    const machines=M.machinesByLine?.[ln]||[];
+    const b=$('workshop').value;
+    const eligibleLines=ln ? [ln] : b ? (M.linesByBuilding?.[b]||[])
+      : Object.keys(M.machinesByLine||{});
+    const machines=uniqueSorted(eligibleLines.flatMap(line=>M.machinesByLine?.[line]||[]));
     setOptions('machine',[...machines,'Lainnya'],'Pilih Mesin',preserve);
-    $('machine').disabled=!ln;toggleOtherMachine();
+    $('machine').disabled=false;
+    toggleOtherMachine();
   }
   function toggleOtherMachine(){
     const other=$('machine').value==='Lainnya';$('otherMachineBox').hidden=!other;
@@ -54,6 +65,7 @@
     const now=C.todayISO();$('tanggal').value=now;
     $('tanggal').max=C.dayMinus(now,-1);
     const old=new Date(now+'T00:00:00');old.setFullYear(old.getFullYear()-1);$('tanggal').min=C.isoDate(old);
+    updateLines();
     $('workshop').addEventListener('change',()=>updateLines());
     $('line').addEventListener('change',()=>updateMachines());
     $('machine').addEventListener('change',toggleOtherMachine);
@@ -62,7 +74,7 @@
     $('dt_description').addEventListener('input',setCategory);
     form.addEventListener('submit',submit);
     form.addEventListener('reset',()=>{if(preserving)return;setTimeout(()=>{
-      $('tanggal').value=C.todayISO();$('line').disabled=true;$('machine').disabled=true;toggleOtherMachine();
+      $('tanggal').value=C.todayISO();updateLines();toggleOtherMachine();
       $('dt_category').disabled=false;updateDate();updateTime();
     },0);});
     $('sourceBadge').classList.toggle('online',C.configured());
