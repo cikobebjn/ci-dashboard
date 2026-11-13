@@ -7,7 +7,7 @@
  */
 (function () {
   'use strict';
-  const VERSION = '2.7';
+  const VERSION = '2.8';
   if (window.KobeSidebar && window.KobeSidebar.version === VERSION) return;
 
   // Accordion: grup aktif terbuka otomatis, grup lain tertutup.
@@ -50,8 +50,8 @@
     { title: 'Data & Improvement', items: [
       { name: 'Shift Hand Over (SQCDP)', url: 'sho.html', icon: 'activity' },
       { name: 'Shift Hand Over (MTC)', url: 'mtc-handover-monitoring.html', icon: 'form' },
-      { name: 'Dashboard Downtime', url: 'downtime-dashboard.html', icon: 'chart' },
-      { name: 'Form Input Downtime', url: 'downtime-form.html', icon: 'form' },
+      { name: 'Dashboard Downtime', url: 'downtime/downtime-dashboard.html', icon: 'chart' },
+      { name: 'Form Input Downtime', url: 'downtime/downtime-form.html', icon: 'form' },
       { name: 'Improvement Monitoring', url: 'improvement-monitoring.html', icon: 'spark' },
       { name: 'Monitoring Hasil Seleksi Admin Produksi', url: 'hasil-seleksi-admin.html', icon: 'form' },
       { name: 'Monitoring Gramasi', url: 'gramasi-monitoring.html', icon: 'chart' },
