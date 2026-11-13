@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f4f7fc"><title>Form Input Downtime | KOBE Bojonegoro</title>
+<link rel="stylesheet" href="downtime.css">
+<script src="downtime-config.js" defer></script>
+<script src="downtime-master.js" defer></script>
+<script src="downtime-core.js" defer></script>
+<script src="downtime-form.js" defer></script>
+</head>
+<body>
+<header class="form-input-head"><div class="left"><span class="brand-mark">K</span><div class="title">KOBE BOJONEGORO <span style="color:#96a6bc">/ DOWNTIME INPUT</span></div></div><span class="source-pill" id="sourceBadge"><span class="dot"></span><span id="sourceLabel">DATA LOKAL</span></span></header>
+<main class="form-layout">
+  <div class="form-header"><div><div class="eyebrow" style="font-size:10px;font-weight:850;letter-spacing:.16em;color:var(--blue)">PRODUCTION • DOWNTIME</div><h1>Form Input Downtime</h1><p>Pencatatan downtime mesin produksi</p></div></div>
+  <form class="panel form-card" id="downtimeForm" autocomplete="off">
+    <section class="form-section">
+      <div class="section-title"><span class="section-no">01</span><h2>Informasi Produksi</h2></div>
+      <div class="form-grid">
+        <div class="field"><label for="tanggal">Tanggal <span class="req">*</span></label><input type="date" id="tanggal" name="tanggal" required></div>
+        <div class="field"><label for="workshop">Gedung <span class="req">*</span></label><select id="workshop" name="workshop" required><option value="">Pilih Gedung</option></select></div>
+        <div class="field"><label for="section">Section <span class="req">*</span></label><select id="section" name="section" required><option value="">Pilih Section</option></select></div>
+        <div class="field"><label for="line">Line <span class="req">*</span></label><select id="line" name="line" required disabled><option value="">Pilih Line</option></select></div>
+        <div class="field"><label for="machine">Mesin <span class="req">*</span></label><select id="machine" name="machine" required disabled><option value="">Pilih Mesin</option></select></div>
+        <div class="field" id="otherMachineBox" hidden><label for="otherMachine">Nama Mesin <span class="req">*</span></label><input id="otherMachine" maxlength="120" placeholder="Masukkan nama mesin"></div>
+        <div class="field"><label for="shift">Shift <span class="req">*</span></label><select id="shift" name="shift" required><option value="">Pilih Shift</option></select></div>
+        <div class="field"><label for="grup">Grup <span class="req">*</span></label><select id="grup" name="grup" required><option value="">Pilih Grup</option></select></div>
+      </div>
+    </section>
+    <section class="form-section">
+      <div class="section-title"><span class="section-no">02</span><h2>Waktu Downtime</h2></div>
+      <div class="form-grid cols-2">
+        <div class="field"><label for="start_dt">Jam Mulai <span class="req">*</span></label><input type="time" id="start_dt" name="start_dt" step="60" required></div>
+        <div class="field"><label for="stop_dt">Jam Selesai <span class="req">*</span></label><input type="time" id="stop_dt" name="stop_dt" step="60" required></div>
+        <div class="wide stat-row"><div class="stat-box"><span>Duration</span><strong id="durMin">— menit</strong></div><div class="stat-box"><span>Week</span><strong id="dateWeek">—</strong></div><div class="stat-box"><span>Month</span><strong id="dateMonth">—</strong></div></div>
+      </div>
+    </section>
+    <section class="form-section">
+      <div class="section-title"><span class="section-no">03</span><h2>Detail Downtime</h2></div>
+      <div class="form-grid cols-2">
+        <div class="field wide"><label for="dt_description">DT Description <span class="req">*</span></label><input id="dt_description" name="dt_description" list="reasonChoices" placeholder="Pilih atau ketik deskripsi downtime" maxlength="160" required><datalist id="reasonChoices"></datalist></div>
+        <div class="field wide"><label for="dt_category">DT Category <span class="req">*</span></label><select id="dt_category" name="dt_category" required><option value="">Pilih kategori downtime</option></select></div>
+        <div class="field wide"><label for="root_cause">Root Cause</label><textarea id="root_cause" name="root_cause" maxlength="1500" placeholder="Penyebab utama kejadian"></textarea></div>
+        <div class="field wide"><label for="action">Action</label><textarea id="action" name="action" maxlength="1500" placeholder="Tindakan yang dilakukan"></textarea></div>
+      </div>
+    </section>
+    <div class="form-actions"><button class="btn" type="reset" id="resetForm">Reset</button><button class="btn btn-primary" type="submit" id="saveButton">Simpan Downtime</button></div>
+  </form>
+</main>
+</body>
+</html>

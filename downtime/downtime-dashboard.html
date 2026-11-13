@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f4f7fc"><title>Downtime Monitoring | KOBE Bojonegoro</title>
+<link rel="stylesheet" href="downtime.css">
+<script src="sidebar.js" defer></script>
+<script src="downtime-config.js" defer></script>
+<script src="downtime-master.js" defer></script>
+<script src="downtime-core.js" defer></script>
+<script src="downtime-dashboard.js" defer></script>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <div data-kobe-sidebar-slot></div>
+    <span class="brand-mark">K</span>
+    <div class="brand-meta"><strong>PRODUCTION MONITORING</strong><span>KOBE • BOJONEGORO FACTORY</span></div>
+    <div class="topbar-right"><span class="source-pill" id="sourceBadge"><span class="dot"></span><span id="sourceLabel">DATA EXCEL</span></span><a class="btn btn-primary" href="downtime-form.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Input Downtime</a></div>
+  </div>
+</header>
+<main class="container">
+  <div class="page-head">
+    <div><div class="eyebrow">DATA &amp; IMPROVEMENT</div><h1>Downtime Monitoring</h1><p>Analisis downtime produksi — GD 4, GD 6 &amp; GD 7</p></div>
+    <div class="period-toggle" aria-label="Periode grafik"><button data-period="daily" aria-pressed="false">Daily</button><button data-period="weekly" aria-pressed="true">Weekly</button><button data-period="monthly" aria-pressed="false">Monthly</button></div>
+  </div>
+  <section class="panel filters-panel" id="filterPanel">
+    <div class="filter-grid">
+      <div class="field date-field"><label for="fStart">Dari tanggal</label><input id="fStart" type="date"></div>
+      <div class="field date-field"><label for="fEnd">Sampai tanggal</label><input id="fEnd" type="date"></div>
+      <div class="field"><label for="fWorkshop">Gedung</label><select id="fWorkshop"><option value="">Semua Gedung</option></select></div>
+      <div class="field"><label for="fLine">Line</label><select id="fLine"><option value="">Semua Line</option></select></div>
+      <div class="field"><label for="fMachine">Mesin</label><select id="fMachine"><option value="">Semua Mesin</option></select></div>
+      <div class="filter-actions"><button class="btn" id="moreFilters" aria-expanded="false">Filter Lainnya <span id="filterArrow">⌄</span></button><button class="btn btn-subtle" id="resetFilters" type="button">Reset</button></div>
+    </div>
+    <div class="filter-extra" id="extraFilters">
+      <div class="field"><label for="fYear">Tahun</label><select id="fYear"><option value="">Semua Tahun</option></select></div>
+      <div class="field"><label for="fMonth">Bulan</label><select id="fMonth"><option value="">Semua Bulan</option></select></div>
+      <div class="field"><label for="fWeek">Week (Minggu–Sabtu)</label><select id="fWeek"><option value="">Semua Week</option></select></div>
+      <div class="field"><label for="fSection">Section</label><select id="fSection"><option value="">Semua Section</option></select></div>
+      <div class="field"><label for="fShift">Shift</label><select id="fShift"><option value="">Semua Shift</option></select></div>
+      <div class="field"><label for="fCategory">Kategori DT</label><select id="fCategory"><option value="">Semua Kategori</option></select></div>
+      <div class="field"><label for="fDescription">Deskripsi DT</label><select id="fDescription"><option value="">Semua Deskripsi</option></select></div>
+    </div>
+    <div class="filter-footer"><label class="minimal-checkbox"><input type="checkbox" id="excludeIshoma"> Kecualikan Ishoma</label><div class="filter-count" id="dataPeriod">—</div></div>
+  </section>
+  <section class="kpi-grid" aria-label="Ringkasan downtime">
+    <div class="panel kpi"><div class="kpi-head"><span class="kpi-label">Total Downtime</span><span class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l4 2"/></svg></span></div><div class="kpi-value"><span id="kMinutes">—</span><small>menit</small></div><div class="kpi-sub" id="kHours">—</div></div>
+    <div class="panel kpi"><div class="kpi-head"><span class="kpi-label">Jumlah Kejadian</span><span class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 5h14M5 12h14M5 19h14"/></svg></span></div><div class="kpi-value"><span id="kEvents">—</span></div><div class="kpi-sub" id="kValid">—</div></div>
+    <div class="panel kpi"><div class="kpi-head"><span class="kpi-label">Rata-rata Durasi</span><span class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m4 18 6-6 4 3 6-8M15 7h5v5"/></svg></span></div><div class="kpi-value"><span id="kAverage">—</span><small>menit</small></div><div class="kpi-sub">Per kejadian dengan durasi valid</div></div>
+    <div class="panel kpi"><div class="kpi-head"><span class="kpi-label">Mesin Terdampak</span><span class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="5" width="16" height="14" rx="2"/><path d="M8 9h8M8 13h5"/></svg></span></div><div class="kpi-value"><span id="kMachines">—</span><small>mesin</small></div><div class="kpi-sub">Mesin dengan kejadian downtime</div></div>
+  </section>
+  <section class="charts-grid">
+    <article class="panel chart-card"><div class="card-head"><div><h2>Tren Downtime</h2><p id="trendSubtitle">Durasi downtime dalam menit</p></div><span class="meta-chip" id="trendMeta">WEEKLY</span></div><div class="trend-wrap" id="trendChart"><div class="chart-empty">Memuat grafik...</div></div></article>
+    <article class="panel chart-card"><div class="card-head"><div><h2>Downtime per Gedung</h2><p>Kontribusi berdasarkan total menit</p></div><span class="meta-chip">GEDUNG</span></div><div class="breakdown" data-tone="green" id="chartBuildings"></div></article>
+  </section>
+  <section class="charts-grid">
+    <article class="panel chart-card"><div class="card-head"><div><h2>Top Line Downtime</h2><p>Line dengan durasi terbesar</p></div><span class="meta-chip">TOP 12</span></div><div class="breakdown" id="chartLines"></div></article>
+    <article class="panel chart-card"><div class="card-head"><div><h2>Top Mesin Downtime</h2><p>10 mesin dengan durasi terbesar</p></div><span class="meta-chip">TOP 10</span></div><div class="breakdown" data-tone="purple" id="chartMachines"></div></article>
+  </section>
+  <section class="charts-grid">
+    <article class="panel chart-card"><div class="card-head"><div><h2>Pareto Deskripsi Downtime</h2><p>Kontribusi penyebab berdasarkan durasi</p></div><span class="meta-chip">TOP 12</span></div><div class="breakdown" data-tone="red" id="chartReasons"></div></article>
+    <article class="panel chart-card"><div class="card-head"><div><h2>Downtime per Kategori</h2><p>Distribusi total durasi downtime</p></div><span class="meta-chip">KATEGORI</span></div><div class="breakdown" id="chartCategories"></div></article>
+  </section>
+  <section class="panel table-card"><div class="table-head"><div><h2>Riwayat Downtime</h2><p>30 kejadian terbaru dari filter aktif</p></div><button class="btn" id="exportCsv">Export CSV</button></div>
+    <div class="table-responsive"><table><thead><tr><th>Tanggal</th><th>Gedung</th><th>Line</th><th>Mesin</th><th>Shift</th><th>Deskripsi DT</th><th>Durasi</th><th>Kategori</th></tr></thead><tbody id="historyTable"><tr><td colspan="8" class="table-empty">Memuat data...</td></tr></tbody></table></div>
+  </section>
+</main>
+<dialog class="dt-dialog" id="eventDetail"><div class="dialog-head"><h3>Detail Downtime</h3><button class="icon-button" id="closeDetail" aria-label="Tutup dialog">×</button></div><div class="dialog-grid" id="detailContent"></div><div class="dialog-foot"><button class="btn" id="detailDone">Tutup</button></div></dialog>
+</body>
+</html>
