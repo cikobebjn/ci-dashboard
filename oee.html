@@ -1590,6 +1590,47 @@ async function loadServerDowntimeForSelection(){
     }catch(err){if(token===downtimeFetchSequence)setReportStatus('warn','Tidak bisa mengambil catatan online: '+(err?.message||err));}
 }
 
+
+// Rekap karton disimpan per tanggal/shift/line, terpisah dari bobot PCS untuk OEE.
+// Mengikuti kolom K=TARGET CARTON dan L=OUTPUT CARTON pada sheet DATA.
+function buildCartonRowsFromDataSheet(wsData){
+    if(!wsData||!wsData['!ref'])throw new Error('Sheet DATA untuk Planning vs Actual karton tidak ditemukan.');
+    const range=XLSX.utils.decode_range(wsData['!ref']);
+    const cell=(r,c)=>wsData[XLSX.utils.encode_cell({r,c})]?.v;
+    let headerRow=-1,ix=null;
+    for(let r=range.s.r;r<=Math.min(range.e.r,8);r++){
+        const headers=[];
+        for(let c=0;c<=Math.max(18,range.e.c);c++)headers[c]=normalizeDataHeader(cell(r,c));
+        const find=(a)=>headers.findIndex(h=>a.includes(h)&&h!=='');
+        const cand={date:find(['DATE','TANGGAL']),shift:find(['SHIFT','SHIFT PRODUKSI']),line:find(['LINE','LINE PRODUKSI']),machine:find(['MESIN','MACHINE']),target:find(['TARGET CARTON','TARGET KARTON']),output:find(['OUTPUT CARTON','OUTPUT KARTON'])};
+        if(cand.date>=0&&cand.target>=0&&cand.output>=0){headerRow=r;ix=cand;break}
+    }
+    if(headerRow<0||ix.shift<0||(ix.line<0&&ix.machine<0))throw new Error('Header DATE, SHIFT, LINE/MESIN, TARGET CARTON atau OUTPUT CARTON belum terbaca di sheet DATA.');
+    const groups=new Map();let skipped=0,latest='';
+    for(let r=headerRow+1;r<=range.e.r;r++){
+        const tanggal=excelDateToStr(cell(r,ix.date));if(!tanggal)continue;
+        const target=parseNumberLoose(cell(r,ix.target)),output=parseNumberLoose(cell(r,ix.output));
+        if(target===null&&output===null)continue; // baris kosong tidak dianggap produksi
+        if(tanggal>latest)latest=tanggal;
+        const shift=parseShiftNum(cell(r,ix.shift));
+        const line=canonicalLineName(ix.line>=0?cell(r,ix.line):'')||canonicalLineName(ix.machine>=0?cell(r,ix.machine):'');
+        const gedung=(gedungForLine(line).match(/[467]/)||[])[0]||'';
+        if(!shift||!line||!gedung){skipped++;continue}
+        const key=[tanggal,shift,normalizeLineKey(line)].join('|');
+        if(!groups.has(key))groups.set(key,{tanggal,shift,gedung,mesin:line,target_carton:0,output_carton:0,source_rows:0,missing_target_count:0,missing_output_count:0,zero_target_count:0});
+        const g=groups.get(key);g.source_rows++;
+        if(target!==null&&target>=0)g.target_carton+=target;else g.missing_target_count++;
+        if(output!==null&&output>=0)g.output_carton+=output;else g.missing_output_count++;
+        if(target===0&&output!==null&&output>0)g.zero_target_count++;
+    }
+    if(!groups.size)throw new Error('Tidak ada data karton terpetakan ke Gedung 4/6/7. Periksa kolom LINE di sheet DATA.');
+    // Retensi rolling 1 tahun, dihitung dari tanggal paling baru dalam workbook.
+    const cutoffDate=dateFromStr(latest);cutoffDate.setFullYear(cutoffDate.getFullYear()-1);
+    const cutoff=localDateToStr(cutoffDate);
+    const rows=[...groups.values()].filter(r=>r.tanggal>=cutoff).map(r=>({...r,target_carton:+r.target_carton.toFixed(6),output_carton:+r.output_carton.toFixed(6)})).sort((a,b)=>a.tanggal.localeCompare(b.tanggal)||a.shift-b.shift||a.mesin.localeCompare(b.mesin));
+    return{rows,skipped,cutoff};
+}
+
 function prosesExcel() {
     const file = window._pendingFile;
     if (!file) { setStatus('error','Pilih file Excel terlebih dahulu.'); return; }
@@ -1678,6 +1719,7 @@ function prosesExcel() {
             const dailyPcs = {}; // { tanggal: { target, output } }
             const linePcsShift = {}; // { tanggal|shift|line: { target, output } } untuk filter OEE gedung/line
             const wsData = wb.Sheets['DATA'];
+            const cartonData=buildCartonRowsFromDataSheet(wsData);
             if (wsData && wsData['!ref']) {
                 const rangeData = XLSX.utils.decode_range(wsData['!ref']);
                 for (let r = 3; r <= rangeData.e.r; r++) { // row idx 3 = Excel row 4 (data mulai)
@@ -1827,6 +1869,7 @@ function prosesExcel() {
                 all_shiftly: allShiftlyRows,
                 all_daily  : allDailyRows,
                 all_line   : allLineRows,
+                all_carton : cartonData.rows,
                 report_rows: oeeReportRows,
             };
 
@@ -1842,7 +1885,7 @@ function prosesExcel() {
             if (hasDailyGap) {
                 setStatus('error', `Shiftly tersedia sampai ${fmtDate(lastShiftDate)}, tetapi Daily baru sampai ${fmtDate(lastDailyDate)}. Periksa nilai OEE DAILY atau target/output PCS di sheet DATA. Penyimpanan diblokir agar KPI Index tidak tertinggal.`);
             } else {
-                setStatus('active', `Excel terbaca: ${tanggalUnikShiftly.length} hari Shiftly, ${finalDailyDates.size} hari Daily (tambahan dihitung dari DATA: ${dailyDerivedFromData} hari). Data terakhir ${fmtDate(lastDailyDate)}. Siap diperbarui ke Supabase.`);
+                setStatus('active', `Excel terbaca: ${tanggalUnikShiftly.length} hari Shiftly, ${finalDailyDates.size} hari Daily (tambahan dihitung dari DATA: ${dailyDerivedFromData} hari). Data terakhir ${fmtDate(lastDailyDate)}. Siap diperbarui ke Supabase.${cartonData.skipped?` ${cartonData.skipped} baris karton belum terpetakan ke gedung.`:''}`);
             }
 
         } catch (err) {
@@ -2312,13 +2355,17 @@ async function simpanKeSupabase() {
         setStatus('error', `Data Daily berhenti di ${fmtDate(lastDaily)}, sementara Shiftly sampai ${fmtDate(lastShift)}. Perbaiki OEE DAILY atau DATA. Data Supabase lama tidak dihapus.`);
         return;
     }
-    if(!window.confirm('Ganti seluruh data OEE online dengan data dari file terbaru? Pastikan workbook sudah lengkap.'))return;
+    if(!(parsedData.all_carton||[]).length){setStatus('error','Data karton belum terbaca. Data Supabase lama tidak diubah.');return;}
+    // Cek tabel baru SEBELUM data OEE existing dihapus.
+    const {error:cartonCheck}=await db.from('oee_carton_shiftly_line').select('tanggal').limit(1);
+    if(cartonCheck){setStatus('error','Tabel karton belum siap di Supabase. Jalankan SQL oee_carton_shiftly_line.sql terlebih dahulu. '+cartonCheck.message);return;}
+    if(!window.confirm('Ganti seluruh data OEE dan karton online dengan data workbook terbaru? Pastikan workbook lengkap.'))return;
     const btn=document.getElementById('btn-save');btn.disabled=true;btn.textContent='Memperbarui...';setStatus('loading','Memperbarui database OEE, jangan tutup halaman sampai selesai...');
     const BATCH=500;async function insertBatched(table,rows){for(let i=0;i<rows.length;i+=BATCH){const{error}=await db.from(table).insert(rows.slice(i,i+BATCH));if(error)throw error}}
     try {
-        const allShiftly=parsedData.all_shiftly||[],allDaily=parsedData.all_daily||[],allLine=parsedData.all_line||[];
+        const allShiftly=parsedData.all_shiftly||[],allDaily=parsedData.all_daily||[],allLine=parsedData.all_line||[],allCarton=parsedData.all_carton||[];
         if(!allLine.length)throw new Error('Data per-line belum terbaca. Database tidak diubah.');
-        for(const table of ['oee_shiftly','oee_shiftly_line','oee_daily']){const{error}=await db.from(table).delete().gte('tanggal','2000-01-01');if(error)throw error}
+        for(const table of ['oee_carton_shiftly_line','oee_shiftly','oee_shiftly_line','oee_daily']){const{error}=await db.from(table).delete().gte('tanggal','2000-01-01');if(error)throw error}
         if(allShiftly.length)await insertBatched('oee_shiftly',allShiftly);
         let lineWeightedSaved=false;
         if(allLine.length){
@@ -2327,7 +2374,8 @@ async function simpanKeSupabase() {
             try{await insertBatched('oee_shiftly_line',extendedRows);lineWeightedSaved=true}catch(lineErr){const msg=String(lineErr?.message||lineErr||'');if(/gedung|target_pcs|output_pcs|schema cache|column/i.test(msg)){await insertBatched('oee_shiftly_line',baseRows)}else throw lineErr}
         }
         if(allDaily.length)await insertBatched('oee_daily',allDaily);
-        const days=new Set(allDaily.map(r=>r.tanggal)).size;setStatus('active',`Database OEE diperbarui penuh. ${days} hari daily OEE dimuat dari workbook terbaru.${lineWeightedSaved?' Filter gedung/line tersimpan dengan bobot volume.':' Filter gedung/line aktif; jalankan SQL migrasi agar bobot volume per line ikut tersimpan permanen.'}`);btn.textContent='Diperbarui';document.getElementById('warning-badge').classList.remove('show');await loadFromSupabase();
+        if(allCarton.length)await insertBatched('oee_carton_shiftly_line',allCarton);
+        const days=new Set(allDaily.map(r=>r.tanggal)).size;setStatus('active',`Database OEE & karton diperbarui. ${days} hari OEE dan ${allCarton.length} rekap karton tersimpan.${lineWeightedSaved?' Filter gedung/line tersimpan dengan bobot volume.':' Filter gedung/line aktif; jalankan SQL migrasi agar bobot volume per line ikut tersimpan permanen.'}`);btn.textContent='Diperbarui';document.getElementById('warning-badge').classList.remove('show');await loadFromSupabase();
         // Sinyal cepat ke tab index (polling + realtime tetap menangani perangkat lain).
         safeStorageSet('kobe-oee-data-updated', String(Date.now()));
     } catch(err){setStatus('error','Gagal memperbarui database OEE: '+err.message);btn.disabled=false;btn.textContent='Perbarui Data Supabase';console.error(err)}
