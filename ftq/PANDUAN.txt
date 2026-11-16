@@ -1,0 +1,109 @@
+FTQ MONITORING — KOBE BOJONEGORO
+================================
+
+ISI FILE
+- index.html           : dashboard monitoring FTQ (1 halaman)
+- assets/ftq.css       : desain modern dan responsif
+- assets/ftq.js        : logika SAP -> Resume, filter, grafik, import, ekspor, tindakan admin
+- ftq-config.js        : koneksi proyek Supabase (URL + anon/publishable key)
+- ftq-schema.sql       : tabel, view, fungsi import, RLS, dan retensi 1 tahun otomatis
+- demo-data.js         : data contoh agregat dari file FTQ Nov 2026.xlsx; TANPA dokumen SAP mentah
+
+CARA MENJALANKAN
+1. Ekstrak ZIP, buka index.html untuk melihat mode DEMO. Pada mode ini
+   dashboard langsung menampilkan agregat harian November 2026 dari Excel yang diberikan.
+2. Di Supabase > Integrations > Cron, aktifkan pg_cron (Supabase Cron).
+3. Di Supabase > SQL Editor, jalankan isi ftq-schema.sql.
+4. Buat akun email admin melalui Supabase > Authentication > Users.
+5. Jadikan akun tersebut admin lewat SQL Editor (ganti email):
+
+   insert into public.ftq_admins (user_id)
+   select id from auth.users where email = 'EMAIL_ADMIN_ANDA'
+   on conflict (user_id) do nothing;
+
+6. Buka ftq-config.js. Isi supabaseUrl dan supabaseAnonKey sesuai proyek
+   (Project URL dan publishable/anon key; BUKAN service_role atau secret key).
+7. Upload folder ftq ke ROOT situs dan replace file sidebar.js di ROOT situs.
+   Folder ftq berada SELEVEL dengan index.html dashboard utama.
+   Menu sidebar 'Monitoring FTQ' langsung menautkan ke ftq/index.html.
+   Tombol sidebar pada halaman ftq memuat ../sidebar.js.
+8. Buka dashboard; Login Admin; Import SAP; pilih file Excel SAP MTD.
+   Sheet Excel akan dibaca langsung dari browser dan tidak membutuhkan
+   pengubahan manual atau pembuatan PivotTable oleh admin.
+9. Klik Import & Replace Bulan, kemudian isi 4 kolom catatan melalui
+   tombol Isi Catatan / Lihat & Edit pada baris harian.
+
+ATURAN DATA
+- SAP yang digunakan: sheet Data (atau raw SAP dengan header sama).
+- Header Data berada di baris 5 pada Excel contoh, program otomatis mencari.
+- Perhitungan: (SUM Total GR - SUM Total Reject) / SUM Total GR * 100.
+- Kecualikan Order Type: B101, B401, B701 (identik filter Resume).
+- Gunakan Date (tanggal produksi), BUKAN Entry Date.
+- Kolom Total QI > 24H tidak dikurangkan pada perhitungan FTQ Resume.
+- Impor per bulan adalah SNAPSHOT, bukan append.
+- Jika MTD November di-import berkali-kali, transaksi November diganti;
+  Oktober, September, dst. tidak berubah.
+- Karena snapshot mengganti seluruh bulan, JANGAN mengunggah file yang hanya
+  berisi tanggal terbaru. Export dari SAP harus lengkap sejak awal bulan.
+- Setiap transaksi diidentifikasi dari Mat Doc Year + Mat Doc + Mat Doc Item + Plant.
+- Catatan admin dicatat PER TANGGAL dan tabelnya tidak terpengaruh replace SAP.
+- Data berusia >1 tahun dari tanggal produksi dihapus otomatis setiap hari,
+  termasuk catatan tanggal lama; pukul 00:15 WIB lewat Supabase Cron.
+- Target default 99% hanya parameter TAMPILAN dashboard; tidak berasal
+  dari Excel SAP. Admin bisa mengganti di filter dashboard sesuai target nyata.
+- Data contoh (agregat harian + Pareto) hanya untuk pratinjau, tidak
+  memuat Mat Doc SAP mentah dan tidak otomatis diunggah ke DB.
+
+KEAMANAN
+- Mode database: pengunjung dapat MELIHAT agregat dan catatan; hanya
+  akun Supabase Auth yang ada pada tabel ftq_admins dapat import dan edit.
+- Data transaksi mentah tidak diberikan izin SELECT ke anon/authenticated.
+- Jika informasi internal tidak boleh bisa dibuka melalui URL publik,
+  tempatkan dashboard pada jaringan internal atau tambah otentikasi pembaca.
+- Jangan memasukkan service_role key pada berkas frontend.
+- Mode DEMO: perubahan tersimpan hanya di localStorage browser yang sama;
+  retensi demo hanya dirapikan ketika halaman dibuka. Retensi otomatis server
+  berlaku sesudah Supabase dan Cron diaktifkan.
+
+VALIDASI EXCEL CONTOH (2–14 NOVEMBER 2026)
+- Transaksi mentah  : 185 baris
+- Masuk perhitungan : 169 baris
+- Total GR          : 14.153.584,112
+- Total Reject      : 124.704
+- FTQ               : 99,1189228183% (ditampilkan 99,12%)
+- Total hari Resume : 13
+
+VERIFIKASI RETENSI
+Di Supabase SQL Editor:
+ select jobname, schedule, active from cron.job
+ where jobname='ftq-retention-one-year';
+
+Untuk memeriksa hasil job:
+ select * from cron.job_run_details
+ where jobid = (select jobid from cron.job where jobname='ftq-retention-one-year')
+ order by start_time desc limit 5;
+
+CATATAN DEPLOY
+- Grafik memiliki fallback Canvas dan tetap terlihat tanpa Chart.js.
+- Import dan ekspor Excel memerlukan library SheetJS dari CDN.
+  Mode database memerlukan koneksi Supabase JS dan internet.
+- Font khusus memakai Google Fonts dan akan fallback ke font sistem.
+- Jika website sudah memiliki sidebar.js, cukup tambahkan menu FTQ yang
+  mengarah ke path index.html dashboard. Tidak perlu mengganti sidebar lama.
+
+REFERENSI CRON SUPABASE
+https://supabase.com/docs/guides/cron
+https://supabase.com/docs/guides/cron/quickstart
+
+INTEGRASI SIDEBAR KOBE (16 NOVEMBER 2026)
+- File sidebar.js berasal dari versi KOBE v2.8 (13 November 2026),
+  diperbarui menjadi 2.9-ftq tanpa menghapus menu lain.
+- Performance: menambah menu Monitoring FTQ.
+- DMC: 04 - Quality / QC (FTQ) dihubungkan ke dashboard FTQ aktif.
+- Jika sidebar.js di repo Anda telah berubah sejak 13 November 2026,
+  cocokkan menu-menu baru sebelum replace agar perubahan terbaru tidak hilang.
+- File lama di situs: root/index.html (tetap).
+- File baru di situs: root/ftq/index.html.
+- Replace: root/sidebar.js dengan file di ZIP ini.
+- Jangan taruh folder pembungkus FTQ_Siap_Upload di repository:
+  isi ZIP (sidebar.js dan folder ftq) harus di root repo.
