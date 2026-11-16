@@ -1,5 +1,5 @@
 /*
- * KOBE Bojonegoro | Shared Sidebar v2.7 - Accordion + DMC DOR Navigation
+ * KOBE Bojonegoro | Shared Sidebar v2.9 - Accordion + DMC DOR Navigation
  * The only source of truth for navigation items, sidebar CSS and interactions.
  * Install ONCE in every HTML page: <script src="sidebar.js" defer></script>
  * For a page inside a subfolder: <script src="../sidebar.js" defer></script>
@@ -7,7 +7,7 @@
  */
 (function () {
   'use strict';
-  const VERSION = '2.8';
+  const VERSION = '2.9';
   if (window.KobeSidebar && window.KobeSidebar.version === VERSION) return;
 
   // Accordion: grup aktif terbuka otomatis, grup lain tertutup.
@@ -25,7 +25,7 @@
       { name: '01 - Opening & Nilai KOBE', url: 'dmc-dor.html#opening', icon: 'book', planned: true },
       { name: '02 - Review MoM & Action Plan', url: 'dmc-dor.html#mom-action-plan', icon: 'form', planned: true },
       { name: '03 - HSE Monitoring (Safety Patrol)', url: 'hse.html', icon: 'shield' },
-      { name: '04 - Quality / QC (FTQ)', url: 'dmc-dor.html#quality', icon: 'gauge', planned: true },
+      { name: '04 - Quality / QC (FTQ)', url: 'ftq/index.html', icon: 'gauge' },
       { name: '05A - PRD Gedung 4', url: 'prd-gedung.html?gedung=4', icon: 'chart' },
       { name: '05B - PRD Gedung 6', url: 'prd-gedung.html?gedung=6', icon: 'chart' },
       { name: '05C - PRD Gedung 7', url: 'prd-gedung.html?gedung=7', icon: 'chart' },
