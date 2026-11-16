@@ -1,7 +1,7 @@
 /* FTQ Monitoring — SAP MTD -> perhitungan sama dengan Pivot Resume
    Rumus: (SUM(Total GR) - SUM(Total Reject)) / SUM(Total GR) * 100
    Filter Pivot: Order Type B101, B401, B701 dikecualikan.
-   Mode produksi: Supabase + RLS admin; preview offline: data Excel terlampir.
+   Mode online tanpa login: akses tulis hanya melalui RPC Supabase yang dibatasi; preview lokal.
 */
 (() => {
   'use strict';
@@ -16,8 +16,8 @@
   const state = {
     month: '', target: Number(cfg.targetFtqPercent ?? 99),
     dailyAll: [], monthRows: [], materials: [], notes: {},
-    importedRows: null, importingFile: '', noteDate: '', admin: false,
-    user: null, chartDaily: null, chartMonthly: null, loading: false
+    importedRows: null, importingFile: '', noteDate: '',
+    chartDaily: null, chartMonthly: null, loading: false
   };
   const fmtNumber = (n, places=2) => new Intl.NumberFormat('id-ID',{maximumFractionDigits:places}).format(Number(n || 0));
   const fmtPct = (n) => (n === null || n === undefined || !Number.isFinite(Number(n))) ? '—' : new Intl.NumberFormat('id-ID',{minimumFractionDigits:2, maximumFractionDigits:2}).format(Number(n))+'%';
@@ -36,7 +36,6 @@
   const showError = (message) => {$('errorNotice').textContent=message;$('errorNotice').hidden=false;};
   const clearError = () => {$('errorNotice').hidden=true;};
   const showDialog = (id) => {const dlg=$(id);if(typeof dlg.showModal==='function')dlg.showModal();else notify('Peramban tidak mendukung dialog. Gunakan Chrome terbaru.',true);};
-  const isEditable = () => !hasCloudConfig || (db && state.admin);
   const isValidMonth = (month) => /^\d{4}-\d{2}$/.test(month) && month >= $('monthPicker').min && month <= $('monthPicker').max;
 
   function sumDailyFromSAP(rows) {
@@ -70,22 +69,17 @@
     safeSet(demoKey,fromStorage);
     return fromStorage;
   }
-  async function refreshAdmin() {
-    if(!db){
-      $('authBtn').textContent='Mode Demo';
-      $('connectionStatus').textContent=hasCloudConfig?'Library Supabase belum termuat':'Pratinjau lokal';
-      $('connectionStatus').className='status-pill demo';
-      $('demoNotice').hidden=false;return;
+  function refreshConnection() {
+    const badge=$('connectionStatus');
+    if(db){
+      $('demoNotice').hidden=true;
+      badge.textContent='Online \u00b7 Tanpa login';
+      badge.className='status-pill online';
+    }else{
+      $('demoNotice').hidden=false;
+      badge.textContent=hasCloudConfig?'Supabase belum termuat':'Pratinjau lokal';
+      badge.className='status-pill demo';
     }
-    $('demoNotice').hidden=true;
-    const {data:{session},error}=await db.auth.getSession();
-    if(error)notify('Gagal membaca sesi login: '+error.message,true);
-    state.user=session?.user||null;state.admin=false;
-    if(state.user){const {data, error:roleError}=await db.rpc('ftq_is_admin');state.admin=!roleError&&data===true;}
-    $('authBtn').textContent=state.user?(state.admin?'Keluar Admin':'Keluar Akun'):'Login Admin';
-    $('authBtn').title=state.user?.email||'';
-    $('connectionStatus').textContent=state.admin?'Online · Admin':'Online · Monitoring';
-    $('connectionStatus').className='status-pill online';
   }
   async function loadData(){
     if(state.loading)return;
@@ -240,7 +234,7 @@
     $('prevMonthBtn').disabled=!isValidMonth(monthNext(state.month,-1));$('nextMonthBtn').disabled=!isValidMonth(monthNext(state.month,1));
   }
   function openNotes(date){
-    if(!isEditable()){$('authError').hidden=true;showDialog('authDialog');return;}
+
     state.noteDate=date;const x=state.notes[date]||{},d=state.monthRows.find(r=>r.prod_date===date);
     $('notesDate').textContent=dateLabel(date);
     $('notesMetric').textContent=d?`FTQ ${fmtPct(d.ftq_pct)}  •  GR ${fmtNumber(d.total_gr)}  •  Reject ${fmtNumber(d.total_reject)}`:'—';
@@ -249,7 +243,7 @@
     showDialog('notesDialog');
   }
   async function saveNotes(ev){
-    ev.preventDefault();if(!isEditable())return notify('Login sebagai admin terlebih dahulu.',true);
+    ev.preventDefault();
     const payload={prod_date:state.noteDate,issue:$('noteIssue').value.trim(),root_cause:$('noteRoot').value.trim(),corrective_action:$('noteCorrective').value.trim(),preventive_action:$('notePreventive').value.trim()};
     const button=$('saveNotesBtn');button.disabled=true;button.textContent='Menyimpan...';
     try{
@@ -258,18 +252,6 @@
       state.notes[payload.prod_date]=payload;
       $('notesDialog').close();renderTable();notify('Catatan FTQ berhasil disimpan'+(db?'.':' di browser demo.'));
     }catch(err){notify('Gagal menyimpan: '+(err.message||err),true);}finally{button.disabled=false;button.textContent='Simpan Catatan';}
-  }
-  async function signIn(ev){
-    ev.preventDefault();if(!db)return;
-    const btn=$('loginSubmitBtn');btn.disabled=true;btn.textContent='Memeriksa...';$('authError').hidden=true;
-    try{
-      const {error}=await db.auth.signInWithPassword({email:$('adminEmail').value.trim(),password:$('adminPassword').value});
-      if(error)throw error;
-      await refreshAdmin();
-      if(!state.admin){await db.auth.signOut();await refreshAdmin();throw Error('Akun belum terdaftar pada tabel ftq_admins. Hubungi administrator Supabase.');}
-      $('authDialog').close();$('adminPassword').value='';notify('Login admin berhasil.');
-    }catch(err){$('authError').hidden=false;$('authError').textContent=err.message||String(err);}
-    finally{btn.disabled=false;btn.textContent='Masuk';}
   }
   function normalize(s){return String(s??'').trim().toLowerCase().replace(/[^a-z0-9]/g,'');}
   function parseNumber(raw){
@@ -349,6 +331,7 @@
       const ab=await f.arrayBuffer();const wb=window.XLSX.read(ab,{type:'array',cellDates:false});
       const parsed=parseSapWorkbook(wb);
       if(parsed.month>currentMonth())throw Error('File berisi bulan mendatang.');
+      if(db && parsed.month!==currentMonth())throw Error('Mode tanpa login hanya mengizinkan import SAP MTD untuk bulan berjalan.');
       const cutoff=cutoffIso();
       if(parsed.rows.some(r=>r.prod_date<cutoff))throw Error('File memuat data lebih lama dari 1 tahun dan tidak bisa diimpor.');
       if(parsed.month<$('monthPicker').min)throw Error('Bulan file di luar rentang histori yang diizinkan.');
@@ -365,8 +348,7 @@
   async function saveImport(ev){
     ev.preventDefault();const rows=state.importedRows;const month=state.importedMonth;
     if(!rows?.length)return;
-    if(!isEditable())return notify('Login admin diperlukan untuk import SAP.',true);
-    const okay=window.confirm(`REPLACE SAP MTD ${monthLabel(month)}\n\n${rows.length} transaksi dari ${state.importingFile}.\nSemua transaksi lama pada bulan ini akan diganti sesuai file; bulan lainnya dan catatan admin tetap aman.\n\nPastikan file mencakup data MTD lengkap dari SAP. Lanjutkan?`);
+    const okay=window.confirm(`REPLACE SAP MTD ${monthLabel(month)}\n\n${rows.length} transaksi dari ${state.importingFile}.\nSemua transaksi lama pada bulan ini akan diganti sesuai file; bulan lainnya dan catatan tindak lanjut tetap aman.\n\nPastikan file mencakup data MTD lengkap dari SAP. Lanjutkan?`);
     if(!okay)return;
     const btn=$('commitImportBtn');btn.disabled=true;btn.textContent='Menyimpan...';
     try{
@@ -405,12 +387,10 @@
     $('targetInput').addEventListener('change',(e)=>{const v=Number(e.target.value);if(!Number.isFinite(v)||v<0||v>100){e.target.value=state.target;return notify('Target harus 0 sampai 100.',true);}state.target=v;safeSet(targetKey,v);render();});
     $('searchInput').addEventListener('input',renderTable);
     $('exportBtn').addEventListener('click',exportResume);
-    $('importBtn').addEventListener('click',()=>{if(!isEditable())return showDialog('authDialog');$('uploadPreview').hidden=true;$('uploadError').hidden=true;$('commitImportBtn').disabled=true;$('sapFile').value='';state.importedRows=null;showDialog('uploadDialog');});
+    $('importBtn').addEventListener('click',()=>{$('uploadPreview').hidden=true;$('uploadError').hidden=true;$('commitImportBtn').disabled=true;$('sapFile').value='';state.importedRows=null;showDialog('uploadDialog');});
     $('sapFile').addEventListener('change',handleFile);
     $('uploadForm').addEventListener('submit',saveImport);
     $('notesForm').addEventListener('submit',saveNotes);
-    $('authForm').addEventListener('submit',signIn);
-    $('authBtn').addEventListener('click',async()=>{if(db&&state.user){await db.auth.signOut();await refreshAdmin();notify('Anda telah keluar dari akun admin.');}else if(db)showDialog('authDialog');else notify('Mode demo lokal; catatan tersimpan hanya di browser, bukan server.');});
     document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',() => $(b.dataset.close).close()));
   }
   async function boot(){
@@ -419,7 +399,7 @@
     $('monthPicker').min=isoLocal(min).slice(0,7);$('monthPicker').max=state.month;$('monthPicker').value=state.month;
     const target=safeGet(targetKey,NaN);if(typeof target==='number'&&Number.isFinite(target)&&target>=0&&target<=100)state.target=target;
     $('targetInput').value=state.target;
-    bind();await refreshAdmin();await loadData();
+    bind();refreshConnection();await loadData();
   }
   document.addEventListener('DOMContentLoaded',()=>{boot().catch(e=>showError('Inisialisasi FTQ gagal: '+(e.message||e)));});
 })();
