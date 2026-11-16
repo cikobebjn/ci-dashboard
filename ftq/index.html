@@ -5,7 +5,27 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#0c2248">
   <title>FTQ Monitoring | KOBE Manufacturing System</title>
-  <link rel="stylesheet" href="./ftq.css?v=20261116c">
+  <meta name="ftq-build" content="2026-11-16-standalone-1">
+  <!-- FTQ STANDALONE: CSS embedded to prevent wrong asset paths. -->
+  <style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+:root{--navy:#0e2348;--blue:#2454be;--blue2:#347df3;--ink:#16223b;--muted:#718096;--surface:#fff;--page:#f5f7fb;--line:#e7ebf3;--red:#c8354d;--red-bg:#fff0f2;--green:#11826b;--green-bg:#e6f8f2;--shadow:0 7px 28px rgba(24,51,94,.055);font-synthesis:none}
+*{box-sizing:border-box}body{margin:0;background:var(--page);font-family:'DM Sans','Segoe UI',sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}button,input,textarea{font:inherit}button{cursor:pointer}button:disabled{opacity:.5;cursor:not-allowed}button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid rgba(52,125,243,.25);outline-offset:2px}input,textarea{color:var(--ink)}
+.topbar{height:66px;background:var(--surface);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 clamp(18px,3.5vw,52px);gap:14px;position:sticky;top:0;z-index:12}.brand{display:flex;align-items:center;gap:11px;font-family:'Plus Jakarta Sans',sans-serif;font-size:16px;color:#102c60}.brandmark{display:inline-grid;place-items:center;width:33px;height:33px;background:#164aa5;border-radius:10px;color:white;font-size:21px;font-weight:800}.brand>span:nth-child(2){display:flex;flex-direction:column;line-height:1.05}.brand small{font-size:8px;letter-spacing:1.2px;font-weight:800;color:#8390a4;margin-top:5px}.brand-sep{height:25px;width:1px;background:#d9e0ec;margin:0 6px}.brand-app{letter-spacing:1px;font-size:13px;color:#4262a0}.topbar-right{display:flex;align-items:center;gap:12px}.status-pill{border:1px solid #e3e8f1;border-radius:40px;padding:7px 11px;font-size:11px;font-weight:800;color:#667991;background:#f9fbfe;white-space:nowrap}.status-pill.online{color:#147c64;background:#eaf7f2;border-color:#d6eee5}.status-pill.demo{background:#fff7e5;color:#9d7216;border-color:#fae5b3}
+.main{max-width:1570px;padding:30px clamp(16px,3vw,45px) 35px;margin:auto}.page-heading{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:24px}.eyebrow,.modal-eyebrow{font-size:10px;font-weight:800;letter-spacing:1.6px;color:#5575b1}.page-heading h1{font:800 clamp(27px,3vw,35px)/1.2 'Plus Jakarta Sans',sans-serif;letter-spacing:-1.2px;margin:8px 0 5px}.subtitle{font-size:13px;color:#8290a6;margin:0}.heading-actions,.table-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.btn{border:1px solid transparent;border-radius:10px;padding:11px 16px;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:12px;font-weight:800;transition:background .15s,transform .15s;white-space:nowrap}.btn:not(:disabled):hover{transform:translateY(-1px)}.btn-primary{background:linear-gradient(115deg,#1e4aa6,#2c63d1);box-shadow:0 5px 13px #2454be26;color:white}.btn-primary:hover{filter:brightness(1.07)}.btn-outline{background:white;color:#315078;border-color:#dfe7f1}.btn-outline:hover{background:#f2f6fd}.btn-ghost{background:transparent;color:#405780}.btn-sm{padding:8px 11px;font-size:11px}
+.filterbar{display:flex;align-items:end;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:15px 20px;margin-bottom:18px;box-shadow:var(--shadow);flex-wrap:wrap}.filterblock{display:flex;flex-direction:column;gap:6px}.filterblock label{color:#7e8aa0;text-transform:uppercase;letter-spacing:.7px;font-weight:800;font-size:10px}.hint{cursor:help;color:#829aca}.month-nav{display:flex;align-items:center;gap:6px}.month-nav input,.target-input{border:1px solid #e1e8f1;height:36px;background:#fbfcff;border-radius:8px;padding:6px 10px;font-size:12px;font-weight:800;min-width:143px}.month-nav input{color:#243b62}.target-input{min-width:85px;width:89px}.arrow-btn{height:35px;width:31px;border:1px solid #e1e8f1;border-radius:8px;background:#fbfcff;color:#42618d;font-size:24px;line-height:1}.arrow-btn:disabled{background:#f6f6f8}.filter-spacer{flex:1}.updateinfo{font-size:11px;color:#8391a4;display:flex;align-items:center;gap:8px;padding-bottom:9px}.live-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#5cc9b0;box-shadow:0 0 0 4px #def7ef}.notice{background:#fff6e5;color:#8b6424;border:1px solid #f2dfbb;border-radius:10px;padding:11px 16px;font-size:12px;margin-bottom:15px}.notice code{color:#7d560a}.notice-error{color:#bd3f54;background:#fff0f1;border-color:#ffd8de}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px;margin-bottom:19px}.kpi-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px 20px 18px;min-width:0;box-shadow:var(--shadow);position:relative;overflow:hidden}.kpi-card:after{content:'';position:absolute;bottom:0;left:20px;right:20px;height:3px;background:#ecf0f7;border-radius:3px}.kpi-primary{background:linear-gradient(120deg,#0f2e68,#2e61c5);border:0;color:white}.kpi-primary:after{background:#75aafc}.kpi-top{display:flex;justify-content:space-between;align-items:center;gap:8px;color:#71829d;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.8px}.kpi-primary .kpi-top{color:#c9d9fa}.kpi-symbol{display:grid;place-items:center;width:25px;height:25px;border-radius:8px;background:#f1f5fc;color:#7791ba;font-size:16px}.kpi-primary .kpi-symbol{color:#c9e0ff;background:#ffffff1c}.kpi-value{font:800 clamp(23px,2.6vw,32px)/1.3 'Plus Jakarta Sans',sans-serif;margin:14px 0 13px;letter-spacing:-1.2px;white-space:nowrap}.kpi-primary .kpi-value{font-size:clamp(28px,3.3vw,41px)}.kpi-footer{font-size:11px;color:#8794a7;font-weight:500}.kpi-primary .kpi-footer{color:#c4d7f9}.kpi-card.metric-alert:not(.kpi-primary) .kpi-value{color:var(--red)}.kpi-card.metric-success:not(.kpi-primary) .kpi-value{color:var(--green)}
+.panel{background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow);border-radius:15px;margin-bottom:19px;min-width:0}.charts-grid{display:grid;grid-template-columns:1.45fr 1fr;gap:17px}.panel-head{padding:20px 22px 0;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.panel-head h2{font:800 15px/1.4 'Plus Jakarta Sans',sans-serif;margin:0;color:#22334e}.panel-head p{margin:5px 0 0;color:#8e9bad;font-size:11.5px}.mini-tag{font-size:10px;color:#5271aa;background:#edf4ff;padding:7px 10px;white-space:nowrap;border-radius:6px;font-weight:800}.chart-wrap{position:relative;height:274px;padding:16px 16px 20px}.chart-wrap canvas{width:100%!important;height:100%!important}.chart-fallback{position:absolute;top:35%;left:10%;right:10%;text-align:center;color:#8794a7;font-size:12px}
+.material-panel{padding-bottom:21px}.material-list{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;padding:18px 22px 0}.material-item{padding:14px;border:1px solid #e8edf5;border-radius:11px;background:#fafcff;min-width:0}.material-rank{font-size:10px;color:#6a80a1;font-weight:800}.material-name{min-height:32px;line-height:1.45;font-weight:800;color:#344563;margin:9px 0 8px;font-size:11px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}.material-number{font-size:17px;font-weight:800;color:#263d61;white-space:nowrap}.material-track{height:5px;background:#e9eff8;border-radius:5px;margin-top:11px;overflow:hidden}.material-fill{height:100%;background:#497acf;border-radius:5px}.material-item:first-child .material-fill{background:#e0a749}.empty{font-size:12px;color:#98a3b6;padding:20px 0}
+.table-panel{overflow:hidden}.table-heading{padding-bottom:17px;align-items:center}.table-actions input{height:35px;width:215px;border:1px solid #e2e8f2;border-radius:8px;padding:0 12px;background:#fafbfe;font-size:11px}.table-count{font-size:10px;font-weight:800;color:#8191a8;white-space:nowrap}.table-scroll{overflow-x:auto;max-width:100%;border-top:1px solid #edf0f5}.table-scroll table{width:100%;border-collapse:separate;border-spacing:0;min-width:1280px;font-size:11px}.table-scroll th{text-align:left;color:#7787a0;font-weight:800;font-size:10px;text-transform:uppercase;letter-spacing:.5px;padding:14px 12px;background:#f8fafd;border-bottom:1px solid #e9edf4;white-space:nowrap}.table-scroll th:first-child,.table-scroll td:first-child{padding-left:22px}.table-scroll td{padding:14px 12px;border-bottom:1px solid #f0f2f7;vertical-align:top;color:#445370}.table-scroll tbody tr:hover td{background:#fbfdff}.table-scroll tbody tr:last-child td{border-bottom:0}.table-scroll .sticky-date{min-width:123px}.align-right{text-align:right!important;white-space:nowrap;font-variant-numeric:tabular-nums}.align-center{text-align:center!important}.date-cell{font-weight:800;color:#293d5e!important;white-space:nowrap}.metric-pill{display:inline-block;padding:5px 9px;font-weight:800;letter-spacing:.1px;font-size:11px;border-radius:6px;color:#3462ad;background:#edf4ff;white-space:nowrap}.metric-pill.low{color:var(--red);background:var(--red-bg)}.metric-pill.high{color:var(--green);background:var(--green-bg)}.note-col{min-width:172px;max-width:215px;cursor:pointer}.note-col:hover{background:#eef5ff!important}.note-text{font-size:11px;line-height:1.5;max-height:47px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;color:#3d4e69;overflow-wrap:anywhere}.note-placeholder{color:#b3bece;font-style:italic}.btn-edit{border:1px solid #d9e4f4;border-radius:7px;background:#f4f8ff;color:#3a64a4;padding:6px 10px;font-size:10px;font-weight:800}.btn-edit:hover{background:#e6efff}.loading-row{text-align:center;padding:45px!important;color:#93a0b1!important}.table-foot{padding:13px 21px 16px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border-top:1px solid #edf0f5;color:#97a3b3;font-size:10px}.footer{text-align:center;color:#a4aec0;font-weight:800;font-size:10px;letter-spacing:1px;padding:6px 0}.footer span{padding:0 8px;color:#b8c3d3}
+.modal{width:min(620px,calc(100vw - 30px));max-height:calc(100vh - 32px);border:0;border-radius:16px;padding:0;box-shadow:0 30px 75px #0d1e3873;color:var(--ink)}.modal-wide{width:min(795px,calc(100vw - 30px))}.modal-auth{width:min(430px,calc(100vw - 30px))}.modal::backdrop{background:#0b1d38a8;backdrop-filter:blur(2px)}.modal-head{padding:24px 26px 18px;display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1px solid var(--line)}.modal-head h2{font:800 19px 'Plus Jakarta Sans',sans-serif;margin:6px 0 0}.icon-close{width:30px;height:30px;background:#f2f5fa;border:0;border-radius:8px;color:#7790ad;font-size:22px;line-height:1}.modal-body{padding:22px 26px;max-height:67vh;overflow-y:auto}.modal-desc{margin:0 0 19px;font-size:12px;color:#7c8aa0;line-height:1.6}.modal-highlight{background:#edf5ff;border:1px solid #d9eafb;border-radius:9px;padding:10px 13px;color:#3b64a6;font-size:12px;font-weight:800;margin-bottom:19px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.field{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}.field label{font-size:11px;font-weight:800;color:#455b77}.field textarea,.field input{width:100%;padding:11px 12px;border:1px solid #dce5ef;border-radius:8px;outline:0;background:#fbfcff;font-size:12px;line-height:1.6;resize:vertical}.field input{height:41px}.field textarea:focus,.field input:focus{border-color:#72a0ed;box-shadow:0 0 0 3px #e9f2ff}.modal-actions{padding:16px 26px 22px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:9px}.file-drop{position:relative;border:1.5px dashed #a6bfe6;background:#f7faff;border-radius:12px;min-height:151px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;color:#46618d;cursor:pointer}.file-drop input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}.file-drop .file-icon{font-size:31px;color:#5684d2}.file-drop strong{font-size:12px}.file-drop span{font-size:11px;color:#93a2b7}.upload-preview{background:#f6fbf8;border:1px solid #d5ede0;padding:14px;margin-top:14px;border-radius:9px;color:#326d5a;line-height:1.9;font-size:12px}.upload-preview strong{color:#176750}.upload-error,.login-error{font-size:12px;margin-top:14px;color:#c4344a;background:#fff0f2;border-radius:8px;padding:10px}.toast-container{position:fixed;bottom:21px;right:22px;z-index:50;max-width:380px;pointer-events:none}.toast{display:flex;align-items:center;gap:10px;border-radius:11px;padding:14px 17px;margin-top:8px;box-shadow:0 15px 35px #162b5050;background:#132d58;color:white;font-size:12px;font-weight:700;animation:slide-up .2s ease}.toast.error{background:#bb3448}@keyframes slide-up{from{transform:translateY(8px);opacity:0}to{transform:translateY(0);opacity:1}}
+@media (max-width:1130px){.material-list{grid-template-columns:repeat(3,minmax(0,1fr))}.kpi-card{padding:16px}.kpi-value{font-size:26px}.chart-wrap{height:245px}}@media (max-width:790px){.page-heading{flex-direction:column;align-items:stretch}.heading-actions{justify-content:flex-start}.kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.charts-grid{grid-template-columns:1fr}.material-list{grid-template-columns:repeat(2,minmax(0,1fr))}.topbar-right{gap:5px}.topbar{padding:0 13px}.status-pill{font-size:9px}.brand-app,.brand-sep{display:none}.filter-spacer{display:none}.updateinfo{order:5;width:100%;padding:0}.table-heading{align-items:flex-start;flex-direction:column}}@media (max-width:490px){.main{padding:18px 12px 24px}.brand small{font-size:7px}.brand>span:nth-child(2)>strong{font-size:13px}.page-heading h1{font-size:27px}.kpi-grid{gap:9px}.kpi-card{padding:14px}.kpi-value{font-size:22px}.kpi-primary .kpi-value{font-size:29px}.kpi-footer{font-size:9px}.material-list{gap:9px;padding:12px;grid-template-columns:repeat(2,minmax(0,1fr))}.material-item{padding:10px}.material-number{font-size:14px}.panel-head{padding:15px}.form-grid{grid-template-columns:1fr}.modal-body{padding:18px}.modal-head{padding:18px}.modal-actions{padding:13px 18px}.table-actions input{width:190px}}
+
+/* FTQ page integration with shared KOBE sidebar */
+.topbar .brand{min-width:0;margin-right:auto}
+@media(max-width:560px){.topbar .brand{gap:6px}.topbar .brandmark{display:none}.topbar-right .status-pill{display:none}}
+
+  </style>
 </head>
 <body>
   <header class="topbar">
@@ -59,6 +79,414 @@
   <script src="../sidebar.js" defer></script>
   <script src="ftq-config.js"></script>
   <script src="demo-data.js"></script>
-  <script src="./ftq.js?v=20261116c" defer></script>
+  <!-- FTQ STANDALONE: no-login JavaScript embedded to prevent wrong asset paths. -->
+  <script>
+/* FTQ Monitoring — SAP MTD -> perhitungan sama dengan Pivot Resume
+   Rumus: (SUM(Total GR) - SUM(Total Reject)) / SUM(Total GR) * 100
+   Filter Pivot: Order Type B101, B401, B701 dikecualikan.
+   Mode online tanpa login: akses tulis hanya melalui RPC Supabase yang dibatasi; preview lokal.
+*/
+(() => {
+  'use strict';
+  const cfg = window.FTQ_CONFIG || {};
+  const excluded = new Set(cfg.excludedOrderTypes || ['B101','B401','B701']);
+  const hasCloudConfig = Boolean(cfg.supabaseUrl && cfg.supabaseAnonKey);
+  const db = hasCloudConfig && window.supabase ? window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey) : null;
+  const demoKey = 'ftq_demo_snapshots_v1';
+  const demoNotesKey = 'ftq_demo_actions_v1';
+  const targetKey = 'ftq_dashboard_target_v1';
+  const $ = (id) => document.getElementById(id);
+  const state = {
+    month: '', target: Number(cfg.targetFtqPercent ?? 99),
+    dailyAll: [], monthRows: [], materials: [], notes: {},
+    importedRows: null, importingFile: '', noteDate: '',
+    chartDaily: null, chartMonthly: null, loading: false
+  };
+  const fmtNumber = (n, places=2) => new Intl.NumberFormat('id-ID',{maximumFractionDigits:places}).format(Number(n || 0));
+  const fmtPct = (n) => (n === null || n === undefined || !Number.isFinite(Number(n))) ? '—' : new Intl.NumberFormat('id-ID',{minimumFractionDigits:2, maximumFractionDigits:2}).format(Number(n))+'%';
+  const fmtCompact = (n) => { const x=Number(n||0);return Math.abs(x)>=1e9?fmtNumber(x/1e9,2)+' M':Math.abs(x)>=1e6?fmtNumber(x/1e6,2)+' jt':Math.abs(x)>=1e3?fmtNumber(x/1e3,1)+' rb':fmtNumber(x); };
+  const firstOfMonth = (month) => month+'-01';
+  const monthNext = (month, add=1) => { const [y,m]=month.split('-').map(Number);const d=new Date(y,m-1+add,1);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; };
+  const isoLocal = (d) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  const currentMonth = () => isoLocal(new Date()).slice(0,7);
+  const cutoffIso = () => { const d=new Date();d.setFullYear(d.getFullYear()-1);return isoLocal(d); };
+  const dateLabel = (v) => {if(!v)return ''; const [y,m,d]=v.slice(0,10).split('-').map(Number);return new Intl.DateTimeFormat('id-ID',{day:'2-digit',month:'short',year:'numeric'}).format(new Date(y,m-1,d));};
+  const monthLabel = (m) => {const [y,mo]=m.split('-').map(Number);return new Intl.DateTimeFormat('id-ID',{month:'long',year:'numeric'}).format(new Date(y,mo-1,1));};
+  const escapeHtml = (v) => String(v ?? '').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const safeGet = (key, fallback) => {try{const v=localStorage.getItem(key);return v?JSON.parse(v):fallback;}catch{return fallback;}};
+  const safeSet = (key, value) => {try{localStorage.setItem(key,JSON.stringify(value));return true;}catch{return false;}};
+  const notify = (message, isError=false) => {const e=document.createElement('div');e.className='toast'+(isError?' error':'');e.textContent=message;$('toast').append(e);setTimeout(()=>e.remove(),4800);};
+  const showError = (message) => {$('errorNotice').textContent=message;$('errorNotice').hidden=false;};
+  const clearError = () => {$('errorNotice').hidden=true;};
+  const showDialog = (id) => {const dlg=$(id);if(typeof dlg.showModal==='function')dlg.showModal();else notify('Peramban tidak mendukung dialog. Gunakan Chrome terbaru.',true);};
+  const isValidMonth = (month) => /^\d{4}-\d{2}$/.test(month) && month >= $('monthPicker').min && month <= $('monthPicker').max;
+
+  function sumDailyFromSAP(rows) {
+    const grouped = new Map();
+    for(const r of rows) {
+      if(excluded.has(r.order_type))continue;
+      const k=r.prod_date;
+      if(!grouped.has(k))grouped.set(k,{prod_date:k,month_key:k.slice(0,7)+'-01',doc_count:0,total_gr:0,total_reject:0,total_qi_24h:0,last_imported_at:null});
+      const v=grouped.get(k);
+      v.doc_count++;v.total_gr+=Number(r.total_gr||0);v.total_reject+=Number(r.total_reject||0);v.total_qi_24h+=Number(r.total_qi_24h||0);
+    }
+    return Array.from(grouped.values()).map(v=>({...v,ftq_pct:v.total_gr===0?null:(v.total_gr-v.total_reject)*100/v.total_gr})).sort((a,b)=>a.prod_date.localeCompare(b.prod_date));
+  }
+  function aggregateMaterial(rows) {
+    const dict=new Map();
+    for(const r of rows) {
+      if(excluded.has(r.order_type))continue;
+      const key=r.material+'|'+r.material_description;
+      if(!dict.has(key))dict.set(key,{material:r.material,material_description:r.material_description,material_group_desc:r.material_group_desc||'',total_gr:0,total_reject:0});
+      const v=dict.get(key);v.total_gr+=Number(r.total_gr||0);v.total_reject+=Number(r.total_reject||0);
+    }
+    return Array.from(dict.values()).sort((a,b)=>b.total_reject-a.total_reject);
+  }
+  function getDemoSnapshots(){
+    const fromStorage=safeGet(demoKey,{});
+    const cutoff=cutoffIso();
+    for(const month of Object.keys(fromStorage)){
+      fromStorage[month]=fromStorage[month].filter(r=>r.prod_date>=cutoff);
+      if(!fromStorage[month].length)delete fromStorage[month];
+    }
+    safeSet(demoKey,fromStorage);
+    return fromStorage;
+  }
+  function refreshConnection() {
+    const badge=$('connectionStatus');
+    if(db){
+      $('demoNotice').hidden=true;
+      badge.textContent='Online \u00b7 Tanpa login';
+      badge.className='status-pill online';
+    }else{
+      $('demoNotice').hidden=false;
+      badge.textContent=hasCloudConfig?'Supabase belum termuat':'Pratinjau lokal';
+      badge.className='status-pill demo';
+    }
+  }
+  async function loadData(){
+    if(state.loading)return;
+    state.loading=true;clearError();$('dataInfo').textContent='Memuat data '+monthLabel(state.month)+'...';
+    try{
+      if(hasCloudConfig && !db)throw Error('Pustaka Supabase tidak tersedia. Periksa koneksi internet/CDN.');
+      if(db){
+        const begin=cutoffIso(),end=monthNext(state.month)+'-01';
+        const [d,m,n]=await Promise.all([
+          db.from('ftq_daily_resume').select('*').gte('prod_date',begin).order('prod_date',{ascending:true}).limit(450),
+          db.from('ftq_reject_material_monthly').select('month_key,material,material_description,material_group_desc,total_gr,total_reject').eq('month_key',firstOfMonth(state.month)).order('total_reject',{ascending:false}).limit(20),
+          db.from('ftq_action_notes').select('*').gte('prod_date',firstOfMonth(state.month)).lt('prod_date',end).limit(50)
+        ]);
+        for(const res of [d,m,n])if(res.error)throw res.error;
+        state.dailyAll=(d.data||[]).map(x=>({...x,total_gr:Number(x.total_gr),total_reject:Number(x.total_reject),total_qi_24h:Number(x.total_qi_24h),ftq_pct:x.ftq_pct===null?null:Number(x.ftq_pct)}));
+        state.materials=(m.data||[]).map(x=>({...x,total_gr:Number(x.total_gr),total_reject:Number(x.total_reject)}));
+        state.notes=Object.fromEntries((n.data||[]).map(x=>[x.prod_date,x]));
+      }else{
+        const all=getDemoSnapshots();
+        const daily=sumDailyFromSAP(Object.values(all).flat());
+        if(!Object.hasOwn(all,'2026-11')){
+          const seed=(window.FTQ_DEMO_DAILY||[]).filter(x=>x.prod_date>=cutoffIso());
+          daily.push(...seed);
+        }
+        state.dailyAll=daily.sort((a,b)=>a.prod_date.localeCompare(b.prod_date));
+        state.materials=Object.hasOwn(all,state.month)?aggregateMaterial(all[state.month]):(state.month==='2026-11'?(window.FTQ_DEMO_MATERIAL||[]):[]);
+        const notes=safeGet(demoNotesKey,{});state.notes=Object.fromEntries(Object.entries(notes).filter(([k])=>k.startsWith(state.month)));
+      }
+      state.monthRows=state.dailyAll.filter(x=>x.prod_date.startsWith(state.month));
+      render();
+    }catch(err){showError('Gagal mengambil data: '+(err.message||String(err)));notify('Gagal memuat data FTQ',true);}
+    finally{state.loading=false;}
+  }
+  function monthlyAggregates(){
+    const map=new Map();
+    for(const r of state.dailyAll){const m=r.prod_date.slice(0,7);if(!map.has(m))map.set(m,{gr:0,rej:0});const x=map.get(m);x.gr+=r.total_gr;x.rej+=r.total_reject;}
+    return map;
+  }
+  function renderKpis(){
+    const gr=state.monthRows.reduce((s,r)=>s+r.total_gr,0),rej=state.monthRows.reduce((s,r)=>s+r.total_reject,0);
+    const pct=gr?(gr-rej)*100/gr:null;
+    const below=state.monthRows.filter(r=>r.ftq_pct!==null&&r.ftq_pct<state.target).length;
+    const isCurrent=state.month===currentMonth();
+    $('ftqMetricLabel').textContent=isCurrent?'FTQ MTD':'FTQ BULANAN';
+    $('kpiFtq').textContent=fmtPct(pct);
+    $('kpiFtqCompare').textContent=pct===null?'Belum ada data':pct<state.target?'Di bawah target '+fmtPct(state.target):'Mencapai target '+fmtPct(state.target);
+    $('kpiGr').textContent=fmtCompact(gr);$('kpiGr').title=fmtNumber(gr,4);
+    $('kpiReject').textContent=fmtCompact(rej);$('kpiReject').title=fmtNumber(rej,4);
+    $('kpiRejectRate').textContent=gr?'Reject Rate '+fmtPct(rej*100/gr):'Reject terhadap Total GR';
+    $('kpiBelow').textContent=String(below);$('kpiDaysInfo').textContent='Dari '+state.monthRows.length+' hari dengan data';
+    $('kpiBelow').closest('.kpi-card').classList.toggle('metric-alert',below>0);
+  }
+  function renderMaterial(){
+    const list=state.materials.filter(x=>x.total_reject>0).slice(0,5);
+    if(!list.length){$('materialBars').innerHTML='<p class="empty">Belum ada reject material pada bulan ini.</p>';return;}
+    const biggest=list[0].total_reject||1;
+    $('materialBars').innerHTML=list.map((m,i)=>`<div class="material-item" title="${escapeHtml(m.material_description)}"><div class="material-rank">#${i+1} · ${escapeHtml(m.material)}</div><div class="material-name">${escapeHtml(m.material_description||'Tanpa deskripsi')}</div><div class="material-number">${fmtNumber(m.total_reject)}</div><div class="material-track"><div class="material-fill" style="width:${Math.max(2,100*m.total_reject/biggest)}%"></div></div></div>`).join('');
+  }
+  function renderTable(){
+    const search=$('searchInput').value.trim().toLowerCase();
+    const entries=[...state.monthRows].sort((a,b)=>b.prod_date.localeCompare(a.prod_date)).filter(r=>{
+      if(!search)return true;const n=state.notes[r.prod_date]||{};
+      return [r.prod_date,dateLabel(r.prod_date),n.issue,n.root_cause,n.corrective_action,n.preventive_action].some(v=>String(v||'').toLowerCase().includes(search));
+    });
+    $('tableCount').textContent=entries.length+' hari';
+    if(!entries.length){$('resumeBody').innerHTML='<tr><td colspan="9" class="loading-row">'+(search?'Tidak ada hasil pencarian.':'Belum ada data SAP pada periode ini.')+'</td></tr>';return;}
+    const noteCell=(v,date)=>`<td class="note-col" data-date="${date}" title="Klik untuk mengisi atau mengubah catatan">${v?`<div class="note-text" title="${escapeHtml(v)}">${escapeHtml(v)}</div>`:'<span class="note-placeholder">Belum diisi</span>'}</td>`;
+    $('resumeBody').innerHTML=entries.map(r=>{
+      const notes=state.notes[r.prod_date]||{};
+      const low=r.ftq_pct!==null&&r.ftq_pct<state.target;
+      const rateClass=r.ftq_pct===null?'':(low?'low':'high');
+      return `<tr><td class="date-cell">${dateLabel(r.prod_date)}</td><td class="align-right">${fmtNumber(r.total_gr,3)}</td><td class="align-right">${fmtNumber(r.total_reject,3)}</td><td class="align-right"><span class="metric-pill ${rateClass}">${fmtPct(r.ftq_pct)}</span></td>${noteCell(notes.issue,r.prod_date)}${noteCell(notes.root_cause,r.prod_date)}${noteCell(notes.corrective_action,r.prod_date)}${noteCell(notes.preventive_action,r.prod_date)}<td class="align-center"><button type="button" class="btn-edit" data-date="${r.prod_date}">${['issue','root_cause','corrective_action','preventive_action'].some(k=>String(notes[k]||'').trim())?'Lihat / Edit':'Isi Catatan'}</button></td></tr>`;
+    }).join('');
+    $('resumeBody').querySelectorAll('[data-date]').forEach(el=>el.addEventListener('click',()=>openNotes(el.dataset.date)));
+  }
+  // Fallback grafik native HTML Canvas: tetap berfungsi jika Chart.js/CDN tidak tersedia.
+  function nativeChart(canvas, spec) {
+    const dpr=window.devicePixelRatio||1, width=Math.max(300,canvas.parentElement.clientWidth-34), height=Math.max(190,canvas.parentElement.clientHeight-38);
+    canvas.width=width*dpr;canvas.height=height*dpr;
+    const ctx=canvas.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,width,height);
+    const left=37,top=25,right=12,bottom=32,pw=width-left-right,ph=height-top-bottom;
+    const min=spec.options.scales.y.min ?? 0,max=spec.options.scales.y.max ?? 100;
+    const yPos=(v)=>top+(max-v)/(max-min)*ph;
+    ctx.font='10px Segoe UI, Arial';ctx.textAlign='right';ctx.textBaseline='middle';
+    for(let i=0;i<=4;i++){
+      const v=min+(max-min)*i/4,y=yPos(v);
+      ctx.strokeStyle='#eaf0f7';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(left,y);ctx.lineTo(left+pw,y);ctx.stroke();
+      ctx.fillStyle='#94a2b7';ctx.fillText(fmtNumber(v,0)+'%',left-8,y);
+    }
+    const labels=spec.data.labels;const values=spec.data.datasets[0].data;
+    const n=labels.length;ctx.textAlign='center';ctx.textBaseline='top';
+    for(let i=0;i<n;i++){
+      if(n>14&&i%2!==0)continue;
+      const x=spec.type==='bar'?left+(i+.5)*pw/n:left+(n>1?i*pw/(n-1):pw/2);
+      ctx.fillStyle='#9aa8ba';ctx.fillText(labels[i],x,top+ph+9);
+    }
+    if(spec.type==='bar'){
+      for(let i=0;i<n;i++){
+        const v=values[i];if(v===null||!Number.isFinite(v))continue;
+        const x=left+(i+.5)*pw/n;
+        const barWidth=Math.min(37,Math.max(12,pw/n*.57));
+        ctx.fillStyle=spec.data.datasets[0].backgroundColor?.[i]||'#5c8dd8';
+        const y=yPos(v);
+        ctx.fillRect(x-barWidth/2,y,barWidth,Math.max(0,top+ph-y));
+        ctx.textAlign='center';ctx.fillStyle='#315380';ctx.font='bold 9px Segoe UI, Arial';
+        ctx.fillText(fmtNumber(v,1)+'%',x,Math.max(0,y-14));
+      }
+    }else{
+      const coords=values.map((v,i)=>v===null||!Number.isFinite(v)?null:{x:left+(n>1?i*pw/(n-1):pw/2),y:yPos(v),v});
+      const target=spec.data.datasets[1]?.data?.[0];
+      if(Number.isFinite(target)){
+        ctx.setLineDash([5,5]);ctx.strokeStyle='#b3bfd0';ctx.lineWidth=1.5;
+        ctx.beginPath();ctx.moveTo(left,yPos(target));ctx.lineTo(left+pw,yPos(target));ctx.stroke();ctx.setLineDash([]);
+      }
+      ctx.strokeStyle='#2d66c7';ctx.lineWidth=2.5;ctx.beginPath();let active=false;
+      for(const p of coords){if(!p){active=false;continue;}if(!active){ctx.moveTo(p.x,p.y);active=true;}else ctx.lineTo(p.x,p.y);}
+      ctx.stroke();
+      coords.forEach((p)=>{if(!p)return;ctx.beginPath();ctx.fillStyle=p.v<state.target?'#d3415b':'#2f70d7';ctx.arc(p.x,p.y,4.1,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=1.5;ctx.stroke();
+        if(n<=16){ctx.font='bold 9px Segoe UI, Arial';ctx.textAlign='center';ctx.textBaseline='bottom';ctx.fillStyle='#4b6589';ctx.fillText(fmtNumber(p.v,1)+'%',p.x,Math.max(8,p.y-8));}
+      });
+    }
+  }
+  function buildChart(chartKey, canvasId, fallbackId, config){
+    if(typeof window.Chart!=='function'){
+      if(state[chartKey]){state[chartKey].destroy();state[chartKey]=null;}
+      $(canvasId).hidden=false;$(fallbackId).hidden=true;
+      nativeChart($(canvasId),config);return;
+    }
+    if(state[chartKey])state[chartKey].destroy();
+    state[chartKey]=new window.Chart($(canvasId).getContext('2d'),config);
+  }
+  function baseChartOptions(){return{responsive:true,maintainAspectRatio:false,animation:{duration:450},plugins:{legend:{display:false},tooltip:{backgroundColor:'#1b3359',padding:12,titleFont:{size:11,weight:'bold'},bodyFont:{size:11},callbacks:{label:(ctx)=>ctx.raw===null?'Tidak ada data':fmtPct(ctx.raw)}}},scales:{x:{grid:{display:false},ticks:{color:'#98a4b5',font:{size:10},maxRotation:0,autoSkip:true,maxTicksLimit:13}},y:{grid:{color:'#edf1f6'},border:{display:false},ticks:{color:'#9ba7b8',font:{size:10},callback:(v)=>v+'%'}}}};}
+  function renderCharts(){
+    $('trendPeriod').textContent=monthLabel(state.month);
+    const daily=[...state.monthRows].sort((a,b)=>a.prod_date.localeCompare(b.prod_date));
+    const dailyVals=daily.map(r=>r.ftq_pct);
+    const min=Math.max(0,Math.floor(Math.min(state.target,...dailyVals.filter(Number.isFinite),100)-3));
+    const dailyOpt=baseChartOptions();dailyOpt.scales.y.min=min;dailyOpt.scales.y.max=101;
+    buildChart('chartDaily','dailyChart','dailyFallback',{type:'line',data:{labels:daily.map(r=>r.prod_date.slice(-2)),datasets:[{label:'FTQ',data:dailyVals,fill:true,borderColor:'#2f63c8',backgroundColor:'rgba(55,115,220,.095)',pointRadius:3.6,pointHoverRadius:6,tension:.32,borderWidth:2.5,spanGaps:false},{label:'Target FTQ',data:daily.map(()=>state.target),borderColor:'#b6c1d2',borderDash:[6,5],pointRadius:0,fill:false,borderWidth:1.5}]},options:dailyOpt});
+    const monthlyMap=monthlyAggregates();const months=[];for(let i=11;i>=0;i--)months.push(monthNext(currentMonth(),-i));
+    const mv=months.map(m=>{const x=monthlyMap.get(m);return x&&x.gr?(x.gr-x.rej)*100/x.gr:null;});
+    const monthlyOpt=baseChartOptions();monthlyOpt.scales.y.min=Math.max(0,Math.floor(Math.min(state.target,...mv.filter(Number.isFinite),100)-3));monthlyOpt.scales.y.max=101;monthlyOpt.scales.x.ticks.maxTicksLimit=12;
+    buildChart('chartMonthly','monthlyChart','monthlyFallback',{type:'bar',data:{labels:months.map(m=>new Intl.DateTimeFormat('id-ID',{month:'short'}).format(new Date(m+'-01T12:00:00'))),datasets:[{label:'FTQ Bulanan',data:mv,backgroundColor:months.map(m=>m===state.month?'#2863ce':'#a8c6ec'),hoverBackgroundColor:'#2555ac',borderRadius:4,barPercentage:.7,maxBarThickness:34}]},options:monthlyOpt});
+  }
+  function render(){
+    renderKpis();renderMaterial();renderTable();renderCharts();
+    const stamps=state.monthRows.map(x=>x.last_imported_at).filter(Boolean).sort();
+    if(db){
+      $('dataInfo').textContent=state.monthRows.length+' hari tercatat · '+(stamps.length?'Sinkron terakhir '+new Date(stamps.at(-1)).toLocaleString('id-ID'):'Belum ada upload bulan ini');
+      $('lastUpdated').textContent=stamps.length?'Update: '+new Date(stamps.at(-1)).toLocaleString('id-ID'):'Belum ada import';
+    }else{$('dataInfo').textContent=state.monthRows.length+' hari tercatat · Pratinjau Excel November 2026';$('lastUpdated').textContent='Mode demo · data belum tersimpan di server';}
+    $('prevMonthBtn').disabled=!isValidMonth(monthNext(state.month,-1));$('nextMonthBtn').disabled=!isValidMonth(monthNext(state.month,1));
+  }
+  function openNotes(date){
+
+    state.noteDate=date;const x=state.notes[date]||{},d=state.monthRows.find(r=>r.prod_date===date);
+    $('notesDate').textContent=dateLabel(date);
+    $('notesMetric').textContent=d?`FTQ ${fmtPct(d.ftq_pct)}  •  GR ${fmtNumber(d.total_gr)}  •  Reject ${fmtNumber(d.total_reject)}`:'—';
+    $('noteIssue').value=x.issue||'';$('noteRoot').value=x.root_cause||'';
+    $('noteCorrective').value=x.corrective_action||'';$('notePreventive').value=x.preventive_action||'';
+    showDialog('notesDialog');
+  }
+  async function saveNotes(ev){
+    ev.preventDefault();
+    const payload={prod_date:state.noteDate,issue:$('noteIssue').value.trim(),root_cause:$('noteRoot').value.trim(),corrective_action:$('noteCorrective').value.trim(),preventive_action:$('notePreventive').value.trim()};
+    const button=$('saveNotesBtn');button.disabled=true;button.textContent='Menyimpan...';
+    try{
+      if(db){const {error}=await db.rpc('ftq_save_action',{p_date:payload.prod_date,p_issue:payload.issue,p_root_cause:payload.root_cause,p_corrective_action:payload.corrective_action,p_preventive_action:payload.preventive_action});if(error)throw error;}
+      else {const all=safeGet(demoNotesKey,{});all[payload.prod_date]=payload;if(!safeSet(demoNotesKey,all))throw Error('Penyimpanan browser penuh. Hubungkan Supabase.');}
+      state.notes[payload.prod_date]=payload;
+      $('notesDialog').close();renderTable();notify('Catatan FTQ berhasil disimpan'+(db?'.':' di browser demo.'));
+    }catch(err){notify('Gagal menyimpan: '+(err.message||err),true);}finally{button.disabled=false;button.textContent='Simpan Catatan';}
+  }
+  function normalize(s){return String(s??'').trim().toLowerCase().replace(/[^a-z0-9]/g,'');}
+  function parseNumber(raw){
+    if(typeof raw==='number')return Number.isFinite(raw)?raw:NaN;
+    if(raw===null||raw===undefined||String(raw).trim()==='')return 0;
+    let s=String(raw).trim().replace(/\s/g,'');
+    if(s.includes('.')&&s.includes(',')){
+      if(s.lastIndexOf(',')>s.lastIndexOf('.'))s=s.replace(/\./g,'').replace(',','.');
+      else s=s.replace(/,/g,'');
+    }else if(s.includes(','))s=s.replace(',','.');
+    return Number(s);
+  }
+  function parseDate(raw){
+    if(raw instanceof Date&&!Number.isNaN(raw.getTime()))return isoLocal(raw);
+    if(typeof raw==='number'&&window.XLSX){const x=window.XLSX.SSF.parse_date_code(raw);if(x&&x.y>=2000&&x.y<=2100)return `${x.y}-${String(x.m).padStart(2,'0')}-${String(x.d).padStart(2,'0')}`;}
+    const s=String(raw??'').trim();
+    let m=s.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})/);
+    if(m)return validateDate(+m[1],+m[2],+m[3]);
+    m=s.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})/);
+    if(m)return validateDate(+m[3],+m[2],+m[1]);
+    return null;
+  }
+  function validateDate(y,m,d){const dt=new Date(y,m-1,d);if(dt.getFullYear()!==y||dt.getMonth()+1!==m||dt.getDate()!==d)return null;return `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;}
+  const requiredHeaders=['matdoc','matdocyear','matdocitem','date','ordertype','totalgr','totalreject'];
+  function findSapTable(workbook){
+    const preferred=[...(workbook.SheetNames.includes('Data')?['Data']:[]),...workbook.SheetNames.filter(n=>n!=='Data')];
+    for(const sheetName of preferred){
+      const table=window.XLSX.utils.sheet_to_json(workbook.Sheets[sheetName],{header:1,defval:'',raw:true});
+      for(let i=0;i<Math.min(40,table.length);i++){
+        const headers=(table[i]||[]).map(normalize);
+        if(requiredHeaders.every(k=>headers.includes(k))){
+          const index=Object.fromEntries(headers.map((h,j)=>[h,j]));
+          return {table,index,headerLine:i+1,sheetName};
+        }
+      }
+    }
+    throw Error('Header SAP tidak ditemukan. Wajib memuat Mat Doc, Mat Doc Year, Mat Doc Item, Date, Order Type, Total GR, dan Total Reject.');
+  }
+  function parseSapWorkbook(workbook){
+    const {table,index,headerLine,sheetName}=findSapTable(workbook);
+    const get=(arr,k)=>(index[k]===undefined?'':arr[index[k]]);
+    const data=[];const seen=new Set();
+    for(let i=headerLine;i<table.length;i++){
+      const arr=table[i]||[];
+      if(arr.every(v=>v===null||v===undefined||String(v).trim()===''))continue;
+      const matDoc=String(get(arr,'matdoc')??'').trim();
+      if(!matDoc||/^grand\s*total|^total$/i.test(matDoc))continue;
+      const prodDate=parseDate(get(arr,'date'));
+      const matYear=String(get(arr,'matdocyear')??'').trim();
+      const matItem=String(get(arr,'matdocitem')??'').trim();
+      const plant=String(get(arr,'plant')??'').trim();
+      const gr=parseNumber(get(arr,'totalgr')),rej=parseNumber(get(arr,'totalreject'));
+      const uu=parseNumber(get(arr,'totaluu')),qi=parseNumber(get(arr,'totalqi24h'));
+      if(!prodDate||!matYear||!matItem||!Number.isFinite(gr)||!Number.isFinite(rej)||!Number.isFinite(uu)||!Number.isFinite(qi))throw Error('Isi tidak valid pada baris SAP '+(i+1)+'. Periksa tanggal dan angka GR / Reject.');
+      const docKey=[matYear,matDoc,matItem,plant].join('|');
+      if(seen.has(docKey))throw Error('Dokumen SAP duplikat dalam file (baris '+(i+1)+'): '+docKey);
+      seen.add(docKey);
+      const sourceFtq=get(arr,'ftq')===''?null:parseNumber(get(arr,'ftq'));
+      if(sourceFtq!==null&&!Number.isFinite(sourceFtq))throw Error('Kolom FTQ salah pada baris '+(i+1));
+      data.push({doc_key:docKey,prod_date:prodDate,mat_doc:matDoc,mat_doc_year:matYear,mat_doc_item:matItem,plant,
+        prod_order:String(get(arr,'prodorder')??'').trim(),material:String(get(arr,'material')??'').trim(),
+        material_description:String(get(arr,'materialdescription')??'').trim(),material_group_desc:String(get(arr,'materialgroupdesc')??'').trim(),
+        order_type:String(get(arr,'ordertype')??'').trim(),total_gr:gr,total_uu:uu,total_reject:rej,total_qi_24h:qi,
+        source_ftq:sourceFtq,entry_date:parseDate(get(arr,'entrydate'))});
+    }
+    if(!data.length)throw Error('File Excel SAP tidak berisi transaksi.');
+    const months=new Set(data.map(r=>r.prod_date.slice(0,7)));
+    if(months.size!==1)throw Error('File berisi lebih dari satu bulan ('+Array.from(months).join(', ')+'). Ekspor SAP secara MTD untuk satu bulan saja.');
+    return {rows:data,month:[...months][0],sheetName};
+  }
+  async function handleFile(ev){
+    $('uploadError').hidden=true;$('uploadPreview').hidden=true;$('commitImportBtn').disabled=true;state.importedRows=null;
+    const f=ev.target.files?.[0];if(!f)return;
+    if(!window.XLSX)return showUploadError('Pustaka XLSX belum termuat. Periksa koneksi internet.');
+    if(!/\.xlsx?$/i.test(f.name))return showUploadError('Gunakan file Excel .xlsx atau .xls dari SAP.');
+    try{
+      const ab=await f.arrayBuffer();const wb=window.XLSX.read(ab,{type:'array',cellDates:false});
+      const parsed=parseSapWorkbook(wb);
+      if(parsed.month>currentMonth())throw Error('File berisi bulan mendatang.');
+      if(db && parsed.month!==currentMonth())throw Error('Mode tanpa login hanya mengizinkan import SAP MTD untuk bulan berjalan.');
+      const cutoff=cutoffIso();
+      if(parsed.rows.some(r=>r.prod_date<cutoff))throw Error('File memuat data lebih lama dari 1 tahun dan tidak bisa diimpor.');
+      if(parsed.month<$('monthPicker').min)throw Error('Bulan file di luar rentang histori yang diizinkan.');
+      state.importedRows=parsed.rows;state.importingFile=f.name;
+      const included=parsed.rows.filter(r=>!excluded.has(r.order_type));
+      const gr=included.reduce((s,r)=>s+r.total_gr,0),rej=included.reduce((s,r)=>s+r.total_reject,0);
+      const dates=parsed.rows.map(r=>r.prod_date).sort();
+      $('uploadPreview').innerHTML=`<strong>${escapeHtml(f.name)}</strong><div>Sheet: ${escapeHtml(parsed.sheetName)} · Periode: <strong>${monthLabel(parsed.month)}</strong></div><div>Transaksi: <strong>${fmtNumber(parsed.rows.length)}</strong> · Masuk rumus FTQ: <strong>${fmtNumber(included.length)}</strong></div><div>Tanggal: ${dateLabel(dates[0])} – ${dateLabel(dates.at(-1))}</div><div>GR: ${fmtNumber(gr)} · Reject: ${fmtNumber(rej)} · FTQ: <strong>${fmtPct(gr?(gr-rej)*100/gr:null)}</strong></div><div>Upload akan mengganti <strong>SELURUH data bulan ${monthLabel(parsed.month)}</strong>.</div>`;
+      $('uploadPreview').hidden=false;$('commitImportBtn').disabled=false;
+      state.importedMonth=parsed.month;
+    }catch(err){showUploadError(err.message||String(err));}
+  }
+  function showUploadError(text){$('uploadError').hidden=false;$('uploadError').textContent=text;notify(text,true);}
+  async function saveImport(ev){
+    ev.preventDefault();const rows=state.importedRows;const month=state.importedMonth;
+    if(!rows?.length)return;
+    const okay=window.confirm(`REPLACE SAP MTD ${monthLabel(month)}\n\n${rows.length} transaksi dari ${state.importingFile}.\nSemua transaksi lama pada bulan ini akan diganti sesuai file; bulan lainnya dan catatan tindak lanjut tetap aman.\n\nPastikan file mencakup data MTD lengkap dari SAP. Lanjutkan?`);
+    if(!okay)return;
+    const btn=$('commitImportBtn');btn.disabled=true;btn.textContent='Menyimpan...';
+    try{
+      if(db){const {error}=await db.rpc('ftq_replace_month',{p_month:firstOfMonth(month),p_rows:rows});if(error)throw error;}
+      else {const base=safeGet(demoKey,{});base[month]=rows;if(!safeSet(demoKey,base))throw Error('Penyimpanan lokal penuh. Silakan hubungkan Supabase.');}
+      $('uploadDialog').close();$('sapFile').value='';state.importedRows=null;
+      state.month=month;$('monthPicker').value=month;await loadData();
+      notify('Import MTD '+monthLabel(month)+' berhasil — '+fmtNumber(rows.length)+' transaksi'+(db?' tersimpan online.':' tersimpan di pratinjau browser.'));
+    }catch(err){showUploadError('Gagal import: '+(err.message||String(err)));}
+    finally{btn.disabled=false;btn.textContent='Import & Replace Bulan';}
+  }
+  function exportResume(){
+    if(!window.XLSX)return notify('Library ekspor Excel tidak termuat. Periksa koneksi internet.',true);
+    const rows=[...state.monthRows].sort((a,b)=>a.prod_date.localeCompare(b.prod_date));
+    if(!rows.length)return notify('Belum ada data untuk diekspor.',true);
+    const header=['Tanggal','Total GR','Total Reject','FTQ (%)','Issue','Root Cause','Corrective Action','Preventive Action'];
+    const data=[header];let sumGr=0,sumRej=0;
+    for(const r of rows){sumGr+=r.total_gr;sumRej+=r.total_reject;const x=state.notes[r.prod_date]||{};data.push([r.prod_date,r.total_gr,r.total_reject,r.ftq_pct===null?null:r.ftq_pct/100,x.issue||'',x.root_cause||'',x.corrective_action||'',x.preventive_action||'']);}
+    data.push(['Grand Total',sumGr,sumRej,sumGr?(sumGr-sumRej)/sumGr:null,'','','','']);
+    const wb=window.XLSX.utils.book_new();const ws=window.XLSX.utils.aoa_to_sheet(data);
+    ws['!cols']=[{wch:16},{wch:18},{wch:18},{wch:13},{wch:37},{wch:37},{wch:37},{wch:37}];
+    for(let i=2;i<=data.length;i++){const cell=ws['D'+i];if(cell&&cell.t==='n')cell.z='0.00%';}
+    for(const col of ['B','C'])for(let i=2;i<=data.length;i++){const cell=ws[col+i];if(cell&&cell.t==='n')cell.z='#,##0.00';}
+    window.XLSX.utils.book_append_sheet(wb,ws,'Resume FTQ');
+    const about=window.XLSX.utils.aoa_to_sheet([['Keterangan','Nilai'],['Bulan',monthLabel(state.month)],['FTQ','(SUM Total GR - SUM Total Reject) / SUM Total GR'],['Exclude Order Type','B101, B401, B701'],['Upload','Snapshot Month-to-date'],['Retensi','1 tahun dari tanggal produksi'],['Target visual dashboard',fmtPct(state.target)],['Sumber','SAP sheet Data, olahan sesuai Resume']]);
+    about['!cols']=[{wch:25},{wch:65}];window.XLSX.utils.book_append_sheet(wb,about,'Info');
+    window.XLSX.writeFile(wb,'FTQ_Resume_'+state.month+'.xlsx');
+    notify('Resume FTQ '+monthLabel(state.month)+' telah diekspor.');
+  }
+  function changeMonth(month){if(!isValidMonth(month)){notify('Periode hanya tersedia dalam masa retensi 1 tahun.',true);$('monthPicker').value=state.month;return;}state.month=month;$('monthPicker').value=month;loadData();}
+  function bind(){
+    $('monthPicker').addEventListener('change',(e)=>changeMonth(e.target.value));
+    $('prevMonthBtn').addEventListener('click',()=>changeMonth(monthNext(state.month,-1)));
+    $('nextMonthBtn').addEventListener('click',()=>changeMonth(monthNext(state.month,1)));
+    $('refreshBtn').addEventListener('click',()=>loadData());
+    $('targetInput').addEventListener('change',(e)=>{const v=Number(e.target.value);if(!Number.isFinite(v)||v<0||v>100){e.target.value=state.target;return notify('Target harus 0 sampai 100.',true);}state.target=v;safeSet(targetKey,v);render();});
+    $('searchInput').addEventListener('input',renderTable);
+    $('exportBtn').addEventListener('click',exportResume);
+    $('importBtn').addEventListener('click',()=>{$('uploadPreview').hidden=true;$('uploadError').hidden=true;$('commitImportBtn').disabled=true;$('sapFile').value='';state.importedRows=null;showDialog('uploadDialog');});
+    $('sapFile').addEventListener('change',handleFile);
+    $('uploadForm').addEventListener('submit',saveImport);
+    $('notesForm').addEventListener('submit',saveNotes);
+    document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',() => $(b.dataset.close).close()));
+  }
+  async function boot(){
+    state.month=currentMonth();
+    const today=new Date(), min=new Date(today.getFullYear(),today.getMonth()-12,1);
+    $('monthPicker').min=isoLocal(min).slice(0,7);$('monthPicker').max=state.month;$('monthPicker').value=state.month;
+    const target=safeGet(targetKey,NaN);if(typeof target==='number'&&Number.isFinite(target)&&target>=0&&target<=100)state.target=target;
+    $('targetInput').value=state.target;
+    bind();refreshConnection();await loadData();
+  }
+  document.addEventListener('DOMContentLoaded',()=>{boot().catch(e=>showError('Inisialisasi FTQ gagal: '+(e.message||e)));});
+})();
+
+  </script>
 </body>
 </html>
