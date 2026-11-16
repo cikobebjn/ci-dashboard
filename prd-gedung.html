@@ -22,6 +22,32 @@ button,input{font:inherit}button{cursor:pointer}.topbar{height:66px;position:sti
 @media(max-width:1350px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.two-col{grid-template-columns:1fr 1fr}.waste-grid{gap:10px}}
 @media(max-width:950px){.two-col{grid-template-columns:1fr}.waste-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:680px){.main{padding:13px 11px 30px}.topbar{height:60px;padding:0 12px}.brand{font-size:14px}.brand small{font-size:8px}.topbar-right{font-size:9px}.hero{min-height:0;padding:23px 20px;display:block}.hero h1{font-size:34px}.hero-target{margin-top:17px;min-width:0;width:100%}.tabs a{flex:1;justify-content:center;padding:10px;font-size:10px}.filterbar{padding:12px}.filter-left{width:100%}.field{flex:1 1 auto}.field input{width:100%}.segment button{padding:9px 10px}.actions{width:100%}.actions .btn{flex:1}.kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.kpi{min-height:137px;padding:15px}.kpi strong{font-size:28px}.kpi h3{font-size:9px}.kpi small{font-size:9px}.panel{padding:16px 14px}.waste-grid{grid-template-columns:1fr}.two-col{gap:11px}.section-title span{display:none}.chart-wrap{height:235px}.mini-grid{grid-template-columns:1fr 1fr}table{font-size:10px}}
+
+/* Planning vs Actual · karton / sheet DATA (tersimpan terpisah dari OEE PCS) */
+.carton-heading{display:flex;align-items:end;justify-content:space-between;flex-wrap:wrap;gap:12px;margin:24px 2px 12px}
+.carton-heading .section-title{margin:0}
+.carton-shift{display:flex;align-items:center;gap:9px;color:#7b8aa0;font-size:10px;font-weight:800}
+.carton-shift select{height:36px;min-width:118px;border:1px solid #dfe7f2;border-radius:10px;background:#fff;color:#3d506a;padding:0 11px;font-size:11px;font-weight:700;font-family:inherit}
+.carton-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px}
+.carton-kpi{position:relative;overflow:hidden;padding:19px 19px 16px;min-height:146px}
+.carton-kpi:before{content:"";position:absolute;top:0;left:0;right:0;height:4px;background:var(--accent-card,#2563eb)}
+.carton-kpi:after{content:"";position:absolute;width:108px;height:108px;right:-40px;bottom:-55px;border-radius:50%;background:var(--accent-soft,#eaf3ff)}
+.carton-kpi>*{position:relative;z-index:1}
+.carton-kpi h3{margin:0 0 14px;color:#74849a;font-size:10px;letter-spacing:.05em;text-transform:uppercase}
+.carton-kpi strong{display:block;font-weight:900;font-size:clamp(23px,2.65vw,34px);letter-spacing:-.04em;line-height:1.12;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.carton-kpi small{display:block;margin-top:9px;font-size:10px;color:#8b9bb0}
+.carton-kpi.plan{--accent-card:#3b82f6;--accent-soft:#e9f1ff}
+.carton-kpi.actual{--accent-card:#0f9f93;--accent-soft:#e5f8f4}
+.carton-kpi.achievement{--accent-card:#7c3aed;--accent-soft:#f1eaff}
+.carton-kpi.gap{--accent-card:#f59e0b;--accent-soft:#fff6df}
+.carton-summary{display:flex;align-items:center;gap:12px;margin-top:11px;padding:0 1px;min-height:22px}
+.carton-meter{flex:1;max-width:240px;height:7px;background:#e8eef7;border-radius:999px;overflow:hidden}
+.carton-meter i{display:block;width:0;height:100%;border-radius:999px;background:#0f9f93;transition:width .2s}
+.carton-caption{font-size:10px;color:#8a9aaf;line-height:1.5}
+.carton-caption.warning{color:#ab731c}
+@media(max-width:1100px){.carton-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:540px){.carton-grid{gap:9px}.carton-kpi{padding:15px;min-height:125px}.carton-kpi strong{font-size:23px}.carton-kpi h3{font-size:9px}.carton-heading{align-items:flex-start}.carton-meter{max-width:95px}}
+
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
 </style>
 </head>
@@ -32,6 +58,16 @@ button,input{font:inherit}button{cursor:pointer}.topbar{height:66px;position:sti
 <nav class="tabs" aria-label="Pindah gedung produksi"><a href="prd-gedung.html?gedung=4" data-gd="4">PRD · Gedung 4</a><a href="prd-gedung.html?gedung=6" data-gd="6">PRD · Gedung 6</a><a href="prd-gedung.html?gedung=7" data-gd="7">PRD · Gedung 7</a></nav>
 <div class="filterbar"><div class="filter-left"><div class="field"><label>Periode Laporan</label><div class="segment" id="modeSwitch"><button type="button" data-mode="daily" class="active">Daily</button><button type="button" data-mode="weekly">Weekly</button><button type="button" data-mode="monthly">Monthly</button></div></div><div class="field"><label for="datePicker">Tanggal Acuan</label><input type="date" id="datePicker"></div></div><div class="actions"><button class="btn prime" id="latestBtn" type="button">Terbaru</button><button class="btn" id="reloadBtn" type="button">↻ Refresh</button></div><div class="period-info" id="periodInfo">Menyiapkan data...</div></div>
 <div class="status" id="status" role="status" aria-live="polite">Menghubungkan ke data...</div>
+<section id="cartonSection" aria-label="Planning versus Actual karton">
+  <div class="carton-heading"><div class="section-title">Planning vs Actual · Karton <span id="cartonPeriodLabel"></span></div><div class="carton-shift"><label for="cartonShift">Shift Karton</label><select id="cartonShift"><option value="all">Semua Shift</option><option value="1">Shift 1</option><option value="2">Shift 2</option><option value="3">Shift 3</option></select></div></div>
+  <div class="carton-grid">
+    <article class="card carton-kpi plan"><h3>Planning</h3><strong id="kPlanCarton" class="empty-val">—</strong><small>Target karton</small></article>
+    <article class="card carton-kpi actual"><h3>Actual</h3><strong id="kActualCarton" class="empty-val">—</strong><small>Output karton</small></article>
+    <article class="card carton-kpi achievement"><h3>Achievement</h3><strong id="kAchCarton" class="empty-val">—</strong><small>Actual ÷ Planning</small></article>
+    <article class="card carton-kpi gap"><h3>Gap Production</h3><strong id="kGapCarton" class="empty-val">—</strong><small>Actual − Planning (karton)</small></article>
+  </div>
+  <div class="carton-summary"><div class="carton-meter" aria-hidden="true"><i id="cartonBar"></i></div><div class="carton-caption" id="cartonInfo">Menunggu data karton...</div></div>
+</section>
 <section><div class="section-title">Ringkasan OEE <span id="oeePeriodLabel"></span></div><div class="kpis">
 <article class="card kpi kpi-main"><h3>OEE Gedung</h3><strong class="empty-val" id="kOee">—</strong><small id="oeeHint">Rasio Output terhadap Target PCS</small><span class="subpill" id="badgeTarget">Target ≥ 55%</span></article>
 <article class="card kpi kpi-s1"><h3>Shift 1</h3><strong class="empty-val" id="kS1">—</strong><small>OEE gabungan Shift 1</small></article>
@@ -73,7 +109,7 @@ const BATES={
 const $=id=>document.getElementById(id);
 const gd=new URLSearchParams(location.search).get('gedung');
 const active=BUILDINGS[gd]?''+gd:'4', cfg=BUILDINGS[active];
-const state={mode:'daily',date:'',latest:'',latestWaste:'',lineRows:[],wasteRows:[],batas:[],chart:null,token:0,schemaReady:true};
+const state={mode:'daily',date:'',latest:'',latestWaste:'',lineRows:[],wasteRows:[],batas:[],chart:null,cartonRows:[],cartonShift:'all',cartonError:'',token:0,schemaReady:true};
 let db=null;
 const esc=s=>String(s??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 const num=v=>v===null||v===undefined||v===''?null:(Number.isFinite(Number(v))?Number(v):null);
@@ -121,6 +157,32 @@ function renderLineTable(periodRows){
  body.innerHTML=data.map(x=>`<tr><td>${esc(x.name)}</td>${[1,2,3].map(s=>`<td class="${colored(x.sh[s],x.target)}">${pctText(x.sh[s])}</td>`).join('')}<td class="${colored(x.total,x.target)}">${pctText(x.total)}</td><td>${fmtNum(x.target,0)}%</td><td><span class="tag ${x.total===null?'':x.total>=x.target?'green':'red'}">${x.total===null?'—':x.total>=x.target?'Green':'Red'}</span></td></tr>`).join('');
  return data;
 }
+
+function renderCarton(rows,dates){
+  $('cartonPeriodLabel').textContent='— '+fmtDate(dates.start)+(dates.end!==dates.start?' – '+fmtDate(dates.end):'');
+  const chosen=rows.filter(r=>String(r.gedung)===active&&(state.cartonShift==='all'||Number(r.shift)===Number(state.cartonShift)));
+  const hasRows=chosen.length>0;
+  const target=chosen.reduce((s,r)=>s+(num(r.target_carton)||0),0);
+  const actual=chosen.reduce((s,r)=>s+(num(r.output_carton)||0),0);
+  const ach=hasRows&&target>0?actual/target*100:null;
+  const gap=hasRows?actual-target:null;
+  const fmtCarton=v=>Number(v).toLocaleString('id-ID',{maximumFractionDigits:2});
+  const put=(id,value,kind='')=>{const el=$(id);el.textContent=value===null?'—':value;el.className=value===null?'empty-val':kind||'normal'};
+  put('kPlanCarton',hasRows?fmtCarton(target):null);
+  put('kActualCarton',hasRows?fmtCarton(actual):null);
+  put('kAchCarton',ach===null?null:fmtNum(ach,1)+'%',ach===null?'':ach>=100?'good':'low');
+  put('kGapCarton',gap===null?null:(gap>0?'+':'')+fmtCarton(gap),gap===null?'':gap<0?'low':gap>0?'good':'normal');
+  const bar=$('cartonBar');bar.style.width=(ach===null?0:Math.max(0,Math.min(100,ach)))+'%';bar.style.background=ach!==null&&ach<100?'#ef4444':'#10a477';
+  const missing=chosen.reduce((s,r)=>s+(num(r.missing_target_count)||0)+(num(r.missing_output_count)||0),0);
+  const noPlan=chosen.reduce((s,r)=>s+(num(r.zero_target_count)||0),0);
+  const info=$('cartonInfo');info.className='carton-caption';
+  if(state.cartonError){info.textContent='Data karton belum tersinkronisasi: '+state.cartonError;info.classList.add('warning')}
+  else if(!hasRows){info.textContent='Tidak ada data karton untuk periode/shift ini.'}
+  else if(ach===null){info.textContent='Planning nol; achievement belum dapat dihitung.';info.classList.add('warning')}
+  else if(missing||noPlan){const notes=[];if(missing)notes.push(missing+' nilai karton kosong');if(noPlan)notes.push(noPlan+' baris output tanpa target');info.textContent=notes.join(' · ');info.classList.add('warning')}
+  else info.textContent='Data aktual dari upload Excel OEE · Sheet DATA';
+}
+
 function renderOee(periodRows,dates){const all=aggOee(periodRows);setPercent('kOee',all.value);$('oeeHint').textContent=all.complete?`Output ${fmtNum(all.output)} / Target ${fmtNum(all.target)} PCS`:'Perhitungan bobot volume belum lengkap';$('badgeTarget').textContent='Target ≥ '+cfg.target+'%';
  for(let sh=1;sh<=3;sh++)setPercent('kS'+sh,aggOee(periodRows.filter(r=>Number(r.shift)===sh)).value);
  $('kOutput').textContent=all.weighted?fmtNum(all.output):'—';$('outputHint').textContent=all.weighted?`Target ${fmtNum(all.target)} PCS`:'Target dan output belum tersedia';
@@ -153,18 +215,19 @@ async function fetchPaged(table,columns,start,end,extra){const items=[],size=100
 async function fetchLineData(start,end){try{const rows=await fetchPaged('oee_shiftly_line','tanggal,shift,mesin,oee,target,gedung,target_pcs,output_pcs',start,end,'line');state.schemaReady=true;return rows;}catch(err){if(/column|schema cache|target_pcs|output_pcs|gedung/i.test(String(err.message||err))){state.schemaReady=false;return await fetchPaged('oee_shiftly_line','tanggal,shift,mesin,oee,target',start,end,'line')}throw err}}
 async function getLatest(table){const{data,error}=await db.from(table).select('tanggal').order('tanggal',{ascending:false}).limit(1);if(error)throw error;return data?.[0]?.tanggal||''}
 async function initializeLatest(){try{const [o,w]=await Promise.allSettled([getLatest('oee_shiftly_line'),getLatest('waste_shiftly')]);state.latest=o.status==='fulfilled'?o.value:'';state.latestWaste=w.status==='fulfilled'?w.value:'';if(!state.latest)state.latest=state.latestWaste||today();state.date=state.latest;$('datePicker').value=state.date;$('datePicker').max=today();}catch(err){state.date=today();state.latest=today();$('datePicker').value=state.date}}
-async function load(){const token=++state.token;const date=state.date||today(),period=selectDateRange(date,state.mode);const since=addDays(period.end,-68),queryStart=since<period.start?since:period.start;status('Mengambil data OEE dan Waste...');$('periodInfo').textContent=fmtDate(period.start)+(period.start!==period.end?' – '+fmtDate(period.end):'');
- try{const responses=await Promise.allSettled([fetchLineData(queryStart,period.end),fetchPaged('waste_shiftly','tanggal,mesin_id,mesin_nama,waste_kemasan,waste_sfg,waste_karton',period.start,period.end,'waste'),db.from('waste_batas').select('*')]);if(token!==state.token)return;
- const [o,w,b]=responses;if(o.status==='rejected')throw Error('Data OEE: '+o.reason.message);if(w.status==='rejected')throw Error('Data Waste: '+w.reason.message);
+async function load(){const token=++state.token;const date=state.date||today(),period=selectDateRange(date,state.mode);const since=addDays(period.end,-68),queryStart=since<period.start?since:period.start;status('Mengambil data OEE, Karton dan Waste...');$('periodInfo').textContent=fmtDate(period.start)+(period.start!==period.end?' – '+fmtDate(period.end):'');
+ try{const responses=await Promise.allSettled([fetchLineData(queryStart,period.end),fetchPaged('waste_shiftly','tanggal,mesin_id,mesin_nama,waste_kemasan,waste_sfg,waste_karton',period.start,period.end,'waste'),db.from('waste_batas').select('*'),fetchPaged('oee_carton_shiftly_line','tanggal,shift,gedung,mesin,target_carton,output_carton,missing_target_count,missing_output_count,zero_target_count',period.start,period.end,'line')]);if(token!==state.token)return;
+ const [o,w,b,c]=responses;if(o.status==='rejected')throw Error('Data OEE: '+o.reason.message);if(w.status==='rejected')throw Error('Data Waste: '+w.reason.message);
  state.lineRows=(o.value||[]).filter(r=>gedungFromLine(r.mesin)===active);state.wasteRows=(w.value||[]).filter(r=>cfg.machines.includes(String(r.mesin_id||'').trim().toUpperCase()));state.batas=b.status==='fulfilled'&&!b.value.error?(b.value.data||[]):[];
- const inPeriod=state.lineRows.filter(r=>r.tanggal>=period.start&&r.tanggal<=period.end);const oee=renderOee(inPeriod,period),waste=renderWaste(state.wasteRows,period);renderTrend(state.lineRows,period);renderFocus(oee,waste);
+ state.cartonRows=c.status==='fulfilled'?c.value:[];state.cartonError=c.status==='rejected'?(c.reason?.message||String(c.reason)):'';
+  const inPeriod=state.lineRows.filter(r=>r.tanggal>=period.start&&r.tanggal<=period.end);const oee=renderOee(inPeriod,period),waste=renderWaste(state.wasteRows,period);renderCarton(state.cartonRows,period);renderTrend(state.lineRows,period);renderFocus(oee,waste);
  const noWeight=oee.all.count>0&&!oee.all.complete;const problem=!state.schemaReady||noWeight;const message=!state.schemaReady?'Kolom target_pcs/output_pcs belum tersedia di Supabase. Jalankan SQL migrasi sekali, kemudian admin upload ulang Excel OEE terbaru.':noWeight?'Volume per-line belum lengkap untuk periode ini. Periksa hasil upload Excel DATA atau ulangi upload setelah migrasi.':'OEE gedung dihitung berbobot volume dari satu database OEE admin.';
  $('coverageText').textContent=message+' '+(b.status==='fulfilled'&&!b.value.error?'Batas waste mengikuti Index.':'Batas waste menggunakan standar Index yang tersedia.');
  if(problem)status('Data tampil, tetapi OEE gedung perlu bobot Output/Target PCS yang lengkap. '+message,'warning');else if(!inPeriod.length&&!state.wasteRows.length)status('Belum ada data OEE maupun Waste untuk gedung dan periode yang dipilih.','warning');else status('Tersinkronisasi · OEE '+(inPeriod.length?'tersedia':'belum ada')+' · Waste '+(state.wasteRows.length?'tersedia':'belum ada')+' · '+fmtDate(period.end),'ok');
  }catch(err){if(token!==state.token)return;status('Gagal memuat: '+err.message,'error');$('coverageText').textContent='Periksa jaringan, RLS Supabase, dan kolom OEE per-line.';console.error(err)}
 }
 function changeMode(m){state.mode=m;document.querySelectorAll('#modeSwitch button').forEach(x=>x.classList.toggle('active',x.dataset.mode===m));load()}
-function prepare(){document.title=cfg.title+' | DMC KOBE';$('heroTitle').textContent=cfg.title;$('buildingTarget').textContent='≥ '+cfg.target+'%';$('badgeTarget').textContent='Target ≥ '+cfg.target+'%';document.querySelectorAll('[data-gd]').forEach(a=>a.classList.toggle('active',a.dataset.gd===active));document.querySelectorAll('#modeSwitch button').forEach(b=>b.addEventListener('click',()=>changeMode(b.dataset.mode)));$('datePicker').addEventListener('change',e=>{if(e.target.value){state.date=e.target.value;load()}});$('latestBtn').addEventListener('click',()=>{state.date=state.latest;$('datePicker').value=state.date;load()});$('reloadBtn').addEventListener('click',()=>load());
+function prepare(){$('cartonShift').addEventListener('change',e=>{state.cartonShift=e.target.value;renderCarton(state.cartonRows,selectDateRange(state.date||today(),state.mode))});document.title=cfg.title+' | DMC KOBE';$('heroTitle').textContent=cfg.title;$('buildingTarget').textContent='≥ '+cfg.target+'%';$('badgeTarget').textContent='Target ≥ '+cfg.target+'%';document.querySelectorAll('[data-gd]').forEach(a=>a.classList.toggle('active',a.dataset.gd===active));document.querySelectorAll('#modeSwitch button').forEach(b=>b.addEventListener('click',()=>changeMode(b.dataset.mode)));$('datePicker').addEventListener('change',e=>{if(e.target.value){state.date=e.target.value;load()}});$('latestBtn').addEventListener('click',()=>{state.date=state.latest;$('datePicker').value=state.date;load()});$('reloadBtn').addEventListener('click',()=>load());
  if(!window.supabase?.createClient){status('Supabase library tidak tersedia. Periksa koneksi internet.','error');return}db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);initializeLatest().then(load)}
 prepare();
 })();
