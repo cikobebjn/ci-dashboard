@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#0c2248">
   <title>FTQ Monitoring | KOBE Manufacturing System</title>
-  <meta name="ftq-build" content="2026-11-17-ftq-sku-action-v3">
+  <meta name="ftq-build" content="2026-11-17-ftq-shift-sku-v1">
   <!-- FTQ STANDALONE: CSS embedded to prevent wrong asset paths. -->
   <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -203,6 +203,27 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
 .sku-legacy-note strong{color:#415a7b}
 .notes-sku-heading{font-size:11px;color:#6f83a2;font-weight:750;margin-top:5px}
 @media(max-width:710px){.modal-sku{width:calc(100vw - 18px)}.sku-table-scroll{max-height:50vh}.sku-table{min-width:1710px}}
+
+/* FTQ SHIFT BREAKDOWN - controls and sticky actions */
+.shift-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:0 0 14px}
+.shift-summary button{background:#f9fbff;border:1px solid #e2e9f3;border-radius:11px;text-align:left;padding:13px 15px;min-width:0;color:#385270}
+.shift-summary button.active{background:#ecf4ff;border-color:#80a9f0;box-shadow:inset 0 0 0 1px #a6c5f8}
+.shift-summary .ss-label{font-size:11px;font-weight:800;color:#5575a2;display:block}
+.shift-summary .ss-val{font:800 18px 'Plus Jakarta Sans',sans-serif;color:#204a92;display:block;margin-top:7px}
+.shift-summary .ss-sub{font-size:10px;color:#8494aa;display:block;margin-top:3px}
+.sku-shift-badge{background:#eaf2fe;border:1px solid #dbe8fa;border-radius:6px;padding:5px 8px;font-weight:800;color:#2b5da4;white-space:nowrap;display:inline-block}
+.sku-shift-badge.unknown{color:#9a6a22;background:#fff4dc;border-color:#f7dfac}
+.sku-table{min-width:2000px!important}
+.sku-table th:nth-child(12),.sku-table td:nth-child(12){position:static!important;right:auto!important;box-shadow:none!important;min-width:140px!important;background:inherit!important;z-index:auto!important}
+.sku-table th:nth-child(13),.sku-table td:nth-child(13){position:sticky;right:0;min-width:93px;width:93px;background:#fff;box-shadow:-9px 0 15px -12px rgba(30,55,100,.27);z-index:2}
+.sku-table th:nth-child(13){background:#f4f7fc;z-index:4}
+.sku-table tbody tr:hover td:nth-child(13){background:#f8fbff}
+.sku-table th:nth-child(3),.sku-table td:nth-child(3){min-width:94px!important;width:94px!important}
+.sku-table th:nth-child(4),.sku-table td:nth-child(4){min-width:108px;width:108px}
+.sku-table th:nth-child(5),.sku-table td:nth-child(5){min-width:130px;width:130px}
+.sku-table th:nth-child(6),.sku-table td:nth-child(6){min-width:92px;width:92px}
+.sku-table th:nth-child(7),.sku-table td:nth-child(7){min-width:90px;width:90px}
+@media(max-width:760px){.shift-summary{grid-template-columns:repeat(2,minmax(0,1fr))}}
   </style>
 </head>
 <body>
@@ -263,7 +284,7 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
 
   </main>
 
-  <dialog id="notesDialog" class="modal modal-wide"><form id="notesForm"><div class="modal-head"><div><span class="modal-eyebrow">QUALITY ACTION</span><h2>Edit SKU · <span id="notesDate">—</span></h2><div id="notesSku" class="notes-sku-heading">—</div></div><button type="button" class="icon-close" data-close="notesDialog" aria-label="Tutup">×</button></div><div class="modal-body"><div class="modal-highlight" id="notesMetric">—</div><div class="form-grid form-grid-numeric"><div class="field"><label for="noteReject">Reject (PCS)</label><input type="number" id="noteReject" inputmode="numeric" min="0" max="999999999999" step="1" placeholder="Input Reject"></div><div class="field"><label for="noteValue">Value (Rp)</label><input type="number" id="noteValue" inputmode="decimal" min="0" max="999999999999" step="0.01" placeholder="Input Value"></div></div><div class="form-grid"><div class="field"><label for="noteIssue">Issue</label><textarea id="noteIssue" maxlength="2000" rows="3" placeholder="Issue"></textarea></div><div class="field"><label for="noteRoot">Root Cause</label><textarea id="noteRoot" maxlength="2000" rows="3" placeholder="Root Cause"></textarea></div><div class="field"><label for="noteCorrective">Corrective Action</label><textarea id="noteCorrective" maxlength="2000" rows="3" placeholder="Corrective Action"></textarea></div><div class="field"><label for="notePreventive">Preventive Action</label><textarea id="notePreventive" maxlength="2000" rows="3" placeholder="Preventive Action"></textarea></div></div></div><div class="modal-actions"><button type="button" class="btn btn-outline" data-close="notesDialog">Batal</button><button type="submit" class="btn btn-primary" id="saveNotesBtn">Simpan</button></div></form></dialog>
+  <dialog id="notesDialog" class="modal modal-wide"><form id="notesForm"><div class="modal-head"><div><span class="modal-eyebrow">QUALITY ACTION</span><h2>Edit SKU · <span id="notesDate">—</span></h2><div id="notesSku" class="notes-sku-heading">—</div></div><button type="button" class="icon-close" data-close="notesDialog" aria-label="Tutup">×</button></div><div class="modal-body"><div class="modal-highlight" id="notesMetric">—</div><div class="sku-legacy-note" id="notesLegacy" hidden></div><div class="form-grid form-grid-numeric"><div class="field"><label for="noteReject">Reject (PCS)</label><input type="number" id="noteReject" inputmode="numeric" min="0" max="999999999999" step="1" placeholder="Input Reject"></div><div class="field"><label for="noteValue">Value (Rp)</label><input type="number" id="noteValue" inputmode="decimal" min="0" max="999999999999" step="0.01" placeholder="Input Value"></div></div><div class="form-grid"><div class="field"><label for="noteIssue">Issue</label><textarea id="noteIssue" maxlength="2000" rows="3" placeholder="Issue"></textarea></div><div class="field"><label for="noteRoot">Root Cause</label><textarea id="noteRoot" maxlength="2000" rows="3" placeholder="Root Cause"></textarea></div><div class="field"><label for="noteCorrective">Corrective Action</label><textarea id="noteCorrective" maxlength="2000" rows="3" placeholder="Corrective Action"></textarea></div><div class="field"><label for="notePreventive">Preventive Action</label><textarea id="notePreventive" maxlength="2000" rows="3" placeholder="Preventive Action"></textarea></div></div></div><div class="modal-actions"><button type="button" class="btn btn-outline" data-close="notesDialog">Batal</button><button type="submit" class="btn btn-primary" id="saveNotesBtn">Simpan</button></div></form></dialog>
 
 
   <dialog id="skuDialog" class="modal modal-sku" aria-labelledby="skuDialogTitle">
@@ -272,11 +293,12 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
       <button type="button" class="icon-close" data-close="skuDialog" aria-label="Tutup rincian SKU">×</button>
     </div>
     <div class="sku-content">
+      <div class="shift-summary" id="skuShiftSummary" role="group" aria-label="Pilih shift untuk breakdown SKU"></div>
       <div class="sku-kpis">
         <div class="sku-kpi"><small>Total SKU</small><strong id="skuTotalCount">—</strong></div>
         <div class="sku-kpi"><small>Total GR</small><strong id="skuGrTotal">—</strong></div>
         <div class="sku-kpi"><small>Block Stock (PCS)</small><strong id="skuBlockTotal">—</strong></div>
-        <div class="sku-kpi primary"><small>FTQ Hari Ini</small><strong id="skuFtqTotal">—</strong></div>
+        <div class="sku-kpi primary"><small>FTQ Shift / Tanggal</small><strong id="skuFtqTotal">—</strong></div>
       </div>
       <div class="sku-tools">
         <input id="skuSearch" class="sku-search" type="search" placeholder="Cari kode atau nama SKU..." aria-label="Cari kode atau nama SKU">
@@ -285,9 +307,9 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
       <div id="skuLegacyNote" class="sku-legacy-note" hidden></div>
       <div class="sku-error" id="skuError" role="alert" hidden></div>
       <div class="sku-table-scroll">
-        <table class="sku-table" aria-label="Rincian FTQ per SKU per tanggal">
-          <thead><tr><th>Kode SKU</th><th>Nama SKU</th><th class="right">Total GR</th><th class="right">Block Stock (PCS)</th><th class="right">FTQ</th><th class="right">Reject</th><th class="right">Value</th><th>Issue</th><th>Root Cause</th><th>Corrective Action</th><th>Preventive Action</th><th class="right">Aksi</th></tr></thead>
-          <tbody id="skuBody"><tr><td colspan="12" class="sku-empty">Pilih tanggal untuk melihat rincian SKU.</td></tr></tbody>
+        <table class="sku-table" aria-label="Rincian FTQ per SKU dan shift per tanggal">
+          <thead><tr><th>Kode SKU</th><th>Nama SKU</th><th>Shift</th><th class="right">Total GR</th><th class="right">Block Stock (PCS)</th><th class="right">FTQ</th><th class="right">Reject</th><th class="right">Value</th><th>Issue</th><th>Root Cause</th><th>Corrective Action</th><th>Preventive Action</th><th class="right">Aksi</th></tr></thead>
+          <tbody id="skuBody"><tr><td colspan="13" class="sku-empty">Pilih tanggal untuk melihat rincian SKU.</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -334,14 +356,15 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
   const demoKey = 'ftq_demo_snapshots_v1';
   const demoNotesKey = 'ftq_demo_actions_v1';
   const demoSkuNotesKey = 'ftq_demo_sku_actions_v1';
+  const demoSkuShiftNotesKey = 'ftq_demo_sku_shift_actions_v1';
   const targetKey = 'ftq_dashboard_target_v1';
   const $ = (id) => document.getElementById(id);
   const state = {
     month: '', target: Number(cfg.targetFtqPercent ?? 99),
     periodMode: 'monthly', selectedDay: '', selectedWeek: '', periodRows: [],
     dailyAll: [], monthRows: [], materials: [], materialDaily: [], hasDailyMaterialView: false, notes: {},
-    importedRows: null, importingFile: '', noteDate: '', noteMaterial: '', skuActions: [], skuNotesReady: true,
-    chartDaily: null, chartMonthly: null, loading: false, skuRows: [], skuDate: '', skuRequestId: 0, skuLoading: false
+    importedRows: null, importingFile: '', noteDate: '', noteMaterial: '', noteShift: 0, skuActions: [], legacySkuActions: [], skuNotesReady: true,
+    chartDaily: null, chartMonthly: null, loading: false, skuRows: [], skuDate: '', skuShift: 'all', skuRequestId: 0, skuLoading: false
   };
   const fmtNumber = (n, places=2) => new Intl.NumberFormat('id-ID',{maximumFractionDigits:places}).format(Number(n || 0));
   const fmtPct = (n) => (n === null || n === undefined || !Number.isFinite(Number(n))) ? '—' : new Intl.NumberFormat('id-ID',{minimumFractionDigits:2, maximumFractionDigits:2}).format(Number(n))+'%';
@@ -391,6 +414,15 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
     return weeks;
   }
   const inRange = (date,start,endExclusive) => date>=start && date<endExclusive;
+  const shiftForTime=(input)=>{
+    if(!input)return 0;
+    const hr=Number(String(input).slice(0,2));
+    if(!Number.isInteger(hr)||hr<0||hr>23)return 0;
+    return hr>=7&&hr<15?1:hr>=15&&hr<23?2:3;
+  };
+  const shiftTitle=(n)=>n===1?'Shift 1':n===2?'Shift 2':n===3?'Shift 3':'Tanpa shift';
+  const shiftHours=(n)=>n===1?'07.00–15.00':n===2?'15.00–23.00':n===3?'23.00–07.00':'Waktu belum ada';
+
   function currentPeriod(){
     if(state.periodMode==='daily'){
       const date=state.selectedDay||firstOfMonth(state.month);
@@ -510,12 +542,13 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
         const begin=cutoffIso(),end=monthNext(state.month)+'-01';
         const weekRanges=weeksInMonth(state.month);
         const matBegin=weekRanges[0].start,matEnd=addDays(weekRanges.at(-1).end,1);
-        const [d,m,n,md,sn]=await Promise.all([
+        const [d,m,n,md,sn,sh]=await Promise.all([
           db.from('ftq_daily_resume').select('*').gte('prod_date',begin).order('prod_date',{ascending:true}).limit(450),
           db.from('ftq_reject_material_monthly').select('month_key,material,material_description,material_group_desc,total_gr,total_reject').eq('month_key',firstOfMonth(state.month)).order('total_reject',{ascending:false}).limit(20),
           db.from('ftq_action_notes').select('*').gte('prod_date',begin).order('prod_date',{ascending:true}).limit(500),
           db.from('ftq_reject_material_daily').select('prod_date,material,material_description,material_group_desc,total_gr,total_reject').gte('prod_date',matBegin).lt('prod_date',matEnd).order('prod_date',{ascending:true}).limit(5000),
-          db.from('ftq_sku_actions').select('*').gte('prod_date',matBegin).lt('prod_date',matEnd).order('prod_date',{ascending:true}).limit(4000)
+          db.from('ftq_sku_actions').select('*').gte('prod_date',matBegin).lt('prod_date',matEnd).order('prod_date',{ascending:true}).limit(4000),
+          db.from('ftq_sku_shift_actions').select('*').gte('prod_date',matBegin).lt('prod_date',matEnd).order('prod_date',{ascending:true}).limit(8000)
         ]);
         for(const res of [d,m,n])if(res.error)throw res.error;
         state.dailyAll=(d.data||[]).map(x=>({...x,total_gr:Number(x.total_gr),total_reject:Number(x.total_reject),total_qi_24h:Number(x.total_qi_24h),ftq_pct:x.ftq_pct===null?null:Number(x.ftq_pct)}));
@@ -523,9 +556,10 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
         state.hasDailyMaterialView=!md.error && (md.data||[]).length<5000;
         state.materialDaily=state.hasDailyMaterialView?(md.data||[]).map(x=>({...x,total_gr:Number(x.total_gr),total_reject:Number(x.total_reject)})):[];
         state.notes=Object.fromEntries((n.data||[]).map(x=>[x.prod_date,x]));
-        state.skuNotesReady=!sn.error;
-        state.skuActions=sn.error?[]:(sn.data||[]);
-        if(sn.error){showError('SQL ftq-sku-actions.sql belum aktif di Supabase. Breakdown tetap tersedia setelah migrasi.');}
+        state.skuNotesReady=!sh.error;
+        state.legacySkuActions=sn.error?[]:(sn.data||[]);
+        state.skuActions=sh.error?[]:(sh.data||[]);
+        if(sh.error)showError('Jalankan ftq-shift-migration.sql di Supabase untuk mengaktifkan detail SKU per shift.');
       }else{
         const all=getDemoSnapshots();
         const daily=sumDailyFromSAP(Object.values(all).flat());
@@ -538,7 +572,8 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
         state.materialDaily=dailyMaterialsFromSAP(Object.values(all).flat());
         state.hasDailyMaterialView=state.materialDaily.length>0;
         const notes=safeGet(demoNotesKey,{});state.notes=notes;
-        state.skuActions=Object.values(safeGet(demoSkuNotesKey,{}));state.skuNotesReady=true;
+        state.legacySkuActions=Object.values(safeGet(demoSkuNotesKey,{}));
+        state.skuActions=Object.values(safeGet(demoSkuShiftNotesKey,{}));state.skuNotesReady=true;
       }
       state.monthRows=state.dailyAll.filter(x=>x.prod_date.startsWith(state.month));
       render();
@@ -594,15 +629,21 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
     const biggest=list[0].total_reject||1;
     $('materialBars').innerHTML=list.map((m,i)=>`<div class="material-item" title="${escapeHtml(m.material_description)}"><div class="material-rank">#${i+1} · ${escapeHtml(m.material)}</div><div class="material-name">${escapeHtml(m.material_description||'Tanpa deskripsi')}</div><div class="material-number">${fmtNumber(m.total_reject)}</div><div class="material-track"><div class="material-fill" style="width:${Math.max(2,100*m.total_reject/biggest)}%"></div></div></div>`).join('');
   }
-  const skuActionKey = (date,material) => JSON.stringify([date,String(material||'').trim()]);
-  function skuActionFor(date,material){return state.skuActions.find(a=>a.prod_date===date && String(a.material)===String(material))||null;}
+  const skuActionKey = (date,material,shift=0) => JSON.stringify([date,String(material||'').trim(),Number(shift)||0]);
+  function skuActionFor(date,material,shift){return state.skuActions.find(a=>a.prod_date===date && String(a.material)===String(material) && Number(a.shift_no)===Number(shift))||null;}
   function skuActionTouched(a){return !!a && (hasManual(a.reject_qty)||hasManual(a.value_amount)||[a.issue,a.root_cause,a.corrective_action,a.preventive_action].some(v=>String(v||'').trim()));}
+  function actionsForDaily(date){
+    const assigned=state.skuActions.filter(a=>a.prod_date===date);
+    const assignedCodes=new Set(assigned.filter(skuActionTouched).map(a=>a.material));
+    // Legacy SKU notes remain visible in daily totals until assigned to a shift.
+    const legacy=state.legacySkuActions.filter(a=>a.prod_date===date && !assignedCodes.has(a.material));
+    return [...assigned,...legacy];
+  }
   function dailySkuActions(date){
-    const all=state.skuActions.filter(a=>a.prod_date===date);
-    const rej=all.filter(a=>hasManual(a.reject_qty));const val=all.filter(a=>hasManual(a.value_amount));
+    const all=actionsForDaily(date),rej=all.filter(a=>hasManual(a.reject_qty)),val=all.filter(a=>hasManual(a.value_amount));
     return {reject_qty:rej.length?rej.reduce((z,a)=>z+Number(a.reject_qty),0):null,
             value_amount:val.length?val.reduce((z,a)=>z+Number(a.value_amount),0):null,
-            count:all.filter(skuActionTouched).length, notes:all};
+            count:new Set(all.filter(skuActionTouched).map(a=>a.material)).size, notes:all};
   }
   function renderTable(){
     const search=$('searchInput').value.trim().toLocaleLowerCase('id-ID');
@@ -727,77 +768,95 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
     $('prevMonthBtn').disabled=!isValidMonth(monthNext(state.month,-1));$('nextMonthBtn').disabled=!isValidMonth(monthNext(state.month,1));
   }
 
-  // Ringkasan per kode SKU; nama dapat berubah tetapi kode adalah identitas yang stabil.
+  // Ringkasan per kode SKU + shift; angka ALL selalu jumlah Shift 1/2/3 dan tanpa waktu.
   function mergeSkuData(rows){
     const map=new Map();
     for(const r of rows){
-      const material=String(r.material??'').trim(), description=String(r.material_description??'').trim();
-      if(!map.has(material))map.set(material,{material,material_description:description,total_gr:0,total_reject:0,
-        reject_qty:r.reject_qty??null,value_amount:r.value_amount??null,issue:r.issue||'',root_cause:r.root_cause||'',
-        corrective_action:r.corrective_action||'',preventive_action:r.preventive_action||''});
-      const item=map.get(material);
-      if(!item.material_description && description)item.material_description=description;
+      const material=String(r.material??'').trim(),description=String(r.material_description??'').trim();
+      const shift=Number(r.shift_no??shiftForTime(r.entry_time));
+      const key=skuActionKey(r.prod_date||state.skuDate,material,shift);
+      if(!map.has(key))map.set(key,{material,material_description:description,shift_no:shift,
+        total_gr:0,total_reject:0,reject_qty:r.reject_qty??null,value_amount:r.value_amount??null,
+        issue:r.issue||'',root_cause:r.root_cause||'',corrective_action:r.corrective_action||'',preventive_action:r.preventive_action||''});
+      const item=map.get(key);
+      if(!item.material_description&&description)item.material_description=description;
       item.total_gr+=Number(r.total_gr||0);item.total_reject+=Number(r.total_reject||0);
     }
-    return [...map.values()].map(item=>({...item,ftq_pct:item.total_gr===0?null:(item.total_gr-item.total_reject)*100/item.total_gr}))
-      .sort((a,b)=>a.ftq_pct===null?1:b.ftq_pct===null?-1:a.ftq_pct-b.ftq_pct||b.total_reject-a.total_reject||a.material.localeCompare(b.material));
+    return [...map.values()].map(x=>({...x,ftq_pct:x.total_gr===0?null:(x.total_gr-x.total_reject)*100/x.total_gr}))
+      .sort((a,b)=>a.ftq_pct===null?1:b.ftq_pct===null?-1:a.ftq_pct-b.ftq_pct||a.shift_no-b.shift_no||a.material.localeCompare(b.material));
   }
   function skuStatus(row){
     if(row.ftq_pct===null)return {name:'—',low:false,empty:true};
     return row.ftq_pct<state.target?{name:'Tidak tercapai',low:true,empty:false}:{name:'Tercapai',low:false,empty:false};
   }
   function renderSkuBreakdown(){
-    const rows=state.skuRows, sum=sumPeriod(rows);
-    $('skuTotalCount').textContent=rows.length?fmtNumber(rows.length,0):'—';
+    const all=state.skuRows;
+    const summaries=[1,2,3].map(n=>({no:n,rows:all.filter(x=>Number(x.shift_no)===n)}));
+    const buttons=[{no:'all',label:'Semua Shift',rows:all},...summaries.map(x=>({no:String(x.no),label:shiftTitle(x.no),rows:x.rows}))];
+    if(all.some(x=>Number(x.shift_no)===0))buttons.push({no:'0',label:'Belum dipetakan',rows:all.filter(x=>Number(x.shift_no)===0)});
+    $('skuShiftSummary').innerHTML=buttons.map(b=>{
+      const metric=sumPeriod(b.rows);
+      const hours=b.no==='all'?`${new Set(b.rows.map(r=>r.material)).size} SKU`:shiftHours(Number(b.no));
+      return `<button type="button" data-shift-choice="${b.no}" class="${state.skuShift===b.no?'active':''}" aria-pressed="${state.skuShift===b.no}"><span class="ss-label">${b.label}</span><span class="ss-val">${fmtPct(metric.ftq)}</span><span class="ss-sub">${hours}</span></button>`;
+    }).join('');
+    $('skuShiftSummary').querySelectorAll('button[data-shift-choice]').forEach(b=>b.addEventListener('click',()=>{state.skuShift=b.dataset.shiftChoice;renderSkuBreakdown();}));
+    const rows=state.skuShift==='all'?all:all.filter(r=>Number(r.shift_no)===Number(state.skuShift));
+    const sum=sumPeriod(rows);
+    $('skuTotalCount').textContent=rows.length?fmtNumber(new Set(rows.map(x=>x.material)).size,0):'—';
     $('skuGrTotal').textContent=rows.length?fmtCompact(sum.gr):'—';$('skuGrTotal').title=fmtNumber(sum.gr,4);
     $('skuBlockTotal').textContent=rows.length?fmtCompact(sum.rej):'—';$('skuBlockTotal').title=fmtNumber(sum.rej,4);
     $('skuFtqTotal').textContent=fmtPct(sum.ftq);
     const search=$('skuSearch').value.trim().toLocaleLowerCase('id-ID');const belowOnly=$('skuBelowOnly').checked;
     const shown=rows.filter(r=>!belowOnly||skuStatus(r).low).filter(r=>{
       if(!search)return true;
-      const a=skuActionFor(state.skuDate,r.material)||r;
-      return [r.material,r.material_description,a.issue,a.root_cause,a.corrective_action,a.preventive_action].join(' ').toLocaleLowerCase('id-ID').includes(search);
+      const a=skuActionFor(state.skuDate,r.material,r.shift_no)||r;
+      return [r.material,r.material_description,shiftTitle(r.shift_no),a.issue,a.root_cause,a.corrective_action,a.preventive_action].join(' ').toLocaleLowerCase('id-ID').includes(search);
     });
-    $('skuVisibleCount').textContent=shown.length+' dari '+rows.length+' SKU';
+    $('skuVisibleCount').textContent=shown.length+' dari '+rows.length+' baris SKU/Shift';
     $('skuFoot').textContent='Target FTQ '+fmtPct(state.target);
-    if(!shown.length){$('skuBody').innerHTML='<tr><td colspan="12" class="sku-empty">'+(rows.length?'Tidak ada SKU yang cocok dengan filter.':'Belum ada data SKU pada tanggal ini.')+'</td></tr>';return;}
+    if(!shown.length){$('skuBody').innerHTML='<tr><td colspan="13" class="sku-empty">'+(rows.length?'Tidak ada SKU sesuai filter.':'Belum ada transaksi pada shift ini.')+'</td></tr>';return;}
     const textCell=(v)=>`<td>${v?`<span class="action-text" title="${escapeHtml(v)}">${escapeHtml(v)}</span>`:'<span class="note-placeholder">—</span>'}</td>`;
     $('skuBody').innerHTML=shown.map(r=>{
-      const a=skuActionFor(state.skuDate,r.material)||r, status=skuStatus(r);
+      const a=skuActionFor(state.skuDate,r.material,r.shift_no)||r,status=skuStatus(r);
       const color=status.empty?'na':status.low?'low':'';
       return `<tr><td><span class="sku-code">${escapeHtml(r.material||'—')}</span></td>`+
         `<td><div class="sku-description">${escapeHtml(r.material_description||'Tanpa nama SKU')}</div></td>`+
+        `<td><span class="sku-shift-badge ${r.shift_no===0?'unknown':''}">${escapeHtml(shiftTitle(r.shift_no))}</span></td>`+
         `<td class="right">${fmtNumber(r.total_gr,3)}</td><td class="right">${fmtNumber(r.total_reject,3)}</td>`+
         `<td class="right"><span class="sku-rate ${color}">${fmtPct(r.ftq_pct)}</span></td>`+
         `<td class="manual-amount">${hasManual(a.reject_qty)?fmtNumber(a.reject_qty,0):'—'}</td>`+
         `<td class="manual-amount">${fmtValue(a.value_amount)}</td>`+
         textCell(a.issue)+textCell(a.root_cause)+textCell(a.corrective_action)+textCell(a.preventive_action)+
-        `<td class="right"><button type="button" class="sku-edit" data-sku-edit="${escapeHtml(r.material)}" title="Edit tindak lanjut SKU ${escapeHtml(r.material)}">✎ Edit</button></td></tr>`;
+        `<td class="right">${r.shift_no===0?'<span class="note-placeholder">Impor ulang</span>':`<button type="button" class="sku-edit" data-sku-edit="${escapeHtml(r.material)}" data-shift-edit="${r.shift_no}" title="Edit tindak lanjut SKU ${escapeHtml(r.material)} ${shiftTitle(r.shift_no)}">✎ Edit</button>`}</td></tr>`;
     }).join('');
-    $('skuBody').querySelectorAll('button[data-sku-edit]').forEach(el=>el.addEventListener('click',()=>openSkuNotes(state.skuDate,el.dataset.skuEdit)));
+    $('skuBody').querySelectorAll('button[data-sku-edit]').forEach(el=>el.addEventListener('click',()=>openSkuNotes(state.skuDate,el.dataset.skuEdit,Number(el.dataset.shiftEdit))));
   }
   function showLegacyNote(date){
     const x=state.notes[date]||{};
-    const parts=[['Issue',x.issue],['Root Cause',x.root_cause],['Corrective',x.corrective_action],['Preventive',x.preventive_action],['Reject',hasManual(x.reject_qty)?fmtNumber(x.reject_qty,0):null],['Value',hasManual(x.value_amount)?fmtValue(x.value_amount):null]].filter(z=>z[1]!==null&&String(z[1]||'').trim());
+    const formatParts=(a)=>[['Issue',a.issue],['Root Cause',a.root_cause],['Corrective',a.corrective_action],['Preventive',a.preventive_action],['Reject',hasManual(a.reject_qty)?fmtNumber(a.reject_qty,0):null],['Value',hasManual(a.value_amount)?fmtValue(a.value_amount):null]].filter(z=>z[1]!==null&&String(z[1]||'').trim()).map(([k,v])=>escapeHtml(k)+': '+escapeHtml(v)).join(' · ');
+    const parts=[];
+    if(formatParts(x))parts.push('Tanggal: '+formatParts(x));
+    for(const a of state.legacySkuActions.filter(a=>a.prod_date===date&&skuActionTouched(a)))parts.push('SKU '+escapeHtml(a.material)+': '+formatParts(a));
     const el=$('skuLegacyNote');el.hidden=!parts.length;
-    if(parts.length)el.innerHTML='<strong>Catatan harian lama (belum terhubung ke SKU):</strong> '+parts.map(([k,v])=>escapeHtml(k)+': '+escapeHtml(v)).join(' · ');
+    if(parts.length)el.innerHTML='<strong>Catatan lama belum dialokasikan ke shift:</strong> '+parts.join(' | ');
   }
   async function openSkuBreakdown(date){
-    const requestId=++state.skuRequestId;state.skuDate=date;state.skuRows=[];state.skuLoading=true;
+    const requestId=++state.skuRequestId;state.skuDate=date;state.skuRows=[];state.skuShift='all';state.skuLoading=true;
     $('skuDialogDate').textContent=dateLabel(date);$('skuSearch').value='';$('skuBelowOnly').checked=false;
     $('skuError').hidden=true;showLegacyNote(date);
+    $('skuShiftSummary').innerHTML='';
     $('skuTotalCount').textContent='—';$('skuGrTotal').textContent='—';
     $('skuBlockTotal').textContent='—';$('skuFtqTotal').textContent='—';
     $('skuVisibleCount').textContent='Memuat...';$('skuFoot').textContent='—';
-    $('skuBody').innerHTML='<tr><td colspan="12" class="sku-empty">Memuat rincian SKU...</td></tr>';
+    $('skuBody').innerHTML='<tr><td colspan="13" class="sku-empty">Memuat breakdown SKU per Shift...</td></tr>';
     showDialog('skuDialog');
     try{
       let result=[];
       if(db){
-        const response=await db.rpc('ftq_sku_breakdown_range',{p_start:date,p_end:addDays(date,1)});
+        const response=await db.rpc('ftq_sku_shift_breakdown_range',{p_start:date,p_end:addDays(date,1)});
         if(response.error){
-          if(response.error.code==='PGRST202'||/ftq_sku_breakdown_range|schema cache|could not find the function/i.test(response.error.message||''))
-            throw Error('Jalankan SQL ftq-sku-actions.sql di Supabase untuk mengaktifkan breakdown dan input per SKU.');
+          if(response.error.code==='PGRST202'||/ftq_sku_shift_breakdown_range|schema cache|could not find the function/i.test(response.error.message||''))
+            throw Error('Jalankan SQL ftq-shift-migration.sql di Supabase untuk mengaktifkan breakdown per shift.');
           throw response.error;
         }
         result=response.data||[];
@@ -806,32 +865,37 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
         result=Object.values(snapshots).flat().filter(r=>r.prod_date===date&&!excluded.has(r.order_type));
       }
       if(requestId!==state.skuRequestId)return;
-      // Refresh cached actions from the authoritative SKU breakdown on each click.
-      // Keep removed SKU notes in the database; do not count them in the active day's visible rollup.
       if(db){
         state.skuActions=state.skuActions.filter(a=>a.prod_date!==date).concat(
-          result.filter(skuActionTouched).map(r=>({prod_date:date,material:r.material,
+          result.filter(skuActionTouched).map(r=>({prod_date:date,material:r.material,shift_no:Number(r.shift_no),
             reject_qty:r.reject_qty,value_amount:r.value_amount,issue:r.issue||'',
             root_cause:r.root_cause||'',corrective_action:r.corrective_action||'',
             preventive_action:r.preventive_action||''}))
         );
       }
       state.skuRows=mergeSkuData(result);state.skuLoading=false;renderSkuBreakdown();renderTable();
+      if(state.skuRows.some(r=>r.shift_no===0)){
+        $('skuError').hidden=false;
+        $('skuError').textContent='Ada transaksi SAP tanpa Time of Entry tersimpan. Upload ulang file MTD November setelah menjalankan SQL shift.';
+      }
     }catch(err){
       if(requestId!==state.skuRequestId)return;
       state.skuLoading=false;$('skuError').textContent=err.message||String(err);$('skuError').hidden=false;
-      $('skuVisibleCount').textContent='—';$('skuBody').innerHTML='<tr><td colspan="12" class="sku-empty">Detail SKU belum tersedia.</td></tr>';
+      $('skuVisibleCount').textContent='—';$('skuBody').innerHTML='<tr><td colspan="13" class="sku-empty">Breakdown SKU per shift belum tersedia.</td></tr>';
     }
   }
 
-  function openSkuNotes(date,material){
-    state.noteDate=date;state.noteMaterial=material;
-    const sku=state.skuRows.find(x=>x.material===material);
-    if(!sku)return notify('SKU tidak ditemukan dalam breakdown tanggal ini.',true);
-    const x=skuActionFor(date,material)||sku;
+  function openSkuNotes(date,material,shift){
+    state.noteDate=date;state.noteMaterial=material;state.noteShift=Number(shift);
+    const sku=state.skuRows.find(x=>x.material===material&&Number(x.shift_no)===state.noteShift);
+    if(!sku||state.noteShift<1||state.noteShift>3)return notify('Pilih SKU dan Shift 1, 2, atau 3 yang valid.',true);
+    const x=skuActionFor(date,material,state.noteShift)||sku;
     $('notesDate').textContent=dateLabel(date);
-    $('notesSku').textContent='SKU '+material+' · '+(sku.material_description||'Tanpa nama SKU');
+    $('notesSku').textContent='SKU '+material+' · '+shiftTitle(state.noteShift)+' ('+shiftHours(state.noteShift)+') · '+(sku.material_description||'Tanpa nama SKU');
     $('notesMetric').textContent=`FTQ ${fmtPct(sku.ftq_pct)} · GR ${fmtNumber(sku.total_gr)} · Block Stock ${fmtNumber(sku.total_reject)} PCS`;
+    const legacy=state.legacySkuActions.find(a=>a.prod_date===date&&a.material===material&&skuActionTouched(a));
+    $('notesLegacy').hidden=!legacy;
+    if(legacy)$('notesLegacy').textContent='Catatan SKU lama (belum diketahui shift): Reject '+(hasManual(legacy.reject_qty)?fmtNumber(legacy.reject_qty,0):'—')+' · Value '+fmtValue(legacy.value_amount)+' · '+[legacy.issue,legacy.root_cause,legacy.corrective_action,legacy.preventive_action].filter(Boolean).join(' · ');
     $('noteReject').value=hasManual(x.reject_qty)?x.reject_qty:'';$('noteValue').value=hasManual(x.value_amount)?x.value_amount:'';
     $('noteIssue').value=x.issue||'';$('noteRoot').value=x.root_cause||'';
     $('noteCorrective').value=x.corrective_action||'';$('notePreventive').value=x.preventive_action||'';
@@ -842,30 +906,30 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
     const readManual=(id,integer)=>{const raw=$(id).value.trim();if(raw==='')return null;const v=Number(raw);if(!Number.isFinite(v)||v<0||v>999999999999||(integer&&!Number.isInteger(v)))throw Error((integer?'Reject':'Value')+' harus angka positif'+(integer?' bulat':'')+'.');return v;};
     let rejectQty,valueAmount;
     try{rejectQty=readManual('noteReject',true);valueAmount=readManual('noteValue',false);}catch(err){return notify(err.message,true);}
-    if(!state.noteMaterial)return notify('Pilih SKU terlebih dahulu.',true);
-    const payload={prod_date:state.noteDate,material:state.noteMaterial,reject_qty:rejectQty,value_amount:valueAmount,
+    if(!state.noteMaterial||![1,2,3].includes(Number(state.noteShift)))return notify('Pilih SKU dan Shift terlebih dahulu.',true);
+    const payload={prod_date:state.noteDate,material:state.noteMaterial,shift_no:state.noteShift,reject_qty:rejectQty,value_amount:valueAmount,
       issue:$('noteIssue').value.trim(),root_cause:$('noteRoot').value.trim(),
       corrective_action:$('noteCorrective').value.trim(),preventive_action:$('notePreventive').value.trim()};
     if(isPublicSite&&!db)return notify('Koneksi Supabase belum aktif.',true);
     const button=$('saveNotesBtn');button.disabled=true;button.textContent='Menyimpan...';
     try{
       if(db){
-        const {error}=await db.rpc('ftq_save_sku_action_v1',{
-          p_date:payload.prod_date,p_material:payload.material,p_reject_qty:payload.reject_qty,
-          p_value_amount:payload.value_amount,p_issue:payload.issue,p_root_cause:payload.root_cause,
-          p_corrective_action:payload.corrective_action,p_preventive_action:payload.preventive_action});
-        if(error){if(error.code==='PGRST202'||/ftq_save_sku_action_v1|schema cache/i.test(error.message||''))
-          throw Error('Jalankan SQL ftq-sku-actions.sql di Supabase sebelum menyimpan tindakan per SKU.');throw error;}
+        const {error}=await db.rpc('ftq_save_sku_shift_action_v1',{
+          p_date:payload.prod_date,p_material:payload.material,p_shift:payload.shift_no,
+          p_reject_qty:payload.reject_qty,p_value_amount:payload.value_amount,p_issue:payload.issue,
+          p_root_cause:payload.root_cause,p_corrective_action:payload.corrective_action,p_preventive_action:payload.preventive_action});
+        if(error){if(error.code==='PGRST202'||/ftq_save_sku_shift_action_v1|schema cache/i.test(error.message||''))
+          throw Error('Jalankan ftq-shift-migration.sql sebelum menyimpan tindakan per shift.');throw error;}
       }else{
-        const store=safeGet(demoSkuNotesKey,{});store[skuActionKey(payload.prod_date,payload.material)]=payload;
-        if(!safeSet(demoSkuNotesKey,store))throw Error('Penyimpanan browser gagal.');
+        const store=safeGet(demoSkuShiftNotesKey,{});store[skuActionKey(payload.prod_date,payload.material,payload.shift_no)]=payload;
+        if(!safeSet(demoSkuShiftNotesKey,store))throw Error('Penyimpanan browser gagal.');
       }
-      const prev=state.skuActions.findIndex(a=>a.prod_date===payload.prod_date&&a.material===payload.material);
+      const prev=state.skuActions.findIndex(a=>a.prod_date===payload.prod_date&&a.material===payload.material&&Number(a.shift_no)===payload.shift_no);
       if(prev>=0)state.skuActions[prev]=payload;else state.skuActions.push(payload);
-      const sku=state.skuRows.find(a=>a.material===payload.material);
+      const sku=state.skuRows.find(a=>a.material===payload.material&&Number(a.shift_no)===payload.shift_no);
       if(sku)Object.assign(sku,payload);
       $('notesDialog').close();renderSkuBreakdown();renderTable();
-      notify('Tindakan SKU '+payload.material+' berhasil disimpan.');
+      notify('Tindakan SKU '+payload.material+' '+shiftTitle(payload.shift_no)+' berhasil disimpan.');
     }catch(err){notify('Gagal menyimpan: '+(err.message||err),true);}
     finally{button.disabled=false;button.textContent='Simpan';}
   }
@@ -891,7 +955,23 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
     return null;
   }
   function validateDate(y,m,d){const dt=new Date(y,m-1,d);if(dt.getFullYear()!==y||dt.getMonth()+1!==m||dt.getDate()!==d)return null;return `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;}
-  const requiredHeaders=['matdoc','matdocyear','matdocitem','date','ordertype','totalgr','totalreject'];
+  function parseEntryTime(raw){
+    if(raw instanceof Date && !isNaN(raw))return [raw.getHours(),raw.getMinutes(),raw.getSeconds()].map(n=>String(n).padStart(2,'0')).join(':');
+    if(typeof raw==='number'&&Number.isFinite(raw)){
+      const fraction=((raw%1)+1)%1;
+      const sec=Math.round(fraction*86400)%86400;
+      return [Math.floor(sec/3600),Math.floor(sec%3600/60),sec%60].map(n=>String(n).padStart(2,'0')).join(':');
+    }
+    const str=String(raw??'').trim();if(!str)return null;
+    if(/^\d+[.]\d+$/.test(str))return parseEntryTime(Number(str));
+    const m=str.match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?(?:\s*(AM|PM))?$/i);
+    if(!m)return null;
+    let h=Number(m[1]),min=Number(m[2]),sec=Number(m[3]||0);
+    if(min>59||sec>59||h>23)return null;
+    if(m[4]){if(h<1||h>12)return null;h=h%12+(m[4].toUpperCase()==='PM'?12:0);}
+    return [h,min,sec].map(n=>String(n).padStart(2,'0')).join(':');
+  }
+  const requiredHeaders=['matdoc','matdocyear','matdocitem','date','ordertype','totalgr','totalreject','timeofentry'];
   function findSapTable(workbook){
     const preferred=[...(workbook.SheetNames.includes('Data')?['Data']:[]),...workbook.SheetNames.filter(n=>n!=='Data')];
     for(const sheetName of preferred){
@@ -904,7 +984,7 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
         }
       }
     }
-    throw Error('Header SAP tidak ditemukan. Wajib memuat Mat Doc, Mat Doc Year, Mat Doc Item, Date, Order Type, Total GR, dan Total Reject.');
+    throw Error('Header SAP belum lengkap. Wajib memuat Mat Doc, Mat Doc Year, Mat Doc Item, Date, Time of Entry, Order Type, Total GR, dan Total Reject.');
   }
   function parseSapWorkbook(workbook){
     const {table,index,headerLine,sheetName}=findSapTable(workbook);
@@ -921,7 +1001,8 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
       const plant=String(get(arr,'plant')??'').trim();
       const gr=parseNumber(get(arr,'totalgr')),rej=parseNumber(get(arr,'totalreject'));
       const uu=parseNumber(get(arr,'totaluu')),qi=parseNumber(get(arr,'totalqi24h'));
-      if(!prodDate||!matYear||!matItem||!Number.isFinite(gr)||!Number.isFinite(rej)||!Number.isFinite(uu)||!Number.isFinite(qi))throw Error('Isi tidak valid pada baris SAP '+(i+1)+'. Periksa tanggal dan angka GR / Reject.');
+      const entryTime=parseEntryTime(get(arr,'timeofentry'));
+      if(!prodDate||!matYear||!matItem||!Number.isFinite(gr)||!Number.isFinite(rej)||!Number.isFinite(uu)||!Number.isFinite(qi)||!entryTime)throw Error('Isi tidak valid pada baris SAP '+(i+1)+'. Periksa Date, Time of Entry, GR, dan Reject.');
       const docKey=[matYear,matDoc,matItem,plant].join('|');
       if(seen.has(docKey))throw Error('Dokumen SAP duplikat dalam file (baris '+(i+1)+'): '+docKey);
       seen.add(docKey);
@@ -931,7 +1012,7 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
         prod_order:String(get(arr,'prodorder')??'').trim(),material:String(get(arr,'material')??'').trim(),
         material_description:String(get(arr,'materialdescription')??'').trim(),material_group_desc:String(get(arr,'materialgroupdesc')??'').trim(),
         order_type:String(get(arr,'ordertype')??'').trim(),total_gr:gr,total_uu:uu,total_reject:rej,total_qi_24h:qi,
-        source_ftq:sourceFtq,entry_date:parseDate(get(arr,'entrydate'))});
+        source_ftq:sourceFtq,entry_date:parseDate(get(arr,'entrydate')),entry_time:entryTime});
     }
     if(!data.length)throw Error('File Excel SAP tidak berisi transaksi.');
     const months=new Set(data.map(r=>r.prod_date.slice(0,7)));
@@ -999,14 +1080,14 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
     try{
       const period=currentPeriod();let detail=[];
       if(db){
-        const {data,error}=await db.rpc('ftq_sku_breakdown_range',{p_start:period.start,p_end:period.end});
+        const {data,error}=await db.rpc('ftq_sku_shift_breakdown_range',{p_start:period.start,p_end:period.end});
         if(error)throw Error('Gagal mengambil detail SKU untuk Excel: '+(error.message||error));
         detail=data||[];
       }else{
         const raw=Object.values(getDemoSnapshots()).flat().filter(r=>r.prod_date>=period.start&&r.prod_date<period.end&&!excluded.has(r.order_type));
         const group=new Map();
-        for(const r of raw){const k=skuActionKey(r.prod_date,r.material);if(!group.has(k))group.set(k,{prod_date:r.prod_date,material:r.material,material_description:r.material_description||'',total_gr:0,total_reject:0});const x=group.get(k);x.total_gr+=Number(r.total_gr||0);x.total_reject+=Number(r.total_reject||0);}
-        detail=[...group.values()].map(r=>({...r,ftq_pct:r.total_gr?(r.total_gr-r.total_reject)*100/r.total_gr:null,...(skuActionFor(r.prod_date,r.material)||{})}));
+        for(const r of raw){const shift=shiftForTime(r.entry_time),k=skuActionKey(r.prod_date,r.material,shift);if(!group.has(k))group.set(k,{prod_date:r.prod_date,material:r.material,shift_no:shift,material_description:r.material_description||'',total_gr:0,total_reject:0});const x=group.get(k);x.total_gr+=Number(r.total_gr||0);x.total_reject+=Number(r.total_reject||0);}
+        detail=[...group.values()].map(r=>({...r,ftq_pct:r.total_gr?(r.total_gr-r.total_reject)*100/r.total_gr:null,...(skuActionFor(r.prod_date,r.material,r.shift_no)||{})}));
       }
       const wb=window.XLSX.utils.book_new();
       const resume=[['Tanggal','Total GR','Block Stock (PCS)','FTQ (%)','Reject (PCS) Total SKU','Value (Rp) Total SKU','SKU Ditindaklanjuti']];
@@ -1014,17 +1095,16 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
       for(const d of rows){
         gr+=Number(d.total_gr);block+=Number(d.total_reject);
         const a=detail.filter(r=>r.prod_date===d.prod_date);
-        const rej=a.filter(x=>hasManual(x.reject_qty)),val=a.filter(x=>hasManual(x.value_amount));
-        const count=a.filter(skuActionTouched).length;
+        const dsum=dailySkuActions(d.prod_date);
+        const count=dsum.count;
         resume.push([d.prod_date,Number(d.total_gr),Number(d.total_reject),d.ftq_pct==null?null:Number(d.ftq_pct)/100,
-          rej.length?rej.reduce((sum,r)=>sum+Number(r.reject_qty),0):null,
-          val.length?val.reduce((sum,r)=>sum+Number(r.value_amount),0):null,count]);
+          dsum.reject_qty,dsum.value_amount,count]);
       }
-      const rejAll=detail.filter(x=>hasManual(x.reject_qty)),valAll=detail.filter(x=>hasManual(x.value_amount));
+      const rjs=rows.map(x=>dailySkuActions(x.prod_date)),allRej=rjs.filter(x=>x.reject_qty!==null),allVal=rjs.filter(x=>x.value_amount!==null);
       resume.push(['Grand Total',gr,block,gr?(gr-block)/gr:null,
-        rejAll.length?rejAll.reduce((z,a)=>z+Number(a.reject_qty),0):null,
-        valAll.length?valAll.reduce((z,a)=>z+Number(a.value_amount),0):null,
-        detail.filter(skuActionTouched).length]);
+        allRej.length?allRej.reduce((z,a)=>z+Number(a.reject_qty),0):null,
+        allVal.length?allVal.reduce((z,a)=>z+Number(a.value_amount),0):null,
+        rjs.reduce((z,a)=>z+a.count,0)]);
       const ws=window.XLSX.utils.aoa_to_sheet(resume);
       ws['!cols']=[{wch:16},{wch:18},{wch:20},{wch:15},{wch:26},{wch:25},{wch:22}];
       for(let i=2;i<=resume.length;i++){
@@ -1032,23 +1112,28 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
         if(ws['F'+i]&&ws['F'+i].t==='n')ws['F'+i].z='"Rp" #,##0.00';
       }
       window.XLSX.utils.book_append_sheet(wb,ws,'Resume Harian');
-      const skuSheet=[['Tanggal','Kode SKU','Nama SKU','Total GR','Block Stock (PCS)','FTQ (%)','Reject (PCS) Input','Value (Rp) Input','Issue','Root Cause','Corrective Action','Preventive Action']];
+      const skuSheet=[['Tanggal','Kode SKU','Nama SKU','Shift','Total GR','Block Stock (PCS)','FTQ (%)','Reject (PCS) Input','Value (Rp) Input','Issue','Root Cause','Corrective Action','Preventive Action']];
       for(const r of detail.sort((a,b)=>b.prod_date.localeCompare(a.prod_date)||(a.ftq_pct??999)-(b.ftq_pct??999))){
-        skuSheet.push([r.prod_date,r.material,r.material_description,Number(r.total_gr),Number(r.total_reject),r.ftq_pct==null?null:Number(r.ftq_pct)/100,
+        skuSheet.push([r.prod_date,r.material,r.material_description,shiftTitle(Number(r.shift_no)),Number(r.total_gr),Number(r.total_reject),r.ftq_pct==null?null:Number(r.ftq_pct)/100,
           hasManual(r.reject_qty)?Number(r.reject_qty):null,hasManual(r.value_amount)?Number(r.value_amount):null,
           r.issue||'',r.root_cause||'',r.corrective_action||'',r.preventive_action||'']);
       }
       const wsSku=window.XLSX.utils.aoa_to_sheet(skuSheet);
-      wsSku['!cols']=[{wch:16},{wch:17},{wch:43},{wch:17},{wch:22},{wch:13},{wch:19},{wch:20},{wch:32},{wch:32},{wch:32},{wch:32}];
+      wsSku['!cols']=[{wch:16},{wch:17},{wch:43},{wch:14},{wch:17},{wch:22},{wch:13},{wch:19},{wch:20},{wch:32},{wch:32},{wch:32},{wch:32}];
       for(let i=2;i<=skuSheet.length;i++){
-        if(wsSku['F'+i]&&wsSku['F'+i].t==='n')wsSku['F'+i].z='0.00%';
-        if(wsSku['H'+i]&&wsSku['H'+i].t==='n')wsSku['H'+i].z='"Rp" #,##0.00';
+        if(wsSku['G'+i]&&wsSku['G'+i].t==='n')wsSku['G'+i].z='0.00%';
+        if(wsSku['I'+i]&&wsSku['I'+i].t==='n')wsSku['I'+i].z='"Rp" #,##0.00';
       }
-      window.XLSX.utils.book_append_sheet(wb,wsSku,'Breakdown SKU');
-      const info=window.XLSX.utils.aoa_to_sheet([['Parameter','Keterangan'],['Periode',period.description],['Mode',state.periodMode.toUpperCase()],['FTQ','(Total GR - Block Stock) / Total GR'],['Exclude Order Type','B101 B401 B701'],['Reject, Value, dan tindakan','Input manual per TANGGAL + KODE SKU'],['Rangkuman manual','Total Reject dan Value dijumlahkan dari SKU yang diisi'],['Retensi','1 tahun; catatan per SKU ikut dihapus sesuai tanggal produksi']]);
+      window.XLSX.utils.book_append_sheet(wb,wsSku,'Breakdown Shift SKU');
+      const legacy=state.legacySkuActions.filter(r=>r.prod_date>=period.start&&r.prod_date<period.end&&skuActionTouched(r));
+      if(legacy.length){
+        const sh=window.XLSX.utils.aoa_to_sheet([['Tanggal','Kode SKU','Reject','Value','Issue','Root Cause','Corrective Action','Preventive Action'],...legacy.map(a=>[a.prod_date,a.material,a.reject_qty,a.value_amount,a.issue||'',a.root_cause||'',a.corrective_action||'',a.preventive_action||''])]);
+        window.XLSX.utils.book_append_sheet(wb,sh,'Catatan Lama');
+      }
+      const info=window.XLSX.utils.aoa_to_sheet([['Parameter','Keterangan'],['Periode',period.description],['Mode',state.periodMode.toUpperCase()],['FTQ','(Total GR - Block Stock) / Total GR'],['Exclude Order Type','B101 B401 B701'],['Reject, Value, dan tindakan','Input manual per TANGGAL + KODE SKU + SHIFT'],['Rangkuman manual','Total Reject dan Value dari SKU/Shift (catatan lama tetap terpisah)'],['Retensi','1 tahun; catatan per SKU ikut dihapus sesuai tanggal produksi']]);
       info['!cols']=[{wch:30},{wch:80}];window.XLSX.utils.book_append_sheet(wb,info,'Info');
       window.XLSX.writeFile(wb,'FTQ_Detail_SKU_'+state.periodMode+'_'+(state.periodMode==='daily'?state.selectedDay:state.periodMode==='weekly'?state.selectedWeek:state.month)+'.xlsx');
-      notify('Excel Resume Harian & Breakdown SKU berhasil diekspor.');
+      notify('Excel Resume dan Breakdown SKU per Shift berhasil diekspor.');
     }catch(e){notify('Ekspor gagal: '+(e.message||e),true);}
     finally{btn.disabled=false;}
   }
