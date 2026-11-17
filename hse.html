@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#f5f7fc">
 <title>HSE Safety Performance | DMC Kobe Bojonegoro</title>
+<meta name="hse-upload-version" content="20261117-safeupdate-final">
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -236,7 +237,8 @@ function showHseError(message){
 function readableHseError(err){
   const code=String(err?.code||'');
   const msg=String(err?.message||err||'Terjadi kesalahan');
-  if(code==='PGRST202'||/could not find the function|function .*does not exist/i.test(msg))return 'Fungsi hse_replace_dataset belum ditemukan di Supabase. Periksa SQL/RPC HSE. ('+msg+')';
+  if(code==='PGRST202'||/could not find the function|function .*does not exist/i.test(msg))return 'RPC hse_replace_dataset_v2 belum ditemukan. Jalankan hse_upload_v2_fix.sql di project Supabase yang benar. ('+msg+')';
+  if(code==='21000'||/DELETE requires a WHERE clause/i.test(msg))return 'Masih ada DELETE tanpa WHERE pada fungsi database/trigger. Periksa hasil hse_diagnosa_readonly.sql. ('+msg+')';
   if(code==='42501'||/permission denied|not authorized|row.level security/i.test(msg))return 'Akses upload ke Supabase ditolak. Periksa izin RPC dan RLS. ('+msg+')';
   if(/failed to fetch|networkerror|load failed/i.test(msg))return 'Koneksi Supabase gagal. Periksa internet dan coba lagi. ('+msg+')';
   return (code?code+' · ':'')+msg;
@@ -355,20 +357,27 @@ async function replaceOnlineData(parsed){
     source_no:r.source_no,date:r.date,year:r.year,week:r.week,category:r.category,
     location:r.location,issue:r.issue,reporter:r.reporter,pic:r.pic,status:r.status,due_date:r.due_date
   }));
-  const args={p_rows:payload,p_file_name:parsed.meta.fileName,p_source_rows:parsed.meta.rawCount};
-  // RPC v2 bersifat atomik. Bila SQL belum dipasang, coba RPC lama agar kompatibel.
-  const latest=await db.rpc('hse_replace_dataset_v2',args);
-  if(!latest.error)return latest.data;
-  const missing=latest.error.code==='PGRST202'||/could not find the function/i.test(latest.error.message||'');
-  if(!missing)throw latest.error;
-  const legacy=await db.rpc('hse_replace_dataset',args);
-  if(legacy.error){
-    if(legacy.error.code==='PGRST202'){
-      throw new Error('RPC HSE belum tersedia. Jalankan SQL perbaikan hse_replace_dataset_v2 di Supabase SQL Editor. ('+legacy.error.message+')');
+  // Upload hanya memakai RPC V2. Jangan fallback ke RPC lama yang memiliki DELETE tanpa WHERE.
+  const {data,error}=await db.rpc('hse_replace_dataset_v2',{
+    p_rows:payload,
+    p_file_name:parsed.meta.fileName,
+    p_source_rows:parsed.meta.rawCount
+  });
+  if(error){
+    if(error.code==='PGRST202'){
+      throw new Error('Fungsi RPC hse_replace_dataset_v2 tidak ditemukan. Pastikan SQL hse_upload_v2_fix.sql dijalankan pada project Supabase yang digunakan dashboard.');
     }
-    throw legacy.error;
+    const detail=new Error('RPC V2: '+String(error.message||'Upload gagal'));
+    detail.code=error.code||'';
+    throw detail;
   }
-  return legacy.data;
+  if(!data||data.ok!==true||data.rpc_version!=='hse-v2-safeupdate-final-20261117'){
+    throw new Error('RPC V2 yang aktif belum versi perbaikan final. Jalankan ulang hse_upload_v2_fix.sql di Supabase SQL Editor.');
+  }
+  if(Number(data.inserted)!==payload.length){
+    throw new Error('Jumlah hasil upload tidak cocok: '+data.inserted+' dari '+payload.length+' baris.');
+  }
+  return data;
 }
 $('fileInput').addEventListener('change',async e=>{
   const f=e.target.files?.[0];if(!f)return;
