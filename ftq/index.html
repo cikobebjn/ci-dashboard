@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#0c2248">
   <title>FTQ Monitoring | KOBE Manufacturing System</title>
-  <meta name="ftq-build" content="2026-11-17-ftq-shift-batch-v2">
+  <meta name="ftq-build" content="2026-11-17-ftq-ncf-v1">
   <!-- FTQ STANDALONE: CSS embedded to prevent wrong asset paths. -->
   <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -248,7 +248,14 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
 .batch-blank{color:#a4b4c7;font-size:11px}
 @media(max-width:710px){.sku-table{min-width:2260px!important}.batch-pill{font-size:10px}}
 
-  </style>
+  
+/* NCF: satu menu utama dan tombol ringkas di samping Edit SKU */
+.sku-table{min-width:2360px!important}
+.sku-table th:nth-child(14),.sku-table td:nth-child(14){width:183px!important;min-width:183px!important}
+.ncf-sku-actions{display:flex;align-items:center;justify-content:flex-end;gap:5px;white-space:nowrap}
+.sku-ncf{display:inline-flex;justify-content:center;align-items:center;padding:7px 9px;border:1px solid #b7d7ec;border-radius:7px;background:#eaf7fc;color:#157094;font-size:11px;font-weight:800;line-height:1.1;text-decoration:none}
+.sku-ncf:hover{background:#dff1fa;border-color:#90c5e5}
+</style>
 </head>
 <body>
   <header class="topbar">
@@ -258,7 +265,7 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
   <main class="main">
     <section class="page-heading">
       <div><div class="eyebrow">QUALITY · BOJONEGORO</div><h1>FTQ Monitoring</h1></div>
-      <div class="heading-actions"><button type="button" class="btn btn-outline" id="exportBtn"><span aria-hidden="true">↧</span> Export Excel</button><button type="button" class="btn btn-primary" id="importBtn"><span aria-hidden="true">＋</span> Upload SAP</button></div>
+      <div class="heading-actions"><button type="button" class="btn btn-outline" id="exportBtn"><span aria-hidden="true">↧</span> Export Excel</button><button type="button" class="btn btn-primary" id="importBtn"><span aria-hidden="true">＋</span> Upload SAP</button><a class="btn btn-outline" href="./ncf.html" id="ncfMenuBtn" aria-label="Buka Form Non Conformance">＋ Form NCF</a></div>
     </section>
 
     <section class="filterbar" aria-label="Filter laporan">
@@ -849,6 +856,7 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
     $('skuBody').innerHTML=shown.map(r=>{
       const a=skuActionFor(state.skuDate,r.material,r.shift_no)||r,status=skuStatus(r);
       const color=status.empty?'na':status.low?'low':'';
+      const ncfUrl='./ncf.html?'+new URLSearchParams({date:state.skuDate,sku:String(r.material||''),name:String(r.material_description||''),shift:[1,2,3].includes(Number(r.shift_no))?String(r.shift_no):'',batch:String(r.batch_numbers||''),issue:String(a.issue||'')}).toString();
       return `<tr><td><span class="sku-code">${escapeHtml(r.material||'—')}</span></td>`+
         `<td><div class="sku-description">${escapeHtml(r.material_description||'Tanpa nama SKU')}</div></td>`+
         `<td><span class="sku-shift-badge ${r.shift_no===0?'unknown':''}">${escapeHtml(shiftTitle(r.shift_no))}</span></td>`+
@@ -858,7 +866,7 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
         `<td class="manual-amount">${hasManual(a.reject_qty)?fmtNumber(a.reject_qty,0):'—'}</td>`+
         `<td class="manual-amount">${fmtValue(a.value_amount)}</td>`+
         textCell(a.issue)+textCell(a.root_cause)+textCell(a.corrective_action)+textCell(a.preventive_action)+
-        `<td class="right">${r.shift_no===0?'<span class="note-placeholder">Impor ulang</span>':`<button type="button" class="sku-edit" data-sku-edit="${escapeHtml(r.material)}" data-shift-edit="${r.shift_no}" title="Edit tindak lanjut SKU ${escapeHtml(r.material)} ${shiftTitle(r.shift_no)}">✎ Edit</button>`}</td></tr>`;
+        `<td class="right"><div class="ncf-sku-actions">${r.shift_no===0?'<span class="note-placeholder">Impor ulang</span>':`<button type="button" class="sku-edit" data-sku-edit="${escapeHtml(r.material)}" data-shift-edit="${r.shift_no}" title="Edit tindak lanjut SKU ${escapeHtml(r.material)} ${shiftTitle(r.shift_no)}">✎ Edit</button>`}<a class="sku-ncf" href="${escapeHtml(ncfUrl)}" title="Buat Form NCF untuk SKU dan shift ini">Form NCF</a></div></td></tr>`;
     }).join('');
     $('skuBody').querySelectorAll('button[data-sku-edit]').forEach(el=>el.addEventListener('click',()=>openSkuNotes(state.skuDate,el.dataset.skuEdit,Number(el.dataset.shiftEdit))));
   }
