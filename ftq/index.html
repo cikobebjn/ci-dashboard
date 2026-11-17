@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#0c2248">
   <title>FTQ Monitoring | KOBE Manufacturing System</title>
-  <meta name="ftq-build" content="2026-11-17-ftq-shift-sku-v1">
+  <meta name="ftq-build" content="2026-11-17-ftq-shift-batch-v2">
   <!-- FTQ STANDALONE: CSS embedded to prevent wrong asset paths. -->
   <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -224,6 +224,30 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
 .sku-table th:nth-child(6),.sku-table td:nth-child(6){min-width:92px;width:92px}
 .sku-table th:nth-child(7),.sku-table td:nth-child(7){min-width:90px;width:90px}
 @media(max-width:760px){.shift-summary{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  
+/* FTQ Batch Number | order: SKU, name, shift, batch, KPI & actions */
+.sku-table{min-width:2260px!important}
+.sku-table th:nth-child(4),.sku-table td:nth-child(4){width:175px!important;min-width:175px!important}
+.sku-table th:nth-child(5),.sku-table td:nth-child(5){width:112px!important;min-width:112px!important}
+.sku-table th:nth-child(6),.sku-table td:nth-child(6){width:125px!important;min-width:125px!important}
+.sku-table th:nth-child(7),.sku-table td:nth-child(7){width:100px!important;min-width:100px!important}
+.sku-table th:nth-child(8),.sku-table td:nth-child(8){width:102px!important;min-width:102px!important}
+.sku-table th:nth-child(9),.sku-table td:nth-child(9){width:125px!important;min-width:125px!important}
+.sku-table th:nth-child(10),.sku-table td:nth-child(10),
+.sku-table th:nth-child(11),.sku-table td:nth-child(11),
+.sku-table th:nth-child(12),.sku-table td:nth-child(12),
+.sku-table th:nth-child(13),.sku-table td:nth-child(13){width:145px!important;min-width:145px!important}
+.sku-table th:nth-child(13){position:sticky!important;top:0;right:auto!important;box-shadow:none!important;z-index:1;background:#f4f7fc!important}
+.sku-table td:nth-child(13){position:static!important;right:auto!important;box-shadow:none!important;background:inherit!important}
+.sku-table th:nth-child(14),.sku-table td:nth-child(14){width:94px!important;min-width:94px!important;position:sticky!important;right:0;box-shadow:-9px 0 15px -12px rgba(30,55,100,.27)!important}
+.sku-table th:nth-child(14){top:0;z-index:5!important;background:#f4f7fc!important}
+.sku-table td:nth-child(14){z-index:3!important;background:#fff!important}
+.sku-table tbody tr:hover td:nth-child(14){background:#f8fbff!important}
+.batch-list{display:flex;align-items:flex-start;flex-wrap:wrap;gap:5px}
+.batch-pill{display:inline-block;max-width:100%;font-size:10px;font-weight:750;line-height:1.3;letter-spacing:.1px;white-space:nowrap;padding:5px 7px;background:#f0f5fc;border:1px solid #e2eaf5;border-radius:6px;color:#315888;font-variant-numeric:tabular-nums}
+.batch-blank{color:#a4b4c7;font-size:11px}
+@media(max-width:710px){.sku-table{min-width:2260px!important}.batch-pill{font-size:10px}}
+
   </style>
 </head>
 <body>
@@ -308,8 +332,8 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
       <div class="sku-error" id="skuError" role="alert" hidden></div>
       <div class="sku-table-scroll">
         <table class="sku-table" aria-label="Rincian FTQ per SKU dan shift per tanggal">
-          <thead><tr><th>Kode SKU</th><th>Nama SKU</th><th>Shift</th><th class="right">Total GR</th><th class="right">Block Stock (PCS)</th><th class="right">FTQ</th><th class="right">Reject</th><th class="right">Value</th><th>Issue</th><th>Root Cause</th><th>Corrective Action</th><th>Preventive Action</th><th class="right">Aksi</th></tr></thead>
-          <tbody id="skuBody"><tr><td colspan="13" class="sku-empty">Pilih tanggal untuk melihat rincian SKU.</td></tr></tbody>
+          <thead><tr><th>Kode SKU</th><th>Nama SKU</th><th>Shift</th><th>Batch Number</th><th class="right">Total GR</th><th class="right">Block Stock (PCS)</th><th class="right">FTQ</th><th class="right">Reject</th><th class="right">Value</th><th>Issue</th><th>Root Cause</th><th>Corrective Action</th><th>Preventive Action</th><th class="right">Aksi</th></tr></thead>
+          <tbody id="skuBody"><tr><td colspan="14" class="sku-empty">Pilih tanggal untuk melihat rincian SKU.</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -769,6 +793,7 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
   }
 
   // Ringkasan per kode SKU + shift; angka ALL selalu jumlah Shift 1/2/3 dan tanpa waktu.
+  // Per baris SKU + Shift: satu atau lebih Batch dari SAP dikumpulkan tanpa menggandakan total.
   function mergeSkuData(rows){
     const map=new Map();
     for(const r of rows){
@@ -776,15 +801,20 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
       const shift=Number(r.shift_no??shiftForTime(r.entry_time));
       const key=skuActionKey(r.prod_date||state.skuDate,material,shift);
       if(!map.has(key))map.set(key,{material,material_description:description,shift_no:shift,
-        total_gr:0,total_reject:0,reject_qty:r.reject_qty??null,value_amount:r.value_amount??null,
+        total_gr:0,total_reject:0,batchSet:new Set(),reject_qty:r.reject_qty??null,value_amount:r.value_amount??null,
         issue:r.issue||'',root_cause:r.root_cause||'',corrective_action:r.corrective_action||'',preventive_action:r.preventive_action||''});
       const item=map.get(key);
       if(!item.material_description&&description)item.material_description=description;
+      for(const batch of String(r.batch_numbers??r.batch_number??'').split('|').map(x=>x.trim()).filter(Boolean))item.batchSet.add(batch);
       item.total_gr+=Number(r.total_gr||0);item.total_reject+=Number(r.total_reject||0);
     }
-    return [...map.values()].map(x=>({...x,ftq_pct:x.total_gr===0?null:(x.total_gr-x.total_reject)*100/x.total_gr}))
-      .sort((a,b)=>a.ftq_pct===null?1:b.ftq_pct===null?-1:a.ftq_pct-b.ftq_pct||a.shift_no-b.shift_no||a.material.localeCompare(b.material));
+    return [...map.values()].map(x=>{
+      const {batchSet,...v}=x;
+      return {...v,batch_numbers:[...batchSet].sort().join(' | '),
+        ftq_pct:v.total_gr===0?null:(v.total_gr-v.total_reject)*100/v.total_gr};
+    }).sort((a,b)=>a.ftq_pct===null?1:b.ftq_pct===null?-1:a.ftq_pct-b.ftq_pct||a.shift_no-b.shift_no||a.material.localeCompare(b.material));
   }
+
   function skuStatus(row){
     if(row.ftq_pct===null)return {name:'—',low:false,empty:true};
     return row.ftq_pct<state.target?{name:'Tidak tercapai',low:true,empty:false}:{name:'Tercapai',low:false,empty:false};
@@ -810,11 +840,11 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
     const shown=rows.filter(r=>!belowOnly||skuStatus(r).low).filter(r=>{
       if(!search)return true;
       const a=skuActionFor(state.skuDate,r.material,r.shift_no)||r;
-      return [r.material,r.material_description,shiftTitle(r.shift_no),a.issue,a.root_cause,a.corrective_action,a.preventive_action].join(' ').toLocaleLowerCase('id-ID').includes(search);
+      return [r.material,r.material_description,shiftTitle(r.shift_no),r.batch_numbers,a.issue,a.root_cause,a.corrective_action,a.preventive_action].join(' ').toLocaleLowerCase('id-ID').includes(search);
     });
     $('skuVisibleCount').textContent=shown.length+' dari '+rows.length+' baris SKU/Shift';
     $('skuFoot').textContent='Target FTQ '+fmtPct(state.target);
-    if(!shown.length){$('skuBody').innerHTML='<tr><td colspan="13" class="sku-empty">'+(rows.length?'Tidak ada SKU sesuai filter.':'Belum ada transaksi pada shift ini.')+'</td></tr>';return;}
+    if(!shown.length){$('skuBody').innerHTML='<tr><td colspan="14" class="sku-empty">'+(rows.length?'Tidak ada SKU sesuai filter.':'Belum ada transaksi pada shift ini.')+'</td></tr>';return;}
     const textCell=(v)=>`<td>${v?`<span class="action-text" title="${escapeHtml(v)}">${escapeHtml(v)}</span>`:'<span class="note-placeholder">—</span>'}</td>`;
     $('skuBody').innerHTML=shown.map(r=>{
       const a=skuActionFor(state.skuDate,r.material,r.shift_no)||r,status=skuStatus(r);
@@ -822,6 +852,7 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
       return `<tr><td><span class="sku-code">${escapeHtml(r.material||'—')}</span></td>`+
         `<td><div class="sku-description">${escapeHtml(r.material_description||'Tanpa nama SKU')}</div></td>`+
         `<td><span class="sku-shift-badge ${r.shift_no===0?'unknown':''}">${escapeHtml(shiftTitle(r.shift_no))}</span></td>`+
+        `<td>${r.batch_numbers?`<div class="batch-list">${String(r.batch_numbers).split('|').map(n=>n.trim()).filter(Boolean).map(n=>`<span class="batch-pill">${escapeHtml(n)}</span>`).join('')}</div>`:'<span class="batch-blank">—</span>'}</td>`+
         `<td class="right">${fmtNumber(r.total_gr,3)}</td><td class="right">${fmtNumber(r.total_reject,3)}</td>`+
         `<td class="right"><span class="sku-rate ${color}">${fmtPct(r.ftq_pct)}</span></td>`+
         `<td class="manual-amount">${hasManual(a.reject_qty)?fmtNumber(a.reject_qty,0):'—'}</td>`+
@@ -848,15 +879,15 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
     $('skuTotalCount').textContent='—';$('skuGrTotal').textContent='—';
     $('skuBlockTotal').textContent='—';$('skuFtqTotal').textContent='—';
     $('skuVisibleCount').textContent='Memuat...';$('skuFoot').textContent='—';
-    $('skuBody').innerHTML='<tr><td colspan="13" class="sku-empty">Memuat breakdown SKU per Shift...</td></tr>';
+    $('skuBody').innerHTML='<tr><td colspan="14" class="sku-empty">Memuat breakdown SKU per Shift...</td></tr>';
     showDialog('skuDialog');
     try{
       let result=[];
       if(db){
-        const response=await db.rpc('ftq_sku_shift_breakdown_range',{p_start:date,p_end:addDays(date,1)});
+        const response=await db.rpc('ftq_sku_shift_batch_breakdown_range',{p_start:date,p_end:addDays(date,1)});
         if(response.error){
           if(response.error.code==='PGRST202'||/ftq_sku_shift_breakdown_range|schema cache|could not find the function/i.test(response.error.message||''))
-            throw Error('Jalankan SQL ftq-shift-migration.sql di Supabase untuk mengaktifkan breakdown per shift.');
+            throw Error('Jalankan SQL ftq-batch-migration.sql di Supabase sebelum membuka rincian Batch Number.');
           throw response.error;
         }
         result=response.data||[];
@@ -881,7 +912,7 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
     }catch(err){
       if(requestId!==state.skuRequestId)return;
       state.skuLoading=false;$('skuError').textContent=err.message||String(err);$('skuError').hidden=false;
-      $('skuVisibleCount').textContent='—';$('skuBody').innerHTML='<tr><td colspan="13" class="sku-empty">Breakdown SKU per shift belum tersedia.</td></tr>';
+      $('skuVisibleCount').textContent='—';$('skuBody').innerHTML='<tr><td colspan="14" class="sku-empty">Breakdown SKU per shift belum tersedia.</td></tr>';
     }
   }
 
@@ -891,7 +922,7 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
     if(!sku||state.noteShift<1||state.noteShift>3)return notify('Pilih SKU dan Shift 1, 2, atau 3 yang valid.',true);
     const x=skuActionFor(date,material,state.noteShift)||sku;
     $('notesDate').textContent=dateLabel(date);
-    $('notesSku').textContent='SKU '+material+' · '+shiftTitle(state.noteShift)+' ('+shiftHours(state.noteShift)+') · '+(sku.material_description||'Tanpa nama SKU');
+    $('notesSku').textContent='SKU '+material+' · '+shiftTitle(state.noteShift)+' ('+shiftHours(state.noteShift)+') · Batch '+(sku.batch_numbers||'—')+' · '+(sku.material_description||'Tanpa nama SKU');
     $('notesMetric').textContent=`FTQ ${fmtPct(sku.ftq_pct)} · GR ${fmtNumber(sku.total_gr)} · Block Stock ${fmtNumber(sku.total_reject)} PCS`;
     const legacy=state.legacySkuActions.find(a=>a.prod_date===date&&a.material===material&&skuActionTouched(a));
     $('notesLegacy').hidden=!legacy;
@@ -971,7 +1002,7 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
     if(m[4]){if(h<1||h>12)return null;h=h%12+(m[4].toUpperCase()==='PM'?12:0);}
     return [h,min,sec].map(n=>String(n).padStart(2,'0')).join(':');
   }
-  const requiredHeaders=['matdoc','matdocyear','matdocitem','date','ordertype','totalgr','totalreject','timeofentry'];
+  const requiredHeaders=['matdoc','matdocyear','matdocitem','batch','date','ordertype','totalgr','totalreject','timeofentry'];
   function findSapTable(workbook){
     const preferred=[...(workbook.SheetNames.includes('Data')?['Data']:[]),...workbook.SheetNames.filter(n=>n!=='Data')];
     for(const sheetName of preferred){
@@ -984,7 +1015,7 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
         }
       }
     }
-    throw Error('Header SAP belum lengkap. Wajib memuat Mat Doc, Mat Doc Year, Mat Doc Item, Date, Time of Entry, Order Type, Total GR, dan Total Reject.');
+    throw Error('Header SAP belum lengkap. Wajib memuat Mat Doc, Mat Doc Year, Mat Doc Item, Batch, Date, Time of Entry, Order Type, Total GR, dan Total Reject.');
   }
   function parseSapWorkbook(workbook){
     const {table,index,headerLine,sheetName}=findSapTable(workbook);
@@ -1002,9 +1033,11 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
       const gr=parseNumber(get(arr,'totalgr')),rej=parseNumber(get(arr,'totalreject'));
       const uu=parseNumber(get(arr,'totaluu')),qi=parseNumber(get(arr,'totalqi24h'));
       const entryTime=parseEntryTime(get(arr,'timeofentry'));
+       const batchNumber=String(get(arr,'batch')??'').trim();
       if(!prodDate||!matYear||!matItem||!Number.isFinite(gr)||!Number.isFinite(rej)||!Number.isFinite(uu)||!Number.isFinite(qi)||!entryTime)throw Error('Isi tidak valid pada baris SAP '+(i+1)+'. Periksa Date, Time of Entry, GR, dan Reject.');
       const docKey=[matYear,matDoc,matItem,plant].join('|');
-      if(seen.has(docKey))throw Error('Dokumen SAP duplikat dalam file (baris '+(i+1)+'): '+docKey);
+      if(!batchNumber||batchNumber.length>100)throw Error('Batch Number wajib terisi dan maksimal 100 karakter pada baris SAP '+(i+1)+'.');
+       if(seen.has(docKey))throw Error('Dokumen SAP duplikat dalam file (baris '+(i+1)+'): '+docKey);
       seen.add(docKey);
       const sourceFtq=get(arr,'ftq')===''?null:parseNumber(get(arr,'ftq'));
       if(sourceFtq!==null&&!Number.isFinite(sourceFtq))throw Error('Kolom FTQ salah pada baris '+(i+1));
@@ -1012,7 +1045,7 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
         prod_order:String(get(arr,'prodorder')??'').trim(),material:String(get(arr,'material')??'').trim(),
         material_description:String(get(arr,'materialdescription')??'').trim(),material_group_desc:String(get(arr,'materialgroupdesc')??'').trim(),
         order_type:String(get(arr,'ordertype')??'').trim(),total_gr:gr,total_uu:uu,total_reject:rej,total_qi_24h:qi,
-        source_ftq:sourceFtq,entry_date:parseDate(get(arr,'entrydate')),entry_time:entryTime});
+        source_ftq:sourceFtq,entry_date:parseDate(get(arr,'entrydate')),entry_time:entryTime,batch_number:batchNumber});
     }
     if(!data.length)throw Error('File Excel SAP tidak berisi transaksi.');
     const months=new Set(data.map(r=>r.prod_date.slice(0,7)));
@@ -1062,7 +1095,7 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
     if(!rows?.length)return;
     const btn=$('confirmImportBtn');btn.disabled=true;btn.textContent='Menyimpan ke Supabase...';
     try{
-      if(db){const {error}=await db.rpc('ftq_replace_month',{p_month:firstOfMonth(month),p_rows:rows});if(error)throw error;}
+      if(db){const {error}=await db.rpc('ftq_replace_month_with_batch',{p_month:firstOfMonth(month),p_rows:rows});if(error){if(error.code==='PGRST202'||/schema cache|could not find the function|ftq_replace_month_with_batch/i.test(error.message||''))throw Error('Jalankan SQL ftq-batch-migration.sql di Supabase sebelum mengimpor Batch Number.');throw error;}}
       else {const base=safeGet(demoKey,{});base[month]=rows;if(!safeSet(demoKey,base))throw Error('Penyimpanan lokal penuh. Silakan hubungkan Supabase.');}
       $('confirmImportDialog').close();$('uploadDialog').close();$('sapFile').value='';state.importedRows=null;
       state.month=month;state.selectedDay='';state.selectedWeek='';$('monthPicker').value=month;
@@ -1080,14 +1113,14 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
     try{
       const period=currentPeriod();let detail=[];
       if(db){
-        const {data,error}=await db.rpc('ftq_sku_shift_breakdown_range',{p_start:period.start,p_end:period.end});
-        if(error)throw Error('Gagal mengambil detail SKU untuk Excel: '+(error.message||error));
+        const {data,error}=await db.rpc('ftq_sku_shift_batch_breakdown_range',{p_start:period.start,p_end:period.end});
+        if(error)throw Error('Gagal mengambil detail SKU/Batch untuk Excel. Jalankan ftq-batch-migration.sql. Detail: '+(error.message||error));
         detail=data||[];
       }else{
         const raw=Object.values(getDemoSnapshots()).flat().filter(r=>r.prod_date>=period.start&&r.prod_date<period.end&&!excluded.has(r.order_type));
         const group=new Map();
-        for(const r of raw){const shift=shiftForTime(r.entry_time),k=skuActionKey(r.prod_date,r.material,shift);if(!group.has(k))group.set(k,{prod_date:r.prod_date,material:r.material,shift_no:shift,material_description:r.material_description||'',total_gr:0,total_reject:0});const x=group.get(k);x.total_gr+=Number(r.total_gr||0);x.total_reject+=Number(r.total_reject||0);}
-        detail=[...group.values()].map(r=>({...r,ftq_pct:r.total_gr?(r.total_gr-r.total_reject)*100/r.total_gr:null,...(skuActionFor(r.prod_date,r.material,r.shift_no)||{})}));
+        for(const r of raw){const shift=shiftForTime(r.entry_time),k=skuActionKey(r.prod_date,r.material,shift);if(!group.has(k))group.set(k,{prod_date:r.prod_date,material:r.material,shift_no:shift,material_description:r.material_description||'',total_gr:0,total_reject:0,batchSet:new Set()});const x=group.get(k);if(r.batch_number)x.batchSet.add(String(r.batch_number).trim());x.total_gr+=Number(r.total_gr||0);x.total_reject+=Number(r.total_reject||0);}
+        detail=[...group.values()].map(r=>({...r,batch_numbers:[...r.batchSet].sort().join(' | '),ftq_pct:r.total_gr?(r.total_gr-r.total_reject)*100/r.total_gr:null,...(skuActionFor(r.prod_date,r.material,r.shift_no)||{})}));
       }
       const wb=window.XLSX.utils.book_new();
       const resume=[['Tanggal','Total GR','Block Stock (PCS)','FTQ (%)','Reject (PCS) Total SKU','Value (Rp) Total SKU','SKU Ditindaklanjuti']];
@@ -1112,17 +1145,17 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
         if(ws['F'+i]&&ws['F'+i].t==='n')ws['F'+i].z='"Rp" #,##0.00';
       }
       window.XLSX.utils.book_append_sheet(wb,ws,'Resume Harian');
-      const skuSheet=[['Tanggal','Kode SKU','Nama SKU','Shift','Total GR','Block Stock (PCS)','FTQ (%)','Reject (PCS) Input','Value (Rp) Input','Issue','Root Cause','Corrective Action','Preventive Action']];
+      const skuSheet=[['Tanggal','Kode SKU','Nama SKU','Shift','Batch Number','Total GR','Block Stock (PCS)','FTQ (%)','Reject (PCS) Input','Value (Rp) Input','Issue','Root Cause','Corrective Action','Preventive Action']];
       for(const r of detail.sort((a,b)=>b.prod_date.localeCompare(a.prod_date)||(a.ftq_pct??999)-(b.ftq_pct??999))){
-        skuSheet.push([r.prod_date,r.material,r.material_description,shiftTitle(Number(r.shift_no)),Number(r.total_gr),Number(r.total_reject),r.ftq_pct==null?null:Number(r.ftq_pct)/100,
+        skuSheet.push([r.prod_date,r.material,r.material_description,shiftTitle(Number(r.shift_no)),r.batch_numbers||'',Number(r.total_gr),Number(r.total_reject),r.ftq_pct==null?null:Number(r.ftq_pct)/100,
           hasManual(r.reject_qty)?Number(r.reject_qty):null,hasManual(r.value_amount)?Number(r.value_amount):null,
           r.issue||'',r.root_cause||'',r.corrective_action||'',r.preventive_action||'']);
       }
       const wsSku=window.XLSX.utils.aoa_to_sheet(skuSheet);
-      wsSku['!cols']=[{wch:16},{wch:17},{wch:43},{wch:14},{wch:17},{wch:22},{wch:13},{wch:19},{wch:20},{wch:32},{wch:32},{wch:32},{wch:32}];
+      wsSku['!cols']=[{wch:16},{wch:17},{wch:43},{wch:14},{wch:30},{wch:17},{wch:22},{wch:13},{wch:19},{wch:20},{wch:32},{wch:32},{wch:32},{wch:32}];
       for(let i=2;i<=skuSheet.length;i++){
-        if(wsSku['G'+i]&&wsSku['G'+i].t==='n')wsSku['G'+i].z='0.00%';
-        if(wsSku['I'+i]&&wsSku['I'+i].t==='n')wsSku['I'+i].z='"Rp" #,##0.00';
+        if(wsSku['H'+i]&&wsSku['H'+i].t==='n')wsSku['H'+i].z='0.00%';
+        if(wsSku['J'+i]&&wsSku['J'+i].t==='n')wsSku['J'+i].z='"Rp" #,##0.00';
       }
       window.XLSX.utils.book_append_sheet(wb,wsSku,'Breakdown Shift SKU');
       const legacy=state.legacySkuActions.filter(r=>r.prod_date>=period.start&&r.prod_date<period.end&&skuActionTouched(r));
@@ -1130,10 +1163,10 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
         const sh=window.XLSX.utils.aoa_to_sheet([['Tanggal','Kode SKU','Reject','Value','Issue','Root Cause','Corrective Action','Preventive Action'],...legacy.map(a=>[a.prod_date,a.material,a.reject_qty,a.value_amount,a.issue||'',a.root_cause||'',a.corrective_action||'',a.preventive_action||''])]);
         window.XLSX.utils.book_append_sheet(wb,sh,'Catatan Lama');
       }
-      const info=window.XLSX.utils.aoa_to_sheet([['Parameter','Keterangan'],['Periode',period.description],['Mode',state.periodMode.toUpperCase()],['FTQ','(Total GR - Block Stock) / Total GR'],['Exclude Order Type','B101 B401 B701'],['Reject, Value, dan tindakan','Input manual per TANGGAL + KODE SKU + SHIFT'],['Rangkuman manual','Total Reject dan Value dari SKU/Shift (catatan lama tetap terpisah)'],['Retensi','1 tahun; catatan per SKU ikut dihapus sesuai tanggal produksi']]);
+      const info=window.XLSX.utils.aoa_to_sheet([['Parameter','Keterangan'],['Periode',period.description],['Mode',state.periodMode.toUpperCase()],['FTQ','(Total GR - Block Stock) / Total GR'],['Exclude Order Type','B101 B401 B701'],['Reject, Value, dan tindakan','Input manual per TANGGAL + KODE SKU + SHIFT (tidak per batch)'],['Rangkuman manual','Total Reject dan Value dari SKU/Shift (catatan lama tetap terpisah)'],['Retensi','1 tahun; catatan per SKU ikut dihapus sesuai tanggal produksi']]);
       info['!cols']=[{wch:30},{wch:80}];window.XLSX.utils.book_append_sheet(wb,info,'Info');
       window.XLSX.writeFile(wb,'FTQ_Detail_SKU_'+state.periodMode+'_'+(state.periodMode==='daily'?state.selectedDay:state.periodMode==='weekly'?state.selectedWeek:state.month)+'.xlsx');
-      notify('Excel Resume dan Breakdown SKU per Shift berhasil diekspor.');
+      notify('Excel Resume dan Breakdown SKU, Shift, serta Batch berhasil diekspor.');
     }catch(e){notify('Ekspor gagal: '+(e.message||e),true);}
     finally{btn.disabled=false;}
   }
