@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#0c2248">
   <title>FTQ Monitoring | KOBE Manufacturing System</title>
-  <meta name="ftq-build" content="2026-11-17-ftq-clean-final-v2">
+  <meta name="ftq-build" content="2026-11-17-ftq-week-kalender-v3">
   <!-- FTQ STANDALONE: CSS embedded to prevent wrong asset paths. -->
   <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -217,9 +217,36 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
   const addDays = (v,n) => {const d=fromIso(v);d.setDate(d.getDate()+n);return isoLocal(d);};
   const sundayOf = (v) => {const d=fromIso(v);d.setDate(d.getDate()-d.getDay());return isoLocal(d);};
   const endMonth = (m) => addDays(firstOfMonth(monthNext(m)), -1);
+  // Nomor Week kalender tahunan, tetapi rentang produksi SELALU Minggu-Sabtu.
+  // Perhitungan nomor menggunakan Senin setelah Minggu awal sebagai penanda
+  // minggu kalender agar Nov 15-21 2026 adalah W47 (bukan W3 dalam bulan).
+  // UTC + tanggal siang mencegah kesalahan pergeseran zona waktu / DST.
+  function calendarWeek(sunday){
+    const monday=addDays(sunday,1);
+    const [year,month,day]=monday.split('-').map(Number);
+    const thursday=new Date(Date.UTC(year,month-1,day));
+    const weekDay=thursday.getUTCDay() || 7;
+    thursday.setUTCDate(thursday.getUTCDate()+4-weekDay);
+    const weekYear=thursday.getUTCFullYear();
+    const jan1=Date.UTC(weekYear,0,1);
+    const week=Math.ceil((((thursday.getTime()-jan1)/86400000)+1)/7);
+    return {number:week,year:weekYear,short:'W'+week};
+  }
+  const weekRangeLabel = (start,end) => {
+    const [y1,m1,d1]=start.split('-').map(Number);
+    const [y2,m2,d2]=end.split('-').map(Number);
+    const monthShort = v => new Intl.DateTimeFormat('id-ID',{month:'short'}).format(fromIso(v));
+    if(y1===y2 && m1===m2)return `${d1}–${d2} ${monthShort(end)} ${y2}`;
+    if(y1===y2)return `${d1} ${monthShort(start)} – ${d2} ${monthShort(end)} ${y2}`;
+    return `${d1} ${monthShort(start)} ${y1} – ${d2} ${monthShort(end)} ${y2}`;
+  };
   function weeksInMonth(month){
     const weeks=[];let start=sundayOf(firstOfMonth(month));const next=firstOfMonth(monthNext(month));
-    while(start<next){weeks.push({start,end:addDays(start,6)});start=addDays(start,7);}
+    while(start<next){
+      const end=addDays(start,6);
+      weeks.push({start,end,...calendarWeek(start)});
+      start=addDays(start,7);
+    }
     return weeks;
   }
   const inRange = (date,start,endExclusive) => date>=start && date<endExclusive;
@@ -230,7 +257,7 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
     }
     if(state.periodMode==='weekly'){
       const start=state.selectedWeek||weeksInMonth(state.month)[0].start;
-      return {start,end:addDays(start,7),description:dateLabel(start)+' – '+dateLabel(addDays(start,6))};
+      return {start,end:addDays(start,7),description:calendarWeek(start).short+' · '+weekRangeLabel(start,addDays(start,6))};
     }
     return {start:firstOfMonth(state.month),end:firstOfMonth(monthNext(state.month)),description:monthLabel(state.month)};
   }
@@ -253,7 +280,7 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
       const best=state.month===currentMonth()&&weeks.some(w=>w.start===nowWeek)?nowWeek:sundayOf(preferred);
       state.selectedWeek=weeks.some(w=>w.start===best)?best:weeks.at(-1).start;
     }
-    $('weekPicker').innerHTML=weeks.map((w,i)=>`<option value="${w.start}">Week ${i+1} · ${dateLabel(w.start)} – ${dateLabel(w.end)}</option>`).join('');
+    $('weekPicker').innerHTML=weeks.map(w=>`<option value="${w.start}">${w.short} · ${weekRangeLabel(w.start,w.end)}</option>`).join('');
     $('weekPicker').value=state.selectedWeek;
     $('dayFilterBlock').hidden=state.periodMode!=='daily';
     $('weekFilterBlock').hidden=state.periodMode!=='weekly';
@@ -502,7 +529,7 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
       $('trendTitle').textContent='Tren FTQ Mingguan';
       $('trendSubtitle').textContent='Rekap per Week (Minggu–Sabtu) · FTQ tertimbang dari GR dan Reject';
       const weeks=weeksInMonth(state.month);
-      labels=weeks.map((w,i)=>'W'+(i+1));
+      labels=weeks.map(w=>w.short);
       values=weeks.map(w=>sumPeriod(state.dailyAll.filter(r=>inRange(r.prod_date,w.start,addDays(w.end,1)))).ftq);
       active=weeks.map(w=>w.start===state.selectedWeek);
       $('trendPeriod').textContent=monthLabel(state.month);
