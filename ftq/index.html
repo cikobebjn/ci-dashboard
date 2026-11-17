@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#0c2248">
   <title>FTQ Monitoring | KOBE Manufacturing System</title>
-  <meta name="ftq-build" content="2026-11-17-ftq-ncf-v1">
+  <meta name="ftq-build" content="2026-11-17-ftq-rekap-interaktif-ncf-v2">
   <!-- FTQ STANDALONE: CSS embedded to prevent wrong asset paths. -->
   <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -255,6 +255,17 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
 .ncf-sku-actions{display:flex;align-items:center;justify-content:flex-end;gap:5px;white-space:nowrap}
 .sku-ncf{display:inline-flex;justify-content:center;align-items:center;padding:7px 9px;border:1px solid #b7d7ec;border-radius:7px;background:#eaf7fc;color:#157094;font-size:11px;font-weight:800;line-height:1.1;text-decoration:none}
 .sku-ncf:hover{background:#dff1fa;border-color:#90c5e5}
+
+/* Rekap harian: data manual & NCF mudah dibuka, tampilan tetap ringkas. */
+.resume-drill-metric{display:inline-flex;align-items:center;justify-content:flex-end;gap:5px;width:100%;max-width:100%;min-height:30px;padding:5px 8px;border:1px solid transparent;border-radius:7px;background:transparent;color:#2b446b;font:700 11px 'DM Sans','Segoe UI',sans-serif;font-variant-numeric:tabular-nums;white-space:nowrap;cursor:pointer;text-align:right}
+.resume-drill-metric.empty{color:#a0aec2;font-weight:500}
+.resume-drill-metric.center{justify-content:center}
+.resume-drill-metric .hint-arrow{font-size:10px;opacity:0;color:#4c7dc5;transition:opacity .13s ease}
+.resume-drill-metric:hover,.resume-drill-metric:focus-visible{background:#f0f6ff;border-color:#dce8fa;color:#255aa6}
+.resume-drill-metric:hover .hint-arrow,.resume-drill-metric:focus-visible .hint-arrow{opacity:1}
+.resume-drill-metric .sku-rate{font-size:10px;padding:5px 7px}
+.resume-drill-metric:focus-visible{outline:2px solid #78a8ec;outline-offset:2px}
+.sku-ncf-saved{display:inline-block;padding:2px 4px;margin-left:5px;vertical-align:middle;border:1px solid #bfdeec;border-radius:4px;background:#ecf8ff;color:#19739a;font-size:9px;font-weight:800}
 </style>
 </head>
 <body>
@@ -394,7 +405,7 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
     month: '', target: Number(cfg.targetFtqPercent ?? 99),
     periodMode: 'monthly', selectedDay: '', selectedWeek: '', periodRows: [],
     dailyAll: [], monthRows: [], materials: [], materialDaily: [], hasDailyMaterialView: false, notes: {},
-    importedRows: null, importingFile: '', noteDate: '', noteMaterial: '', noteShift: 0, skuActions: [], legacySkuActions: [], skuNotesReady: true,
+    importedRows: null, importingFile: '', noteDate: '', noteMaterial: '', noteShift: 0, skuActions: [], legacySkuActions: [], ncfItems: [], skuNotesReady: true, lastLoadedAt: 0,
     chartDaily: null, chartMonthly: null, loading: false, skuRows: [], skuDate: '', skuShift: 'all', skuRequestId: 0, skuLoading: false
   };
   const fmtNumber = (n, places=2) => new Intl.NumberFormat('id-ID',{maximumFractionDigits:places}).format(Number(n || 0));
@@ -573,13 +584,14 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
         const begin=cutoffIso(),end=monthNext(state.month)+'-01';
         const weekRanges=weeksInMonth(state.month);
         const matBegin=weekRanges[0].start,matEnd=addDays(weekRanges.at(-1).end,1);
-        const [d,m,n,md,sn,sh]=await Promise.all([
+        const [d,m,n,md,sn,sh,ncf]=await Promise.all([
           db.from('ftq_daily_resume').select('*').gte('prod_date',begin).order('prod_date',{ascending:true}).limit(450),
           db.from('ftq_reject_material_monthly').select('month_key,material,material_description,material_group_desc,total_gr,total_reject').eq('month_key',firstOfMonth(state.month)).order('total_reject',{ascending:false}).limit(20),
           db.from('ftq_action_notes').select('*').gte('prod_date',begin).order('prod_date',{ascending:true}).limit(500),
           db.from('ftq_reject_material_daily').select('prod_date,material,material_description,material_group_desc,total_gr,total_reject').gte('prod_date',matBegin).lt('prod_date',matEnd).order('prod_date',{ascending:true}).limit(5000),
           db.from('ftq_sku_actions').select('*').gte('prod_date',matBegin).lt('prod_date',matEnd).order('prod_date',{ascending:true}).limit(4000),
-          db.from('ftq_sku_shift_actions').select('*').gte('prod_date',matBegin).lt('prod_date',matEnd).order('prod_date',{ascending:true}).limit(8000)
+          db.from('ftq_sku_shift_actions').select('*').gte('prod_date',matBegin).lt('prod_date',matEnd).order('prod_date',{ascending:true}).limit(8000),
+          db.from('ftq_ncf_records').select('incident_date,material,shift_no,status').gte('incident_date',matBegin).lt('incident_date',matEnd).limit(5000)
         ]);
         for(const res of [d,m,n])if(res.error)throw res.error;
         state.dailyAll=(d.data||[]).map(x=>({...x,total_gr:Number(x.total_gr),total_reject:Number(x.total_reject),total_qi_24h:Number(x.total_qi_24h),ftq_pct:x.ftq_pct===null?null:Number(x.ftq_pct)}));
@@ -590,6 +602,7 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
         state.skuNotesReady=!sh.error;
         state.legacySkuActions=sn.error?[]:(sn.data||[]);
         state.skuActions=sh.error?[]:(sh.data||[]);
+        state.ncfItems=ncf.error?[]:(ncf.data||[]).filter(x=>x.incident_date&&String(x.material||'').trim());
         if(sh.error)showError('Jalankan ftq-shift-migration.sql di Supabase untuk mengaktifkan detail SKU per shift.');
       }else{
         const all=getDemoSnapshots();
@@ -605,9 +618,11 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
         const notes=safeGet(demoNotesKey,{});state.notes=notes;
         state.legacySkuActions=Object.values(safeGet(demoSkuNotesKey,{}));
         state.skuActions=Object.values(safeGet(demoSkuShiftNotesKey,{}));state.skuNotesReady=true;
+        state.ncfItems=(safeGet('kobe_ftq_ncf_local_v1',[])||[]).filter(x=>x&&x.incident_date&&String(x.material||'').trim());
       }
       state.monthRows=state.dailyAll.filter(x=>x.prod_date.startsWith(state.month));
       render();
+      state.lastLoadedAt=Date.now();
       if(db){$('connectionStatus').textContent='Supabase terhubung';$('connectionStatus').className='status-pill online';}
     }catch(err){
       if(isPublicSite){$('connectionStatus').textContent='Koneksi FTQ gagal';$('connectionStatus').className='status-pill demo';}
@@ -672,9 +687,11 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
   }
   function dailySkuActions(date){
     const all=actionsForDaily(date),rej=all.filter(a=>hasManual(a.reject_qty)),val=all.filter(a=>hasManual(a.value_amount));
+    const manualSku=all.filter(skuActionTouched).map(a=>String(a.material||'').trim()).filter(Boolean);
+    const ncfSku=state.ncfItems.filter(n=>n.incident_date===date).map(n=>String(n.material||'').trim()).filter(Boolean);
     return {reject_qty:rej.length?rej.reduce((z,a)=>z+Number(a.reject_qty),0):null,
             value_amount:val.length?val.reduce((z,a)=>z+Number(a.value_amount),0):null,
-            count:new Set(all.filter(skuActionTouched).map(a=>a.material)).size, notes:all};
+            count:new Set([...manualSku,...ncfSku]).size,ncf_count:new Set(ncfSku).size,notes:all};
   }
   function renderTable(){
     const search=$('searchInput').value.trim().toLocaleLowerCase('id-ID');
@@ -692,9 +709,9 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
       return `<tr><td class="date-cell"><button type="button" class="date-drilldown" data-sku-date="${r.prod_date}" title="Breakdown SKU tanggal ${dateLabel(r.prod_date)}">${dateLabel(r.prod_date)} <span aria-hidden="true" class="drill-arrow">↗</span></button></td>`+
         `<td class="align-right">${fmtNumber(r.total_gr,3)}</td><td class="align-right">${fmtNumber(r.total_reject,3)}</td>`+
         `<td class="align-right"><span class="metric-pill ${rateClass}">${fmtPct(r.ftq_pct)}</span></td>`+
-        `<td class="align-right">${hasManual(x.reject_qty)?fmtNumber(x.reject_qty,0):'<span class="note-placeholder">—</span>'}</td>`+
-        `<td class="align-right">${fmtValue(x.value_amount)}</td>`+
-        `<td class="align-center">${x.count?`<span class="sku-rate">${x.count} SKU</span>`:'<span class="note-placeholder">—</span>'}</td>`+
+        `<td class="align-right"><button type="button" class="resume-drill-metric ${hasManual(x.reject_qty)?'':'empty'}" data-sku-date="${r.prod_date}" title="Klik untuk melihat rincian Reject per SKU / Shift" aria-label="Lihat rincian Reject tanggal ${dateLabel(r.prod_date)}">${hasManual(x.reject_qty)?fmtNumber(x.reject_qty,0):'—'}<span class="hint-arrow" aria-hidden="true">↗</span></button></td>`+
+        `<td class="align-right"><button type="button" class="resume-drill-metric ${hasManual(x.value_amount)?'':'empty'}" data-sku-date="${r.prod_date}" title="Klik untuk melihat rincian Value per SKU / Shift" aria-label="Lihat rincian Value tanggal ${dateLabel(r.prod_date)}">${fmtValue(x.value_amount)}<span class="hint-arrow" aria-hidden="true">↗</span></button></td>`+
+        `<td class="align-center"><button type="button" class="resume-drill-metric center ${x.count?'':'empty'}" data-sku-date="${r.prod_date}" title="${x.ncf_count?`${x.ncf_count} SKU memiliki NCF · `:''}Klik untuk melihat SKU yang ditindaklanjuti" aria-label="Lihat ${x.count} SKU ditindaklanjuti tanggal ${dateLabel(r.prod_date)}">${x.count?`<span class="sku-rate">${x.count} SKU</span>`:'0 SKU'}<span class="hint-arrow" aria-hidden="true">↗</span></button></td>`+
         `<td class="align-center"><button type="button" class="btn-edit" data-sku-date="${r.prod_date}" aria-label="Lihat dan edit breakdown SKU tanggal ${dateLabel(r.prod_date)}">Lihat SKU</button></td></tr>`;
     }).join('');
     $('resumeBody').querySelectorAll('button[data-sku-date]').forEach(el=>el.addEventListener('click',()=>openSkuBreakdown(el.dataset.skuDate)));
@@ -857,7 +874,7 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
       const a=skuActionFor(state.skuDate,r.material,r.shift_no)||r,status=skuStatus(r);
       const color=status.empty?'na':status.low?'low':'';
       const ncfUrl='./ncf.html?'+new URLSearchParams({date:state.skuDate,sku:String(r.material||''),name:String(r.material_description||''),shift:[1,2,3].includes(Number(r.shift_no))?String(r.shift_no):'',batch:String(r.batch_numbers||''),issue:String(a.issue||'')}).toString();
-      return `<tr><td><span class="sku-code">${escapeHtml(r.material||'—')}</span></td>`+
+      return `<tr><td><span class="sku-code">${escapeHtml(r.material||'—')}</span>${state.ncfItems.some(n=>n.incident_date===state.skuDate&&String(n.material)===String(r.material)&&(!n.shift_no||Number(n.shift_no)===Number(r.shift_no)))?'<span class="sku-ncf-saved" title="NCF tersimpan untuk SKU ini">NCF</span>':''}</td>`+
         `<td><div class="sku-description">${escapeHtml(r.material_description||'Tanpa nama SKU')}</div></td>`+
         `<td><span class="sku-shift-badge ${r.shift_no===0?'unknown':''}">${escapeHtml(shiftTitle(r.shift_no))}</span></td>`+
         `<td>${r.batch_numbers?`<div class="batch-list">${String(r.batch_numbers).split('|').map(n=>n.trim()).filter(Boolean).map(n=>`<span class="batch-pill">${escapeHtml(n)}</span>`).join('')}</div>`:'<span class="batch-blank">—</span>'}</td>`+
@@ -968,6 +985,7 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
       const sku=state.skuRows.find(a=>a.material===payload.material&&Number(a.shift_no)===payload.shift_no);
       if(sku)Object.assign(sku,payload);
       $('notesDialog').close();renderSkuBreakdown();renderTable();
+      if(db)await loadData();
       notify('Tindakan SKU '+payload.material+' '+shiftTitle(payload.shift_no)+' berhasil disimpan.');
     }catch(err){notify('Gagal menyimpan: '+(err.message||err),true);}
     finally{button.disabled=false;button.textContent='Simpan';}
@@ -1209,6 +1227,8 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
     bind();refreshConnection();await loadData();
   }
   document.addEventListener('DOMContentLoaded',()=>{boot().catch(e=>showError('Inisialisasi FTQ gagal: '+(e.message||e)));});
+  window.addEventListener('pageshow',event=>{if(event.persisted&&db&&state.month&&!state.loading)loadData();});
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&db&&state.month&&!state.loading&&Date.now()-state.lastLoadedAt>15000)loadData();});
 })();
 
   </script>
