@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#0c2248">
   <title>FTQ Monitoring | KOBE Manufacturing System</title>
-  <meta name="ftq-build" content="2026-11-16-standalone-1">
+  <meta name="ftq-build" content="2026-11-17-invalid-path-fix-3">
   <!-- FTQ STANDALONE: CSS embedded to prevent wrong asset paths. -->
   <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -77,7 +77,7 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
   <script src="../sidebar.js" defer></script>
-  <script src="ftq-config.js"></script>
+  <script src="./ftq-config.js?v=20261117-invalid-path-fix-3"></script>
   <script src="demo-data.js"></script>
   <!-- FTQ STANDALONE: no-login JavaScript embedded to prevent wrong asset paths. -->
   <script>
@@ -90,8 +90,12 @@
   'use strict';
   const cfg = window.FTQ_CONFIG || {};
   const excluded = new Set(cfg.excludedOrderTypes || ['B101','B401','B701']);
-  const hasCloudConfig = Boolean(cfg.supabaseUrl && cfg.supabaseAnonKey);
-  const db = hasCloudConfig && window.supabase ? window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey) : null;
+  // Supabase JS memerlukan URL dasar proyek, tanpa /rest/v1/.
+  const projectUrl = String(cfg.supabaseUrl || '').trim().replace(/\/rest\/v1(?:\/.*)?$/i,'').replace(/\/+$/,'');
+  const publicKey = String(cfg.supabaseAnonKey || '').trim();
+  const hasCloudConfig = Boolean(projectUrl && publicKey);
+  const isPublicSite = location.hostname === 'cikobebjn.github.io';
+  const db = hasCloudConfig && window.supabase ? window.supabase.createClient(projectUrl, publicKey) : null;
   const demoKey = 'ftq_demo_snapshots_v1';
   const demoNotesKey = 'ftq_demo_actions_v1';
   const targetKey = 'ftq_dashboard_target_v1';
@@ -156,18 +160,24 @@
     const badge=$('connectionStatus');
     if(db){
       $('demoNotice').hidden=true;
-      badge.textContent='Online \u00b7 Tanpa login';
-      badge.className='status-pill online';
+      badge.textContent='Memeriksa koneksi Supabase...';
+      badge.className='status-pill';
     }else{
       $('demoNotice').hidden=false;
-      badge.textContent=hasCloudConfig?'Supabase belum termuat':'Pratinjau lokal';
+      badge.textContent=hasCloudConfig?'Pustaka Supabase gagal dimuat':isPublicSite?'Konfigurasi belum terbaca':'Pratinjau lokal';
       badge.className='status-pill demo';
+      if(isPublicSite){
+        $('demoNotice').textContent=hasCloudConfig
+          ? 'Konfigurasi terdeteksi tetapi pustaka Supabase tidak termuat. Periksa koneksi internet atau CDN.'
+          : 'Mode online belum aktif: ftq-config.js belum terbaca atau URL/key kosong. Periksa file ftq/ftq-config.js di GitHub dan refresh.';
+      }
     }
   }
   async function loadData(){
     if(state.loading)return;
     state.loading=true;clearError();$('dataInfo').textContent='Memuat data '+monthLabel(state.month)+'...';
     try{
+      if(isPublicSite && !hasCloudConfig)throw Error('Konfigurasi Supabase belum terbaca. Periksa ftq-config.js dan cache browser. Data contoh tidak digunakan di GitHub Pages.');
       if(hasCloudConfig && !db)throw Error('Pustaka Supabase tidak tersedia. Periksa koneksi internet/CDN.');
       if(db){
         const begin=cutoffIso(),end=monthNext(state.month)+'-01';
@@ -193,7 +203,12 @@
       }
       state.monthRows=state.dailyAll.filter(x=>x.prod_date.startsWith(state.month));
       render();
-    }catch(err){showError('Gagal mengambil data: '+(err.message||String(err)));notify('Gagal memuat data FTQ',true);}
+      if(db){$('connectionStatus').textContent='Supabase terhubung';$('connectionStatus').className='status-pill online';}
+    }catch(err){
+      if(isPublicSite){$('connectionStatus').textContent='Koneksi FTQ gagal';$('connectionStatus').className='status-pill demo';}
+      showError('Gagal mengambil data: '+(err.message||String(err)));
+      notify('Gagal memuat data FTQ',true);
+    }
     finally{state.loading=false;}
   }
   function monthlyAggregates(){
@@ -328,6 +343,7 @@
   async function saveNotes(ev){
     ev.preventDefault();
     const payload={prod_date:state.noteDate,issue:$('noteIssue').value.trim(),root_cause:$('noteRoot').value.trim(),corrective_action:$('noteCorrective').value.trim(),preventive_action:$('notePreventive').value.trim()};
+    if(isPublicSite && !db)return notify('Koneksi Supabase belum aktif. Catatan tidak bisa disimpan di server.',true);
     const button=$('saveNotesBtn');button.disabled=true;button.textContent='Menyimpan...';
     try{
       if(db){const {error}=await db.rpc('ftq_save_action',{p_date:payload.prod_date,p_issue:payload.issue,p_root_cause:payload.root_cause,p_corrective_action:payload.corrective_action,p_preventive_action:payload.preventive_action});if(error)throw error;}
@@ -431,6 +447,7 @@
   async function saveImport(ev){
     ev.preventDefault();const rows=state.importedRows;const month=state.importedMonth;
     if(!rows?.length)return;
+    if(isPublicSite && !db)return showUploadError('Koneksi Supabase belum aktif. Import ke browser lokal dinonaktifkan di website publik.');
     const okay=window.confirm(`REPLACE SAP MTD ${monthLabel(month)}\n\n${rows.length} transaksi dari ${state.importingFile}.\nSemua transaksi lama pada bulan ini akan diganti sesuai file; bulan lainnya dan catatan tindak lanjut tetap aman.\n\nPastikan file mencakup data MTD lengkap dari SAP. Lanjutkan?`);
     if(!okay)return;
     const btn=$('commitImportBtn');btn.disabled=true;btn.textContent='Menyimpan...';
