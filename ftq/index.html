@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#0c2248">
   <title>FTQ Monitoring | KOBE Manufacturing System</title>
-  <meta name="ftq-build" content="2026-11-17-ftq-blockstock-reject-value-v1">
+  <meta name="ftq-build" content="2026-11-17-ftq-single-action-v2">
   <!-- FTQ STANDALONE: CSS embedded to prevent wrong asset paths. -->
   <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -106,17 +106,27 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
 @media(max-width:830px){.kpi-card{min-height:144px}.main{padding-top:22px}.chart-wrap{height:246px}}
 @media(max-width:530px){.filterbar{padding:13px}.period-mode button{padding:0 10px}.kpi-card{padding:14px 14px 13px;min-height:127px}.kpi-value{margin:12px 0 9px;font-size:23px}.kpi-primary .kpi-value{font-size:28px}.kpi-footer{font-size:10px}.table-heading{padding:16px}.material-list{padding:12px}.page-heading h1{font-size:29px}.chart-wrap{height:225px}}
 
-/* FTQ Block Stock, Reject & Value — clean manual fields */
-.table-scroll th.manual-th{min-width:110px}
-.table-scroll .manual-col{min-width:124px;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
-.manual-entry{border:1px solid transparent;background:transparent;border-radius:8px;padding:6px 8px;font-size:11px;min-height:29px;color:#8798b1;font-weight:750;white-space:nowrap}
-.manual-entry:not(.has-value){background:#f1f6fd;color:#4770ac;border-color:#e4edf8}
-.manual-entry.has-value{color:#304d78}
-.manual-entry:hover{background:#e6f0ff;border-color:#bdd7ff;color:#1c4d99}
+/* FTQ resume: all cells read-only; one action per day at far right. */
+.table-scroll table{min-width:1390px;table-layout:fixed}
+.table-scroll th,.table-scroll td{padding-left:10px;padding-right:10px;vertical-align:middle}
+.table-scroll th:first-child,.table-scroll td:first-child{padding-left:18px}
+.table-scroll .manual-col{min-width:0;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;color:#405574;font-weight:600}
+.table-scroll .manual-col .note-placeholder{color:#a9b7ca;font-style:normal;font-weight:500}
+.table-scroll .note-col{min-width:0;max-width:none;cursor:default}
+.table-scroll .note-col:hover{background:transparent!important}
+.table-scroll tbody tr:hover .note-col{background:#fbfdff!important}
+.table-scroll .note-text{font-size:11px;line-height:1.55;max-height:39px}
+.table-scroll .note-placeholder{font-style:normal;color:#a9b7ca}
+.table-scroll th:last-child,.table-scroll td:last-child{position:sticky;right:0;text-align:center!important;z-index:3;box-shadow:-9px 0 14px -13px rgba(29,57,100,.40)}
+.table-scroll th:last-child{background:#f8fafd;z-index:5}
+.table-scroll td:last-child{background:#fff}
+.table-scroll tbody tr:hover td:last-child{background:#fbfdff}
+.table-scroll .btn-edit{min-width:64px;border:1px solid #d9e4f4;border-radius:7px;padding:7px 10px;background:#f3f7fe;color:#2e5b9f;font-size:10.5px;font-weight:800;white-space:nowrap}
+.table-scroll .btn-edit:hover{background:#e7f0ff;border-color:#c6d8f5}
 .form-grid-numeric{margin-bottom:10px;gap:14px}
 .form-grid-numeric .field{margin-bottom:5px}
 .form-grid-numeric input{text-align:right;font-variant-numeric:tabular-nums}
-@media(max-width:540px){.table-scroll table{min-width:1500px}}
+@media(max-width:540px){.table-scroll table{min-width:1390px}.table-scroll th,.table-scroll td{padding-left:8px;padding-right:8px}}
   </style>
 </head>
 <body>
@@ -159,7 +169,7 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
 
     <section class="panel material-panel"><div class="panel-head"><div><h2>Top Material Penyumbang Block Stock</h2><p id="materialPeriodInfo" hidden></p></div><span class="mini-tag">Top 5</span></div><div id="materialBars" class="material-list"><div class="empty">Memuat material...</div></div></section>
 
-    <section class="panel table-panel"><div class="panel-head table-heading"><div><h2>Resume FTQ &amp; Tindak Lanjut</h2><p id="resumePeriodInfo" hidden></p></div><div class="table-actions"><input id="searchInput" type="search" placeholder="Cari data..." aria-label="Cari data resume"><span class="table-count" id="tableCount">0 hari</span></div></div><div class="table-scroll"><table id="resumeTable"><thead><tr><th class="sticky-date">Tanggal</th><th class="align-right">Total GR</th><th class="align-right">Block Stock (PCS)</th><th class="align-right">FTQ</th><th class="align-right">Reject</th><th class="align-right">Value</th><th>Issue</th><th>Root Cause</th><th>Corrective Action</th><th>Preventive Action</th><th class="align-center">Aksi</th></tr></thead><tbody id="resumeBody"><tr><td class="loading-row" colspan="11">Memuat data FTQ...</td></tr></tbody></table></div><div class="table-foot"><span id="lastUpdated">—</span></div></section>
+    <section class="panel table-panel"><div class="panel-head table-heading"><div><h2>Resume FTQ &amp; Tindak Lanjut</h2><p id="resumePeriodInfo" hidden></p></div><div class="table-actions"><input id="searchInput" type="search" placeholder="Cari data..." aria-label="Cari data resume"><span class="table-count" id="tableCount">0 hari</span></div></div><div class="table-scroll"><table id="resumeTable"><colgroup><col style="width:124px"><col style="width:126px"><col style="width:139px"><col style="width:92px"><col style="width:94px"><col style="width:116px"><col style="width:140px"><col style="width:140px"><col style="width:160px"><col style="width:164px"><col style="width:95px"></colgroup><thead><tr><th class="sticky-date">Tanggal</th><th class="align-right">Total GR</th><th class="align-right">Block Stock (PCS)</th><th class="align-right">FTQ</th><th class="align-right">Reject</th><th class="align-right">Value</th><th>Issue</th><th>Root Cause</th><th>Corrective Action</th><th>Preventive Action</th><th class="align-center">Aksi</th></tr></thead><tbody id="resumeBody"><tr><td class="loading-row" colspan="11">Memuat data FTQ...</td></tr></tbody></table></div><div class="table-foot"><span id="lastUpdated">—</span></div></section>
 
   </main>
 
@@ -468,15 +478,15 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
     $('tableCount').textContent=entries.length+' hari';
     $('resumePeriodInfo').textContent=currentPeriod().description;
     if(!entries.length){$('resumeBody').innerHTML='<tr><td colspan="11" class="loading-row">'+(search?'Tidak ada hasil pencarian.':'Belum ada data SAP pada periode ini.')+'</td></tr>';return;}
-    const noteCell=(v,date)=>`<td class="note-col" data-date="${date}" title="Edit tindakan">${v?`<div class="note-text" title="${escapeHtml(v)}">${escapeHtml(v)}</div>`:'<span class="note-placeholder">—</span>'}</td>`;
+    const noteCell=(v)=>`<td class="note-col">${v?`<div class="note-text" title="${escapeHtml(v)}">${escapeHtml(v)}</div>`:'<span class="note-placeholder">—</span>'}</td>`;
     $('resumeBody').innerHTML=entries.map(r=>{
       const notes=state.notes[r.prod_date]||{};
       const low=r.ftq_pct!==null&&r.ftq_pct<state.target;
       const rateClass=r.ftq_pct===null?'':(low?'low':'high');
-      const manualCell=(value,kind) => `<td class="manual-col"><button type="button" class="manual-entry ${hasManual(value)?'has-value':''}" data-date="${r.prod_date}" aria-label="Input manual ${kind} tanggal ${dateLabel(r.prod_date)}" title="Klik untuk input ${kind}">${hasManual(value)?(kind==='Value'?fmtValue(value):fmtNumber(value,0)):'+ Input'}</button></td>`;
-      return `<tr><td class="date-cell">${dateLabel(r.prod_date)}</td><td class="align-right">${fmtNumber(r.total_gr,3)}</td><td class="align-right">${fmtNumber(r.total_reject,3)}</td><td class="align-right"><span class="metric-pill ${rateClass}">${fmtPct(r.ftq_pct)}</span></td>${manualCell(notes.reject_qty,'Reject')}${manualCell(notes.value_amount,'Value')}${noteCell(notes.issue,r.prod_date)}${noteCell(notes.root_cause,r.prod_date)}${noteCell(notes.corrective_action,r.prod_date)}${noteCell(notes.preventive_action,r.prod_date)}<td class="align-center"><button type="button" class="btn-edit" data-date="${r.prod_date}">${['issue','root_cause','corrective_action','preventive_action'].some(k=>String(notes[k]||'').trim())||hasManual(notes.reject_qty)||hasManual(notes.value_amount)?'Edit':'Input'}</button></td></tr>`;
+      const manualCell=(value,kind) => `<td class="manual-col">${hasManual(value)?(kind==='Value'?fmtValue(value):fmtNumber(value,0)):'<span class="note-placeholder">—</span>'}</td>`;
+      return `<tr><td class="date-cell">${dateLabel(r.prod_date)}</td><td class="align-right">${fmtNumber(r.total_gr,3)}</td><td class="align-right">${fmtNumber(r.total_reject,3)}</td><td class="align-right"><span class="metric-pill ${rateClass}">${fmtPct(r.ftq_pct)}</span></td>${manualCell(notes.reject_qty,'Reject')}${manualCell(notes.value_amount,'Value')}${noteCell(notes.issue)}${noteCell(notes.root_cause)}${noteCell(notes.corrective_action)}${noteCell(notes.preventive_action)}<td class="align-center"><button type="button" class="btn-edit" data-date="${r.prod_date}" aria-label="Isi atau ubah Reject, Value dan tindakan tanggal ${dateLabel(r.prod_date)}" title="Input / Edit tanggal ${dateLabel(r.prod_date)}">✎ Edit</button></td></tr>`;
     }).join('');
-    $('resumeBody').querySelectorAll('[data-date]').forEach(el=>el.addEventListener('click',()=>openNotes(el.dataset.date)));
+    $('resumeBody').querySelectorAll('button.btn-edit[data-date]').forEach(el=>el.addEventListener('click',()=>openNotes(el.dataset.date)));
   }
   // Fallback grafik native HTML Canvas: tetap berfungsi jika Chart.js/CDN tidak tersedia.
   function nativeChart(canvas, spec) {
