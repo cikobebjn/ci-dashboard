@@ -64,6 +64,8 @@ button,input,select{font:inherit}button{cursor:pointer}button:disabled{cursor:de
 .table-panel{margin-top:15px;padding:20px 21px}.table-tools{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0 0 14px}.table-search{position:relative;display:flex;align-items:center;flex:1;max-width:380px}.table-search svg{width:16px;height:16px;color:#99a7b9;position:absolute;left:12px}.search{width:100%;height:39px;border:1px solid #e0e7f0;background:#fbfcff;border-radius:10px;color:#344765;font-size:11px;padding:0 13px 0 35px;outline:none}.search:focus{border-color:#7da3f7;box-shadow:0 0 0 3px #eef3ff}.count-pill{color:#5b73a5;font-size:10px;font-weight:800;border-radius:999px;background:#f0f4ff;padding:7px 10px}
 .tbl-wrap{overflow:auto;max-height:475px;border:1px solid #edf0f7;border-radius:12px}.tbl{width:100%;min-width:1010px;border-collapse:collapse;font-size:10.5px}.tbl thead th{position:sticky;top:0;background:#f6f8fc;color:#7788a1;font-size:9px;font-weight:830;text-align:left;letter-spacing:.045em;padding:13px 11px;border-bottom:1px solid #e5ebf3;white-space:nowrap;z-index:1}.tbl tbody td{border-bottom:1px solid #edf1f7;padding:13px 11px;color:#4d5f79;vertical-align:top;line-height:1.45}.tbl tbody tr:hover{background:#f9fbff}.tbl tbody tr:last-child td{border-bottom:0}.tbl .issue-col{min-width:240px;max-width:370px;color:#304461;font-weight:650}.tbl .date-col{white-space:nowrap}.badge{display:inline-block;padding:5px 9px;border-radius:7px;font-size:9px;font-weight:810;white-space:nowrap}.b-open{background:#fff0f2;color:#e34557}.b-close{background:#e9f9f2;color:#129b70}.b-cat{background:#eef3ff;color:#4d67a5}.b-pic{background:#f1edff;color:#7456b8}.empty{text-align:center;padding:38px 14px;color:#99a7b9;font-size:11px}.table-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-top:12px;font-size:10px;color:#8b98aa}.table-pagination{display:flex;align-items:center;gap:8px}.page-control{display:grid;place-items:center;width:29px;height:29px;border:1px solid #e2e9f4;border-radius:8px;background:#f7faff;color:#5774a8}.page-control svg{width:13px;height:13px}.table-pagination span{min-width:60px;text-align:center;font-size:10px;font-weight:750;color:#6c819f}.warn{color:#bb7613}.data-meta{max-width:600px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}
 .toast{position:fixed;right:20px;bottom:20px;z-index:40000;max-width:410px;background:#153052;color:white;font-size:12px;line-height:1.55;border-radius:12px;padding:14px 17px;box-shadow:0 14px 35px rgba(13,34,66,.23);display:none}.toast.show{display:block}.toast.error{background:#9f2734}
+.sync-error{display:none;margin-top:9px;padding:9px 11px;border:1px solid #fecdd3;border-radius:9px;background:#fff1f2;color:#a61935;font-size:11px;font-weight:650;line-height:1.5;white-space:normal;overflow-wrap:anywhere}
+.sync-error.show{display:block}
 @media(max-width:1270px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.filterbar{grid-template-columns:repeat(3,minmax(0,1fr))}.analytics-secondary{grid-template-columns:repeat(2,minmax(0,1fr))}.analytics-secondary .panel:last-child{grid-column:1/-1}.dor-panel{grid-template-columns:240px 1fr}}
 @media(max-width:930px){.main{padding:20px 16px 40px}.topbar{padding:0 15px}.hero{grid-template-columns:1fr;padding:26px}.hero-brief{max-width:500px}.analytics-primary{grid-template-columns:1fr}.analytics-secondary{grid-template-columns:1fr 1fr}.dor-panel{grid-template-columns:1fr}.dor-left{border-right:none;padding-right:0;border-bottom:1px solid #edf1f8;padding-bottom:16px}.dor-left h3{font-size:18px}.topbar-end .topbar-date{display:none}}
 @media(max-width:630px){.main{padding:13px 11px 28px}.topbar{height:60px;padding:0 11px;gap:8px}.topbar-name strong{font-size:11px}.topbar-name span{font-size:9px}.topbar-end{font-size:0}.hero{padding:24px 20px;border-radius:19px}.hero h1{font-size:31px}.hero-brief-date{font-size:15px}.hero-brief{padding:14px}.hero-tags{gap:5px}.syncbar{padding:13px;gap:10px;flex-wrap:wrap}.sync-main{min-width:200px}.sync-actions{width:100%}.sync-actions .btn{flex:1}.filterbar{grid-template-columns:1fr 1fr;padding:13px;gap:9px}.filterbar .btn-reset{grid-column:1/-1}.kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.kpi-card{padding:16px 14px;min-height:143px;border-radius:20px}.kpi-card h3{font-size:9px;margin-bottom:13px}.kpi-card .metric{font-size:29px}.kpi-pic .metric{font-size:26px}.kpi-card .sub{font-size:9px}.kpi-card::after{width:110px;height:110px;right:-55px;bottom:-55px}.section-title{margin:22px 1px 12px}.section-title h2{font-size:14px}.section-title p{display:none}.analytics-secondary{grid-template-columns:1fr}.analytics-secondary .panel:last-child{grid-column:auto}.panel{padding:17px 14px}.chart-wrap{height:245px}.chart-wrap.small{height:220px}.dor-panel{padding:16px 14px}.dor-list{grid-template-columns:1fr}.context-strip{align-items:flex-start;flex-direction:column;gap:9px}.table-panel{padding:16px 12px}.table-tools{align-items:stretch}.table-search{max-width:none;min-width:100%}.data-meta{max-width:100%}.topbar-logo{display:none}}
@@ -118,7 +120,7 @@ body.is-busy{overflow:hidden}
   </section>
   <section class="syncbar">
     <div class="sync-icon"><svg class="" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-7 4 14 3-7h4"/></svg></div>
-    <div class="sync-main"><div class="import-label">DATA HSE ONLINE</div><div class="import-name" id="fileName">Menghubungkan data...</div><div class="import-note" id="importNote">Memuat dataset aktif</div></div>
+    <div class="sync-main"><div class="import-label">DATA HSE ONLINE</div><div class="import-name" id="fileName">Menghubungkan data...</div><div class="import-note" id="importNote">Memuat dataset aktif</div><div class="sync-error" id="uploadErrorDetail" role="alert" aria-live="polite"></div></div>
     <div class="sync-actions"><button class="btn btn-subtle" type="button" onclick="loadOnlineData()"><svg class="" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M5.6 9A8 8 0 0 1 19 7l1 5M4 12l1 5a8 8 0 0 0 13.4-2"/></svg> Refresh</button><button class="btn btn-primary" type="button" id="uploadBtn" onclick="document.getElementById('fileInput').click()"><svg class="" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V3m0 0L7 8m5-5 5 5M4 16v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/></svg> Upload &amp; Replace</button><input id="fileInput" type="file" accept=".xlsx,.xls" hidden></div>
   </section>
   <section class="filterbar" aria-label="Filter HSE">
@@ -225,6 +227,12 @@ function notifyHse(message,isError=false){
   toast.classList.add('show');
   hseToastTimer=setTimeout(()=>toast.classList.remove('show'),isError?12000:4500);
 }
+function showHseError(message){
+  const box=$('uploadErrorDetail');
+  if(!box)return;
+  box.textContent=String(message||'');
+  box.classList.toggle('show',Boolean(message));
+}
 function readableHseError(err){
   const code=String(err?.code||'');
   const msg=String(err?.message||err||'Terjadi kesalahan');
@@ -270,26 +278,75 @@ function extractHseExcel(wb){
   }
   throw new Error('Header Excel tidak ditemukan. Pastikan sheet HSE memiliki kolom DATE, KATEGORI, dan VERIFIKASI/STATUS.');
 }
+// File Safety Excel dapat mencapai ratusan MB karena ribuan gambar.
+// ZIP diperkecil di Worker: hanya xl/media/* yang dibuang dari pembacaan,
+// sehingga data dan file Excel asli tidak diubah.
 async function readExcelInWorker(buffer){
-  if(!window.Worker)throw new Error('Worker tidak tersedia');
-  const workerCode=`importScripts('https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js');
-  ${extractHseExcel.toString()}
-  self.onmessage=function(e){try{const wb=XLSX.read(e.data,{type:'array',cellDates:true});self.postMessage({ok:true,...extractHseExcel(wb)});}catch(err){self.postMessage({ok:false,error:err?.message||String(err)});}};`;
+  if(!window.Worker)throw new Error('Browser tidak mengizinkan pembaca Excel di background');
+  const workerCode=`
+    importScripts('https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js');
+    ${extractHseExcel.toString()}
+    self.onmessage=async function(e){
+      try{
+        let excelBuffer=e.data;
+        let skippedPhotos=0;
+        // Media tidak pernah perlu diurai untuk dashboard.
+        if(excelBuffer.byteLength > 12 * 1024 * 1024){
+          importScripts('https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js');
+          const zip=await JSZip.loadAsync(excelBuffer,{checkCRC32:false});
+          for(const name of Object.keys(zip.files)){
+            if(/^xl\\/media\\//i.test(name)){
+              zip.remove(name); skippedPhotos++;
+            }
+          }
+          excelBuffer=await zip.generateAsync({
+            type:'arraybuffer',compression:'DEFLATE',compressionOptions:{level:2}
+          });
+        }
+        const workbook=XLSX.read(excelBuffer,{type:'array',cellDates:true,dense:true});
+        const extracted=extractHseExcel(workbook);
+        self.postMessage({ok:true,...extracted,skippedPhotos});
+      }catch(err){self.postMessage({ok:false,error:err?.message||String(err)})}
+    };
+  `;
   const url=URL.createObjectURL(new Blob([workerCode],{type:'application/javascript'}));
-  try{return await new Promise((resolve,reject)=>{
-    const w=new Worker(url);
-    w.onmessage=e=>{w.terminate();e.data?.ok?resolve(e.data):reject(new Error(e.data?.error||'Gagal membaca Excel'))};
-    w.onerror=e=>{w.terminate();reject(new Error(e.message||'Worker gagal'))};
-    // Transfer salinan agar buffer asli masih bisa dipakai saat Worker gagal.
-    const copy=buffer.slice(0);w.postMessage(copy,[copy]);
-  })}finally{URL.revokeObjectURL(url)}
+  try{
+    return await new Promise((resolve,reject)=>{
+      let worker;
+      let settled=false;
+      let timeoutId;
+      function settle(err,value){
+        if(settled)return;
+        settled=true;
+        clearTimeout(timeoutId);
+        if(worker)worker.terminate();
+        if(err)reject(err);else resolve(value);
+      }
+      try{
+        worker=new Worker(url);
+        worker.onmessage=e=>e.data?.ok
+          ?settle(null,e.data)
+          :settle(new Error(e.data?.error||'Gagal membaca file Excel'));
+        worker.onerror=e=>settle(new Error(e.message||'Pembaca Excel di browser gagal'));
+        timeoutId=setTimeout(()=>settle(new Error('Pemrosesan Excel tidak selesai. Gunakan versi tanpa foto untuk upload.')),120000);
+        // Transfer buffer tanpa .slice(): menghindari duplikasi 181 MB di memori.
+        worker.postMessage(buffer,[buffer]);
+      }catch(err){settle(err)}
+    });
+  }finally{URL.revokeObjectURL(url)}
 }
 async function readExcelSafely(file){
-  const buffer=await file.arrayBuffer();
-  try{return await readExcelInWorker(buffer)}catch(workerErr){
-    console.warn('Excel Worker gagal; menggunakan pembacaan langsung:',workerErr);
+  try{
+    return await readExcelInWorker(await file.arrayBuffer());
+  }catch(workerErr){
+    console.warn('HSE Worker gagal:',workerErr);
+    if(file.size>30*1024*1024){
+      throw new Error('File Excel mengandung banyak foto ('+
+        (file.size/1048576).toFixed(1)+' MB). Pembaca teroptimasi tidak dapat dijalankan: '+
+        workerErr.message+'. Upload versi tanpa foto sebagai alternatif.');
+    }
     await nextPaint();
-    return extractHseExcel(XLSX.read(buffer,{type:'array',cellDates:true}));
+    return extractHseExcel(XLSX.read(await file.arrayBuffer(),{type:'array',cellDates:true,dense:true}));
   }
 }
 async function replaceOnlineData(parsed){
@@ -298,15 +355,26 @@ async function replaceOnlineData(parsed){
     source_no:r.source_no,date:r.date,year:r.year,week:r.week,category:r.category,
     location:r.location,issue:r.issue,reporter:r.reporter,pic:r.pic,status:r.status,due_date:r.due_date
   }));
-  const{data,error}=await db.rpc('hse_replace_dataset',{
-    p_rows:payload,p_file_name:parsed.meta.fileName,p_source_rows:parsed.meta.rawCount
-  });
-  if(error)throw error;
-  return data;
+  const args={p_rows:payload,p_file_name:parsed.meta.fileName,p_source_rows:parsed.meta.rawCount};
+  // RPC v2 bersifat atomik. Bila SQL belum dipasang, coba RPC lama agar kompatibel.
+  const latest=await db.rpc('hse_replace_dataset_v2',args);
+  if(!latest.error)return latest.data;
+  const missing=latest.error.code==='PGRST202'||/could not find the function/i.test(latest.error.message||'');
+  if(!missing)throw latest.error;
+  const legacy=await db.rpc('hse_replace_dataset',args);
+  if(legacy.error){
+    if(legacy.error.code==='PGRST202'){
+      throw new Error('RPC HSE belum tersedia. Jalankan SQL perbaikan hse_replace_dataset_v2 di Supabase SQL Editor. ('+legacy.error.message+')');
+    }
+    throw legacy.error;
+  }
+  return legacy.data;
 }
 $('fileInput').addEventListener('change',async e=>{
   const f=e.target.files?.[0];if(!f)return;
   const btn=$('uploadBtn');let datasetSaved=false;
+  const previousFileName=$('fileName').textContent;
+  showHseError('');
   try{
     btn.disabled=true;btn.textContent='Memproses...';
     $('fileName').textContent=f.name;
@@ -343,14 +411,19 @@ $('fileInput').addEventListener('change',async e=>{
     }else if(rows.length!==parsed.rows.length){
       notifyHse(`Upload diterima, tetapi yang terbaca ${rows.length.toLocaleString('id-ID')} dari ${parsed.rows.length.toLocaleString('id-ID')} baris. Periksa dataset dan akses baca Supabase.`,true);
     }else{
+      showHseError('');
       notifyHse(`Upload berhasil: ${parsed.rows.length.toLocaleString('id-ID')} baris dari ${excel.name} diperbarui.`);
     }
   }catch(err){
     console.error('HSE upload error:',err);
     const message=readableHseError(err);
+    if(!datasetSaved){
+      $('fileName').textContent=previousFileName||'Dataset HSE sebelumnya';
+    }
     $('importNote').textContent=datasetSaved
-      ?'Data berhasil disimpan, tetapi terjadi kesalahan saat menyegarkan tampilan.'
-      :'Upload gagal. Dataset lama tidak diganti.';
+      ?'Data berhasil disimpan, tetapi tampilan belum berhasil disegarkan.'
+      :'Upload gagal. Data HSE lama tetap aman.';
+    showHseError('Penyebab: '+message);
     notifyHse(`${datasetSaved?'Data tersimpan, namun refresh gagal':'Upload HSE gagal'}: ${message}`,true);
   }finally{
     hideUploadLoading();btn.disabled=false;btn.textContent='Upload & Replace';
@@ -358,7 +431,7 @@ $('fileInput').addEventListener('change',async e=>{
   }
 });
 async function fetchAllFindings(){const all=[];const pageSize=1000;for(let from=0;;from+=pageSize){const{data,error}=await db.from('hse_findings').select('source_no,date,year,week,category,location,issue,reporter,pic,status,due_date').order('date',{ascending:true}).range(from,from+pageSize-1);if(error)throw error;all.push(...(data||[]));if(!data||data.length<pageSize)break}return all}
-async function loadOnlineData(){try{$('fileName').textContent='Memuat data online...';$('importNote').textContent='Mengambil dataset aktif dari Supabase...';const[dataResult,metaResult]=await Promise.all([fetchAllFindings(),db.from('hse_dataset_meta').select('*').eq('id',1).maybeSingle()]);const data=dataResult,meta=metaResult.data;if(metaResult.error)console.warn(metaResult.error);rows=(data||[]).map(r=>({no:r.source_no,date:r.date,year:r.year,week:r.week,month:String(r.date||'').slice(0,7),category:r.category,location:r.location||'—',issue:r.issue||'—',reporter:r.reporter||'—',pic:normalizePic(r.pic),status:r.status,due:r.due_date}));refreshControls();applyFilters();if(meta){$('fileName').textContent=meta.file_name||'Dataset HSE Online';$('importNote').textContent=`${rows.length.toLocaleString('id-ID')} baris aktif · update ${meta.updated_at?fmtDate(new Date(meta.updated_at)):'—'} · dapat dipantau dari semua device.`;$('sourceInfo').textContent=`${meta.file_name||'HSE'} · ${Number(meta.source_rows||rows.length).toLocaleString('id-ID')} baris sumber · ${rows.length.toLocaleString('id-ID')} baris tersimpan`}else{$('fileName').textContent='Dataset HSE Online';$('importNote').textContent=rows.length?`${rows.length.toLocaleString('id-ID')} baris aktif di Supabase.`:'Belum ada dataset HSE. Gunakan Upload & Replace.';$('sourceInfo').textContent=rows.length?'Supabase · dataset aktif':'Sumber belum dimuat.'}return true}catch(err){console.error(err);rows=[];refreshControls();applyFilters();$('fileName').textContent='Supabase belum siap';$('importNote').textContent='Gagal membaca data Supabase. Lihat detail error pada notifikasi.';$('sourceInfo').textContent='Data online belum dapat dibaca.';notifyHse('Gagal memuat data Supabase: '+readableHseError(err),true);return false}}
+async function loadOnlineData(){const rowsBeforeRefresh=rows;try{$('fileName').textContent='Memuat data online...';$('importNote').textContent='Mengambil dataset aktif dari Supabase...';const[dataResult,metaResult]=await Promise.all([fetchAllFindings(),db.from('hse_dataset_meta').select('*').eq('id',1).maybeSingle()]);const data=dataResult,meta=metaResult.data;if(metaResult.error)console.warn(metaResult.error);rows=(data||[]).map(r=>({no:r.source_no,date:r.date,year:r.year,week:r.week,month:String(r.date||'').slice(0,7),category:r.category,location:r.location||'—',issue:r.issue||'—',reporter:r.reporter||'—',pic:normalizePic(r.pic),status:r.status,due:r.due_date}));refreshControls();applyFilters();if(meta){$('fileName').textContent=meta.file_name||'Dataset HSE Online';$('importNote').textContent=`${rows.length.toLocaleString('id-ID')} baris aktif · update ${meta.updated_at?fmtDate(new Date(meta.updated_at)):'—'} · dapat dipantau dari semua device.`;$('sourceInfo').textContent=`${meta.file_name||'HSE'} · ${Number(meta.source_rows||rows.length).toLocaleString('id-ID')} baris sumber · ${rows.length.toLocaleString('id-ID')} baris tersimpan`}else{$('fileName').textContent='Dataset HSE Online';$('importNote').textContent=rows.length?`${rows.length.toLocaleString('id-ID')} baris aktif di Supabase.`:'Belum ada dataset HSE. Gunakan Upload & Replace.';$('sourceInfo').textContent=rows.length?'Supabase · dataset aktif':'Sumber belum dimuat.'}return true}catch(err){console.error(err);rows=rowsBeforeRefresh;refreshControls();applyFilters();$('fileName').textContent='Supabase belum siap';$('importNote').textContent='Gagal membaca data Supabase. Data sebelumnya tidak dihapus.';$('sourceInfo').textContent='Data online belum dapat dibaca.';showHseError('Gagal memuat data Supabase: '+readableHseError(err));notifyHse('Gagal memuat data Supabase: '+readableHseError(err),true);return false}}
 const MONTH_NAMES=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
 function monthLabel(key){const [year,month]=String(key).split('-').map(Number);return month>=1&&month<=12?`${MONTH_NAMES[month-1]} ${year}`:key}
 function refreshControls(){
