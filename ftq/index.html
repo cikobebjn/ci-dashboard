@@ -308,6 +308,34 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
   z-index:3!important;
 }
 .sku-table tbody tr:hover td:last-child{background:#f8fbff!important}
+
+/* 2026-11-18 — NCF center + STATUS pinned immediately to its right. */
+.sku-table{min-width:2500px!important}
+.sku-table .sku-ncf-col{width:168px!important;min-width:168px!important;max-width:168px!important;text-align:center!important}
+.sku-table .sku-status-col{width:106px!important;min-width:106px!important;max-width:106px!important;text-align:center!important}
+.sku-table thead th.sku-ncf-col,.sku-table tbody td.sku-ncf-col{
+  width:168px!important;min-width:168px!important;max-width:168px!important;
+  position:sticky!important;right:106px!important;left:auto!important;
+  box-shadow:-9px 0 14px -13px rgba(30,55,100,.26)!important;
+}
+.sku-table thead th.sku-status-col,.sku-table tbody td.sku-status-col{
+  width:106px!important;min-width:106px!important;max-width:106px!important;
+  position:sticky!important;right:0!important;left:auto!important;
+  box-shadow:-8px 0 14px -13px rgba(30,55,100,.26)!important;
+}
+.sku-table thead th.sku-ncf-col,.sku-table thead th.sku-status-col{
+  top:0!important;background:#f4f7fc!important;z-index:8!important
+}
+.sku-table tbody td.sku-ncf-col,.sku-table tbody td.sku-status-col{
+  background:#fff!important;z-index:5!important;vertical-align:middle!important
+}
+.sku-table tbody tr:hover td.sku-ncf-col,.sku-table tbody tr:hover td.sku-status-col{background:#f8fbff!important}
+.sku-table .ncf-sku-actions{display:flex!important;justify-content:center!important;align-items:center!important;width:100%!important;min-height:29px}
+.sku-table .sku-ncf{font-size:11px;padding:7px 11px;min-height:29px;white-space:nowrap}
+.ncf-status-badge{display:inline-flex;align-items:center;justify-content:center;min-width:60px;min-height:27px;padding:5px 9px;border-radius:7px;font-size:11px;font-weight:800;line-height:1.1;white-space:nowrap;border:1px solid transparent}
+.ncf-status-badge.open{background:#fff0f2;color:#c52e49;border-color:#ffdce3}
+.ncf-status-badge.close{background:#e8f7f0;color:#0c876a;border-color:#ccecdf}
+.ncf-status-badge.none{background:transparent;color:#a5b2c5}
 </style>
 </head>
 <body>
@@ -392,8 +420,8 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
       <div class="sku-error" id="skuError" role="alert" hidden></div>
       <div class="sku-table-scroll">
         <table class="sku-table" aria-label="Rincian FTQ per SKU dan shift per tanggal">
-          <thead><tr><th>Kode SKU</th><th>Nama SKU</th><th>Shift</th><th>Batch Number</th><th class="right">Total GR</th><th class="right">Block Stock (PCS)</th><th class="right">FTQ</th><th class="right">Reject</th><th class="right">Value</th><th>Issue</th><th>Root Cause</th><th>Corrective Action</th><th>Preventive Action</th><th class="right">Aksi</th></tr></thead>
-          <tbody id="skuBody"><tr><td colspan="14" class="sku-empty">Pilih tanggal untuk melihat rincian SKU.</td></tr></tbody>
+          <thead><tr><th>Kode SKU</th><th>Nama SKU</th><th>Shift</th><th>Batch Number</th><th class="right">Total GR</th><th class="right">Block Stock (PCS)</th><th class="right">FTQ</th><th class="right">Reject</th><th class="right">Value</th><th>Issue</th><th>Root Cause</th><th>Corrective Action</th><th>Preventive Action</th><th class="sku-ncf-col" scope="col">Form NCF</th><th class="sku-status-col" scope="col">Status</th></tr></thead>
+          <tbody id="skuBody"><tr><td colspan="15" class="sku-empty">Pilih tanggal untuk melihat rincian SKU.</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -1065,6 +1093,17 @@ SOFTWARE.
     if(row.ftq_pct===null)return {name:'—',low:false,empty:true};
     return row.ftq_pct<state.target?{name:'Tidak tercapai',low:true,empty:false}:{name:'Tercapai',low:false,empty:false};
   }
+
+  // Status FTQ per SKU/Shift ditentukan oleh FTQ dan No. NCF tersimpan.
+  // Banyak NCF pada satu SKU/Shift tetap OPEN bila ada satu laporan tanpa nomor.
+  function ncfCompletionFor(ftqStatus,action){
+    const reports=action?.reports||[];
+    if(reports.length && reports.every(rec=>String(rec.ncf_no||'').trim()))
+      return {klass:'close',text:'Close',hint:'Seluruh NCF untuk SKU/Shift ini sudah bernomor dan tersimpan'};
+    if(ftqStatus.low || reports.length)
+      return {klass:'open',text:'Open',hint:reports.length?'NCF belum memiliki nomor untuk seluruh laporan':'FTQ di bawah target, wajib buat NCF'};
+    return {klass:'none',text:'—',hint:'FTQ tercapai, tidak wajib membuat NCF'};
+  }
   function renderSkuBreakdown(){
     const all=state.skuRows;
     const summaries=[1,2,3].map(n=>({no:n,rows:all.filter(x=>Number(x.shift_no)===n)}));
@@ -1090,12 +1129,13 @@ SOFTWARE.
     });
     $('skuVisibleCount').textContent=shown.length+' dari '+rows.length+' baris SKU/Shift';
     $('skuFoot').textContent='Target FTQ '+fmtPct(state.target);
-    if(!shown.length){$('skuBody').innerHTML='<tr><td colspan="14" class="sku-empty">'+(rows.length?'Tidak ada SKU sesuai filter.':'Belum ada transaksi pada shift ini.')+'</td></tr>';return;}
+    if(!shown.length){$('skuBody').innerHTML='<tr><td colspan="15" class="sku-empty">'+(rows.length?'Tidak ada SKU sesuai filter.':'Belum ada transaksi pada shift ini.')+'</td></tr>';return;}
     const textCell=(v)=>`<td>${v?`<span class="action-text" title="${escapeHtml(v)}">${escapeHtml(v)}</span>`:'<span class="note-placeholder">—</span>'}</td>`;
     $('skuBody').innerHTML=shown.map(r=>{
       const a=ncfActionFor(state.skuDate,r.material,r.shift_no),status=skuStatus(r);
       const color=status.empty?'na':status.low?'low':'';
       const latest=a.reports[0];
+      const ncfProgress=ncfCompletionFor(status,a);
       const ncfUrl=latest?'./ncf.html?'+new URLSearchParams({id:latest.id}).toString():
         './ncf.html?'+new URLSearchParams({date:state.skuDate,sku:String(r.material||''),name:String(r.material_description||''),shift:[1,2,3].includes(Number(r.shift_no))?String(r.shift_no):'',batch:String(r.batch_numbers||'')}).toString();
       return `<tr><td><span class="sku-code">${escapeHtml(r.material||'—')}</span>${a.ncf_count?`<span class="sku-ncf-saved" title="${a.ncf_count} NCF tersimpan">${a.ncf_count} NCF</span>`:''}</td>`+
@@ -1107,7 +1147,8 @@ SOFTWARE.
         `<td class="manual-amount">${hasManual(a.reject_qty)?fmtNumber(a.reject_qty,0):'—'}</td>`+
         `<td class="manual-amount">${fmtValue(a.value_amount)}</td>`+
         textCell(a.issue)+textCell(a.root_cause)+textCell(a.corrective_action)+textCell(a.preventive_action)+
-        `<td class="right"><div class="ncf-sku-actions">${r.shift_no===0?'<span class="note-placeholder">Impor ulang</span>':`<a class="sku-ncf" href="${escapeHtml(ncfUrl)}" title="${latest?'Buka dan edit NCF tersimpan':'Buat Form NCF untuk SKU dan shift ini'}">${latest?'Lihat / Edit NCF':'Form NCF'}</a>`}</div></td></tr>`;
+        `<td class="sku-ncf-col"><div class="ncf-sku-actions">${r.shift_no===0?'<span class="note-placeholder">Impor ulang</span>':`<a class="sku-ncf" href="${escapeHtml(ncfUrl)}" title="${latest?'Buka dan edit NCF tersimpan':'Buat Form NCF untuk SKU dan shift ini'}">${latest?'Lihat / Edit NCF':'Form NCF'}</a>`}</div></td>`+
+        `<td class="sku-status-col"><span class="ncf-status-badge ${ncfProgress.klass}" title="${escapeHtml(ncfProgress.hint)}">${ncfProgress.text}</span></td></tr>`;
     }).join('');
     // Tindakan diperbarui hanya dari Form NCF; tombol Edit FTQ sudah dihapus.
   }
@@ -1128,7 +1169,7 @@ SOFTWARE.
     $('skuTotalCount').textContent='—';$('skuGrTotal').textContent='—';
     $('skuBlockTotal').textContent='—';$('skuFtqTotal').textContent='—';
     $('skuVisibleCount').textContent='Memuat...';$('skuFoot').textContent='—';
-    $('skuBody').innerHTML='<tr><td colspan="14" class="sku-empty">Memuat breakdown SKU per Shift...</td></tr>';
+    $('skuBody').innerHTML='<tr><td colspan="15" class="sku-empty">Memuat breakdown SKU per Shift...</td></tr>';
     showDialog('skuDialog');
     try{
       let result=[];
@@ -1153,7 +1194,7 @@ SOFTWARE.
     }catch(err){
       if(requestId!==state.skuRequestId)return;
       state.skuLoading=false;$('skuError').textContent=err.message||String(err);$('skuError').hidden=false;
-      $('skuVisibleCount').textContent='—';$('skuBody').innerHTML='<tr><td colspan="14" class="sku-empty">Breakdown SKU per shift belum tersedia.</td></tr>';
+      $('skuVisibleCount').textContent='—';$('skuBody').innerHTML='<tr><td colspan="15" class="sku-empty">Breakdown SKU per shift belum tersedia.</td></tr>';
     }
   }
 
