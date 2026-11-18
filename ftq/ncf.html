@@ -24,6 +24,9 @@ body{margin:0;background:linear-gradient(180deg,#f6f8fc,#f1f5fb);font:13px/1.55 
  .form-head{padding:8px 10px;background:#f4f6f9}.form-head h2{font-size:12px}.form-body{padding:10px}.field{gap:3px}.field input,.field textarea,.field select,.why-card input,.why-line input,.fish-card textarea,.edit-table input,.edit-table textarea,.edit-table select{background:transparent!important;border:0!important;border-bottom:1px dotted #bbb!important;box-shadow:none!important;padding:3px 0!important;font-size:10px!important;min-height:0!important;resize:none}.field textarea,.fish-card textarea{height:auto;min-height:39px}
  .group{gap:8px}.fish{gap:6px}.fish-card,.why-card{padding:6px}.why-line{margin-top:3px}.doc-meta{padding:6px;border-color:#bbb}.doc-meta small{color:#333}.section-no{height:24px;flex-basis:24px}.ev-item img{height:150px}.print-header{display:block;font:bold 13px Arial;margin:0 0 7px;padding-bottom:5px;border-bottom:2px solid #244c91}.form-card.form2-start{break-before:page}.nav a{display:none}.history-table{display:none}.btn{display:none}
 }
+
+/* Status NCF otomatis, tidak dapat dipilih manual. */
+#ncf_status:disabled{opacity:1!important;background:#f1f7ff!important;color:#1e5398!important;font-weight:800;cursor:default}
 </style>
 </head>
 <body>
@@ -42,7 +45,7 @@ body{margin:0;background:linear-gradient(180deg,#f6f8fc,#f1f5fb);font:13px/1.55 
 <div class="form-body">
 <div class="doc-meta"><div style="display:flex;align-items:center;gap:9px"><img src="data:image/png;base64,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" alt="Logo KOBE" width="43" height="43" style="object-fit:contain"><div><strong>PT KOBE BOGA UTAMA</strong><br><small>Quality &amp; Food Safety Dept</small></div></div><div><strong>KBU-BJN/FO/QFS/26/011</strong><br><small>Tingkatan IV · Revisi 00 · Berlaku 19 Februari 2026</small></div><span class="pill">FORM 1</span></div>
 <div class="group">
-<div class="field"><label for="ncf_no" class="req">No. NCF (no/bulan/gedung)</label><input id="ncf_no" data-field="ncf_no" maxlength="60" placeholder="004/11/VI" required></div>
+<div class="field"><label for="ncf_no">No. NCF (no/bulan/gedung)</label><input id="ncf_no" data-field="ncf_no" maxlength="60" placeholder="Diisi saat Close, contoh: 004/11/VI"></div>
 <div class="field"><label for="ncf_audit">NC Nr. (audit)</label><input id="ncf_audit" data-field="ncf_audit" maxlength="140" placeholder="Audit / referensi"></div>
 <div class="field span-2"><label for="ncf_title" class="req">Judul Kasus / Issue / Pasal Audit</label><input id="ncf_title" data-field="ncf_title" maxlength="300" required placeholder="Judul ketidaksesuaian"></div>
 <div class="field"><label for="incident_date" class="req">Tanggal Kejadian</label><input type="date" id="incident_date" data-field="incident_date" required></div>
@@ -52,7 +55,7 @@ body{margin:0;background:linear-gradient(180deg,#f6f8fc,#f1f5fb);font:13px/1.55 
 <div class="field"><label for="sku">Kode SKU (referensi FTQ)</label><input id="sku" data-field="sku" maxlength="90" placeholder="Kode material"></div>
 <div class="field span-2"><label for="sku_name">Nama SKU (referensi FTQ)</label><input id="sku_name" data-field="sku_name" maxlength="300" placeholder="Deskripsi material"></div>
 <div class="field"><label for="shift">Shift</label><select id="shift" data-field="shift"><option value="">Tidak ditentukan</option><option value="1">Shift 1 · 07.00–15.00</option><option value="2">Shift 2 · 15.00–23.00</option><option value="3">Shift 3 · 23.00–07.00</option></select></div>
-<div class="field"><label for="ncf_status">Status NCF</label><select id="ncf_status" data-field="ncf_status"><option>Draft</option><option>Open</option><option>On Progress</option><option>Closed</option></select></div>
+<div class="field"><label for="ncf_status">Status NCF</label><select id="ncf_status" data-field="ncf_status" disabled aria-label="Status NCF otomatis dari nomor"><option value="Open">Open</option><option value="Closed">Close</option></select></div>
 </div>
 <div class="sep"></div><div class="mini-heading">Data Quality · Rekap FTQ</div>
 <div class="group two">
@@ -187,11 +190,14 @@ body{margin:0;background:linear-gradient(180deg,#f6f8fc,#f1f5fb);font:13px/1.55 
     if(qs.get('issue'))$('ncf_title').value=qs.get('issue').slice(0,300);
     if(qs.get('shift') && qs.get('date'))$('when').value=qs.get('date')+' · Shift '+qs.get('shift');
   }
+  function syncNcfStatus(){
+    $('ncf_status').value=$('ncf_no').value.trim()?'Closed':'Open';
+  }
   function resetForm(withContext=true){
     currentId=null;currentVersion=null;images=[];$('ncfForm').reset();
     document.querySelectorAll('[data-field]').forEach(el=>{if(el.tagName==='SELECT'){el.selectedIndex=0;}else el.value='';});
     renderSolutions();renderStandard();renderEvidence();
-    $('department').value='Produksi';$('ncf_status').value='Draft';
+    $('department').value='Produksi';syncNcfStatus();
     if(withContext)prefillContext();
     dirty=false;$('saveInfo').textContent='Laporan baru';hideNotice();
     window.scrollTo({top:0,behavior:'smooth'});
@@ -205,6 +211,7 @@ body{margin:0;background:linear-gradient(180deg,#f6f8fc,#f1f5fb);font:13px/1.55 
       const x={document:standardNames[i]};row.querySelectorAll('[data-std]').forEach(el=>x[el.dataset.std]=el.value.trim());return x;
     });
     data.evidence=images;
+    data.ncf_status=data.ncf_no?'Closed':'Open';
     data.form_code='KBU-BJN/FO/QFS/26/011';data.form_revision='00';
     return data;
   }
@@ -213,10 +220,10 @@ body{margin:0;background:linear-gradient(180deg,#f6f8fc,#f1f5fb);font:13px/1.55 
     document.querySelectorAll('[data-field]').forEach(el=>{const value=data?.[el.dataset.field];if(value!==undefined&&value!==null)el.value=String(value);else if(el.tagName==='SELECT')el.selectedIndex=0;else el.value='';});
     renderSolutions(data.solution_rows);renderStandard(data.standard_rows);
     images=Array.isArray(data.evidence)?data.evidence.filter(x=>typeof x.src==='string'&&x.src.startsWith('data:image/jpeg;base64,')&&x.src.length<220000).slice(0,2):[];
-    renderEvidence();dirty=false;
+    renderEvidence();syncNcfStatus();dirty=false;
   }
   function validate(data){
-    if(!data.ncf_no){$('ncf_no').focus();throw new Error('No. NCF wajib diisi.');}
+    if(data.ncf_no.length>60){$('ncf_no').focus();throw new Error('No. NCF maksimal 60 karakter.');}
     if(!data.incident_date){$('incident_date').focus();throw new Error('Tanggal kejadian wajib diisi.');}
     if(!data.ncf_title){$('ncf_title').focus();throw new Error('Judul kasus wajib diisi.');}
     if(data.sku && !['1','2','3'].includes(String(data.shift||'')))throw new Error('NCF untuk SKU FTQ wajib memilih Shift 1, 2, atau 3.');
@@ -252,7 +259,7 @@ body{margin:0;background:linear-gradient(180deg,#f6f8fc,#f1f5fb);font:13px/1.55 
         localWrite(store);currentVersion=now;
       }
       currentId=id;dirty=false;$('saveInfo').textContent='Tersimpan · '+new Date().toLocaleString('id-ID',{timeZone:'Asia/Jakarta'});
-      toast('NCF '+data.ncf_no+' berhasil disimpan.');hideNotice();
+      toast((data.ncf_no?'NCF '+data.ncf_no+' (Close)':'NCF Open (belum bernomor)')+' berhasil disimpan.');hideNotice();
     }catch(err){toast('Gagal menyimpan: '+(err.message||err),true);showNotice('NCF belum tersimpan: '+(err.message||err),true);}
     finally{busy(false);}
   }
@@ -269,7 +276,7 @@ body{margin:0;background:linear-gradient(180deg,#f6f8fc,#f1f5fb);font:13px/1.55 
     const term=query.trim().toLocaleLowerCase('id-ID');
     const list=items.filter(x=>[x.ncf_no,x.title,x.incident_date,x.material,x.batch_numbers,x.status].join(' ').toLocaleLowerCase('id-ID').includes(term));
     const body=$('historyRows');
-    body.innerHTML=list.length?list.map(x=>`<tr><td><strong>${escape(x.ncf_no)}</strong></td><td class="date">${escape(x.incident_date)}</td><td class="title">${escape(x.title)}</td><td>${escape(x.material||'—')}${x.shift_no?' · Shift '+escape(x.shift_no):''}</td><td><span class="pill">${escape(x.status)}</span></td><td><button class="btn btn-light btn-sm" type="button" data-open-id="${escape(x.id)}">Buka</button></td></tr>`).join(''):'<tr><td colspan="6" style="text-align:center;padding:25px;color:#8195ae">Belum ada NCF sesuai pencarian.</td></tr>';
+    body.innerHTML=list.length?list.map(x=>`<tr><td><strong>${escape(x.ncf_no||'Belum bernomor')}</strong></td><td class="date">${escape(x.incident_date)}</td><td class="title">${escape(x.title)}</td><td>${escape(x.material||'—')}${x.shift_no?' · Shift '+escape(x.shift_no):''}</td><td><span class="pill">${escape(String(x.ncf_no||'').trim()?'Close':'Open')}</span></td><td><button class="btn btn-light btn-sm" type="button" data-open-id="${escape(x.id)}">Buka</button></td></tr>`).join(''):'<tr><td colspan="6" style="text-align:center;padding:25px;color:#8195ae">Belum ada NCF sesuai pencarian.</td></tr>';
     body.querySelectorAll('[data-open-id]').forEach(b=>b.addEventListener('click',()=>openRecord(b.dataset.openId)));
   }
   async function history(){
@@ -285,8 +292,8 @@ body{margin:0;background:linear-gradient(180deg,#f6f8fc,#f1f5fb);font:13px/1.55 
       if(db){const res=await db.from('ftq_ncf_records').select('*').eq('id',id).single();if(res.error)throw res.error;record=res.data;}
       else record=localRead().find(x=>x.id===id);
       if(!record)throw new Error('Data NCF tidak ditemukan.');
-      setData(record.form_data||{});currentId=record.id;currentVersion=record.updated_at;
-      $('saveInfo').textContent='NCF '+record.ncf_no+' · Update '+new Date(record.updated_at).toLocaleDateString('id-ID');
+      setData({...record.form_data,ncf_no:record.ncf_no??''});currentId=record.id;currentVersion=record.updated_at;
+      $('saveInfo').textContent=(record.ncf_no?'NCF '+record.ncf_no:'NCF Open')+' · Update '+new Date(record.updated_at).toLocaleDateString('id-ID');
       $('historyDialog').close();hideNotice();window.scrollTo({top:0,behavior:'smooth'});
     }catch(e){toast('Gagal membuka NCF: '+(e.message||e),true);}
   }
@@ -349,7 +356,7 @@ body{margin:0;background:linear-gradient(180deg,#f6f8fc,#f1f5fb);font:13px/1.55 
     $('addSolution').addEventListener('click',()=>{if($('solutionBody').children.length>=25){toast('Maksimal 25 tindakan solusi.',true);return;}$('solutionBody').appendChild(makeRow({},$('solutionBody').children.length));dirty=true;});
     $('solutionBody').addEventListener('click',e=>{if(!e.target.closest('[data-remove-sol]'))return;const trs=$('solutionBody').querySelectorAll('tr');if(trs.length<=1){toast('Minimal satu baris solusi.',true);return;}e.target.closest('tr').remove();renumber();dirty=true;});
     $('evidenceInput').addEventListener('change',uploadEvidence);
-    $('ncfForm').addEventListener('input',()=>{dirty=true;});
+    $('ncfForm').addEventListener('input',()=>{dirty=true;syncNcfStatus();});
     $('printBtn').addEventListener('click',()=>window.print());$('printBottom').addEventListener('click',()=>window.print());
     $('exportNcfBtn').addEventListener('click',excelExport);
     const existingId=(qs.get('id')||'').trim();
