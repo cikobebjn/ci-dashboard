@@ -54,6 +54,11 @@ body{margin:0;background:linear-gradient(180deg,#f6f8fc,#f1f5fb);font:13px/1.55 
 <div class="field"><label for="shift">Shift</label><select id="shift" data-field="shift"><option value="">Tidak ditentukan</option><option value="1">Shift 1 · 07.00–15.00</option><option value="2">Shift 2 · 15.00–23.00</option><option value="3">Shift 3 · 23.00–07.00</option></select></div>
 <div class="field"><label for="ncf_status">Status NCF</label><select id="ncf_status" data-field="ncf_status"><option>Draft</option><option>Open</option><option>On Progress</option><option>Closed</option></select></div>
 </div>
+<div class="sep"></div><div class="mini-heading">Data Quality · Rekap FTQ</div>
+<div class="group two">
+  <div class="field"><label for="reject_qty">Reject (PCS)</label><input type="number" id="reject_qty" data-field="reject_qty" min="0" step="1" inputmode="numeric" placeholder="Jumlah reject aktual"></div>
+  <div class="field"><label for="value_amount">Value (Rp)</label><input type="number" id="value_amount" data-field="value_amount" min="0" step="0.01" inputmode="decimal" placeholder="Nilai reject (Rp)"></div>
+</div>
 <div class="sep"></div><div class="mini-heading">Analisis 5W1H</div>
 <div class="group two">
 <div class="field"><label for="what">What</label><textarea id="what" data-field="what" maxlength="2500" placeholder="Apa yang terjadi?"></textarea></div>
@@ -76,7 +81,11 @@ body{margin:0;background:linear-gradient(180deg,#f6f8fc,#f1f5fb);font:13px/1.55 
 <section id="bag3" class="form-card form2-start">
 <div class="form-head"><span class="section-no">03</span><div><h2>Corrective Action &amp; Why-Why Analysis</h2><p>FORM 2 — Penanganan dan analisis akar masalah</p></div></div>
 <div class="form-body">
-<div class="group two"><div class="field wide"><label for="corrective_action">Corrective Action</label><textarea id="corrective_action" data-field="corrective_action" rows="4" maxlength="6500" placeholder="Tindakan korektif langsung yang dilakukan"></textarea></div></div>
+<div class="group two">
+  <div class="field wide"><label for="root_cause_summary">Root Cause</label><textarea id="root_cause_summary" data-field="root_cause_summary" rows="3" maxlength="4000" placeholder="Akar penyebab utama hasil analisis"></textarea></div>
+  <div class="field wide"><label for="corrective_action">Corrective Action</label><textarea id="corrective_action" data-field="corrective_action" rows="4" maxlength="6500" placeholder="Tindakan korektif langsung yang dilakukan"></textarea></div>
+  <div class="field wide"><label for="preventive_action">Preventive Action</label><textarea id="preventive_action" data-field="preventive_action" rows="3" maxlength="5000" placeholder="Tindakan untuk mencegah kejadian berulang"></textarea></div>
+</div>
 <div class="group three"><div class="field"><label>Prepared By</label><input data-field="prepared_by" maxlength="120"></div><div class="field"><label>Approved By</label><input data-field="approved_by" maxlength="120"></div><div class="field"><label>Acknowledge</label><input data-field="acknowledge_by" maxlength="120"></div></div>
 <div class="sep"></div><div class="mini-heading">Why-Why Analysis</div>
 <div class="why-grid" id="whyGrid"></div>
@@ -210,6 +219,10 @@ body{margin:0;background:linear-gradient(180deg,#f6f8fc,#f1f5fb);font:13px/1.55 
     if(!data.ncf_no){$('ncf_no').focus();throw new Error('No. NCF wajib diisi.');}
     if(!data.incident_date){$('incident_date').focus();throw new Error('Tanggal kejadian wajib diisi.');}
     if(!data.ncf_title){$('ncf_title').focus();throw new Error('Judul kasus wajib diisi.');}
+    if(data.sku && !['1','2','3'].includes(String(data.shift||'')))throw new Error('NCF untuk SKU FTQ wajib memilih Shift 1, 2, atau 3.');
+    const q=String(data.reject_qty||'').trim(), v=String(data.value_amount||'').trim();
+    if(q!=='' && (!/^\d+$/.test(q)||Number(q)>999999999999))throw new Error('Reject harus jumlah PCS bulat dan tidak negatif.');
+    if(v!=='' && (!/^\d+(?:\.\d{1,2})?$/.test(v)||Number(v)>999999999999))throw new Error('Value harus rupiah tidak negatif, maksimal 2 desimal.');
     if(data.incident_date>todayIso())throw new Error('Tanggal kejadian tidak boleh di masa depan.');
     const limit=new Date(todayIso()+'T12:00:00');limit.setFullYear(limit.getFullYear()-1);
     const lower=limit.getFullYear()+'-'+String(limit.getMonth()+1).padStart(2,'0')+'-'+String(limit.getDate()).padStart(2,'0');
@@ -305,8 +318,8 @@ body{margin:0;background:linear-gradient(180deg,#f6f8fc,#f1f5fb);font:13px/1.55 
   function excelExport(){
     if(!window.XLSX){toast('Library Excel belum tersedia. Periksa koneksi internet.',true);return;}
     const d=gather();
-    const rows1=[['PT KOBE BOGA UTAMA','NON CONFORMANCE FORM','KBU-BJN/FO/QFS/26/011'],['Tingkatan Dokumen','IV','Status Revisi 00'],['Tanggal Berlaku','19 Februari 2026','FORM 1'],[],['No NCF',d.ncf_no,'NC Nr (audit)',d.ncf_audit],['Judul Kasus',d.ncf_title],['Tanggal Kejadian',d.incident_date,'Lokasi',d.location],['Department',d.department,'Kode Batch',d.batch],['Kode SKU',d.sku,'Nama SKU',d.sku_name],['Shift',d.shift],[],['1. DEFINISI MASALAH'],['What',d.what],['When',d.when],['Who',d.who],['Where',d.where],['Why',d.why],['How',d.how],['Problem Statement',d.problem_statement],[],['2. FISHBONE DIAGRAM'],...fishCategories.map(([label,key])=>[label,d['fish_'+key]])];
-    const rows2=[['PT KOBE BOGA UTAMA','NON CONFORMANCE FORM','KBU-BJN/FO/QFS/26/011'],['FORM 2'],['No NCF',d.ncf_no,'Judul',d.ncf_title],[],['3. CORRECTIVE ACTION'],['Tindakan',d.corrective_action],['Prepared By',d.prepared_by,'Approved By',d.approved_by,'Acknowledge',d.acknowledge_by],[],['WHY-WHY ANALYSIS']];
+    const rows1=[['PT KOBE BOGA UTAMA','NON CONFORMANCE FORM','KBU-BJN/FO/QFS/26/011'],['Tingkatan Dokumen','IV','Status Revisi 00'],['Tanggal Berlaku','19 Februari 2026','FORM 1'],[],['No NCF',d.ncf_no,'NC Nr (audit)',d.ncf_audit],['Judul Kasus',d.ncf_title],['Tanggal Kejadian',d.incident_date,'Lokasi',d.location],['Department',d.department,'Kode Batch',d.batch],['Kode SKU',d.sku,'Nama SKU',d.sku_name],['Shift',d.shift],['Reject (PCS)',d.reject_qty,'Value (Rp)',d.value_amount],[],['1. DEFINISI MASALAH'],['What',d.what],['When',d.when],['Who',d.who],['Where',d.where],['Why',d.why],['How',d.how],['Problem Statement',d.problem_statement],[],['2. FISHBONE DIAGRAM'],...fishCategories.map(([label,key])=>[label,d['fish_'+key]])];
+    const rows2=[['PT KOBE BOGA UTAMA','NON CONFORMANCE FORM','KBU-BJN/FO/QFS/26/011'],['FORM 2'],['No NCF',d.ncf_no,'Judul',d.ncf_title],[],['3. CORRECTIVE ACTION'],['Root Cause',d.root_cause_summary],['Tindakan',d.corrective_action],['Preventive Action',d.preventive_action],['Prepared By',d.prepared_by,'Approved By',d.approved_by,'Acknowledge',d.acknowledge_by],[],['WHY-WHY ANALYSIS']];
     for(let c=1;c<=4;c++){rows2.push(['Cause '+c,d['why_cause_'+c]]);for(let w=1;w<=5;w++)rows2.push(['Why '+w,d['why_'+c+'_'+w]]);}
     rows2.push([],['4. IMPLEMENTASI SOLUSI'],['No','Root Cause','Solusi','Due Date','PIC','Status'],...d.solution_rows.map((r,i)=>[i+1,r.root,r.solution,r.due,r.pic,r.status]),[],['5. STANDARDISASI'],['Document','Document Index','PIC','Status'],...d.standard_rows.map(r=>[r.document,r.index,r.pic,r.status]),[],['6. CHECK DAN MONITORING HASIL'],['Hasil',d.monitoring_result],['Create By',d.created_by,d.created_on],['Check By',d.checked_by,d.checked_on],['Acknowledge By',d.final_ack_by,d.final_ack_on]);
     const book=window.XLSX.utils.book_new();
@@ -339,6 +352,11 @@ body{margin:0;background:linear-gradient(180deg,#f6f8fc,#f1f5fb);font:13px/1.55 
     $('ncfForm').addEventListener('input',()=>{dirty=true;});
     $('printBtn').addEventListener('click',()=>window.print());$('printBottom').addEventListener('click',()=>window.print());
     $('exportNcfBtn').addEventListener('click',excelExport);
+    const existingId=(qs.get('id')||'').trim();
+    if(existingId){
+      if(!/^[0-9a-fA-F-]{36}$/.test(existingId) && !/^local-[\w-]+$/.test(existingId))throw Error('ID NCF tidak valid.');
+      await openRecord(existingId);
+    }
   }
   document.addEventListener('DOMContentLoaded',()=>boot().catch(e=>showNotice('Form NCF gagal dimuat: '+e.message,true)));
 })();
