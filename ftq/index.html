@@ -271,6 +271,43 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
 /* PPT export shares the clean, compact dashboard action treatment. */
 .heading-actions{row-gap:8px}
 @media(max-width:890px){.heading-actions .btn{padding:9px 12px;font-size:11px}}
+
+/* FIX 2026-11-18: header tabel breakdown memiliki sticky vertical saja.
+   Hanya kolom AKSI paling kanan yang tetap saat geser horizontal.
+   Ini menimpa CSS legacy nth-child(12) yang membuat header CORRECTIVE ACTION
+   position:static dan background:inherit, sehingga terpisah dari header lain. */
+.sku-table thead th:not(:last-child){
+  position:sticky!important;
+  top:0!important;
+  right:auto!important;
+  left:auto!important;
+  background:#f4f7fc!important;
+  box-shadow:none!important;
+  z-index:2!important;
+}
+.sku-table tbody td:not(:last-child){
+  position:static!important;
+  right:auto!important;
+  left:auto!important;
+  box-shadow:none!important;
+  z-index:auto!important;
+}
+.sku-table thead th:last-child{
+  position:sticky!important;
+  top:0!important;
+  right:0!important;
+  background:#f4f7fc!important;
+  box-shadow:-9px 0 15px -12px rgba(30,55,100,.27)!important;
+  z-index:5!important;
+}
+.sku-table tbody td:last-child{
+  position:sticky!important;
+  right:0!important;
+  background:#fff!important;
+  box-shadow:-9px 0 15px -12px rgba(30,55,100,.27)!important;
+  z-index:3!important;
+}
+.sku-table tbody tr:hover td:last-child{background:#f8fbff!important}
 </style>
 </head>
 <body>
