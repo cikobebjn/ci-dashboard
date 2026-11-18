@@ -249,10 +249,10 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
 @media(max-width:710px){.sku-table{min-width:2260px!important}.batch-pill{font-size:10px}}
 
   
-/* NCF: satu menu utama dan tombol ringkas di samping Edit SKU */
+/* NCF menjadi satu-satunya menu input dan edit tindak lanjut SKU. */
 .sku-table{min-width:2360px!important}
 .sku-table th:nth-child(14),.sku-table td:nth-child(14){width:183px!important;min-width:183px!important}
-.ncf-sku-actions{display:flex;align-items:center;justify-content:flex-end;gap:5px;white-space:nowrap}
+.ncf-sku-actions{display:flex;align-items:center;justify-content:flex-end;gap:0;white-space:nowrap}
 .sku-ncf{display:inline-flex;justify-content:center;align-items:center;padding:7px 9px;border:1px solid #b7d7ec;border-radius:7px;background:#eaf7fc;color:#157094;font-size:11px;font-weight:800;line-height:1.1;text-decoration:none}
 .sku-ncf:hover{background:#dff1fa;border-color:#90c5e5}
 
@@ -331,7 +331,7 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
 
   </main>
 
-  <dialog id="notesDialog" class="modal modal-wide"><form id="notesForm"><div class="modal-head"><div><span class="modal-eyebrow">QUALITY ACTION</span><h2>Edit SKU · <span id="notesDate">—</span></h2><div id="notesSku" class="notes-sku-heading">—</div></div><button type="button" class="icon-close" data-close="notesDialog" aria-label="Tutup">×</button></div><div class="modal-body"><div class="modal-highlight" id="notesMetric">—</div><div class="sku-legacy-note" id="notesLegacy" hidden></div><div class="form-grid form-grid-numeric"><div class="field"><label for="noteReject">Reject (PCS)</label><input type="number" id="noteReject" inputmode="numeric" min="0" max="999999999999" step="1" placeholder="Input Reject"></div><div class="field"><label for="noteValue">Value (Rp)</label><input type="number" id="noteValue" inputmode="decimal" min="0" max="999999999999" step="0.01" placeholder="Input Value"></div></div><div class="form-grid"><div class="field"><label for="noteIssue">Issue</label><textarea id="noteIssue" maxlength="2000" rows="3" placeholder="Issue"></textarea></div><div class="field"><label for="noteRoot">Root Cause</label><textarea id="noteRoot" maxlength="2000" rows="3" placeholder="Root Cause"></textarea></div><div class="field"><label for="noteCorrective">Corrective Action</label><textarea id="noteCorrective" maxlength="2000" rows="3" placeholder="Corrective Action"></textarea></div><div class="field"><label for="notePreventive">Preventive Action</label><textarea id="notePreventive" maxlength="2000" rows="3" placeholder="Preventive Action"></textarea></div></div></div><div class="modal-actions"><button type="button" class="btn btn-outline" data-close="notesDialog">Batal</button><button type="submit" class="btn btn-primary" id="saveNotesBtn">Simpan</button></div></form></dialog>
+
 
 
   <dialog id="skuDialog" class="modal modal-sku" aria-labelledby="skuDialogTitle">
@@ -719,7 +719,7 @@ SOFTWARE.
           db.from('ftq_reject_material_daily').select('prod_date,material,material_description,material_group_desc,total_gr,total_reject').gte('prod_date',matBegin).lt('prod_date',matEnd).order('prod_date',{ascending:true}).limit(5000),
           db.from('ftq_sku_actions').select('*').gte('prod_date',matBegin).lt('prod_date',matEnd).order('prod_date',{ascending:true}).limit(4000),
           db.from('ftq_sku_shift_actions').select('*').gte('prod_date',matBegin).lt('prod_date',matEnd).order('prod_date',{ascending:true}).limit(8000),
-          db.from('ftq_ncf_records').select('incident_date,material,shift_no,status').gte('incident_date',matBegin).lt('incident_date',matEnd).limit(5000)
+          fetchNcfRange(matBegin,matEnd)
         ]);
         for(const res of [d,m,n])if(res.error)throw res.error;
         state.dailyAll=(d.data||[]).map(x=>({...x,total_gr:Number(x.total_gr),total_reject:Number(x.total_reject),total_qi_24h:Number(x.total_qi_24h),ftq_pct:x.ftq_pct===null?null:Number(x.ftq_pct)}));
@@ -730,7 +730,7 @@ SOFTWARE.
         state.skuNotesReady=!sh.error;
         state.legacySkuActions=sn.error?[]:(sn.data||[]);
         state.skuActions=sh.error?[]:(sh.data||[]);
-        state.ncfItems=ncf.error?[]:(ncf.data||[]).filter(x=>x.incident_date&&String(x.material||'').trim());
+        state.ncfItems=ncf;
         if(sh.error)showError('Jalankan ftq-shift-migration.sql di Supabase untuk mengaktifkan detail SKU per shift.');
       }else{
         const all=getDemoSnapshots();
@@ -746,10 +746,11 @@ SOFTWARE.
         const notes=safeGet(demoNotesKey,{});state.notes=notes;
         state.legacySkuActions=Object.values(safeGet(demoSkuNotesKey,{}));
         state.skuActions=Object.values(safeGet(demoSkuShiftNotesKey,{}));state.skuNotesReady=true;
-        state.ncfItems=(safeGet('kobe_ftq_ncf_local_v1',[])||[]).filter(x=>x&&x.incident_date&&String(x.material||'').trim());
+        state.ncfItems=await fetchNcfRange(weeksInMonth(state.month)[0].start,addDays(weeksInMonth(state.month).at(-1).end,1));
       }
       state.monthRows=state.dailyAll.filter(x=>x.prod_date.startsWith(state.month));
       render();
+      if($('skuDialog').open && state.skuRows.length)renderSkuBreakdown();
       state.lastLoadedAt=Date.now();
       if(db){$('connectionStatus').textContent='Supabase terhubung';$('connectionStatus').className='status-pill online';}
     }catch(err){
@@ -803,6 +804,61 @@ SOFTWARE.
     const biggest=list[0].total_reject||1;
     $('materialBars').innerHTML=list.map((m,i)=>`<div class="material-item" title="${escapeHtml(m.material_description)}"><div class="material-rank">#${i+1} · ${escapeHtml(m.material)}</div><div class="material-name">${escapeHtml(m.material_description||'Tanpa deskripsi')}</div><div class="material-number">${fmtNumber(m.total_reject)}</div><div class="material-track"><div class="material-fill" style="width:${Math.max(2,100*m.total_reject/biggest)}%"></div></div></div>`).join('');
   }
+  // Semua nilai tindak lanjut berasal dari NCF. Tabel aksi FTQ lama tetap diarsipkan,
+  // tetapi tidak lagi menjadi sumber angka resume, breakdown, maupun ekspor meeting.
+  function normalizedNcf(rec){
+    const f=(rec.form_data && typeof rec.form_data==='object')?rec.form_data:{};
+    const txt=(v)=>String(v??'').trim();
+    const num=(v)=>v===null||v===undefined||String(v).trim()===''?null:(Number.isFinite(Number(v))&&Number(v)>=0?Number(v):null);
+    const roots=Array.isArray(f.solution_rows)?f.solution_rows.map(x=>txt(x?.root)).filter(Boolean):[];
+    const fixes=Array.isArray(f.solution_rows)?f.solution_rows.map(x=>txt(x?.solution)).filter(Boolean):[];
+    return {
+      id:String(rec.id||''),ncf_no:txt(rec.ncf_no||f.ncf_no),updated_at:rec.updated_at||'',
+      incident_date:txt(rec.incident_date||f.incident_date).slice(0,10),
+      material:txt(rec.material||f.sku),shift_no:Number(rec.shift_no||f.shift)||0,
+      status:txt(rec.status||f.ncf_status),reject_qty:num(f.reject_qty),value_amount:num(f.value_amount),
+      issue:txt(f.what)||txt(f.ncf_title)||txt(rec.title),
+      root_cause:txt(f.root_cause_summary)||roots.join(' | ')||txt(f.why_cause_1),
+      corrective_action:txt(f.corrective_action)||fixes.join(' | '),
+      preventive_action:txt(f.preventive_action)
+    };
+  }
+  async function fetchNcfRange(start,end){
+    if(!db){return (safeGet('kobe_ftq_ncf_local_v1',[])||[]).map(normalizedNcf).filter(n=>n.incident_date>=start&&n.incident_date<end);}
+    let all=[];
+    for(let from=0;from<5000;from+=500){
+      const {data,error}=await db.from('ftq_ncf_records')
+        .select('id,ncf_no,incident_date,title,material,shift_no,status,updated_at,form_data')
+        .gte('incident_date',start).lt('incident_date',end)
+        .order('incident_date',{ascending:true}).order('id',{ascending:true}).range(from,from+499);
+      if(error)throw Error('Gagal memuat NCF: '+(error.message||String(error)));
+      const block=data||[];all.push(...block);
+      if(block.length<500)break;
+      if(from===4500)throw Error('Terlalu banyak NCF dalam periode ini. Hubungi admin untuk ekspor per tanggal.');
+    }
+    return all.map(normalizedNcf).filter(n=>n.incident_date&&n.material);
+  }
+  function ncfReports(date,material,shift,source=state.ncfItems){
+    return source.filter(n=>n.incident_date===date&&String(n.material)===String(material)&&Number(n.shift_no)===Number(shift)&&[1,2,3].includes(Number(n.shift_no)))
+      .sort((a,b)=>String(b.updated_at||'').localeCompare(String(a.updated_at||'')));
+  }
+  function ncfActionFor(date,material,shift,source=state.ncfItems){
+    const reports=ncfReports(date,material,shift,source);
+    const summary={reports,ncf_count:reports.length,reject_qty:null,value_amount:null,issue:'',root_cause:'',corrective_action:'',preventive_action:''};
+    for(const key of ['reject_qty','value_amount']){
+      const vals=reports.map(r=>r[key]).filter(hasManual);
+      if(vals.length)summary[key]=vals.reduce((sum,n)=>sum+Number(n),0);
+    }
+    for(const key of ['issue','root_cause','corrective_action','preventive_action']){
+      const parts=[];
+      for(const rec of reports){
+        const v=String(rec[key]||'').trim();
+        if(v && !parts.some(p=>p.value===v))parts.push({number:rec.ncf_no,value:v});
+      }
+      summary[key]=parts.length>1?parts.map(p=>`${p.number}: ${p.value}`).join(' | '):(parts[0]?.value||'');
+    }
+    return summary;
+  }
   const skuActionKey = (date,material,shift=0) => JSON.stringify([date,String(material||'').trim(),Number(shift)||0]);
   function skuActionFor(date,material,shift){return state.skuActions.find(a=>a.prod_date===date && String(a.material)===String(material) && Number(a.shift_no)===Number(shift))||null;}
   function skuActionTouched(a){return !!a && (hasManual(a.reject_qty)||hasManual(a.value_amount)||[a.issue,a.root_cause,a.corrective_action,a.preventive_action].some(v=>String(v||'').trim()));}
@@ -814,12 +870,13 @@ SOFTWARE.
     return [...assigned,...legacy];
   }
   function dailySkuActions(date){
-    const all=actionsForDaily(date),rej=all.filter(a=>hasManual(a.reject_qty)),val=all.filter(a=>hasManual(a.value_amount));
-    const manualSku=all.filter(skuActionTouched).map(a=>String(a.material||'').trim()).filter(Boolean);
-    const ncfSku=state.ncfItems.filter(n=>n.incident_date===date).map(n=>String(n.material||'').trim()).filter(Boolean);
-    return {reject_qty:rej.length?rej.reduce((z,a)=>z+Number(a.reject_qty),0):null,
-            value_amount:val.length?val.reduce((z,a)=>z+Number(a.value_amount),0):null,
-            count:new Set([...manualSku,...ncfSku]).size,ncf_count:new Set(ncfSku).size,notes:all};
+    const records=state.ncfItems.filter(n=>n.incident_date===date && n.material && [1,2,3].includes(Number(n.shift_no)));
+    const rej=records.filter(n=>hasManual(n.reject_qty)),val=records.filter(n=>hasManual(n.value_amount));
+    return {reject_qty:rej.length?rej.reduce((z,n)=>z+Number(n.reject_qty),0):null,
+            value_amount:val.length?val.reduce((z,n)=>z+Number(n.value_amount),0):null,
+            count:new Set(records.map(n=>String(n.material))).size,
+            ncf_count:new Set(records.map(n=>String(n.material))).size,
+            notes:records};
   }
   function renderTable(){
     const search=$('searchInput').value.trim().toLocaleLowerCase('id-ID');
@@ -991,7 +1048,7 @@ SOFTWARE.
     const search=$('skuSearch').value.trim().toLocaleLowerCase('id-ID');const belowOnly=$('skuBelowOnly').checked;
     const shown=rows.filter(r=>!belowOnly||skuStatus(r).low).filter(r=>{
       if(!search)return true;
-      const a=skuActionFor(state.skuDate,r.material,r.shift_no)||r;
+      const a=ncfActionFor(state.skuDate,r.material,r.shift_no);
       return [r.material,r.material_description,shiftTitle(r.shift_no),r.batch_numbers,a.issue,a.root_cause,a.corrective_action,a.preventive_action].join(' ').toLocaleLowerCase('id-ID').includes(search);
     });
     $('skuVisibleCount').textContent=shown.length+' dari '+rows.length+' baris SKU/Shift';
@@ -999,10 +1056,12 @@ SOFTWARE.
     if(!shown.length){$('skuBody').innerHTML='<tr><td colspan="14" class="sku-empty">'+(rows.length?'Tidak ada SKU sesuai filter.':'Belum ada transaksi pada shift ini.')+'</td></tr>';return;}
     const textCell=(v)=>`<td>${v?`<span class="action-text" title="${escapeHtml(v)}">${escapeHtml(v)}</span>`:'<span class="note-placeholder">—</span>'}</td>`;
     $('skuBody').innerHTML=shown.map(r=>{
-      const a=skuActionFor(state.skuDate,r.material,r.shift_no)||r,status=skuStatus(r);
+      const a=ncfActionFor(state.skuDate,r.material,r.shift_no),status=skuStatus(r);
       const color=status.empty?'na':status.low?'low':'';
-      const ncfUrl='./ncf.html?'+new URLSearchParams({date:state.skuDate,sku:String(r.material||''),name:String(r.material_description||''),shift:[1,2,3].includes(Number(r.shift_no))?String(r.shift_no):'',batch:String(r.batch_numbers||''),issue:String(a.issue||'')}).toString();
-      return `<tr><td><span class="sku-code">${escapeHtml(r.material||'—')}</span>${state.ncfItems.some(n=>n.incident_date===state.skuDate&&String(n.material)===String(r.material)&&(!n.shift_no||Number(n.shift_no)===Number(r.shift_no)))?'<span class="sku-ncf-saved" title="NCF tersimpan untuk SKU ini">NCF</span>':''}</td>`+
+      const latest=a.reports[0];
+      const ncfUrl=latest?'./ncf.html?'+new URLSearchParams({id:latest.id}).toString():
+        './ncf.html?'+new URLSearchParams({date:state.skuDate,sku:String(r.material||''),name:String(r.material_description||''),shift:[1,2,3].includes(Number(r.shift_no))?String(r.shift_no):'',batch:String(r.batch_numbers||'')}).toString();
+      return `<tr><td><span class="sku-code">${escapeHtml(r.material||'—')}</span>${a.ncf_count?`<span class="sku-ncf-saved" title="${a.ncf_count} NCF tersimpan">${a.ncf_count} NCF</span>`:''}</td>`+
         `<td><div class="sku-description">${escapeHtml(r.material_description||'Tanpa nama SKU')}</div></td>`+
         `<td><span class="sku-shift-badge ${r.shift_no===0?'unknown':''}">${escapeHtml(shiftTitle(r.shift_no))}</span></td>`+
         `<td>${r.batch_numbers?`<div class="batch-list">${String(r.batch_numbers).split('|').map(n=>n.trim()).filter(Boolean).map(n=>`<span class="batch-pill">${escapeHtml(n)}</span>`).join('')}</div>`:'<span class="batch-blank">—</span>'}</td>`+
@@ -1011,9 +1070,9 @@ SOFTWARE.
         `<td class="manual-amount">${hasManual(a.reject_qty)?fmtNumber(a.reject_qty,0):'—'}</td>`+
         `<td class="manual-amount">${fmtValue(a.value_amount)}</td>`+
         textCell(a.issue)+textCell(a.root_cause)+textCell(a.corrective_action)+textCell(a.preventive_action)+
-        `<td class="right"><div class="ncf-sku-actions">${r.shift_no===0?'<span class="note-placeholder">Impor ulang</span>':`<button type="button" class="sku-edit" data-sku-edit="${escapeHtml(r.material)}" data-shift-edit="${r.shift_no}" title="Edit tindak lanjut SKU ${escapeHtml(r.material)} ${shiftTitle(r.shift_no)}">✎ Edit</button>`}<a class="sku-ncf" href="${escapeHtml(ncfUrl)}" title="Buat Form NCF untuk SKU dan shift ini">Form NCF</a></div></td></tr>`;
+        `<td class="right"><div class="ncf-sku-actions">${r.shift_no===0?'<span class="note-placeholder">Impor ulang</span>':`<a class="sku-ncf" href="${escapeHtml(ncfUrl)}" title="${latest?'Buka dan edit NCF tersimpan':'Buat Form NCF untuk SKU dan shift ini'}">${latest?'Lihat / Edit NCF':'Form NCF'}</a>`}</div></td></tr>`;
     }).join('');
-    $('skuBody').querySelectorAll('button[data-sku-edit]').forEach(el=>el.addEventListener('click',()=>openSkuNotes(state.skuDate,el.dataset.skuEdit,Number(el.dataset.shiftEdit))));
+    // Tindakan diperbarui hanya dari Form NCF; tombol Edit FTQ sudah dihapus.
   }
   function showLegacyNote(date){
     const x=state.notes[date]||{};
@@ -1027,7 +1086,7 @@ SOFTWARE.
   async function openSkuBreakdown(date){
     const requestId=++state.skuRequestId;state.skuDate=date;state.skuRows=[];state.skuShift='all';state.skuLoading=true;
     $('skuDialogDate').textContent=dateLabel(date);$('skuSearch').value='';$('skuBelowOnly').checked=false;
-    $('skuError').hidden=true;showLegacyNote(date);
+    $('skuError').hidden=true;$('skuLegacyNote').hidden=true;
     $('skuShiftSummary').innerHTML='';
     $('skuTotalCount').textContent='—';$('skuGrTotal').textContent='—';
     $('skuBlockTotal').textContent='—';$('skuFtqTotal').textContent='—';
@@ -1049,14 +1108,6 @@ SOFTWARE.
         result=Object.values(snapshots).flat().filter(r=>r.prod_date===date&&!excluded.has(r.order_type));
       }
       if(requestId!==state.skuRequestId)return;
-      if(db){
-        state.skuActions=state.skuActions.filter(a=>a.prod_date!==date).concat(
-          result.filter(skuActionTouched).map(r=>({prod_date:date,material:r.material,shift_no:Number(r.shift_no),
-            reject_qty:r.reject_qty,value_amount:r.value_amount,issue:r.issue||'',
-            root_cause:r.root_cause||'',corrective_action:r.corrective_action||'',
-            preventive_action:r.preventive_action||''}))
-        );
-      }
       state.skuRows=mergeSkuData(result);state.skuLoading=false;renderSkuBreakdown();renderTable();
       if(state.skuRows.some(r=>r.shift_no===0)){
         $('skuError').hidden=false;
@@ -1069,55 +1120,6 @@ SOFTWARE.
     }
   }
 
-  function openSkuNotes(date,material,shift){
-    state.noteDate=date;state.noteMaterial=material;state.noteShift=Number(shift);
-    const sku=state.skuRows.find(x=>x.material===material&&Number(x.shift_no)===state.noteShift);
-    if(!sku||state.noteShift<1||state.noteShift>3)return notify('Pilih SKU dan Shift 1, 2, atau 3 yang valid.',true);
-    const x=skuActionFor(date,material,state.noteShift)||sku;
-    $('notesDate').textContent=dateLabel(date);
-    $('notesSku').textContent='SKU '+material+' · '+shiftTitle(state.noteShift)+' ('+shiftHours(state.noteShift)+') · Batch '+(sku.batch_numbers||'—')+' · '+(sku.material_description||'Tanpa nama SKU');
-    $('notesMetric').textContent=`FTQ ${fmtPct(sku.ftq_pct)} · GR ${fmtNumber(sku.total_gr)} · Block Stock ${fmtNumber(sku.total_reject)} PCS`;
-    const legacy=state.legacySkuActions.find(a=>a.prod_date===date&&a.material===material&&skuActionTouched(a));
-    $('notesLegacy').hidden=!legacy;
-    if(legacy)$('notesLegacy').textContent='Catatan SKU lama (belum diketahui shift): Reject '+(hasManual(legacy.reject_qty)?fmtNumber(legacy.reject_qty,0):'—')+' · Value '+fmtValue(legacy.value_amount)+' · '+[legacy.issue,legacy.root_cause,legacy.corrective_action,legacy.preventive_action].filter(Boolean).join(' · ');
-    $('noteReject').value=hasManual(x.reject_qty)?x.reject_qty:'';$('noteValue').value=hasManual(x.value_amount)?x.value_amount:'';
-    $('noteIssue').value=x.issue||'';$('noteRoot').value=x.root_cause||'';
-    $('noteCorrective').value=x.corrective_action||'';$('notePreventive').value=x.preventive_action||'';
-    showDialog('notesDialog');
-  }
-  async function saveNotes(ev){
-    ev.preventDefault();
-    const readManual=(id,integer)=>{const raw=$(id).value.trim();if(raw==='')return null;const v=Number(raw);if(!Number.isFinite(v)||v<0||v>999999999999||(integer&&!Number.isInteger(v)))throw Error((integer?'Reject':'Value')+' harus angka positif'+(integer?' bulat':'')+'.');return v;};
-    let rejectQty,valueAmount;
-    try{rejectQty=readManual('noteReject',true);valueAmount=readManual('noteValue',false);}catch(err){return notify(err.message,true);}
-    if(!state.noteMaterial||![1,2,3].includes(Number(state.noteShift)))return notify('Pilih SKU dan Shift terlebih dahulu.',true);
-    const payload={prod_date:state.noteDate,material:state.noteMaterial,shift_no:state.noteShift,reject_qty:rejectQty,value_amount:valueAmount,
-      issue:$('noteIssue').value.trim(),root_cause:$('noteRoot').value.trim(),
-      corrective_action:$('noteCorrective').value.trim(),preventive_action:$('notePreventive').value.trim()};
-    if(isPublicSite&&!db)return notify('Koneksi Supabase belum aktif.',true);
-    const button=$('saveNotesBtn');button.disabled=true;button.textContent='Menyimpan...';
-    try{
-      if(db){
-        const {error}=await db.rpc('ftq_save_sku_shift_action_v1',{
-          p_date:payload.prod_date,p_material:payload.material,p_shift:payload.shift_no,
-          p_reject_qty:payload.reject_qty,p_value_amount:payload.value_amount,p_issue:payload.issue,
-          p_root_cause:payload.root_cause,p_corrective_action:payload.corrective_action,p_preventive_action:payload.preventive_action});
-        if(error){if(error.code==='PGRST202'||/ftq_save_sku_shift_action_v1|schema cache/i.test(error.message||''))
-          throw Error('Jalankan ftq-shift-migration.sql sebelum menyimpan tindakan per shift.');throw error;}
-      }else{
-        const store=safeGet(demoSkuShiftNotesKey,{});store[skuActionKey(payload.prod_date,payload.material,payload.shift_no)]=payload;
-        if(!safeSet(demoSkuShiftNotesKey,store))throw Error('Penyimpanan browser gagal.');
-      }
-      const prev=state.skuActions.findIndex(a=>a.prod_date===payload.prod_date&&a.material===payload.material&&Number(a.shift_no)===payload.shift_no);
-      if(prev>=0)state.skuActions[prev]=payload;else state.skuActions.push(payload);
-      const sku=state.skuRows.find(a=>a.material===payload.material&&Number(a.shift_no)===payload.shift_no);
-      if(sku)Object.assign(sku,payload);
-      $('notesDialog').close();renderSkuBreakdown();renderTable();
-      if(db)await loadData();
-      notify('Tindakan SKU '+payload.material+' '+shiftTitle(payload.shift_no)+' berhasil disimpan.');
-    }catch(err){notify('Gagal menyimpan: '+(err.message||err),true);}
-    finally{button.disabled=false;button.textContent='Simpan';}
-  }
   function normalize(s){return String(s??'').trim().toLowerCase().replace(/[^a-z0-9]/g,'');}
   function parseNumber(raw){
     if(typeof raw==='number')return Number.isFinite(raw)?raw:NaN;
@@ -1510,6 +1512,7 @@ if(typeof module !== 'undefined' && module.exports) module.exports = {drawFtqMee
           .map(r=>({prod_date:r.prod_date,material:r.material,material_description:r.material_description,shift_no:shiftForTime(r.entry_time),total_gr:r.total_gr,total_reject:r.total_reject}));
       }
       if(rows.length>0&&!detail.length)throw Error('Data detail SKU untuk periode ini belum tersedia. Pastikan ekspor SAP MTD dan migrasi Batch/Shift sudah lengkap.');
+      const ncfForExport=await fetchNcfRange(period.start,period.end);
       const target=Number(state.target);
       const rawDays=rows.map(r=>{
         const gr=Number(r.total_gr||0),block=Number(r.total_reject||0);
@@ -1529,11 +1532,9 @@ if(typeof module !== 'undefined' && module.exports) module.exports = {drawFtqMee
         const x=skuMap.get(key);
         x.gr+=gr;x.block+=block;
         if(!x.description)x.description=String(r.material_description||'').trim();
-        const manual=skuActionFor(date,material,shift)||{};
-        if(!x.issue)x.issue=String(r.issue||manual.issue||'').trim();
-        if(!x.rootCause)x.rootCause=String(r.root_cause||manual.root_cause||'').trim();
-        if(!x.correctiveAction)x.correctiveAction=String(r.corrective_action||manual.corrective_action||'').trim();
-        if(!x.preventiveAction)x.preventiveAction=String(r.preventive_action||manual.preventive_action||'').trim();
+        const ncf=ncfActionFor(date,material,shift,ncfForExport);
+        x.issue=ncf.issue;x.rootCause=ncf.root_cause;
+        x.correctiveAction=ncf.corrective_action;x.preventiveAction=ncf.preventive_action;
       }
       const skuFails=[...skuMap.values()].map(r=>({...r,ftq:r.gr>0?(r.gr-r.block)*100/r.gr:null}))
         .filter(r=>Number.isFinite(r.ftq)&&r.ftq<target)
@@ -1570,6 +1571,8 @@ if(typeof module !== 'undefined' && module.exports) module.exports = {drawFtqMee
         for(const r of raw){const shift=shiftForTime(r.entry_time),k=skuActionKey(r.prod_date,r.material,shift);if(!group.has(k))group.set(k,{prod_date:r.prod_date,material:r.material,shift_no:shift,material_description:r.material_description||'',total_gr:0,total_reject:0,batchSet:new Set()});const x=group.get(k);if(r.batch_number)x.batchSet.add(String(r.batch_number).trim());x.total_gr+=Number(r.total_gr||0);x.total_reject+=Number(r.total_reject||0);}
         detail=[...group.values()].map(r=>({...r,batch_numbers:[...r.batchSet].sort().join(' | '),ftq_pct:r.total_gr?(r.total_gr-r.total_reject)*100/r.total_gr:null,...(skuActionFor(r.prod_date,r.material,r.shift_no)||{})}));
       }
+      const ncfForExcel=await fetchNcfRange(period.start,period.end);
+      detail=detail.map(r=>({...r,...ncfActionFor(r.prod_date,r.material,Number(r.shift_no),ncfForExcel)}));
       const wb=window.XLSX.utils.book_new();
       const resume=[['Tanggal','Total GR','Block Stock (PCS)','FTQ (%)','Reject (PCS) Total SKU','Value (Rp) Total SKU','SKU Ditindaklanjuti']];
       let gr=0,block=0;
@@ -1611,7 +1614,7 @@ if(typeof module !== 'undefined' && module.exports) module.exports = {drawFtqMee
         const sh=window.XLSX.utils.aoa_to_sheet([['Tanggal','Kode SKU','Reject','Value','Issue','Root Cause','Corrective Action','Preventive Action'],...legacy.map(a=>[a.prod_date,a.material,a.reject_qty,a.value_amount,a.issue||'',a.root_cause||'',a.corrective_action||'',a.preventive_action||''])]);
         window.XLSX.utils.book_append_sheet(wb,sh,'Catatan Lama');
       }
-      const info=window.XLSX.utils.aoa_to_sheet([['Parameter','Keterangan'],['Periode',period.description],['Mode',state.periodMode.toUpperCase()],['FTQ','(Total GR - Block Stock) / Total GR'],['Exclude Order Type','B101 B401 B701'],['Reject, Value, dan tindakan','Input manual per TANGGAL + KODE SKU + SHIFT (tidak per batch)'],['Rangkuman manual','Total Reject dan Value dari SKU/Shift (catatan lama tetap terpisah)'],['Retensi','1 tahun; catatan per SKU ikut dihapus sesuai tanggal produksi']]);
+      const info=window.XLSX.utils.aoa_to_sheet([['Parameter','Keterangan'],['Periode',period.description],['Mode',state.periodMode.toUpperCase()],['FTQ','(Total GR - Block Stock) / Total GR'],['Exclude Order Type','B101 B401 B701'],['Reject, Value, dan tindakan','Diambil dari Form NCF per Tanggal + SKU + Shift (catatan lama terpisah)'],['Rangkuman manual','Total Reject dan Value dari SKU/Shift (catatan lama tetap terpisah)'],['Retensi','1 tahun; catatan per SKU ikut dihapus sesuai tanggal produksi']]);
       info['!cols']=[{wch:30},{wch:80}];window.XLSX.utils.book_append_sheet(wb,info,'Info');
       window.XLSX.writeFile(wb,'FTQ_Detail_SKU_'+state.periodMode+'_'+(state.periodMode==='daily'?state.selectedDay:state.periodMode==='weekly'?state.selectedWeek:state.month)+'.xlsx');
       notify('Excel Resume dan Breakdown SKU, Shift, serta Batch berhasil diekspor.');
@@ -1638,10 +1641,12 @@ if(typeof module !== 'undefined' && module.exports) module.exports = {drawFtqMee
     $('sapFile').addEventListener('change',handleFile);
     $('uploadForm').addEventListener('submit',saveImport);
     $('confirmImportBtn').addEventListener('click',performImport);
-    $('notesForm').addEventListener('submit',saveNotes);
+    // Semua perubahan tindakan kini dilakukan dari ncf.html.
     document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',() => $(b.dataset.close).close()));
   }
   async function boot(){
+    window.addEventListener('pageshow',e=>{if(e.persisted)loadData();});
+    document.addEventListener('visibilitychange',()=>{if(!document.hidden && state.lastLoadedAt && Date.now()-state.lastLoadedAt>3000)loadData();});
     state.month=currentMonth();
     const today=new Date(), min=new Date(today.getFullYear(),today.getMonth()-12,1);
     $('monthPicker').min=isoLocal(min).slice(0,7);$('monthPicker').max=state.month;$('monthPicker').value=state.month;
