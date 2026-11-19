@@ -20,7 +20,7 @@ header.topbar{height:64px;box-shadow:none}
 .advanced-filter{margin-top:10px}
 .advanced-filter summary{font-size:11px;color:#446684;cursor:pointer;display:inline-flex;align-items:center;gap:5px;padding:4px 0}
 .advanced-fields{display:grid;grid-template-columns:1fr 2fr;gap:12px;margin:9px 0 0}
-.summary-kpis{grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;margin:12px 0}
+.summary-kpis{grid-template-columns:repeat(4,minmax(0,1fr));gap:11px;margin:12px 0}
 .kpi{padding:14px 17px;border-radius:12px;box-shadow:none}
 .kpi small{font-size:11px;font-weight:650}
 .kpi strong{font-size:29px;line-height:1.25;display:block;margin-top:3px}
@@ -40,8 +40,8 @@ td{padding:10px 11px;font-size:12px}
 #detailPanel .issue-detail-card p{margin-top:4px}
 .issue-clock{display:flex;gap:8px;flex-wrap:wrap;color:#34597e;background:#f6faff;padding:7px 9px;border-radius:8px;font-variant-numeric:tabular-nums}
 @media(max-width:1100px){.overview-layout{grid-template-columns:1fr}.overview-layout>.panel{margin:0}}
-@media(max-width:700px){.wrap{padding:0 12px;margin-top:12px}.hero{padding:17px}.hero h1{font-size:20px}.panel{padding:15px}.filter{grid-template-columns:repeat(2,minmax(0,1fr))}.summary-kpis{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.kpi{padding:12px}.kpi small{font-size:10px}.kpi strong{font-size:25px}.advanced-fields{grid-template-columns:1fr}.overview-layout table{min-width:610px}}
-@media(max-width:460px){.summary-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.kpi strong{font-size:23px}.top-actions .btn{padding:8px 10px;font-size:11px}}
+@media(max-width:700px){.wrap{padding:0 12px;margin-top:12px}.hero{padding:17px}.hero h1{font-size:20px}.panel{padding:15px}.filter{grid-template-columns:repeat(2,minmax(0,1fr))}.summary-kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.kpi{padding:12px}.kpi small{font-size:10px}.kpi strong{font-size:25px}.advanced-fields{grid-template-columns:1fr}.overview-layout table{min-width:610px}}
+@media(max-width:460px){.summary-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.kpi strong{font-size:23px}.top-actions .btn{padding:8px 10px;font-size:11px}}
 
 /* MTC active drafts: compact list without a second large data table */
 .draft-panel{padding:15px 20px}.draft-panel .section-title{margin-bottom:10px}.draft-panel .section-title h2{font-size:14px}
@@ -111,7 +111,7 @@ td{padding:10px 11px;font-size:12px}
 </div>
 <details class="advanced-filter"><summary>Pencarian &amp; status</summary><div class="advanced-fields"><div class="field"><label for="stateFilter">Status</label><select id="stateFilter"><option value="">Semua status</option><option value="pending">Belum diterima</option><option value="received">Sudah diterima</option><option value="issues">Ada Open/Progress di shift</option></select></div><div class="field"><label for="keyword">Cari mesin, issue, atau TL</label><input id="keyword" placeholder="Contoh: SW 39, conveyor, motor" type="search"/></div></div></details><div class="actions"><div style="align-self:end;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="reload" type="button">Terapkan</button><button class="btn btn-light" id="export" type="button">Export CSV</button></div></div>
 <div class="message" id="msg" role="status"></div></section>
-<div class="summary-kpis"><div class="kpi"><small>Total Handover</small><strong id="k1">—</strong></div><div class="kpi"><small>Belum Diterima</small><strong id="k2">—</strong></div><div class="kpi"><small>Outstanding</small><strong id="k3">—</strong></div></div>
+<div class="summary-kpis"><div class="kpi"><small>Total Handover</small><strong id="k1">—</strong></div><div class="kpi"><small>Issue Unik (Filter)</small><strong id="k4">—</strong></div><div class="kpi"><small>Outstanding Saat Ini</small><strong id="k3">—</strong></div><div class="kpi"><small>Belum Diterima</small><strong id="k2">—</strong></div></div>
 <section class="panel draft-panel" hidden="" id="draftPanel">
 <div class="section-title"><h2>Draft Aktif <span class="pill" id="draftCount">0</span></h2></div>
 <div class="draft-list" id="draftList"></div>
@@ -164,12 +164,36 @@ function normalizeClock(raw){
 }
 const validClock=v=>/^([01]\d|2[0-3]):[0-5]\d$/.test(v);
 
-const issuesOf=x=>Array.isArray(x.mtc_handover_issues)?x.mtc_handover_issues:[];
+// Snapshot per handover boleh berulang antarsift; yang unik adalah issue_id.
+const issuesOf=x=>{
+ const rows=Array.isArray(x.mtc_handover_issues)?x.mtc_handover_issues:[];
+ const unique=new Map();
+ for(const [index,item] of rows.entries()){
+  const id=String(item.issue_id||'').trim();
+  const key=id?'issue:'+id:'snapshot:'+(item.id||index);
+  const old=unique.get(key);
+  if(!old||(Date.parse(item.created_at)||0)>(Date.parse(old.created_at)||0))unique.set(key,item);
+ }
+ return [...unique.values()];
+};
+const issueKey=(h,i)=>i.issue_id?'issue:'+i.issue_id:'snapshot:'+h.id+':'+(i.id||'no-id');
+const countUniqueIssues=hs=>new Set(hs.flatMap(h=>issuesOf(h).map(i=>issueKey(h,i)))).size;
+const outstandingLatest=rows=>{
+ const byId=new Map(),noIds=[];
+ const score=x=>Date.parse(x.updated_at||x.jam_serah||x.created_at||'')||0;
+ for(const item of (Array.isArray(rows)?rows:[])){
+  const id=String(item.issue_id||'').trim();
+  if(!id){noIds.push(item);continue;}
+  const previous=byId.get(id);
+  if(!previous||score(item)>score(previous)||(score(item)===score(previous)&&item.status==='Closed'&&previous.status!=='Closed'))byId.set(id,item);
+ }
+ return [...byId.values(),...noIds].filter(item=>item.status!=='Closed');
+};
 const receiptOf=x=>Array.isArray(x.mtc_handover_receipts)?x.mtc_handover_receipts[0]:(x.mtc_handover_receipts||null);
 const currentState=x=>currentIssues.get(x.issue_id)||x;
 const isOpen=x=>currentState(x).status!=='Closed';
 const localToday=d=>new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10);
-let handovers=[],outstanding=[],drafts=[],visible=[],currentIssues=new Map(),editingIssue=null,selectedId=new URLSearchParams(location.search).get('handover')||'',loading=false;
+let handovers=[],outstanding=[],drafts=[],visible=[],currentIssues=new Map(),originSnapshotIds=new Map(),editingIssue=null,selectedId=new URLSearchParams(location.search).get('handover')||'',loading=false;
 let appliedWaScope='', waSelectedIds=new Set(),queuedReload=false,reloadTimer=null;
 function activeDates(){return $('dateMode').value==='single'?[$('singleDate').value,$('singleDate').value]:[$('fromDate').value,$('toDate').value];}
 const waScope=()=>[$('dateMode').value,...activeDates(),$('gedungFilter').value,$('shiftFilter').value].join('|');
@@ -317,6 +341,40 @@ for(const id of ['dateMode','singleDate','fromDate','toDate','gedungFilter','shi
   });
 }
 
+// Temukan snapshot pertama dari masing-masing issue di seluruh riwayat (bukan
+// hanya hari yang dipilih), agar label Baru/Lanjutan tetap benar saat filter harian.
+async function loadOriginalIssueSnapshots(ids){
+ originSnapshotIds=new Map();
+ if(!ids.length)return;
+ try{
+  for(let n=0;n<ids.length;n+=65){
+   const batch=ids.slice(n,n+65),wanted=new Set(batch);
+   for(let start=0;start<20000&&wanted.size;start+=500){
+    const {data,error}=await db.from('mtc_handover_issues')
+      .select('id,issue_id,created_at')
+      .in('issue_id',batch)
+      .order('created_at',{ascending:true})
+      .order('id',{ascending:true})
+      .range(start,start+499);
+    if(error)throw error;
+    for(const item of (data||[])){
+     if(wanted.has(item.issue_id)){originSnapshotIds.set(item.issue_id,item.id);wanted.delete(item.issue_id);}
+    }
+    if((data||[]).length<500)break;
+   }
+  }
+ }catch(err){
+  // RLS lama bisa membatasi akses langsung. Jangan mengubah hasil hitung unik.
+  console.warn('Riwayat awal issue tidak dapat diakses; KPI unik tetap aktif:',err);
+  originSnapshotIds=new Map();
+ }
+}
+function snapshotType(issue){
+ if(!issue?.issue_id)return '';
+ const original=originSnapshotIds.get(issue.issue_id);
+ if(!original)return '';
+ return original===issue.id?'Baru':'Lanjutan';
+}
 function getStatus(h){return receiptOf(h)?'Diterima':'Menunggu';}
 function applyFilters(){
  const keyword=$('keyword').value.toLocaleLowerCase('id-ID').trim(),state=$('stateFilter').value;
@@ -332,6 +390,7 @@ function applyFilters(){
  $('k1').textContent=visible.length;
  $('k2').textContent=visible.filter(x=>!receiptOf(x)).length;
  $('k3').textContent=outstanding.length;
+ $('k4').textContent=countUniqueIssues(visible);
  
  const chosen=visible.find(h=>h.id===selectedId)||visible[0];
  if(chosen){selectedId=chosen.id;renderDetail(chosen);}
@@ -343,11 +402,13 @@ function renderTable(){
  if(!visible.length){body.innerHTML='<tr><td colspan="7" class="empty">Belum ada serah terima.</td></tr>';return;}
  body.innerHTML=visible.map(x=>{
    const issues=issuesOf(x),pending=issues.filter(isOpen).length,receipt=receiptOf(x);
+   const newCount=issues.filter(i=>snapshotType(i)==='Baru').length;
+   const carryCount=issues.filter(i=>snapshotType(i)==='Lanjutan').length;
    return `<tr class="clickable-row ${selectedId===x.id?'selected':''}" data-id="${esc(x.id)}">
    <td class="wa-check-col no-print"><input class="wa-row-check" type="checkbox" data-wa-id="${esc(x.id)}" aria-label="Pilih laporan ${esc(x.tanggal)} ${esc(x.shift)} ${esc(x.gedung)}" ${receipt?'':'disabled title="Belum diterima TL penerima"'} ${waSelectedIds.has(x.id)?'checked':''}></td>
    <td>${esc(x.tanggal)}<div class="tiny">${esc(x.shift)}</div></td><td>${esc(x.gedung)}</td>
    <td>${esc(x.tl_penyerah)}<div class="tiny">→ ${esc(x.tl_penerima)}</div></td>
-   <td>${issues.length} ${pending?`<span class="pill open">${pending} aktif</span>`:''}</td>
+   <td><b>${issues.length} tercatat</b>${newCount+carryCount?`<div class="tiny">${newCount} baru · ${carryCount} lanjutan</div>`:''} ${pending?`<span class="pill open">${pending} aktif</span>`:''}</td>
    <td><span class="pill ${receipt?'received':'pending'}">${receipt?'Diterima':'Menunggu'}</span></td>
    <td><button type="button" class="btn btn-outline btn-sm" aria-label="Lihat detail serah terima">Detail</button></td></tr>`;
  }).join('');
@@ -377,10 +438,10 @@ function renderDetail(h){
  <div><small>TL Menerima</small><strong>${esc(h.tl_penerima)}</strong></div>
  <div><small>Jam Serah</small><strong>${esc(dateLabel(h.jam_serah))}</strong></div>
  <div><small>Jam Terima</small><strong>${esc(receipt?dateLabel(receipt.jam_terima):'Belum diterima')}</strong></div></div>
- <h3 style="font-size:13px;margin:0 0 12px">Issue selama shift (${issues.length})</h3>
+ <h3 style="font-size:13px;margin:0 0 12px">Issue tercatat selama shift (${issues.length})</h3>
  <div class="issue-detail">${issues.length?issues.map((x,i)=>{
   const live=currentState(x),latestChanged=live.updated_at&&new Date(live.updated_at)>new Date(h.jam_serah);
-  return `<article class="issue-detail-card"><div style="display:flex;gap:10px;justify-content:space-between;align-items:center"><strong>${i+1}. ${esc(x.mesin_area)}</strong><span class="pill ${esc(live.status.toLowerCase())}">${esc(live.status)}</span></div>
+  return `<article class="issue-detail-card"><div style="display:flex;gap:10px;justify-content:space-between;align-items:center"><strong>${i+1}. ${esc(x.mesin_area)} ${snapshotType(x)?`<span class="pill ${snapshotType(x)==='Lanjutan'?'progress':''}">${snapshotType(x)}</span>`:''}</strong><span class="pill ${esc(live.status.toLowerCase())}">${esc(live.status)}</span></div>
   <p><b>Issue:</b> ${esc(x.issue)}</p>
   <p class="issue-clock"><b>Jam Mulai:</b> ${esc(clockLabel(live.jam_mulai||x.jam_mulai))} &nbsp;&nbsp; <b>Jam Selesai:</b> ${esc(clockLabel(live.jam_selesai))}</p>
   <p><b>Status saat handover:</b> ${esc(x.status)} &nbsp; <b>Action saat handover:</b> ${esc(x.action_dilakukan||'Belum ada')}</p>
@@ -469,6 +530,7 @@ async function loadAll(){
      if(stateError)throw Error('Aktifkan SQL 05_UPGRADE_UPDATE_ISSUE_MTC.sql: '+stateError.message);
      (states||[]).forEach(item=>currentIssues.set(item.issue_id,item));
    }
+   await loadOriginalIssueSnapshots(ids);
    let dq=db.from('mtc_shift_drafts')
      .select('id,tanggal,shift,gedung,tl_penyerah,items,updated_at')
      .eq('status','Draft').order('updated_at',{ascending:false}).limit(200);
@@ -479,10 +541,11 @@ async function loadAll(){
    drafts=activeDrafts||[];
    const {data:pending,error:outError}=await db.rpc('mtc_get_outstanding_with_times',{p_gedung:gd||null});
    if(outError)throw Error('Outstanding: '+outError.message);
-   outstanding=pending||[];appliedWaScope=requestedScope;renderOutstanding();applyFilters();
+   outstanding=outstandingLatest(pending).map(x=>currentIssues.get(x.issue_id)?{...x,...currentIssues.get(x.issue_id)}:x).filter(x=>x.status!=='Closed');
+   appliedWaScope=requestedScope;renderOutstanding();applyFilters();
    notify(cut?'Data terlalu banyak. Persempit periode.':'','success');
  }catch(err){
-   handovers=[];drafts=[];visible=[];currentIssues=new Map();
+   handovers=[];drafts=[];visible=[];currentIssues=new Map();originSnapshotIds=new Map();outstanding=[];
    applyFilters();
    notify('Gagal memuat: '+err.message,'error');
  }finally{
@@ -493,11 +556,19 @@ async function loadAll(){
 function csvCell(v){let s=String(v??'');if(/^[\s]*[=+@-]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"';}
 function exportCsv(){
  if(!visible.length){notify('Tidak ada data untuk diekspor.','error');return;}
- const headers=['Tanggal','Shift','Lokasi','TL Penyerah','TL Penerima','Jam Serah','Status Penerimaan','Jam Terima','Mesin Area','Issue','Status Saat Handover','Status Terkini','Jam Mulai','Jam Selesai Saat Handover','Jam Selesai Terkini','Action Saat Handover','Action Terkini','Action Lanjutan Terkini','TL Update','Waktu Update','Catatan'];
+ const headers=['Tanggal','Shift','Lokasi','TL Penyerah','TL Penerima','Jam Serah','Status Penerimaan','Jam Terima','ID Issue','Hitung Issue Unik (Filter)','Jenis Issue','Mesin Area','Issue','Status Saat Handover','Status Terkini','Jam Mulai','Jam Selesai Saat Handover','Jam Selesai Terkini','Action Saat Handover','Action Terkini','Action Lanjutan Terkini','TL Update','Waktu Update','Catatan'];
  const output=[headers.map(csvCell).join(',')];
+ // Pencacahan pertama mengikuti waktu kronologis, bukan urutan tabel terbaru.
+ const ordered=[...visible].sort((a,b)=>String(a.jam_serah||a.tanggal).localeCompare(String(b.jam_serah||b.tanggal)));
+ const firstInFilter=new Set();
+ const marked=new Set();
+ for(const h of ordered){for(const it of issuesOf(h)){
+  const key=issueKey(h,it);
+  if(!marked.has(key)){firstInFilter.add(h.id+'|'+(it.id||key));marked.add(key);}
+ }}
  for(const h of visible){const rec=receiptOf(h),items=issuesOf(h);for(const it of items.length?items:[{}]){
-   const live=currentState(it);
-   output.push([h.tanggal,h.shift,h.gedung,h.tl_penyerah,h.tl_penerima,h.jam_serah,rec?'Diterima':'Menunggu',rec?.jam_terima||'',it.mesin_area||'',it.issue||'',it.status||'',live.status||'',live.jam_mulai||it.jam_mulai||'',it.jam_selesai||'',live.jam_selesai||'',it.action_dilakukan||'',live.action_dilakukan||'',live.action_lanjutan||'',live.tl_update||'',live.updated_at||'',h.catatan||''].map(csvCell).join(','));
+   const live=currentState(it),hasIssue=Boolean(it.issue||it.issue_id),isFirst=hasIssue&&firstInFilter.has(h.id+'|'+(it.id||issueKey(h,it)));
+   output.push([h.tanggal,h.shift,h.gedung,h.tl_penyerah,h.tl_penerima,h.jam_serah,rec?'Diterima':'Menunggu',rec?.jam_terima||'',it.issue_id||'',hasIssue?(isFirst?1:0):'',snapshotType(it),it.mesin_area||'',it.issue||'',it.status||'',live.status||'',live.jam_mulai||it.jam_mulai||'',it.jam_selesai||'',live.jam_selesai||'',it.action_dilakukan||'',live.action_dilakukan||'',live.action_lanjutan||'',live.tl_update||'',live.updated_at||'',h.catatan||''].map(csvCell).join(','));
  }}
  const file=new Blob(['\ufeff'+output.join('\r\n')],{type:'text/csv;charset=utf-8'}),link=document.createElement('a'),url=URL.createObjectURL(file);link.href=url;link.download='maintenance_handover_'+localToday(new Date())+'.csv';link.click();setTimeout(()=>URL.revokeObjectURL(url),2000);
 }
