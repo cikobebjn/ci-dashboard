@@ -1,22 +1,16 @@
 (function () {
   'use strict';
-  const cfg = window.CILT_CONFIG || {};
-  // Daftar mesin fallback untuk Packaging Chingfong / Gedung 6.
-  // Tetap gunakan MACHINES dari konfigurasi jika berupa array yang valid.
-  const DEFAULT_MACHINES = ["CF 01","CF 02","CF 04","CF 05","CF 06","CF 08","CF 12","CF 13","CF 14","CF 15","CF 16","CF 17","CF 19","CF 20"];
-  const configuredMachines = Array.isArray(cfg.MACHINES)
-    ? [...new Set(cfg.MACHINES.map(v => String(v || '').trim()).filter(Boolean))] : [];
-  cfg.MACHINES = configuredMachines.length ? configuredMachines : DEFAULT_MACHINES.slice();
-  cfg.SUPABASE_URL = String(cfg.SUPABASE_URL || '').trim();
-  cfg.SUPABASE_ANON_KEY = String(cfg.SUPABASE_ANON_KEY || '').trim();
-  cfg.TIMEZONE = cfg.TIMEZONE || 'Asia/Jakarta';
-  cfg.BUILDING = String(cfg.BUILDING || '6');
-  const STORE_KEY = 'kobe-cil4-chingfong-4hour-v1';
-  const OWNER_KEY = 'kobe-cil4-slot-tokens-v1';
+  const base = window.CILT_CONFIG || {};
+  const override = window.CIL4_CONFIG || {};
+  const cfg = {...base, ...override,
+    SUPABASE_URL: override.SUPABASE_URL || base.SUPABASE_URL || '',
+    SUPABASE_ANON_KEY: override.SUPABASE_ANON_KEY || base.SUPABASE_ANON_KEY || '',
+    TIMEZONE: override.TIMEZONE || base.TIMEZONE || 'Asia/Jakarta'};
+  const STORE_KEY = 'kobe-cil-4hour-multigedung-v1';
+  const OWNER_KEY = 'kobe-cil-4hour-slot-tokens-v1';
   const isCloud = Boolean(cfg.SUPABASE_URL.trim() && cfg.SUPABASE_ANON_KEY.trim());
   // Tanpa akun; token slot dibuat otomatis saat penyimpanan pertama.
 
-  const HOURS = Object.freeze([0,4,8,12,16,20]);
   const statusLabels = { done: 'Sudah dilakukan', abnormal: 'Abnormality', skipped: 'Tidak dilakukan' };
   const statusShort = { done: '✓', abnormal: 'O', skipped: '/' };
 
@@ -43,8 +37,23 @@
   }
   const slotKey=(date,machine,hour)=>`${date}|${machine}|${Number(hour)}`;
   function tokenMap(){
-    try{const m=JSON.parse(localStorage.getItem(OWNER_KEY)||'{}');return m&&typeof m==='object'&&!Array.isArray(m)?m:{};}
-    catch(_){return {};}
+    // Pertahankan hak edit dari key token CIL 4 Jam versi terdahulu (jika tersedia).
+    try{
+      const saved=JSON.parse(localStorage.getItem(OWNER_KEY)||'{}');
+      const merged=saved&&typeof saved==='object'&&!Array.isArray(saved)?{...saved}:{};
+      for(let i=0;i<localStorage.length;i++){
+        const key=localStorage.key(i);
+        if(!key||key===OWNER_KEY||!/(?:cil4|cil-4|4hour).*token/i.test(key))continue;
+        let old;
+        try{old=JSON.parse(localStorage.getItem(key)||'{}');}catch(_){continue;}
+        if(!old||typeof old!=='object'||Array.isArray(old))continue;
+        for(const [slot,token] of Object.entries(old)){
+          if(/^\d{4}-\d{2}-\d{2}\|.+\|(?:0|4|8|12|16|20)$/.test(slot)
+            &&typeof token==='string'&&token.length>=32&&token.length<=128&&!(slot in merged))merged[slot]=token;
+        }
+      }
+      return merged;
+    }catch(_){return {};}
   }
   function tokenFor(d,m,h){return tokenMap()[slotKey(d,m,h)]||'';}
   function saveToken(d,m,h,token){
@@ -57,42 +66,12 @@
     const random=new Uint8Array(24);crypto.getRandomValues(random);
     return Array.from(random,x=>x.toString(16).padStart(2,'0')).join('');
   }
-  // Normalisasi URL memastikan prefix '/rest/v1' hanya ada satu kali.
-  // Format konfigurasi yang diterima: https://PROJECT_REF.supabase.co
-  // Jika pengguna menyalin URL lengkap /rest/v1, bagian path akan dibuang.
-  function projectBaseUrl(){
-    let url;
-    try { url = new URL(String(cfg.SUPABASE_URL || '').trim()); }
-    catch (_) { throw new Error('SUPABASE_URL tidak valid. Gunakan https://PROJECT_REF.supabase.co'); }
-    if (url.protocol !== 'https:' || !/^[a-z0-9-]+\.supabase\.co$/i.test(url.hostname)) {
-      throw new Error('SUPABASE_URL bukan Project URL Supabase. Gunakan https://PROJECT_REF.supabase.co');
-    }
-    return url.origin;
-  }
-  function setConnectionStatus(label){
-    document.querySelectorAll('[data-storage-label]').forEach(el=>el.textContent=label);
-  }
   async function request(resource,method='GET',body=null,extra={}){
-    const cleanResource=String(resource).replace(/^\/+/, '');
-    const endpoint='/rest/v1/'+cleanResource;
-    const url=projectBaseUrl()+endpoint;
-    const headers={'apikey':cfg.SUPABASE_ANON_KEY.trim(),'Content-Type':'application/json',...extra};
-    let resp;
-    try { resp=await fetch(url,{method,headers,body:body===null?undefined:JSON.stringify(body)}); }
-    catch (e) {
-      setConnectionStatus('Supabase • Koneksi gagal');
-      throw new Error('Tidak dapat menghubungi Supabase: '+(e?.message||'koneksi gagal'));
-    }
+    const headers={'apikey':cfg.SUPABASE_ANON_KEY,'Content-Type':'application/json',...extra};
+    const resp=await fetch(cfg.SUPABASE_URL.replace(/\/$/,'')+'/rest/v1/'+resource,{method,headers,body:body===null?undefined:JSON.stringify(body)});
     const raw=await resp.text();let data;
-    try { data=raw?JSON.parse(raw):null; }catch(_){ data=null; }
-    if (!resp.ok){
-      setConnectionStatus('Supabase • Gagal memuat');
-      const code=data?.code?' / '+data.code:'';
-      const message=data?.message||data?.hint||'Permintaan ditolak oleh API Supabase.';
-      // Jangan pernah mencantumkan apikey / token dalam pesan error.
-      throw new Error('HTTP '+resp.status+code+' ('+method+' '+endpoint.split('?')[0]+'): '+message);
-    }
-    setConnectionStatus('Online • Supabase');
+    try{data=raw?JSON.parse(raw):null;}catch(_){data=null;}
+    if(!resp.ok)throw new Error(data?.message||data?.hint||'Koneksi Supabase gagal ('+resp.status+').');
     return data;
   }
   function allLocal() {
@@ -137,10 +116,9 @@
       if(i<0)all.push(saved);else all[i]=saved;
       writeLocal(all);return saved;
     }
-    if(!HOURS.includes(Number(record.hour_slot))) throw new Error('Periode CIL 4 Jam tidak valid.');
     const token=tokenFor(record.check_date,record.machine,record.hour_slot)||generateToken();
-    const saved=await request('rpc/cil_4hour_save','POST',{
-      p_date:record.check_date,p_machine:record.machine,p_hour:Number(record.hour_slot),
+    const saved=await request('rpc/cil_4hour_save_multi','POST',{
+      p_building:String(record.building || '6'),p_date:record.check_date,p_machine:record.machine,p_hour:Number(record.hour_slot),
       p_shift:Number(record.shift),p_operator_name:record.operator_name,
       p_checks:record.checks,p_general_note:record.general_note||'',p_token:token
     });
@@ -151,10 +129,10 @@
   function evaluate(entry) {
     const checks=Array.isArray(entry?.checks)?entry.checks:[];
     const stats={done:0,abnormal:0,skipped:0,empty:0};
-    for(const task of window.CILT_TASKS){const result=checks.find(x=>Number(x.task_id)===task.id);const key=result?.status;if(Object.hasOwn(stats,key))stats[key]++;else stats.empty++;}
+    for(const task of window.CIL4_TASKS){const result=checks.find(x=>Number(x.task_id)===task.id);const key=result?.status;if(Object.hasOwn(stats,key))stats[key]++;else stats.empty++;}
     let status='empty';
     if(stats.abnormal)status='abnormal'; else if(stats.skipped)status='skipped';else if(stats.empty)status='incomplete';else status='done';
-    return {...stats,status,total:window.CILT_TASKS.length};
+    return {...stats,status,total:window.CIL4_TASKS.length};
   }
   function toast(text,variant='good'){
     let host=document.querySelector('#toastHost');if(!host){host=document.createElement('div');host.id='toastHost';host.className='toast-host';document.body.appendChild(host);}
@@ -167,10 +145,10 @@
     const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),500);
   }
   async function withAuth(onReady){
-    setConnectionStatus(isCloud?(document.getElementById('machineSelect')?'Supabase • Siap dipakai':'Supabase • Menghubungkan...'):'Lokal • Perangkat ini');
+    document.querySelectorAll('[data-storage-label]').forEach(el=>{el.textContent=isCloud?'Online • Supabase':'Lokal • Perangkat ini';});
     document.querySelectorAll('[data-local-note]').forEach(el=>{el.hidden=isCloud;});
     document.querySelectorAll('[data-logout]').forEach(el=>el.remove());
     await onReady();
   }
-  window.CILT={cfg,isCloud,HOURS,safeText,dateParts,today,currentHour,hourLabel,niceDate,addDays,getRange,getOne,upsert,evaluate,statusLabels,statusShort,toast,exportCSV,withAuth};
+  window.CIL4={cfg,isCloud,safeText,dateParts,today,currentHour,hourLabel,niceDate,addDays,getRange,getOne,upsert,evaluate,statusLabels,statusShort,toast,exportCSV,withAuth};
 })();
