@@ -134,9 +134,93 @@
     if(stats.abnormal)status='abnormal'; else if(stats.skipped)status='skipped';else if(stats.empty)status='incomplete';else status='done';
     return {...stats,status,total:window.CIL4_TASKS.length};
   }
+  // Modern, accessible toast notifications for forms and monitoring.
   function toast(text,variant='good'){
-    let host=document.querySelector('#toastHost');if(!host){host=document.createElement('div');host.id='toastHost';host.className='toast-host';document.body.appendChild(host);}
-    const e=document.createElement('div');e.className='toast '+variant;e.textContent=text;host.appendChild(e);setTimeout(()=>e.remove(),5200);
+    const kind=variant==='bad'?'bad':variant==='warn'?'warn':variant==='info'?'info':'good';
+    let host=document.getElementById('toastHost');
+    if(!host){
+      host=document.createElement('div');
+      host.id='toastHost';host.className='toast-host';
+      host.setAttribute('aria-label','Notifikasi CIL');
+      document.body.appendChild(host);
+    }
+    while(host.children.length>=3)host.firstElementChild.remove();
+    const item=document.createElement('section');
+    item.className='toast toast-'+kind;
+    item.setAttribute('role',kind==='bad'||kind==='warn'?'alert':'status');
+    const symbol=document.createElement('span');symbol.className='toast-symbol';
+    symbol.setAttribute('aria-hidden','true');
+    symbol.textContent={good:'✓',bad:'!',warn:'!',info:'i'}[kind];
+    const body=document.createElement('div');body.className='toast-body';
+    const title=document.createElement('strong');title.className='toast-title';
+    title.textContent=kind==='good'?'Berhasil':kind==='info'?'Informasi':kind==='warn'?'Perhatian':/^gagal\b/i.test(String(text))?'Gagal memproses':'Periksa isian';
+    const msg=document.createElement('p');msg.className='toast-message';msg.textContent=String(text);
+    body.append(title,msg);
+    const close=document.createElement('button');close.type='button';close.className='toast-close';
+    close.setAttribute('aria-label','Tutup notifikasi');close.textContent='×';
+    const progress=document.createElement('span');progress.className='toast-progress';
+    progress.setAttribute('aria-hidden','true');
+    const duration=kind==='bad'||kind==='warn'?8000:5500;
+    item.style.setProperty('--toast-duration',duration+'ms');
+    item.append(symbol,body,close,progress);
+    host.appendChild(item);
+    let timer;
+    const dismiss=()=>{
+      clearTimeout(timer);
+      item.classList.add('toast-exit');
+      setTimeout(()=>item.remove(),220);
+    };
+    close.addEventListener('click',dismiss);
+    timer=setTimeout(dismiss,duration);
+  }
+
+  // Replaces the browser's default confirm popup with an in-page dialog.
+  let confirmPending=false;
+  function confirmAction({title='Konfirmasi',message='',confirmText='Lanjutkan',cancelText='Batal',type='primary'}={}){
+    if(confirmPending)return Promise.resolve(false);
+    confirmPending=true;
+    return new Promise(resolve=>{
+      const overlay=document.createElement('div');overlay.className='cil-confirm-overlay';
+      const dialog=document.createElement('section');dialog.className='cil-confirm-dialog';
+      dialog.setAttribute('role','dialog');dialog.setAttribute('aria-modal','true');
+      const header=document.createElement('div');header.className='cil-confirm-head';
+      const icon=document.createElement('span');icon.className='cil-confirm-icon';
+      icon.setAttribute('aria-hidden','true');icon.textContent=type==='warning'?'↺':'✓';
+      const copy=document.createElement('div');copy.className='cil-confirm-copy';
+      const h=document.createElement('h2');h.textContent=title;const p=document.createElement('p');p.textContent=message;
+      h.id='cilConfirmTitle';p.id='cilConfirmDescription';
+      dialog.setAttribute('aria-labelledby',h.id);dialog.setAttribute('aria-describedby',p.id);
+      copy.append(h,p);header.append(icon,copy);
+      const actions=document.createElement('div');actions.className='cil-confirm-actions';
+      const cancel=document.createElement('button');cancel.className='btn btn-secondary cil-confirm-cancel';
+      cancel.type='button';cancel.textContent=cancelText;
+      const accept=document.createElement('button');
+      accept.className='btn cil-confirm-accept '+(type==='warning'?'cil-confirm-warning':'btn-primary');
+      accept.type='button';accept.textContent=confirmText;
+      actions.append(cancel,accept);dialog.append(header,actions);overlay.appendChild(dialog);
+      document.body.appendChild(overlay);
+      const prior=document.activeElement;
+      const complete=confirmed=>{
+        document.removeEventListener('keydown',keyHandler,true);
+        overlay.remove();confirmPending=false;
+        if(prior && typeof prior.focus==='function')prior.focus();
+        resolve(confirmed);
+      };
+      const keyHandler=e=>{
+        if(e.key==='Escape'){e.preventDefault();complete(false);}
+        if(e.key==='Tab'){
+          const focusables=[cancel,accept];
+          const index=focusables.indexOf(document.activeElement);
+          if(e.shiftKey && index<=0){e.preventDefault();accept.focus();}
+          else if(!e.shiftKey && index===1){e.preventDefault();cancel.focus();}
+        }
+      };
+      document.addEventListener('keydown',keyHandler,true);
+      cancel.addEventListener('click',()=>complete(false));
+      accept.addEventListener('click',()=>complete(true));
+      overlay.addEventListener('click',e=>{if(e.target===overlay)complete(false);});
+      cancel.focus();
+    });
   }
   function exportCSV(filename,rows){
     function safeCsv(x){let s=String(x??'');if(/^[\s]*[=+@-]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"';}
@@ -150,5 +234,5 @@
     document.querySelectorAll('[data-logout]').forEach(el=>el.remove());
     await onReady();
   }
-  window.CIL4={cfg,isCloud,safeText,dateParts,today,currentHour,hourLabel,niceDate,addDays,getRange,getOne,upsert,evaluate,statusLabels,statusShort,toast,exportCSV,withAuth};
+  window.CIL4={cfg,isCloud,safeText,dateParts,today,currentHour,hourLabel,niceDate,addDays,getRange,getOne,upsert,evaluate,statusLabels,statusShort,toast,confirmAction,exportCSV,withAuth};
 })();
