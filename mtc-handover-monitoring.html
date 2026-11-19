@@ -408,7 +408,7 @@ function renderTable(){
    <td class="wa-check-col no-print"><input class="wa-row-check" type="checkbox" data-wa-id="${esc(x.id)}" aria-label="Pilih laporan ${esc(x.tanggal)} ${esc(x.shift)} ${esc(x.gedung)}" ${receipt?'':'disabled title="Belum diterima TL penerima"'} ${waSelectedIds.has(x.id)?'checked':''}></td>
    <td>${esc(x.tanggal)}<div class="tiny">${esc(x.shift)}</div></td><td>${esc(x.gedung)}</td>
    <td>${esc(x.tl_penyerah)}<div class="tiny">→ ${esc(x.tl_penerima)}</div></td>
-   <td><b>${issues.length} tercatat</b>${newCount+carryCount?`<div class="tiny">${newCount} baru · ${carryCount} lanjutan</div>`:''} ${pending?`<span class="pill open">${pending} aktif</span>`:''}</td>
+   <td><b>${newCount} issue baru</b><div class="tiny">${carryCount} lanjutan${issues.length>newCount+carryCount?` · ${issues.length-newCount-carryCount} belum terklasifikasi`:''}</div>${pending?` <span class="pill open">${pending} aktif</span>`:''}</td>
    <td><span class="pill ${receipt?'received':'pending'}">${receipt?'Diterima':'Menunggu'}</span></td>
    <td><button type="button" class="btn btn-outline btn-sm" aria-label="Lihat detail serah terima">Detail</button></td></tr>`;
  }).join('');
