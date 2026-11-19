@@ -355,13 +355,32 @@ function getRowData(card){
   action_lanjutan:clean(card.querySelector('[data-field="next"]').value)};
 }
 function isBlank(card){const d=getRowData(card);return !d.issue_id&&!d.mesin_area&&!d.issue&&!d.jam_mulai&&!d.jam_selesai&&!d.action_dilakukan&&!d.action_lanjutan;}
-function renumber(){[...$('issueRows').children].forEach((card,i)=>{const n=card.querySelector('.issue-number');if(n)n.textContent='Issue '+(i+1);});$('countBadge').textContent=$('issueRows').children.length+' issue';}
+// Identitas issue tidak berubah saat dibawa ke shift berikutnya.
+const issueFingerprint=x=>[clean(x.mesin_area),clean(x.issue)].map(v=>v.toLocaleLowerCase('id-ID').replace(/\s+/g,' ')).join('|');
+function uniqueOutstanding(rows){
+ const latest=new Map(),noId=[];
+ const score=x=>Date.parse(x.updated_at||x.jam_serah||x.created_at||'')||0;
+ for(const x of (Array.isArray(rows)?rows:[])){
+  const id=clean(x.issue_id);
+  if(!id){noId.push(x);continue;}
+  const old=latest.get(id);
+  if(!old||score(x)>score(old)||(score(x)===score(old)&&x.status==='Closed'&&old.status!=='Closed'))latest.set(id,x);
+ }
+ return [...latest.values(),...noId].filter(x=>x.status!=='Closed');
+}
+function renumber(){
+ const cards=[...$('issueRows').children];
+ cards.forEach((card,i)=>{const n=card.querySelector('.issue-number');if(n)n.textContent='Issue '+(i+1);});
+ const filled=cards.filter(c=>!isBlank(c));
+ const carried=filled.filter(c=>Boolean(c.dataset.issueId)).length;
+ $('countBadge').textContent=!filled.length?'0 issue':`${filled.length} issue · ${filled.length-carried} baru · ${carried} lanjutan`;
+}
 function addRow(data={}){
  if($('issueRows').children.length>=30){notify('Maksimal 30 issue.','error');return;}
  if(data.issue_id&&[...$('issueRows').children].some(c=>c.dataset.issueId===data.issue_id)){notify('Issue sudah ada dalam daftar.');return;}
  if(data.issue_id&&$('issueRows').children.length===1&&isBlank($('issueRows').firstElementChild))$('issueRows').replaceChildren();
  const card=document.createElement('article');card.className='issue-card';card.dataset.issueId=data.issue_id||'';card.dataset.rowId=data.row_id||newId();
- card.innerHTML=`<div class="issue-header"><strong class="issue-number">Issue</strong><button type="button" class="btn btn-danger btn-sm" data-remove="true">Hapus</button></div>
+ card.innerHTML=`<div class="issue-header"><div style="display:flex;gap:8px;align-items:center"><strong class="issue-number">Issue</strong><span class="pill ${data.issue_id?'progress':''}">${data.issue_id?'Lanjutan':'Baru'}</span></div><button type="button" class="btn btn-danger btn-sm" data-remove="true">Hapus</button></div>
  <div class="issue-fields"><div class="field"><label>Mesin / Area <span class="required">*</span></label><input data-field="machine" maxlength="150" placeholder="Contoh: SW 39 / Kompresor"></div>
  <div class="field"><label>Issue / Kondisi <span class="required">*</span></label><textarea data-field="issue" maxlength="1000" placeholder="Masalah yang ditemukan"></textarea></div>
  <div class="field"><label>Status</label><select data-field="status"><option value="Open">Open</option><option value="Progress">Progress</option><option value="Closed">Closed</option></select></div>
@@ -394,7 +413,7 @@ function renderCarry(){
  for(const x of outstanding){
    const el=document.createElement('div');el.className='carry-item';const txt=document.createElement('div');txt.style.minWidth='0';
    txt.innerHTML=`<b>${escapeHtml(x.mesin_area)}</b> <span class="pill ${x.status.toLowerCase()}">${escapeHtml(x.status)}</span><p>${escapeHtml(x.issue)}</p><small>${escapeHtml(x.action_lanjutan||'Belum ada action lanjutan')}</small>`;
-   const btn=document.createElement('button');btn.type='button';btn.className='btn btn-outline btn-sm';btn.textContent=ids.has(x.issue_id)?'Ditambahkan':'+ Bawa';btn.disabled=ids.has(x.issue_id)||draft?.status==='Final';
+   const btn=document.createElement('button');btn.type='button';btn.className='btn btn-outline btn-sm';btn.textContent=!x.issue_id?'ID tidak tersedia':ids.has(x.issue_id)?'Ditambahkan':'+ Bawa';btn.disabled=!x.issue_id||ids.has(x.issue_id)||draft?.status==='Final';
    btn.addEventListener('click',()=>{addRow({issue_id:x.issue_id,mesin_area:x.mesin_area,issue:x.issue,status:x.status,jam_mulai:x.jam_mulai||'',jam_selesai:'',action_dilakukan:'',action_lanjutan:x.action_lanjutan});$('noIssue').checked=false;markDirty();});
    el.append(txt,btn);box.append(el);
  }
@@ -406,7 +425,7 @@ async function loadOutstanding(){
  const {data,error}=await db.rpc('mtc_get_outstanding_with_times',{p_gedung:gedung});
  if(key!==selectionKey())return;
  if(error){$('carryList').textContent='Outstanding belum bisa dimuat: '+error.message;return;}
- outstanding=data||[];renderCarry();$('carryPanel').open=outstanding.length>0;
+ outstanding=uniqueOutstanding(data);renderCarry();$('carryPanel').open=outstanding.length>0;
  const carry=new URLSearchParams(location.search).get('carry');
  if(carry&&!carryProcessed&&draft?.status!=='Final'){
    carryProcessed=true;const x=outstanding.find(z=>z.issue_id===carry);
@@ -446,7 +465,7 @@ async function loadDraft(force=false){
  finally{if(token===loadToken){setBusy(false);showDraftState();if(ready())await loadOutstanding();}}
 }
 function getItems(final=false){
- const items=[];
+ const items=[],seenIds=new Set(),seenFingerprints=new Map();
  for(const [i,card] of [...$('issueRows').children].entries()){
    if(isBlank(card))continue;
    const d=getRowData(card);
@@ -456,7 +475,18 @@ function getItems(final=false){
    if(d.status==='Closed'&&!d.jam_selesai)throw Error('Issue '+(i+1)+': status Closed wajib mengisi Jam Selesai.');
    if(final&&d.status==='Closed'&&!d.action_dilakukan)throw Error('Issue '+(i+1)+': Closed wajib memiliki action yang sudah dilakukan.');
    if(final&&d.status!=='Closed'&&!d.action_lanjutan)throw Error('Issue '+(i+1)+': Open/Progress wajib memiliki action lanjutan.');
-   items.push(d);
+  if(d.issue_id){
+   if(seenIds.has(d.issue_id))throw Error('Issue '+(i+1)+': ID sudah digunakan di shift ini.');
+   seenIds.add(d.issue_id);
+  }
+  const key=issueFingerprint(d);
+  const previous=seenFingerprints.get(key);
+  if(previous&&(previous.status!=='Closed'||d.status!=='Closed'))throw Error('Issue '+(i+1)+': mesin dan deskripsi sama dengan issue Open/Progress lain pada shift ini. Gunakan satu issue, lalu update action-nya.');
+  seenFingerprints.set(key,d);
+  if(!d.issue_id&&outstanding.some(x=>Boolean(x.issue_id)&&issueFingerprint(x)===key)){
+   throw Error('Issue '+(i+1)+': masih Open/Progress dari shift sebelumnya. Gunakan tombol "+ Bawa" pada Outstanding, jangan membuat issue baru.');
+  }
+  items.push(d);
  }
  if(items.length&&$('noIssue').checked)throw Error('Hapus centang "Tidak ada issue" karena daftar issue terisi.');
  if(final&&!items.length&&!$('noIssue').checked)throw Error('Isi issue atau centang "Tidak ada issue".');
