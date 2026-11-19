@@ -202,6 +202,102 @@ header.topbar{background:#fff;border-bottom:1px solid var(--mtc-border)}
  .outstanding-list{grid-template-columns:repeat(2,minmax(0,1fr))}
  .outstanding-item{break-inside:avoid}
 }
+
+
+/* MTC Analytics v1 — responsive and independent of external chart libraries */
+.analytics-area{margin:0 0 15px}
+.analytics-heading{display:flex;justify-content:space-between;align-items:end;gap:18px;margin:3px 2px 14px}
+.analytics-kicker{display:block;font-size:10px;font-weight:820;letter-spacing:.13em;color:#3b79b5;text-transform:uppercase;margin-bottom:5px}
+.analytics-heading h2{font-size:19px;line-height:1.18;letter-spacing:-.025em;margin:0;color:#193956}
+.analytics-heading p{font-size:11px;color:#7388a2;margin:5px 0 0}
+.analytics-scope{font-size:11px;color:#617e9c;background:#eaf2fb;border:1px solid #deebf8;border-radius:999px;padding:7px 11px;white-space:nowrap}
+.analytics-grid{display:grid;grid-template-columns:minmax(0,1.68fr) minmax(370px,1fr);gap:14px;align-items:stretch}
+.analytics-main,.analytics-side>.panel{min-width:0;margin:0}
+.analytics-main{display:flex;flex-direction:column;padding:20px 22px 16px}
+.analytics-side{display:grid;grid-template-rows:minmax(0,1.18fr) minmax(0,1fr);gap:14px;min-width:0}
+.analytics-side>.panel{padding:18px 20px;min-height:0}
+.analytics-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+.analytics-card-head h3{font-size:15px;line-height:1.25;color:#1e3d5d;letter-spacing:-.012em;margin:0}
+.analytics-card-head p{font-size:11px;color:#7b8ea4;margin:5px 0 0;line-height:1.5}
+.analytics-mode{font-size:11px;font-weight:700;color:#37648f;background:#f8fbff;border:1px solid #dfe8f3;padding:8px 10px;border-radius:9px;outline:none;max-width:145px;flex-shrink:0;cursor:pointer}
+.analytics-mode:focus-visible{outline:2px solid #4996e6;outline-offset:2px}
+.analytics-legend{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin:22px 0 5px}
+.legend-item{display:inline-flex;gap:7px;align-items:center;font-size:10.5px;font-weight:660;color:#667e99}
+.legend-swatch{width:9px;height:9px;display:inline-block;border-radius:3px;background:var(--swatch);flex-shrink:0}
+.legend-swatch.line{width:14px;height:3px;border-radius:4px}
+.trend-scroll{overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;scrollbar-color:#d5dfeb transparent;width:100%;flex:1;min-height:370px;padding-bottom:2px}
+.trend-scroll:focus-visible{outline:2px solid #3a83d5;outline-offset:2px;border-radius:7px}
+.trend-plot{min-height:365px;display:flex;align-items:center;justify-content:center}
+.trend-svg{display:block;min-width:100%;height:365px;max-width:none;overflow:visible}
+.trend-gridline{stroke:#e8edf5;stroke-width:1}
+.trend-axis-text{font-family:Inter,system-ui,Arial,sans-serif;fill:#91a2b7;font-size:10px}
+.trend-bar-new{fill:#2a78d4}
+.trend-bar-carry{fill:#9fb7d4}
+.trend-bar-unknown{fill:#e2e8f0}
+.trend-closed-line{fill:none;stroke:#0ca77f;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.trend-closed-dot{fill:#fff;stroke:#0ca77f;stroke-width:2.6}
+.analytics-foot{display:flex;align-items:center;gap:6px;margin-top:5px;color:#8a9caf;font-size:10px;line-height:1.5;min-height:18px}
+.machine-list{margin-top:15px;display:grid;gap:11px}
+.machine-row{display:grid;grid-template-columns:minmax(0,1fr) 32px;align-items:end;gap:6px 12px}
+.machine-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:680;color:#426381;font-size:11px;min-width:0}
+.machine-count{text-align:right;color:#1f507f;font-weight:800;font-size:11px;font-variant-numeric:tabular-nums}
+.machine-rail{height:7px;border-radius:10px;background:#eef3f9;grid-column:1/-1;overflow:hidden}
+.machine-fill{height:100%;border-radius:10px;background:linear-gradient(90deg,#2c72c5,#55a3ef);min-width:0;transition:width .28s ease}
+.machine-row:nth-child(2) .machine-fill{background:linear-gradient(90deg,#4588d0,#70adeb)}
+.machine-row:nth-child(n+3) .machine-fill{background:linear-gradient(90deg,#7a9fc7,#9dc1e4)}
+.status-body{display:flex;align-items:center;justify-content:space-between;gap:13px;margin-top:8px}
+.status-donut-wrap{width:160px;height:160px;flex:0 0 160px;position:relative}
+.status-donut-wrap svg{width:100%;height:100%;display:block;transform:rotate(-90deg)}
+.status-donut-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
+.status-donut-center strong{font-size:29px;font-weight:820;color:#1b456e;letter-spacing:-.045em;line-height:1.2;font-variant-numeric:tabular-nums}
+.status-donut-center small{font-size:10px;font-weight:670;color:#8294aa}
+.status-rows{flex:1;min-width:125px;display:grid;gap:10px}
+.status-row{display:grid;grid-template-columns:8px minmax(0,1fr) auto;gap:8px;align-items:center}
+.status-row .dot{width:8px;height:8px;background:var(--swatch);border-radius:50%}
+.status-row span{font-size:11px;color:#617b98;font-weight:640;white-space:nowrap}
+.status-row strong{font-size:12px;font-weight:820;color:#274767;font-variant-numeric:tabular-nums}
+.status-row em{font-size:10px;color:#91a4ba;font-weight:570;font-style:normal;margin-left:4px}
+.chart-empty{padding:35px 12px;max-width:100%;text-align:center;color:#91a2b7;font-size:12px;line-height:1.6}
+.chart-empty strong{display:block;font-size:13px;color:#687e99;margin-bottom:4px}
+.machine-list .chart-empty{padding:18px 10px}
+@media(max-width:1250px){
+ .analytics-grid{grid-template-columns:minmax(0,1.42fr) minmax(320px,1fr)}
+ .analytics-main{padding:18px 17px 15px}
+ .analytics-side>.panel{padding:17px}
+ .status-body{gap:8px}
+ .status-donut-wrap{width:130px;height:130px;flex-basis:130px}
+ .status-donut-center strong{font-size:25px}
+ .status-row{gap:6px}
+}
+@media(max-width:950px){
+ .analytics-grid{grid-template-columns:1fr}
+ .analytics-side{grid-template-columns:1fr 1fr;grid-template-rows:auto;gap:12px}
+ .analytics-main{min-height:0}
+ .analytics-side>.panel{min-height:240px}
+}
+@media(max-width:700px){
+ .analytics-heading{align-items:flex-start}
+ .analytics-heading h2{font-size:17px}
+ .analytics-scope{font-size:10px;white-space:normal;text-align:right}
+ .analytics-side{grid-template-columns:1fr}
+ .analytics-side>.panel{min-height:0}
+ .analytics-card-head h3{font-size:14px}
+ .analytics-legend{margin-top:17px;gap:11px}
+ .analytics-mode{max-width:122px;font-size:10px;padding:7px}
+ .trend-scroll{min-height:290px}
+ .trend-plot{min-height:285px}
+ .trend-svg{height:290px}
+ .status-body{justify-content:flex-start;gap:22px}
+ .status-donut-wrap{width:150px;height:150px;flex-basis:150px}
+}
+@media(max-width:380px){
+ .status-body{gap:8px}
+ .status-donut-wrap{width:128px;height:128px;flex-basis:128px}
+ .analytics-heading{display:block}
+ .analytics-scope{display:inline-block;margin-top:9px}
+}
+@media print{.analytics-grid{display:block}.analytics-main{page-break-inside:avoid}.analytics-side{display:grid;grid-template-columns:1fr 1fr}.trend-scroll{overflow:visible}.trend-svg{max-width:100%}}
+
 </style></head>
 <body>
 <header class="topbar"><div class="brand"><strong>KOBE · BOJONEGORO</strong><small>Maintenance · Shift Hand Over</small></div><div class="top-actions"><a class="btn" href="mtc-handover-form.html">+ Form MTC</a></div></header>
@@ -218,6 +314,43 @@ header.topbar{background:#fff;border-bottom:1px solid var(--mtc-border)}
 <details class="advanced-filter"><summary>Pencarian &amp; status</summary><div class="advanced-fields"><div class="field"><label for="stateFilter">Status</label><select id="stateFilter"><option value="">Semua status</option><option value="pending">Belum diterima</option><option value="received">Sudah diterima</option><option value="issues">Ada Open/Progress di shift</option></select></div><div class="field"><label for="keyword">Cari mesin, issue, atau TL</label><input id="keyword" placeholder="Contoh: SW 39, conveyor, motor" type="search"/></div></div></details><div class="actions"><div style="align-self:end;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="reload" type="button">Terapkan</button><button class="btn btn-light" id="export" type="button">Export CSV</button></div></div>
 <div class="message" id="msg" role="status"></div></section>
 <div class="summary-kpis"><div class="kpi"><small>Total Handover</small><strong id="k1">—</strong></div><div class="kpi"><small>Total Issue</small><strong id="k4">—</strong></div><div class="kpi"><small>Outstanding</small><strong id="k3">—</strong></div><div class="kpi"><small>Belum Diterima</small><strong id="k2">—</strong></div></div>
+
+<section class="analytics-area" aria-labelledby="analyticsHeading">
+ <div class="analytics-heading">
+  <div><span class="analytics-kicker">Maintenance Intelligence</span><h2 id="analyticsHeading">Analisis Issue</h2><p>Ringkasan berdasarkan data serah terima dan filter aktif</p></div>
+  <span class="analytics-scope" id="chartScope">Memuat periode...</span>
+ </div>
+ <div class="analytics-grid">
+  <section class="panel analytics-main" aria-labelledby="trendTitle">
+   <div class="analytics-card-head">
+    <div><h3 id="trendTitle">Tren Issue</h3><p>Issue baru, lanjutan, dan Closed pada handover</p></div>
+    <select id="trendMode" class="analytics-mode" aria-label="Kelompok periode grafik tren">
+     <option value="shift">Per Shift</option><option value="day">Harian</option><option value="week">Mingguan</option><option value="month">Bulanan</option>
+    </select>
+   </div>
+   <div class="analytics-legend" aria-label="Legenda grafik">
+    <span class="legend-item"><i class="legend-swatch" style="--swatch:#2a78d4"></i>Issue baru</span>
+    <span class="legend-item"><i class="legend-swatch" style="--swatch:#9fb7d4"></i>Lanjutan</span>
+    <span class="legend-item"><i class="legend-swatch line" style="--swatch:#0ca77f"></i>Closed saat handover</span>
+   </div>
+   <div id="trendScroll" class="trend-scroll" tabindex="0" aria-label="Grafik tren, geser ke samping jika periode panjang">
+    <div id="trendChart" class="trend-plot" role="img" aria-label="Grafik tren issue"></div>
+   </div>
+   <div class="analytics-foot" id="trendNote">Setiap issue dihitung sekali per periode berdasarkan ID.</div>
+  </section>
+  <div class="analytics-side">
+   <section class="panel" aria-labelledby="machineTitle">
+    <div class="analytics-card-head"><div><h3 id="machineTitle">Top 5 Mesin / Area</h3><p>Mesin dengan issue unik terbanyak</p></div></div>
+    <div id="machineChart" class="machine-list" role="list" aria-label="Peringkat mesin dan area"></div>
+   </section>
+   <section class="panel" aria-labelledby="statusTitle">
+    <div class="analytics-card-head"><div><h3 id="statusTitle">Komposisi Status Issue</h3><p>Status terbaru dari issue sesuai filter</p></div></div>
+    <div id="statusChart" class="status-body" aria-label="Distribusi status issue saat ini"></div>
+   </section>
+  </div>
+ </div>
+</section>
+
 <section class="panel draft-panel" hidden="" id="draftPanel">
 <div class="section-title"><h2>Draft Aktif <span class="pill" id="draftCount">0</span></h2></div>
 <div class="draft-list" id="draftList"></div>
@@ -445,6 +578,7 @@ for(const id of ['dateMode','singleDate','fromDate','toDate','gedungFilter','shi
     waSelectedIds.clear();
     $('waBulkFeedback').textContent='';
     appliedWaScope='';
+    trendModeTouched=false;
     updateWaBulkToolbar();
     scheduleReload();
   });
@@ -484,6 +618,176 @@ function snapshotType(issue){
  if(!original)return '';
  return original===issue.id?'Baru':'Lanjutan';
 }
+
+// Three filter-linked charts. Rendered with native SVG/CSS (no new CDN dependency).
+// Snapshot history is deliberately kept; all aggregations use issue_id.
+let trendModeTouched=false;
+const normalizeMachine=value=>String(value||'Tidak diketahui').trim().replace(/\s+/g,' ')||'Tidak diketahui';
+const chartText=value=>esc(value);
+const shiftRank=value=>({Pagi:0,Siang:1,Malam:2})[value]??3;
+function chartDate(iso){return new Date(iso+'T12:00:00Z');}
+function chartMonthDate(iso){
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(iso))return iso||'-';
+ return chartDate(iso).toLocaleDateString('id-ID',{day:'numeric',month:'short',timeZone:'UTC'});
+}
+function dateKey(d){return d.toISOString().slice(0,10);}
+function chartWeekStart(iso){const dt=chartDate(iso);dt.setUTCDate(dt.getUTCDate()-dt.getUTCDay());return dateKey(dt);}
+function trendBucket(h,mode){
+ const date=h.tanggal;
+ if(mode==='shift')return {key:date+'|'+String(shiftRank(h.shift)),label:String(h.shift),sub:chartMonthDate(date)};
+ if(mode==='week'){
+  const first=chartWeekStart(date),last=chartDate(first);last.setUTCDate(last.getUTCDate()+6);
+  return {key:first,label:chartMonthDate(first),sub:'s.d. '+chartMonthDate(dateKey(last))};
+ }
+ if(mode==='month'){
+  const month=date.slice(0,7),dt=new Date(month+'-01T12:00:00Z');
+  return {key:month,label:dt.toLocaleDateString('id-ID',{month:'short',timeZone:'UTC'}),sub:dt.getUTCFullYear().toString()};
+ }
+ return {key:date,label:chartMonthDate(date),sub:''};
+}
+function bestTrendMode(){
+ const [from,to]=activeDates();
+ const span=Math.round((chartDate(to)-chartDate(from))/86400000)+1;
+ if(span<=1)return 'shift';
+ if(span<=35)return 'day';
+ if(span<=150)return 'week';
+ return 'month';
+}
+function chartScopeText(){
+ const [from,to]=activeDates();
+ const gd=$('gedungFilter').value||'Semua lokasi';
+ const shift=$('shiftFilter').value||'Semua shift';
+ return (from===to?chartMonthDate(from):chartMonthDate(from)+' – '+chartMonthDate(to))+' · '+gd+' · '+shift;
+}
+function trendPeriods(hs,mode){
+ const map=new Map();
+ for(const h of hs){
+  const meta=trendBucket(h,mode);
+  let bucket=map.get(meta.key);
+  if(!bucket){bucket={...meta,records:new Map()};map.set(meta.key,bucket);}
+  for(const issue of issuesOf(h)){
+   const key=issueKey(h,issue),kind=snapshotType(issue);
+   const previous=bucket.records.get(key);
+   const score=kind==='Baru'?2:kind==='Lanjutan'?1:0;
+   const statusClosed=issue.status==='Closed';
+   if(!previous)bucket.records.set(key,{score,closed:statusClosed});
+   else {previous.score=Math.max(previous.score,score);previous.closed=previous.closed||statusClosed;}
+  }
+ }
+ return [...map.values()].sort((a,b)=>a.key.localeCompare(b.key)).map(x=>{
+  const entries=[...x.records.values()];
+  return {...x,baru:entries.filter(e=>e.score===2).length,lanjutan:entries.filter(e=>e.score===1).length,
+   belum:entries.filter(e=>e.score===0).length,closed:entries.filter(e=>e.closed).length};
+ });
+}
+function renderTrend(){
+ const target=$('trendChart'),note=$('trendNote'),mode=$('trendMode').value;
+ const rows=trendPeriods(visible,mode);
+ if(!rows.length){
+  target.innerHTML='<div class="chart-empty"><strong>Belum ada data issue</strong>Pilih tanggal atau lokasi dengan histori handover.</div>';
+  target.setAttribute('aria-label','Tidak ada data untuk grafik tren');
+  note.textContent='Setiap issue dihitung sekali per periode berdasarkan ID.';
+  return;
+ }
+ const width=Math.max(690,60+rows.length*(mode==='week'?90:mode==='month'?86:mode==='shift'?80:75));
+ const height=365,left=42,right=16,top=22,bottom=58,plotH=height-top-bottom;
+ const maxVal=Math.max(1,...rows.map(r=>Math.max(r.baru+r.lanjutan+r.belum,r.closed)));
+ const tickStep=Math.max(1,Math.ceil(maxVal/4)),maxY=tickStep*4;
+ const slot=(width-left-right)/rows.length;
+ const barW=Math.min(43,slot*.56);
+ const grid=[];
+ for(let i=0;i<=4;i++){
+  const n=i*tickStep, y=top+plotH-(n/maxY)*plotH;
+  grid.push(`<line class="trend-gridline" x1="${left}" x2="${width-right}" y1="${y}" y2="${y}"/><text class="trend-axis-text" text-anchor="end" x="${left-10}" y="${y+3}">${n}</text>`);
+ }
+ const barRects=[],dots=[];const points=[];
+ for(let idx=0;idx<rows.length;idx++){
+  const data=rows[idx],cx=left+slot*(idx+.5),base=top+plotH;
+  let y=base;
+  const stack=[{n:data.baru,cl:'trend-bar-new',type:'Baru'},{n:data.lanjutan,cl:'trend-bar-carry',type:'Lanjutan'},{n:data.belum,cl:'trend-bar-unknown',type:'Belum diklasifikasi'}];
+  for(const item of stack){
+   if(item.n>0){
+    const h=(item.n/maxY)*plotH;y-=h;
+    barRects.push(`<rect class="${item.cl}" x="${(cx-barW/2).toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${h.toFixed(1)}" rx="${Math.min(4,h/2).toFixed(1)}"><title>${chartText(data.label)} ${chartText(data.sub)} · ${item.type}: ${item.n} issue</title></rect>`);
+   }
+  }
+  const cy=base-(data.closed/maxY)*plotH;
+  points.push(`${cx.toFixed(1)},${cy.toFixed(1)}`);
+  dots.push(`<circle class="trend-closed-dot" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="3.9"><title>${chartText(data.label)} ${chartText(data.sub)} · Closed saat handover: ${data.closed}</title></circle>`);
+  barRects.push(`<text class="trend-axis-text" text-anchor="middle" x="${cx.toFixed(1)}" y="${height-31}" style="font-weight:680;fill:#627e9a">${chartText(data.label)}</text>`);
+  if(data.sub)barRects.push(`<text class="trend-axis-text" text-anchor="middle" x="${cx.toFixed(1)}" y="${height-17}">${chartText(data.sub)}</text>`);
+ }
+ const line=points.length>1?`<polyline class="trend-closed-line" points="${points.join(' ')}"/>`:'';
+ const svg=`<svg class="trend-svg" style="width:${width}px" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Tren issue per ${mode==='shift'?'shift':mode==='day'?'hari':mode==='week'?'minggu':'bulan'}"><title>Issue baru, issue lanjutan, dan status Closed per periode</title>${grid.join('')}${barRects.join('')}${line}${dots.join('')}</svg>`;
+ target.innerHTML=svg;
+ const unknown=rows.reduce((s,r)=>s+r.belum,0);
+ target.setAttribute('aria-label',`${rows.length} periode ditampilkan. Grafik batang Baru dan Lanjutan serta garis Closed.`);
+ note.textContent=unknown>0
+  ?`${unknown} entri belum bisa diklasifikasi Baru/Lanjutan; periksa akses riwayat awal di Supabase. Garis Closed berasal dari snapshot handover.`
+  :'Issue baru/lanjutan dihitung sekali per periode. Garis Closed berasal dari snapshot handover.';
+}
+function uniqueChartIssues(hs){
+ const map=new Map();
+ for(const h of [...hs].sort((a,b)=>String(a.jam_serah||a.tanggal).localeCompare(String(b.jam_serah||b.tanggal)))){
+  for(const item of issuesOf(h)){
+   const key=issueKey(h,item),stored=map.get(key);
+   const ts=Date.parse(item.created_at||h.jam_serah||'')||0;
+   if(!stored||ts>stored.ts)map.set(key,{...item,ts,key});
+  }
+ }
+ return [...map.values()];
+}
+function renderMachines(issueList){
+ const target=$('machineChart');
+ const machines=new Map();
+ for(const issue of issueList){
+  const name=normalizeMachine(issue.mesin_area),id=name.toLocaleLowerCase('id-ID');
+  const entry=machines.get(id)||{name,count:0};entry.count++;machines.set(id,entry);
+ }
+ const top=[...machines.values()].sort((a,b)=>b.count-a.count||a.name.localeCompare(b.name,'id')).slice(0,5);
+ if(!top.length){target.innerHTML='<div class="chart-empty">Belum ada data mesin/area pada filter ini.</div>';return;}
+ const max=Math.max(1,...top.map(x=>x.count));
+ target.innerHTML=top.map((entry)=>`<div class="machine-row" role="listitem" title="${chartText(entry.name)}: ${entry.count} issue unik"><span class="machine-name">${chartText(entry.name)}</span><strong class="machine-count">${entry.count}</strong><div class="machine-rail"><div class="machine-fill" style="width:${(entry.count/max*100).toFixed(2)}%"></div></div></div>`).join('');
+}
+function renderStatuses(issueList){
+ const target=$('statusChart'),counts={Open:0,Progress:0,Closed:0};
+ for(const issue of issueList){
+  const state=currentIssues.get(issue.issue_id)||issue;
+  const status=state.status;
+  counts[status in counts?status:'Open']++;
+ }
+ const total=issueList.length;
+ if(!total){target.innerHTML='<div class="chart-empty">Status issue belum tersedia untuk filter ini.</div>';return;}
+ const colors={Open:'#f09b52',Progress:'#5985dc',Closed:'#20aa82'};
+ const order=['Open','Progress','Closed'];
+ const c=2*Math.PI*64;
+ let offset=0;
+ const rings=order.map(status=>{
+  const amount=counts[status],len=c*amount/total;
+  const part=amount?`<circle cx="88" cy="88" r="64" fill="none" stroke="${colors[status]}" stroke-width="19" stroke-dasharray="${len.toFixed(2)} ${(c-len).toFixed(2)}" stroke-dashoffset="${(-offset).toFixed(2)}"><title>${status}: ${amount} issue</title></circle>`:'';
+  offset+=len;return part;
+ }).join('');
+ // Largest-remainder percentages ensure the three displayed values total 100%.
+ const raw=order.map(status=>({status,value:counts[status]*100/total}));
+ const pct=Object.fromEntries(raw.map(x=>[x.status,Math.floor(x.value)]));
+ let remainder=100-Object.values(pct).reduce((sum,value)=>sum+value,0);
+ for(const part of [...raw].sort((a,b)=>(b.value-Math.floor(b.value))-(a.value-Math.floor(a.value)))){
+  if(remainder<=0)break;
+  pct[part.status]++;remainder--;
+ }
+ const labels={Open:'Open',Progress:'Progress',Closed:'Closed'};
+ const rows=order.map(status=>`<div class="status-row"><i class="dot" style="--swatch:${colors[status]}"></i><span>${labels[status]}</span><strong>${counts[status]}<em>${pct[status]}%</em></strong></div>`).join('');
+ target.innerHTML=`<div class="status-donut-wrap" role="img" aria-label="${counts.Open} Open, ${counts.Progress} Progress, ${counts.Closed} Closed"><svg viewBox="0 0 176 176" xmlns="http://www.w3.org/2000/svg"><circle cx="88" cy="88" r="64" fill="none" stroke="#edf2f8" stroke-width="19"/>${rings}</svg><div class="status-donut-center"><strong>${total}</strong><small>Issue unik</small></div></div><div class="status-rows">${rows}</div>`;
+}
+function renderCharts(){
+ $('chartScope').textContent=chartScopeText();
+ renderTrend();
+ const items=uniqueChartIssues(visible);
+ renderMachines(items);
+ renderStatuses(items);
+}
+$('trendMode').addEventListener('change',()=>{trendModeTouched=true;renderTrend();});
+
 function getStatus(h){return receiptOf(h)?'Diterima':'Menunggu';}
 function applyFilters(){
  const keyword=$('keyword').value.toLocaleLowerCase('id-ID').trim(),state=$('stateFilter').value;
@@ -504,7 +808,7 @@ function applyFilters(){
  const chosen=visible.find(h=>h.id===selectedId)||visible[0];
  if(chosen){selectedId=chosen.id;renderDetail(chosen);}
  else {selectedId='';$('waReportPanel').hidden=true;$('detailContent').innerHTML='<div class="empty">Belum ada data handover yang sesuai filter.</div>';}
- renderTable();renderDrafts();updateWaBulkToolbar();
+ renderTable();renderDrafts();renderCharts();updateWaBulkToolbar();
 }
 function renderTable(){
  const body=$('rows');
@@ -656,6 +960,7 @@ async function loadAll(){
    const {data:pending,error:outError}=await db.rpc('mtc_get_outstanding_with_times',{p_gedung:gd||null});
    if(outError)throw Error('Outstanding: '+outError.message);
    outstanding=outstandingLatest(pending).map(x=>currentIssues.get(x.issue_id)?{...x,...currentIssues.get(x.issue_id)}:x).filter(x=>x.status!=='Closed');
+   if(!trendModeTouched)$('trendMode').value=bestTrendMode();
    appliedWaScope=requestedScope;renderOutstanding();applyFilters();
    notify(cut?'Data terlalu banyak. Persempit periode.':'','success');
  }catch(err){
@@ -763,6 +1068,7 @@ for(const input of [$('singleDate'),$('fromDate'),$('toDate')]){input.min=localT
 $('singleDate').value=localToday(now);
 $('toDate').value=localToday(now);const d=new Date(now);d.setDate(d.getDate()-29);$('fromDate').value=localToday(d);
 syncDateFields();
+$('trendMode').value=bestTrendMode();
 // Buka handover dari link form pada tanggal aslinya, bukan hari ini.
 async function initialLoad(){
   if(selectedId&&db){
