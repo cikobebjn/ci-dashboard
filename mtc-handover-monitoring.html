@@ -298,6 +298,52 @@ header.topbar{background:#fff;border-bottom:1px solid var(--mtc-border)}
 }
 @media print{.analytics-grid{display:block}.analytics-main{page-break-inside:avoid}.analytics-side{display:grid;grid-template-columns:1fr 1fr}.trend-scroll{overflow:visible}.trend-svg{max-width:100%}}
 
+
+/* Compact operational lists remain enabled; all three analytic charts show together. */
+.analytics-area{margin:0 0 14px}
+.analytics-heading{align-items:center;margin:2px 2px 12px}
+.analytics-kicker{font-size:10px;letter-spacing:.085em;color:#527fae}
+.analytics-heading h2{font-size:18px}
+.analytics-card-head h3{font-size:14px}
+.analytics-card-head p{font-size:11px}
+.chart-mode-field{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.chart-mode-field label{font-size:11px;font-weight:730;color:#617c99}
+.outstanding-title{align-items:center}
+.outstanding-title .section-subtitle{display:block;margin-top:5px}
+.outstanding-tools{display:flex;align-items:center;gap:11px;flex-wrap:wrap;justify-content:flex-end}
+.outstanding-shown{font-size:11px;color:#7890aa}
+.outstanding-list.is-compact>.outstanding-item:nth-child(n+4){display:none}
+#toggleOutstanding[hidden]{display:none!important}
+.compact-detail-panel{padding:0!important;overflow:hidden}
+.detail-disclosure>summary{display:flex;align-items:center;gap:13px;padding:18px 22px;cursor:pointer;list-style:none;user-select:none}
+.detail-disclosure>summary::-webkit-details-marker{display:none}
+.detail-disclosure>summary:hover{background:#f9fbff}
+.detail-disclosure-heading{font-size:15px;font-weight:780;color:#1d3753}
+.detail-disclosure-hint{font-size:11px;color:#8a9bb0;flex:1}
+.detail-disclosure-arrow{font-size:24px;color:#6685a4;line-height:1;transition:transform .18s}
+.detail-disclosure[open] .detail-disclosure-arrow{transform:rotate(180deg)}
+.detail-disclosure-body{padding:0 22px 21px;border-top:1px solid #eaf0f7}
+.detail-disclosure-body #detailContent{padding-top:19px}
+.detail-disclosure-body #waReportPanel{margin-top:22px}
+@media(max-width:760px){
+ .analytics-heading{align-items:flex-start}
+ .chart-mode-field{gap:5px}
+ .chart-mode-field label{display:none}
+ .outstanding-tools{justify-content:flex-start}
+ .outstanding-title{align-items:flex-start;flex-wrap:wrap}
+ .outstanding-title .section-subtitle{max-width:250px}
+ .detail-disclosure>summary{padding:15px 14px;flex-wrap:wrap;gap:6px 10px}
+ .detail-disclosure-heading{font-size:14px}
+ .detail-disclosure-hint{order:3;flex-basis:100%}
+ .detail-disclosure-arrow{margin-left:auto}
+ .detail-disclosure-body{padding:0 14px 16px}
+}
+@media print{
+ .outstanding-list.is-compact>.outstanding-item:nth-child(n+4){display:flex!important}
+ .outstanding-tools #toggleOutstanding{display:none!important}
+ .detail-disclosure-body{display:block!important}
+}
+
 </style></head>
 <body>
 <header class="topbar"><div class="brand"><strong>KOBE · BOJONEGORO</strong><small>Maintenance · Shift Hand Over</small></div><div class="top-actions"><a class="btn" href="mtc-handover-form.html">+ Form MTC</a></div></header>
@@ -317,35 +363,35 @@ header.topbar{background:#fff;border-bottom:1px solid var(--mtc-border)}
 
 <section class="analytics-area" aria-labelledby="analyticsHeading">
  <div class="analytics-heading">
-  <div><span class="analytics-kicker">Maintenance Intelligence</span><h2 id="analyticsHeading">Analisis Issue</h2><p>Ringkasan berdasarkan data serah terima dan filter aktif</p></div>
+  <div><span class="analytics-kicker">PEMANTAUAN OPERASIONAL MTC</span><h2 id="analyticsHeading">Analisis Gangguan dan Penanganan</h2><p>Ringkasan berdasarkan serah terima shift dan filter yang dipilih.</p></div>
   <span class="analytics-scope" id="chartScope">Memuat periode...</span>
  </div>
  <div class="analytics-grid">
   <section class="panel analytics-main" aria-labelledby="trendTitle">
    <div class="analytics-card-head">
-    <div><h3 id="trendTitle">Tren Issue</h3><p>Issue baru, lanjutan, dan Closed pada handover</p></div>
-    <select id="trendMode" class="analytics-mode" aria-label="Kelompok periode grafik tren">
+    <div><h3 id="trendTitle">Tren Penanganan Gangguan</h3><p>Jumlah issue baru, issue lanjutan, dan status selesai per periode.</p></div>
+    <div class="chart-mode-field"><label for="trendMode">Periode</label><select id="trendMode" class="analytics-mode" aria-label="Kelompok periode grafik tren">
      <option value="shift">Per Shift</option><option value="day">Harian</option><option value="week">Mingguan</option><option value="month">Bulanan</option>
-    </select>
+    </select></div>
    </div>
    <div class="analytics-legend" aria-label="Legenda grafik">
-    <span class="legend-item"><i class="legend-swatch" style="--swatch:#2a78d4"></i>Issue baru</span>
-    <span class="legend-item"><i class="legend-swatch" style="--swatch:#9fb7d4"></i>Lanjutan</span>
-    <span class="legend-item"><i class="legend-swatch line" style="--swatch:#0ca77f"></i>Closed saat handover</span>
+    <span class="legend-item"><i class="legend-swatch" style="--swatch:#2a78d4"></i>Issue Baru</span>
+    <span class="legend-item"><i class="legend-swatch" style="--swatch:#9fb7d4"></i>Issue Lanjutan</span>
+    <span class="legend-item"><i class="legend-swatch line" style="--swatch:#0ca77f"></i>Selesai Saat Serah Terima</span>
    </div>
    <div id="trendScroll" class="trend-scroll" tabindex="0" aria-label="Grafik tren, geser ke samping jika periode panjang">
-    <div id="trendChart" class="trend-plot" role="img" aria-label="Grafik tren issue"></div>
+    <div id="trendChart" class="trend-plot" role="img" aria-label="Grafik tren penanganan gangguan"></div>
    </div>
-   <div class="analytics-foot" id="trendNote">Setiap issue dihitung sekali per periode berdasarkan ID.</div>
+   <div class="analytics-foot" id="trendNote">Satu ID issue dihitung satu kali pada masing-masing periode.</div>
   </section>
   <div class="analytics-side">
    <section class="panel" aria-labelledby="machineTitle">
-    <div class="analytics-card-head"><div><h3 id="machineTitle">Top 5 Mesin / Area</h3><p>Mesin dengan issue unik terbanyak</p></div></div>
-    <div id="machineChart" class="machine-list" role="list" aria-label="Peringkat mesin dan area"></div>
-   </section>
+   <div class="analytics-card-head"><div><h3 id="machineTitle">5 Mesin / Area dengan Issue Terbanyak</h3><p>Peringkat berdasarkan jumlah issue, tanpa penghitungan ulang antarshift.</p></div></div>
+   <div id="machineChart" class="machine-list" role="list" aria-label="Peringkat mesin dan area"></div>
+  </section>
    <section class="panel" aria-labelledby="statusTitle">
-    <div class="analytics-card-head"><div><h3 id="statusTitle">Komposisi Status Issue</h3><p>Status terbaru dari issue sesuai filter</p></div></div>
-    <div id="statusChart" class="status-body" aria-label="Distribusi status issue saat ini"></div>
+   <div class="analytics-card-head"><div><h3 id="statusTitle">Distribusi Status Penanganan</h3><p>Posisi terakhir setiap issue pada periode yang dipilih.</p></div></div>
+   <div id="statusChart" class="status-body" aria-label="Distribusi status penanganan issue"></div>
    </section>
   </div>
  </div>
@@ -356,14 +402,14 @@ header.topbar{background:#fff;border-bottom:1px solid var(--mtc-border)}
 <div class="draft-list" id="draftList"></div>
 </section><div class="overview-layout"><section class="panel"><div class="section-title"><div><h2>Riwayat Shift</h2></div><label class="wa-selectall no-print" for="waSelectAll"><input type="checkbox" id="waSelectAll" disabled> Pilih semua yang diterima</label></div>
 <div class="table-scroll"><table class="handover-table"><colgroup><col class="col-wa"><col class="col-date"><col class="col-location"><col class="col-tl"><col class="col-issues"><col class="col-status"><col class="col-actions"></colgroup><thead><tr><th class="wa-check-col no-print">WA</th><th>Tanggal / Shift</th><th>Lokasi</th><th>TL Penyerah / Penerima</th><th>Ringkasan Issue</th><th>Penerimaan</th><th>Aksi</th></tr></thead><tbody id="rows"><tr><td class="empty" colspan="7">Memuat handover...</td></tr></tbody></table></div>
-</section><section class="panel outstanding-panel"><div class="section-title"><div><h2>Outstanding <span class="pill open" id="outCount">0</span></h2></div><span class="section-subtitle">Issue yang masih Open / Progress</span></div><div class="outstanding-list" id="outstandingList"><div class="empty">Memuat outstanding...</div></div></section></div>
-<section class="panel" id="detailPanel"><div class="section-title"><div><h2>Detail &amp; Penerimaan</h2></div></div><div id="detailContent"><div class="empty">Pilih salah satu handover untuk menampilkan detail.</div></div>
+</section><section class="panel outstanding-panel"><div class="section-title outstanding-title"><div><h2>Outstanding <span class="pill open" id="outCount">0</span></h2><span class="section-subtitle">Daftar pekerjaan yang masih memerlukan tindak lanjut.</span></div><div class="outstanding-tools"><span id="outstandingShown" class="outstanding-shown" aria-live="polite"></span><button type="button" class="btn btn-outline btn-sm" id="toggleOutstanding" aria-controls="outstandingList" aria-expanded="false" hidden>Tampilkan Semua</button></div></div><div class="outstanding-list is-compact" id="outstandingList"><div class="empty">Memuat outstanding...</div></div></section></div>
+<section class="panel compact-detail-panel" id="detailPanel"><details class="detail-disclosure" id="detailDisclosure"><summary><span class="detail-disclosure-heading">Detail Serah Terima &amp; Pengesahan</span><span class="detail-disclosure-hint">Buka rincian handover, tindakan, dan dokumen pengesahan</span><span class="detail-disclosure-arrow" aria-hidden="true">⌄</span></summary><div class="detail-disclosure-body"><div id="detailContent"><div class="empty">Pilih salah satu handover untuk menampilkan detail.</div></div>
 <div class="wa-bulk no-print" id="waReportPanel" hidden aria-label="Report WhatsApp setelah serah terima dikonfirmasi">
  <div class="wa-bulk-top"><div><div class="wa-bulk-title">Report WhatsApp · Handover Diterima</div><div class="wa-bulk-desc" id="waBulkInfo">Memuat handover yang sudah diterima...</div></div>
  <div class="wa-bulk-actions"><button class="btn btn-green btn-sm" id="copyWaFiltered" type="button" disabled>Salin Hasil Filter</button><button class="btn btn-outline btn-sm" id="copyWaSelected" type="button" disabled>Salin Terpilih</button></div></div>
  <div class="wa-bulk-feedback" id="waBulkFeedback" role="status" aria-live="polite"></div>
  <details class="wa-bulk-preview" id="waBulkPreview"><summary>Lihat teks laporan sebelum disalin</summary><select id="waBulkMode" aria-label="Jenis pratinjau laporan"><option value="filtered">Semua hasil filter yang diterima</option><option value="selected">Hanya handover yang dicentang</option></select><textarea id="waBulkText" readonly spellcheck="false" aria-label="Pratinjau report WhatsApp sesuai filter"></textarea></details>
-</div></section>
+</div></div></details></section>
 </main>
 <dialog class="issue-dialog" id="issueEditor" aria-labelledby="issueEditorTitle">
  <div class="issue-dialog-inner">
@@ -684,12 +730,12 @@ function renderTrend(){
  const target=$('trendChart'),note=$('trendNote'),mode=$('trendMode').value;
  const rows=trendPeriods(visible,mode);
  if(!rows.length){
-  target.innerHTML='<div class="chart-empty"><strong>Belum ada data issue</strong>Pilih tanggal atau lokasi dengan histori handover.</div>';
+  target.innerHTML='<div class="chart-empty"><strong>Belum ada data</strong>Sesuaikan tanggal atau lokasi pada filter.</div>';
   target.setAttribute('aria-label','Tidak ada data untuk grafik tren');
-  note.textContent='Setiap issue dihitung sekali per periode berdasarkan ID.';
+  note.textContent='Setiap ID issue dihitung satu kali dalam periode yang sama.';
   return;
  }
- const width=Math.max(690,60+rows.length*(mode==='week'?90:mode==='month'?86:mode==='shift'?80:75));
+ const width=Math.max(690,Math.min(1100,target.parentElement?.clientWidth||690),60+rows.length*(mode==='week'?90:mode==='month'?86:mode==='shift'?80:75));
  const height=365,left=42,right=16,top=22,bottom=58,plotH=height-top-bottom;
  const maxVal=Math.max(1,...rows.map(r=>Math.max(r.baru+r.lanjutan+r.belum,r.closed)));
  const tickStep=Math.max(1,Math.ceil(maxVal/4)),maxY=tickStep*4;
@@ -704,7 +750,7 @@ function renderTrend(){
  for(let idx=0;idx<rows.length;idx++){
   const data=rows[idx],cx=left+slot*(idx+.5),base=top+plotH;
   let y=base;
-  const stack=[{n:data.baru,cl:'trend-bar-new',type:'Baru'},{n:data.lanjutan,cl:'trend-bar-carry',type:'Lanjutan'},{n:data.belum,cl:'trend-bar-unknown',type:'Belum diklasifikasi'}];
+  const stack=[{n:data.baru,cl:'trend-bar-new',type:'Issue Baru'},{n:data.lanjutan,cl:'trend-bar-carry',type:'Issue Lanjutan'},{n:data.belum,cl:'trend-bar-unknown',type:'Belum Terklasifikasi'}];
   for(const item of stack){
    if(item.n>0){
     const h=(item.n/maxY)*plotH;y-=h;
@@ -713,18 +759,18 @@ function renderTrend(){
   }
   const cy=base-(data.closed/maxY)*plotH;
   points.push(`${cx.toFixed(1)},${cy.toFixed(1)}`);
-  dots.push(`<circle class="trend-closed-dot" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="3.9"><title>${chartText(data.label)} ${chartText(data.sub)} · Closed saat handover: ${data.closed}</title></circle>`);
+  dots.push(`<circle class="trend-closed-dot" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="3.9"><title>${chartText(data.label)} ${chartText(data.sub)} · Selesai saat serah terima: ${data.closed}</title></circle>`);
   barRects.push(`<text class="trend-axis-text" text-anchor="middle" x="${cx.toFixed(1)}" y="${height-31}" style="font-weight:680;fill:#627e9a">${chartText(data.label)}</text>`);
   if(data.sub)barRects.push(`<text class="trend-axis-text" text-anchor="middle" x="${cx.toFixed(1)}" y="${height-17}">${chartText(data.sub)}</text>`);
  }
  const line=points.length>1?`<polyline class="trend-closed-line" points="${points.join(' ')}"/>`:'';
- const svg=`<svg class="trend-svg" style="width:${width}px" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Tren issue per ${mode==='shift'?'shift':mode==='day'?'hari':mode==='week'?'minggu':'bulan'}"><title>Issue baru, issue lanjutan, dan status Closed per periode</title>${grid.join('')}${barRects.join('')}${line}${dots.join('')}</svg>`;
+ const svg=`<svg class="trend-svg" style="width:${width}px" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Tren issue per ${mode==='shift'?'shift':mode==='day'?'hari':mode==='week'?'minggu':'bulan'}"><title>Issue baru, issue lanjutan, dan status selesai saat serah terima per periode</title>${grid.join('')}${barRects.join('')}${line}${dots.join('')}</svg>`;
  target.innerHTML=svg;
  const unknown=rows.reduce((s,r)=>s+r.belum,0);
- target.setAttribute('aria-label',`${rows.length} periode ditampilkan. Grafik batang Baru dan Lanjutan serta garis Closed.`);
+ target.setAttribute('aria-label',`${rows.length} periode ditampilkan. Grafik issue baru dan lanjutan serta status selesai.`);
  note.textContent=unknown>0
-  ?`${unknown} entri belum bisa diklasifikasi Baru/Lanjutan; periksa akses riwayat awal di Supabase. Garis Closed berasal dari snapshot handover.`
-  :'Issue baru/lanjutan dihitung sekali per periode. Garis Closed berasal dari snapshot handover.';
+  ?`${unknown} entri belum terklasifikasi sebagai issue baru atau lanjutan; periksa data riwayat. Garis selesai berdasarkan status saat serah terima.`
+  :'Setiap ID issue dihitung satu kali per periode. Garis selesai merujuk status saat serah terima.';
 }
 function uniqueChartIssues(hs){
  const map=new Map();
@@ -745,9 +791,9 @@ function renderMachines(issueList){
   const entry=machines.get(id)||{name,count:0};entry.count++;machines.set(id,entry);
  }
  const top=[...machines.values()].sort((a,b)=>b.count-a.count||a.name.localeCompare(b.name,'id')).slice(0,5);
- if(!top.length){target.innerHTML='<div class="chart-empty">Belum ada data mesin/area pada filter ini.</div>';return;}
+ if(!top.length){target.innerHTML='<div class="chart-empty">Belum ada data mesin atau area pada periode terpilih.</div>';return;}
  const max=Math.max(1,...top.map(x=>x.count));
- target.innerHTML=top.map((entry)=>`<div class="machine-row" role="listitem" title="${chartText(entry.name)}: ${entry.count} issue unik"><span class="machine-name">${chartText(entry.name)}</span><strong class="machine-count">${entry.count}</strong><div class="machine-rail"><div class="machine-fill" style="width:${(entry.count/max*100).toFixed(2)}%"></div></div></div>`).join('');
+ target.innerHTML=top.map((entry)=>`<div class="machine-row" role="listitem" title="${chartText(entry.name)}: ${entry.count} issue"><span class="machine-name">${chartText(entry.name)}</span><strong class="machine-count">${entry.count}</strong><div class="machine-rail"><div class="machine-fill" style="width:${(entry.count/max*100).toFixed(2)}%"></div></div></div>`).join('');
 }
 function renderStatuses(issueList){
  const target=$('statusChart'),counts={Open:0,Progress:0,Closed:0};
@@ -757,7 +803,7 @@ function renderStatuses(issueList){
   counts[status in counts?status:'Open']++;
  }
  const total=issueList.length;
- if(!total){target.innerHTML='<div class="chart-empty">Status issue belum tersedia untuk filter ini.</div>';return;}
+ if(!total){target.innerHTML='<div class="chart-empty">Belum ada data status pada periode terpilih.</div>';return;}
  const colors={Open:'#f09b52',Progress:'#5985dc',Closed:'#20aa82'};
  const order=['Open','Progress','Closed'];
  const c=2*Math.PI*64;
@@ -775,9 +821,9 @@ function renderStatuses(issueList){
   if(remainder<=0)break;
   pct[part.status]++;remainder--;
  }
- const labels={Open:'Open',Progress:'Progress',Closed:'Closed'};
+ const labels={Open:'Belum Selesai',Progress:'Dalam Penanganan',Closed:'Selesai'};
  const rows=order.map(status=>`<div class="status-row"><i class="dot" style="--swatch:${colors[status]}"></i><span>${labels[status]}</span><strong>${counts[status]}<em>${pct[status]}%</em></strong></div>`).join('');
- target.innerHTML=`<div class="status-donut-wrap" role="img" aria-label="${counts.Open} Open, ${counts.Progress} Progress, ${counts.Closed} Closed"><svg viewBox="0 0 176 176" xmlns="http://www.w3.org/2000/svg"><circle cx="88" cy="88" r="64" fill="none" stroke="#edf2f8" stroke-width="19"/>${rings}</svg><div class="status-donut-center"><strong>${total}</strong><small>Issue unik</small></div></div><div class="status-rows">${rows}</div>`;
+ target.innerHTML=`<div class="status-donut-wrap" role="img" aria-label="${counts.Open} Open, ${counts.Progress} Progress, ${counts.Closed} Closed"><svg viewBox="0 0 176 176" xmlns="http://www.w3.org/2000/svg"><circle cx="88" cy="88" r="64" fill="none" stroke="#edf2f8" stroke-width="19"/>${rings}</svg><div class="status-donut-center"><strong>${total}</strong><small>Total Issue</small></div></div><div class="status-rows">${rows}</div>`;
 }
 function renderCharts(){
  $('chartScope').textContent=chartScopeText();
@@ -834,7 +880,7 @@ function renderTable(){
  }));
  body.querySelectorAll('tr[data-id]').forEach(row=>row.addEventListener('click',e=>{
    if(e.target.closest('input'))return;
-   selectedId=row.dataset.id;renderDetail(handovers.find(x=>x.id===selectedId));renderTable();updateWaBulkToolbar();
+   selectedId=row.dataset.id;$('detailDisclosure').open=true;renderDetail(handovers.find(x=>x.id===selectedId));renderTable();updateWaBulkToolbar();
    $('detailPanel').scrollIntoView({behavior:'smooth',block:'start'});
  }));
 }
@@ -900,9 +946,20 @@ function renderDrafts(){
  }).join('');
 }
 
+let outstandingExpanded=false;
+function syncOutstandingDisplay(){
+ const total=outstanding.length,collapsed=total>3&&!outstandingExpanded;
+ $('outstandingList').classList.toggle('is-compact',collapsed);
+ $('outstandingShown').textContent=total>3?(collapsed?`Menampilkan 3 dari ${total}`:`Menampilkan ${total} issue`):'';
+ const toggle=$('toggleOutstanding');
+ toggle.hidden=total<=3;
+ toggle.textContent=collapsed?`Tampilkan Semua (${total})`:'Tampilkan Lebih Sedikit';
+ toggle.setAttribute('aria-expanded',String(!collapsed));
+}
+$('toggleOutstanding').addEventListener('click',()=>{outstandingExpanded=!outstandingExpanded;syncOutstandingDisplay();});
 function renderOutstanding(){
  const list=$('outstandingList');$('outCount').textContent=outstanding.length;
- if(!outstanding.length){list.innerHTML='<div class="muted">Tidak ada outstanding aktif untuk lokasi ini.</div>';return;}
+ if(!outstanding.length){list.innerHTML='<div class="muted">Tidak ada outstanding pada lokasi yang dipilih.</div>';syncOutstandingDisplay();return;}
  list.innerHTML=outstanding.map(x=>`<article class="outstanding-item">
  <div class="outstanding-item-head"><strong>${esc(x.mesin_area)}</strong><span class="pill ${esc(String(x.status||'Open').toLowerCase())}">${esc(x.status)}</span></div>
  <p class="outstanding-problem">${esc(x.issue)}</p>
@@ -910,6 +967,7 @@ function renderOutstanding(){
  <div class="outstanding-meta"><span>${esc(x.gedung)}</span><span aria-hidden="true">·</span><span>${esc(formatShortDate(x.tanggal))}, ${esc(x.shift)}</span><span aria-hidden="true">·</span><span>${esc(clockLabel(x.jam_mulai))}–${esc(clockLabel(x.jam_selesai))}</span></div>
  <div class="outstanding-actions"><button class="btn btn-outline btn-sm" type="button" data-edit-issue="${esc(x.issue_id)}">Update / Close</button><a class="btn btn-light btn-sm" href="mtc-handover-form.html?gedung=${encodeURIComponent(x.gedung)}&amp;carry=${encodeURIComponent(x.issue_id)}">Bawa ke Shift</a></div></article>`).join('');
  list.querySelectorAll('button[data-edit-issue]').forEach(btn=>btn.addEventListener('click',()=>openIssueEditor(btn.dataset.editIssue)));
+ syncOutstandingDisplay();
 }
 async function loadAll(){
  if(loading){queuedReload=true;return;}
@@ -1072,6 +1130,7 @@ $('trendMode').value=bestTrendMode();
 // Buka handover dari link form pada tanggal aslinya, bukan hari ini.
 async function initialLoad(){
   if(selectedId&&db){
+    $('detailDisclosure').open=true;
     try{
       const {data,error}=await db.from('mtc_handovers').select('tanggal').eq('id',selectedId).maybeSingle();
       if(!error&&data?.tanggal&&data.tanggal>=$('singleDate').min&&data.tanggal<=$('singleDate').max){
