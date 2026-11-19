@@ -6,16 +6,28 @@
   const state={};
   const validStatus=['done','abnormal','skipped'];
 
+  function renderMachines(){
+    const building=$('buildingSelect').value;
+    const original=$('machineSelect').value;
+    const machines=window.CIL_MACHINES_FOR_BUILDING(building);
+    $('machineSelect').innerHTML='<option value="">Pilih mesin</option>'+machines.map(x=>`<option value="${app.safeText(x.machine)}">${app.safeText(x.machine)} · ${app.safeText(x.line)}</option>`).join('');
+    if(machines.some(x=>x.machine===original))$('machineSelect').value=original;
+    $('buildingTag').textContent='Gedung '+building+' · Packing';
+    $('sopNotice').hidden=building==='6';
+  }
   function populate(){
     $('checkDate').value=app.today();
-    const defaultMachines=["CF 01","CF 02","CF 04","CF 05","CF 06","CF 08","CF 12","CF 13","CF 14","CF 15","CF 16","CF 17","CF 19","CF 20"];
-    const machines=Array.isArray(app.cfg.MACHINES)&&app.cfg.MACHINES.length?app.cfg.MACHINES:defaultMachines;
-    $('machineSelect').innerHTML='<option value="">Pilih mesin</option>'+machines.map(x=>`<option value="${app.safeText(x)}">${app.safeText(x)}</option>`).join('');
+    renderMachines();
     $('hourSelect').innerHTML=Array.from({length:24},(_,i)=>`<option value="${i}">${app.hourLabel(i)} - ${app.hourLabel((i+1)%24)}</option>`).join('');
     $('hourSelect').value=String(app.currentHour());
     const q=new URLSearchParams(location.search);
     const machine=q.get('machine');const day=q.get('date');const hour=q.get('hour');
-    if(machine && machines.includes(machine))$('machineSelect').value=machine;
+    const building=q.get('building');
+    const known=window.CIL_MACHINE_INFO(machine);
+    if(known && (!building || building===known.building))$('buildingSelect').value=known.building;
+    else if(['4','6','7'].includes(building))$('buildingSelect').value=building;
+    renderMachines();
+    if(known && known.building===$('buildingSelect').value)$('machineSelect').value=machine;
     if(day && /^\d{4}-\d{2}-\d{2}$/.test(day))$('checkDate').value=day;
     if(hour!==null && Number.isInteger(Number(hour)) && Number(hour)>=0 && Number(hour)<24)$('hourSelect').value=String(Number(hour));
     $('taskGrid').innerHTML=tasks.map(task=>{
@@ -86,52 +98,8 @@
       updateProgress();
     }catch(e){if(stamp!==loadVersion)return;app.toast(e.message,'bad');$('recordNotice').textContent='Tidak berhasil memuat pengecekan sebelumnya.';}
   }
-  // In-page confirmation modal: no browser-native confirm/alert screens.
-  let confirmPending=null;
-  function askConfirmation(kind,details={}){
-    const dialog=$('cilActionDialog');
-    if(!dialog || confirmPending) return Promise.resolve(false);
-    const isReset=kind==='reset';
-    dialog.dataset.kind=isReset?'reset':'save';
-    $('cilActionEyebrow').textContent=isReset?'KONFIRMASI RESET':'KONFIRMASI PENGECEKAN';
-    $('cilActionTitle').textContent=isReset?'Reset isian checklist?':(currentRecord?'Perbarui hasil pengecekan?':'Simpan hasil pengecekan?');
-    $('cilActionDescription').textContent=isReset
-      ?'Seluruh pilihan dan catatan pada layar akan dikosongkan.'
-      :'Pastikan data mesin, jam, dan operator sudah sesuai sebelum menyimpan.';
-    $('cilActionSummary').hidden=isReset;
-    $('cilActionHint').textContent=isReset
-      ?'Data yang sudah tersimpan di Supabase tidak akan terhapus.'
-      :'Empat item pengecekan sudah diisi. Hasil akan tersimpan ke penyimpanan aktif.';
-    $('cilActionApprove').innerHTML=isReset?'<span aria-hidden="true">↺</span> Ya, Reset':'<span aria-hidden="true">✓</span> '+(currentRecord?'Ya, Perbarui':'Ya, Simpan');
-    if(!isReset){
-      $('cilSummaryMachine').textContent=details.machine||'—';
-      $('cilSummaryHour').textContent=app.hourLabel(details.hour);
-      $('cilSummaryDate').textContent=app.niceDate(details.date);
-      $('cilSummaryShift').textContent=$('shiftSelect').selectedOptions[0]?.textContent||'—';
-      $('cilSummaryOperator').textContent=$('operatorName').value.trim()||'—';
-    }
-    dialog.returnValue='cancel';
-    return new Promise(resolve=>{
-      confirmPending=resolve;
-      dialog.showModal();
-      $('cilActionTitle').focus({preventScroll:true});
-    });
-  }
-  function setupConfirmation(){
-    const dialog=$('cilActionDialog');
-    $('cilActionCancel').addEventListener('click',()=>dialog.close('cancel'));
-    $('cilActionApprove').addEventListener('click',()=>dialog.close('confirm'));
-    dialog.addEventListener('close',()=>{
-      const done=confirmPending;confirmPending=null;
-      if(done)done(dialog.returnValue==='confirm');
-    });
-    dialog.addEventListener('click',e=>{
-      if(e.target===dialog)dialog.close('cancel');
-    });
-  }
-
   function validate(){
-    const fields=[['checkDate','Tanggal'],['machineSelect','Mesin'],['hourSelect','Jam'],['shiftSelect','Shift'],['operatorName','Nama Operator']];
+    const fields=[['checkDate','Tanggal'],['buildingSelect','Gedung'],['machineSelect','Mesin'],['hourSelect','Jam'],['shiftSelect','Shift'],['operatorName','Nama Operator']];
     for(const [id,label] of fields){if(!$(id).value.trim()){app.toast(label+' wajib diisi.','bad');$(id).focus();return false;}}
     const day=$('checkDate').value,slot=Number($('hourSelect').value);
     if(day>app.today() || (day===app.today() && slot>app.currentHour())){app.toast('Jam pengecekan belum terjadi. Pilih jam saat ini atau sebelumnya.','bad');$('hourSelect').focus();return false;}
@@ -145,17 +113,17 @@
     return true;
   }
   async function save(){
-    if(busy||confirmPending||currentRecord?.locked||!validate())return;
+    if(busy||currentRecord?.locked||!validate())return;
     const date=$('checkDate').value,machine=$('machineSelect').value,hour=Number($('hourSelect').value);
-    if(!await askConfirmation('save',{date,machine,hour}))return;
-    const record={check_date:date,hour_slot:hour,building:app.cfg.BUILDING,machine,shift:Number($('shiftSelect').value),operator_name:$('operatorName').value.trim(),checks:tasks.map(t=>({task_id:t.id,status:state[t.id].status,note:(state[t.id].status==='done'?'':state[t.id].note||'').trim()})),general_note:$('generalNote').value.trim()};
+    if(!window.confirm(`${currentRecord?'Perbarui':'Simpan'} hasil CIL untuk Gedung ${$('buildingSelect').value}, ${machine}, ${app.niceDate(date)}, jam ${app.hourLabel(hour)}?`))return;
+    const record={check_date:date,hour_slot:hour,building:$('buildingSelect').value,machine,shift:Number($('shiftSelect').value),operator_name:$('operatorName').value.trim(),checks:tasks.map(t=>({task_id:t.id,status:state[t.id].status,note:(state[t.id].status==='done'?'':state[t.id].note||'').trim()})),general_note:$('generalNote').value.trim()};
     busy=true;const btn=$('saveBtn');btn.disabled=true;btn.textContent='Menyimpan...';
     try{currentRecord=await app.upsert(record);app.toast('Pengecekan CIL berhasil disimpan.');$('recordNotice').innerHTML='<strong>Data tersimpan.</strong> Bisa diperbarui dari perangkat yang sama.';btn.textContent='Perbarui Pengecekan';}
     catch(e){app.toast('Gagal menyimpan: '+e.message,'bad');btn.textContent=currentRecord?'Perbarui Pengecekan':'Simpan Pengecekan';}
     finally{busy=false;btn.disabled=false;}
   }
   async function main(){
-    populate();clearResults();setupConfirmation();
+    populate();clearResults();
     $('taskGrid').addEventListener('click',event=>{
       const btn=event.target.closest('button[data-task][data-status]');if(!btn)return;
       const id=Number(btn.dataset.task),status=btn.dataset.status;
@@ -166,9 +134,10 @@
       const id=Number(el.id.replace('taskNote',''));if(state[id])state[id].note=el.value;
       if(el.value.trim())$('taskError'+id).classList.remove('is-visible');
     });
+    $('buildingSelect').addEventListener('change',()=>{renderMachines();loadExisting();});
     for(const id of ['checkDate','machineSelect','hourSelect'])$(id).addEventListener('change',loadExisting);
     $('saveBtn').addEventListener('click',save);
-    $('resetBtn').addEventListener('click',async ()=>{if(busy||confirmPending)return;if(await askConfirmation('reset')){clearResults();$('recordNotice').textContent='Isian di layar dikosongkan, data tersimpan tidak dihapus.';}});
+    $('resetBtn').addEventListener('click',()=>{if(window.confirm('Kosongkan isian checklist pada layar ini? Data yang sudah tersimpan tidak akan terhapus.')){clearResults();$('recordNotice').textContent='Isian di layar dikosongkan, data tersimpan tidak dihapus.';}});
     await app.withAuth(loadExisting);
   }
   document.addEventListener('DOMContentLoaded',main);

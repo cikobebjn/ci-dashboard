@@ -1,16 +1,6 @@
 (function () {
   'use strict';
-  const cfg = window.CILT_CONFIG || {};
-  // Daftar mesin fallback untuk Packaging Chingfong / Gedung 6.
-  // Tetap gunakan MACHINES dari konfigurasi jika berupa array yang valid.
-  const DEFAULT_MACHINES = ["CF 01","CF 02","CF 04","CF 05","CF 06","CF 08","CF 12","CF 13","CF 14","CF 15","CF 16","CF 17","CF 19","CF 20"];
-  const configuredMachines = Array.isArray(cfg.MACHINES)
-    ? [...new Set(cfg.MACHINES.map(v => String(v || '').trim()).filter(Boolean))] : [];
-  cfg.MACHINES = configuredMachines.length ? configuredMachines : DEFAULT_MACHINES.slice();
-  cfg.SUPABASE_URL = String(cfg.SUPABASE_URL || '').trim();
-  cfg.SUPABASE_ANON_KEY = String(cfg.SUPABASE_ANON_KEY || '').trim();
-  cfg.TIMEZONE = cfg.TIMEZONE || 'Asia/Jakarta';
-  cfg.BUILDING = String(cfg.BUILDING || '6');
+  const cfg = window.CILT_CONFIG;
   const STORE_KEY = 'kobe-cilt-chingfong-hourly-v1';
   const OWNER_KEY = 'kobe-cilt-slot-tokens-v1';
   const isCloud = Boolean(cfg.SUPABASE_URL.trim() && cfg.SUPABASE_ANON_KEY.trim());
@@ -56,42 +46,12 @@
     const random=new Uint8Array(24);crypto.getRandomValues(random);
     return Array.from(random,x=>x.toString(16).padStart(2,'0')).join('');
   }
-  // Normalisasi URL memastikan prefix '/rest/v1' hanya ada satu kali.
-  // Format konfigurasi yang diterima: https://PROJECT_REF.supabase.co
-  // Jika pengguna menyalin URL lengkap /rest/v1, bagian path akan dibuang.
-  function projectBaseUrl(){
-    let url;
-    try { url = new URL(String(cfg.SUPABASE_URL || '').trim()); }
-    catch (_) { throw new Error('SUPABASE_URL tidak valid. Gunakan https://PROJECT_REF.supabase.co'); }
-    if (url.protocol !== 'https:' || !/^[a-z0-9-]+\.supabase\.co$/i.test(url.hostname)) {
-      throw new Error('SUPABASE_URL bukan Project URL Supabase. Gunakan https://PROJECT_REF.supabase.co');
-    }
-    return url.origin;
-  }
-  function setConnectionStatus(label){
-    document.querySelectorAll('[data-storage-label]').forEach(el=>el.textContent=label);
-  }
   async function request(resource,method='GET',body=null,extra={}){
-    const cleanResource=String(resource).replace(/^\/+/, '');
-    const endpoint='/rest/v1/'+cleanResource;
-    const url=projectBaseUrl()+endpoint;
-    const headers={'apikey':cfg.SUPABASE_ANON_KEY.trim(),'Content-Type':'application/json',...extra};
-    let resp;
-    try { resp=await fetch(url,{method,headers,body:body===null?undefined:JSON.stringify(body)}); }
-    catch (e) {
-      setConnectionStatus('Supabase • Koneksi gagal');
-      throw new Error('Tidak dapat menghubungi Supabase: '+(e?.message||'koneksi gagal'));
-    }
+    const headers={'apikey':cfg.SUPABASE_ANON_KEY,'Content-Type':'application/json',...extra};
+    const resp=await fetch(cfg.SUPABASE_URL.replace(/\/$/,'')+'/rest/v1/'+resource,{method,headers,body:body===null?undefined:JSON.stringify(body)});
     const raw=await resp.text();let data;
-    try { data=raw?JSON.parse(raw):null; }catch(_){ data=null; }
-    if (!resp.ok){
-      setConnectionStatus('Supabase • Gagal memuat');
-      const code=data?.code?' / '+data.code:'';
-      const message=data?.message||data?.hint||'Permintaan ditolak oleh API Supabase.';
-      // Jangan pernah mencantumkan apikey / token dalam pesan error.
-      throw new Error('HTTP '+resp.status+code+' ('+method+' '+endpoint.split('?')[0]+'): '+message);
-    }
-    setConnectionStatus('Online • Supabase');
+    try{data=raw?JSON.parse(raw):null;}catch(_){data=null;}
+    if(!resp.ok)throw new Error(data?.message||data?.hint||'Koneksi Supabase gagal ('+resp.status+').');
     return data;
   }
   function allLocal() {
@@ -137,8 +97,8 @@
       writeLocal(all);return saved;
     }
     const token=tokenFor(record.check_date,record.machine,record.hour_slot)||generateToken();
-    const saved=await request('rpc/cilt_public_save','POST',{
-      p_date:record.check_date,p_machine:record.machine,p_hour:Number(record.hour_slot),
+    const saved=await request('rpc/cilt_public_save_multi','POST',{
+      p_building:String(record.building || '6'),p_date:record.check_date,p_machine:record.machine,p_hour:Number(record.hour_slot),
       p_shift:Number(record.shift),p_operator_name:record.operator_name,
       p_checks:record.checks,p_general_note:record.general_note||'',p_token:token
     });
@@ -165,7 +125,7 @@
     const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),500);
   }
   async function withAuth(onReady){
-    setConnectionStatus(isCloud?'Supabase • Menghubungkan...':'Lokal • Perangkat ini');
+    document.querySelectorAll('[data-storage-label]').forEach(el=>{el.textContent=isCloud?'Online • Supabase':'Lokal • Perangkat ini';});
     document.querySelectorAll('[data-local-note]').forEach(el=>{el.hidden=isCloud;});
     document.querySelectorAll('[data-logout]').forEach(el=>el.remove());
     await onReady();
