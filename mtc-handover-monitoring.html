@@ -96,6 +96,112 @@ td{padding:10px 11px;font-size:12px}
 @media(max-width:1000px){.filter.is-range{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:700px){.wa-bulk-top{align-items:stretch}.wa-bulk-actions{width:100%}.wa-bulk-actions .btn{flex:1}.wa-selectall{white-space:normal}}
 @media(max-width:450px){.wa-bulk-actions{flex-direction:column}.wa-bulk-actions .btn{width:100%}}
+
+/* DESKTOP REFINEMENT — visual-only. Preserves Supabase, filtering, issue_id, WA and actions. */
+:root{--mtc-ink:#19334f;--mtc-muted:#697f99;--mtc-border:#e1e8f1;--mtc-blue:#1769c4}
+body{background:#f4f7fb;color:var(--mtc-ink)}
+header.topbar{background:#fff;border-bottom:1px solid var(--mtc-border)}
+.wrap{max-width:1550px;margin:20px auto 50px;padding:0 27px}
+.hero{border-radius:14px;padding:18px 23px;margin-bottom:16px;background:linear-gradient(110deg,#124989,#1c65bc)}
+.hero h1{font-size:23px;font-weight:760;letter-spacing:-.025em}
+.panel{border:1px solid var(--mtc-border);border-radius:14px;background:#fff;box-shadow:0 2px 12px rgba(31,57,86,.025);padding:20px 22px;margin-bottom:0}
+.section-title{margin-bottom:15px;gap:12px}
+.section-title h2{font-size:16px;font-weight:780;letter-spacing:-.015em;color:#1d3753}
+.section-subtitle{color:var(--mtc-muted);font-size:11px;font-weight:560}
+.filter-panel{margin-bottom:14px}
+.filter-panel .actions{margin-top:12px}
+.filter-panel .field label{font-size:11px;color:#536b86}
+.filter .field input,.filter .field select{border-radius:9px;min-height:40px}
+.summary-kpis{gap:13px;margin:0 0 14px}
+.kpi{border:1px solid var(--mtc-border);border-radius:14px;padding:17px 19px;min-height:103px;background:#fff;box-shadow:0 2px 10px rgba(31,57,86,.025)}
+.kpi small{font-size:11px;letter-spacing:.012em;color:#6e82a0;font-weight:700}
+.kpi strong{font-size:31px;line-height:1.18;letter-spacing:-.035em;margin-top:7px;color:#173c67}
+.draft-panel{margin-bottom:14px}
+/* Full-width history followed by a multi-column grid of active issues. */
+.overview-layout{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;align-items:start;margin-bottom:14px}
+.overview-layout>.panel{margin:0;min-width:0}
+.overview-layout .section-title{margin-bottom:14px}
+.table-scroll{border:1px solid #e5ebf3;border-radius:11px;overflow:auto;max-height:510px;scrollbar-color:#d0dae8 transparent}
+.handover-table{width:100%;min-width:1080px;table-layout:fixed;border-collapse:separate;border-spacing:0}
+.handover-table .col-wa{width:5%}
+.handover-table .col-date{width:14%}
+.handover-table .col-location{width:12%}
+.handover-table .col-tl{width:28%}
+.handover-table .col-issues{width:19%}
+.handover-table .col-status{width:13%}
+.handover-table .col-actions{width:9%}
+.handover-table thead th{position:sticky;top:0;z-index:2;background:#f6f8fc;border:0;border-bottom:1px solid #e4eaf3;color:#667e98;font-size:10px;font-weight:780;letter-spacing:.052em;padding:13px 15px;white-space:nowrap}
+.handover-table tbody td{padding:17px 15px;line-height:1.48;font-size:12px;border-top:0;border-bottom:1px solid #edf1f6;color:#2b4865;vertical-align:middle;overflow-wrap:anywhere}
+.handover-table tbody tr:last-child td{border-bottom:0}
+.handover-table tbody tr:hover{background:#f7faff}
+.handover-table tbody tr.clickable-row.selected{background:#eef5ff!important;box-shadow:inset 3px 0 0 #2878d5}
+.handover-table .wa-check-col{width:auto;text-align:center!important;padding-left:9px;padding-right:9px}
+.wa-selectall{font-size:11px;color:#617a95;gap:9px}
+.date-cell strong{display:block;color:#1c395a;font-size:12px;font-weight:760;white-space:nowrap}
+.shift-cell{display:block;margin-top:4px;color:#7a8da4;font-size:11px}
+.location-cell{font-weight:680}
+.tl-sender{display:block;font-weight:750;font-size:12px;color:#294c72}
+.tl-receiver{display:block;font-size:11px;color:#7a8da4;margin-top:4px}
+.tl-receiver span{color:#5e8eba;font-weight:850}
+.issue-summary-primary{display:flex;align-items:baseline;gap:6px;line-height:1.2}
+.issue-summary-primary strong{font-size:20px;font-weight:800;color:#1d4d83}
+.issue-summary-primary span{font-size:11px;font-weight:750;color:#385d81}
+.issue-summary-meta{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:7px;color:#778ba5;font-size:10px}
+.issue-summary-meta .pill{font-size:10px;padding:3px 8px}
+.action-cell .btn{white-space:nowrap}
+.handover-table .pill{font-weight:760;padding:5px 10px}
+/* Outstanding cards: three columns on desktop, actions aligned at bottom. */
+.outstanding-panel{padding-bottom:22px}
+.outstanding-panel .section-title .pill{vertical-align:middle;margin-left:5px}
+.outstanding-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:stretch}
+.outstanding-list>.empty,.outstanding-list>.muted{grid-column:1/-1}
+.outstanding-item{display:flex;flex-direction:column;gap:0;min-width:0;min-height:222px;border:1px solid #e0e8f2;border-radius:12px;background:#fff;padding:16px 17px;box-shadow:0 1px 4px rgba(30,62,91,.025)}
+.outstanding-item-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}
+.outstanding-item-head strong{font-size:13px;line-height:1.4;font-weight:800;color:#193b5b;overflow-wrap:anywhere}
+.outstanding-item-head .pill{flex-shrink:0}
+.outstanding-item p{margin:0}
+.outstanding-problem{font-size:12px!important;font-weight:670;color:#3b5674!important;line-height:1.5;overflow-wrap:anywhere}
+.outstanding-next{margin-top:11px;padding:10px 12px;background:#f7f9fd;border:1px solid #edf1f6;border-radius:9px}
+.outstanding-label{display:block;font-size:10px;font-weight:800;color:#6a8099;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+.outstanding-next p{font-size:11px!important;color:#425a77!important;line-height:1.55;overflow-wrap:anywhere}
+.outstanding-meta{display:flex;align-items:center;flex-wrap:wrap;gap:5px;margin-top:13px;margin-bottom:13px;color:#8595aa;font-size:10px;line-height:1.55;overflow-wrap:anywhere}
+.outstanding-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px;border-top:1px solid #edf1f6;padding-top:12px;margin-top:auto;margin-bottom:0}
+.outstanding-actions .btn{margin:0;min-height:33px;padding:7px 11px;font-size:11px;border-radius:8px;font-weight:740;white-space:nowrap}
+.outstanding-actions .btn-light{background:#eff5fd;color:#1d5f9d;border-color:#deebfa}
+.outstanding-actions .btn-outline{background:#fff;color:#335c81}
+#detailPanel{scroll-margin-top:80px}
+@media(max-width:1200px){
+ .wrap{padding:0 20px}
+ .outstanding-list{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .section-subtitle{display:none}
+}
+@media(max-width:760px){
+ .wrap{padding:0 12px;margin-top:12px}
+ .panel{padding:15px 14px;border-radius:12px}
+ .hero{padding:18px 17px;margin-bottom:12px}
+ .hero h1{font-size:20px}
+ .kpi{min-height:90px;padding:12px 14px}
+ .kpi strong{font-size:27px}
+ .overview-layout{gap:11px}
+ .outstanding-list{grid-template-columns:1fr;gap:10px}
+ .outstanding-item{min-height:0;padding:14px}
+ .table-scroll{max-height:440px}
+ .handover-table{min-width:1000px}
+ .overview-layout .section-title{align-items:start}
+ .wa-selectall{white-space:normal;max-width:145px}
+}
+@media(max-width:440px){
+ .summary-kpis{gap:8px}
+ .kpi small{font-size:10px}
+ .kpi strong{font-size:25px}
+ .outstanding-actions .btn{flex:1;text-align:center}
+}
+@media print{
+ .table-scroll{max-height:none;overflow:visible}
+ .handover-table{min-width:0}
+ .outstanding-list{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .outstanding-item{break-inside:avoid}
+}
 </style></head>
 <body>
 <header class="topbar"><div class="brand"><strong>KOBE · BOJONEGORO</strong><small>Maintenance · Shift Hand Over</small></div><div class="top-actions"><a class="btn" href="mtc-handover-form.html">+ Form MTC</a></div></header>
@@ -116,8 +222,8 @@ td{padding:10px 11px;font-size:12px}
 <div class="section-title"><h2>Draft Aktif <span class="pill" id="draftCount">0</span></h2></div>
 <div class="draft-list" id="draftList"></div>
 </section><div class="overview-layout"><section class="panel"><div class="section-title"><div><h2>Riwayat Shift</h2></div><label class="wa-selectall no-print" for="waSelectAll"><input type="checkbox" id="waSelectAll" disabled> Pilih semua yang diterima</label></div>
-<div class="table-scroll"><table><thead><tr><th class="wa-check-col no-print">Pilih WA</th><th>Tanggal / Shift</th><th>Lokasi</th><th>Team Lead</th><th>Issue</th><th>Penerimaan</th><th>Aksi</th></tr></thead><tbody id="rows"><tr><td class="empty" colspan="7">Memuat handover...</td></tr></tbody></table></div>
-</section><section class="panel"><div class="section-title"><div><h2>Outstanding <span class="pill open" id="outCount">0</span></h2></div></div><div class="outstanding-list" id="outstandingList"><div class="empty">Memuat outstanding...</div></div></section></div>
+<div class="table-scroll"><table class="handover-table"><colgroup><col class="col-wa"><col class="col-date"><col class="col-location"><col class="col-tl"><col class="col-issues"><col class="col-status"><col class="col-actions"></colgroup><thead><tr><th class="wa-check-col no-print">WA</th><th>Tanggal / Shift</th><th>Lokasi</th><th>TL Penyerah / Penerima</th><th>Ringkasan Issue</th><th>Penerimaan</th><th>Aksi</th></tr></thead><tbody id="rows"><tr><td class="empty" colspan="7">Memuat handover...</td></tr></tbody></table></div>
+</section><section class="panel outstanding-panel"><div class="section-title"><div><h2>Outstanding <span class="pill open" id="outCount">0</span></h2></div><span class="section-subtitle">Issue yang masih Open / Progress</span></div><div class="outstanding-list" id="outstandingList"><div class="empty">Memuat outstanding...</div></div></section></div>
 <section class="panel" id="detailPanel"><div class="section-title"><div><h2>Detail &amp; Penerimaan</h2></div></div><div id="detailContent"><div class="empty">Pilih salah satu handover untuk menampilkan detail.</div></div>
 <div class="wa-bulk no-print" id="waReportPanel" hidden aria-label="Report WhatsApp setelah serah terima dikonfirmasi">
  <div class="wa-bulk-top"><div><div class="wa-bulk-title">Report WhatsApp · Handover Diterima</div><div class="wa-bulk-desc" id="waBulkInfo">Memuat handover yang sudah diterima...</div></div>
@@ -156,6 +262,9 @@ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const safeSignature=v=>typeof v==='string'&&/^data:image\/png;base64,[A-Za-z0-9+/=]+$/.test(v)&&v.length<=160000?v:null;
 const dateLabel=v=>v?new Date(v).toLocaleString('id-ID',{dateStyle:'medium',timeStyle:'short'}):'—';
 const clockLabel=v=>v?String(v).slice(0,5):'-';
+const formatShortDate=v=>/^\d{4}-\d{2}-\d{2}$/.test(String(v||''))
+ ?new Date(v+'T12:00:00').toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'})
+ :String(v||'-');
 function normalizeClock(raw){
  let v=String(raw||'').trim().replace('.',':');
  if(/^\d{3,4}$/.test(v)){v=v.padStart(4,'0');v=v.slice(0,2)+':'+v.slice(2);}
@@ -406,11 +515,12 @@ function renderTable(){
    const carryCount=issues.filter(i=>snapshotType(i)==='Lanjutan').length;
    return `<tr class="clickable-row ${selectedId===x.id?'selected':''}" data-id="${esc(x.id)}">
    <td class="wa-check-col no-print"><input class="wa-row-check" type="checkbox" data-wa-id="${esc(x.id)}" aria-label="Pilih laporan ${esc(x.tanggal)} ${esc(x.shift)} ${esc(x.gedung)}" ${receipt?'':'disabled title="Belum diterima TL penerima"'} ${waSelectedIds.has(x.id)?'checked':''}></td>
-   <td>${esc(x.tanggal)}<div class="tiny">${esc(x.shift)}</div></td><td>${esc(x.gedung)}</td>
-   <td>${esc(x.tl_penyerah)}<div class="tiny">→ ${esc(x.tl_penerima)}</div></td>
-   <td><b>${newCount} issue baru</b><div class="tiny">${carryCount} lanjutan${issues.length>newCount+carryCount?` · ${issues.length-newCount-carryCount} belum terklasifikasi`:''}</div>${pending?` <span class="pill open">${pending} aktif</span>`:''}</td>
+   <td class="date-cell"><strong>${esc(formatShortDate(x.tanggal))}</strong><span class="shift-cell">Shift ${esc(x.shift)}</span></td>
+   <td class="location-cell">${esc(x.gedung)}</td>
+   <td class="tl-cell"><span class="tl-sender">${esc(x.tl_penyerah)}</span><span class="tl-receiver"><span aria-hidden="true">↳</span> ${esc(x.tl_penerima)}</span></td>
+   <td class="issue-summary-cell"><div class="issue-summary-primary"><strong>${newCount}</strong><span>issue baru</span></div><div class="issue-summary-meta"><span>${carryCount} lanjutan</span>${issues.length>newCount+carryCount?`<span>${issues.length-newCount-carryCount} belum diklasifikasi</span>`:''}${pending?`<span class="pill open">${pending} aktif</span>`:''}</div></td>
    <td><span class="pill ${receipt?'received':'pending'}">${receipt?'Diterima':'Menunggu'}</span></td>
-   <td><button type="button" class="btn btn-outline btn-sm" aria-label="Lihat detail serah terima">Detail</button></td></tr>`;
+   <td class="action-cell"><button type="button" class="btn btn-outline btn-sm" aria-label="Lihat detail serah terima">Detail</button></td></tr>`;
  }).join('');
  body.querySelectorAll('input.wa-row-check').forEach(input=>input.addEventListener('click',e=>e.stopPropagation()));
  body.querySelectorAll('input.wa-row-check').forEach(input=>input.addEventListener('change',e=>{
@@ -489,8 +599,12 @@ function renderDrafts(){
 function renderOutstanding(){
  const list=$('outstandingList');$('outCount').textContent=outstanding.length;
  if(!outstanding.length){list.innerHTML='<div class="muted">Tidak ada outstanding aktif untuk lokasi ini.</div>';return;}
- list.innerHTML=outstanding.map(x=>`<div class="outstanding-item"><div><b>${esc(x.mesin_area)}</b> <span class="pill ${esc(x.status.toLowerCase())}">${esc(x.status)}</span><p>${esc(x.issue)}</p><p><b>Next action:</b> ${esc(x.action_lanjutan||'Belum ditentukan')}</p><small>${esc(clockLabel(x.jam_mulai))} - ${esc(clockLabel(x.jam_selesai))} | ${esc(x.gedung)} | ${esc(x.tanggal)} (${esc(x.shift)})</small></div>
- <div class="outstanding-actions"><button class="btn btn-outline btn-sm" type="button" data-edit-issue="${esc(x.issue_id)}">Update / Close</button><a class="btn btn-light btn-sm" href="mtc-handover-form.html?gedung=${encodeURIComponent(x.gedung)}&amp;carry=${encodeURIComponent(x.issue_id)}">Bawa ke Shift</a></div></div>`).join('');
+ list.innerHTML=outstanding.map(x=>`<article class="outstanding-item">
+ <div class="outstanding-item-head"><strong>${esc(x.mesin_area)}</strong><span class="pill ${esc(String(x.status||'Open').toLowerCase())}">${esc(x.status)}</span></div>
+ <p class="outstanding-problem">${esc(x.issue)}</p>
+ <div class="outstanding-next"><span class="outstanding-label">Tindak lanjut</span><p>${esc(x.action_lanjutan||'Belum ditentukan')}</p></div>
+ <div class="outstanding-meta"><span>${esc(x.gedung)}</span><span aria-hidden="true">·</span><span>${esc(formatShortDate(x.tanggal))}, ${esc(x.shift)}</span><span aria-hidden="true">·</span><span>${esc(clockLabel(x.jam_mulai))}–${esc(clockLabel(x.jam_selesai))}</span></div>
+ <div class="outstanding-actions"><button class="btn btn-outline btn-sm" type="button" data-edit-issue="${esc(x.issue_id)}">Update / Close</button><a class="btn btn-light btn-sm" href="mtc-handover-form.html?gedung=${encodeURIComponent(x.gedung)}&amp;carry=${encodeURIComponent(x.issue_id)}">Bawa ke Shift</a></div></article>`).join('');
  list.querySelectorAll('button[data-edit-issue]').forEach(btn=>btn.addEventListener('click',()=>openIssueEditor(btn.dataset.editIssue)));
 }
 async function loadAll(){
