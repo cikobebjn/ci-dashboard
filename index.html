@@ -1759,7 +1759,7 @@ body::after {
     .dor-core-name{font-size:13px;}
     .dor-core-id{font-size:10px;}
 }
-.dor-policy-stack{display:grid;grid-template-rows:minmax(0,1.6fr) minmax(0,1fr);gap:14px;min-width:0;}
+.dor-policy-stack{display:grid;grid-template-rows:repeat(3,auto);align-content:start;gap:14px;min-width:0;}
 .dor-policy-card{
     min-width:0;position:relative;overflow:hidden;
     border:1px solid #e4eaf3;border-radius:20px;
@@ -1772,7 +1772,10 @@ body::after {
 .dor-policy-body p + p{margin-top:11px;}
 @media(min-width:901px) and (max-width:1250px) {
     .dor-values-grid{grid-template-columns:minmax(0,.95fr) minmax(0,1.25fr);}
-    .dor-policy-stack{grid-column:1 / -1;grid-template-columns:1.4fr 1fr;grid-template-rows:auto;}
+    .dor-policy-stack{grid-column:1 / -1;grid-template-columns:1.4fr 1fr;grid-template-rows:repeat(2,auto);}
+    .dor-policy-stack .quality{grid-column:1;grid-row:1 / span 2;}
+    .dor-policy-stack .halal{grid-column:2;grid-row:1;}
+    .dor-policy-stack .purpose{grid-column:2;grid-row:2;}
 }
 @media(max-width:900px) {
     .dor-policy-stack{grid-template-columns:1fr;grid-template-rows:auto;}
@@ -1967,6 +1970,9 @@ body::after {
 </style>
 <meta name="energy-target-revision" content="wtd-mtd-ratio-color-fix-v2">
 
+
+
+
 <style id="dor-collapse-style">
 /* DOR panel toggle: native details/summary, compact when collapsed. */
 .dor-collapsible { scroll-margin-top:90px; }
@@ -2079,14 +2085,14 @@ body::after {
         </div>
     </details>
 
-    <details class="dor-opening dor-collapsible" id="dor-opening" aria-label="Pembukaan DOR: visi, misi, core values, kebijakan mutu dan kebijakan halal">
+    <details class="dor-opening dor-collapsible" id="dor-opening" aria-label="Pembukaan DOR: visi, misi, core values, kebijakan mutu, kebijakan halal dan KOBE Purpose">
         <summary class="dor-opening-head dor-toggle-summary">
             <div>
                 <div class="dor-opening-kicker">Daily Operational Review Opening</div>
                 <h2>Visi, Misi, Core Values &amp; Kebijakan</h2>
             </div>
             <div class="dor-toggle-trailing">
-                <p class="dor-opening-sub">Visi, misi, nilai inti, serta komitmen mutu dan halal.</p>
+                <p class="dor-opening-sub">Visi, misi, nilai inti, kebijakan perusahaan, dan KOBE Purpose.</p>
                 <span class="dor-toggle-pill"><span class="dor-toggle-closed">Buka</span><span class="dor-toggle-open">Tutup</span><span class="dor-toggle-chevron" aria-hidden="true"></span></span>
             </div>
         </summary>
@@ -2127,6 +2133,12 @@ body::after {
                     <div class="dor-card-band red"><span class="dor-band-icon">◎</span><span>Kebijakan Halal</span></div>
                     <div class="dor-policy-body">
                         <p>Kami bertekad untuk menghasilkan produk yang aman, baik dan halal sesuai dengan Syariat Islam dengan menjalankan Sistem Jaminan Halal.</p>
+                    </div>
+                </article>
+                <article class="dor-policy-card purpose" aria-label="KOBE Purpose">
+                    <div class="dor-card-band blue"><span class="dor-band-icon">◎</span><span>KOBE Purpose</span></div>
+                    <div class="dor-policy-body">
+                        <p>Berkembang dengan berkesinambungan agar menjadi tempat yang nyaman untuk karyawan, keluarga karyawan, lingkungan sekitar dan memberikan dampak besar yang positif kepada kemanusiaan.</p>
                     </div>
                 </article>
             </div>
@@ -6062,3 +6074,4 @@ init();
 
 </body>
 </html>
+                                                                                                                                      
