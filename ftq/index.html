@@ -336,6 +336,38 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
 .ncf-status-badge.open{background:#fff0f2;color:#c52e49;border-color:#ffdce3}
 .ncf-status-badge.close{background:#e8f7f0;color:#0c876a;border-color:#ccecdf}
 .ncf-status-badge.none{background:transparent;color:#a5b2c5}
+
+/* One SKU/Shift may have multiple independent NCF reports. */
+.sku-table{min-width:2585px!important}
+.sku-table .sku-ncf-col,
+.sku-table thead th.sku-ncf-col,
+.sku-table tbody td.sku-ncf-col{
+  width:214px!important;min-width:214px!important;max-width:214px!important
+}
+.sku-table .ncf-sku-actions{gap:6px!important;padding:0 5px}
+.sku-table .sku-ncf{padding:7px 9px!important;font-size:10.5px!important}
+.sku-table .sku-ncf-list{background:#f1f6ff;color:#25599e;border-color:#d7e5f9}
+.sku-table .sku-ncf-list:hover{background:#e7f0ff}
+.sku-table .sku-ncf-add{background:#eaf8f2;color:#087c63;border-color:#c6e8d9}
+.sku-table .sku-ncf-add:hover{background:#dff5e9}
+.modal-ncf-list{width:min(760px,calc(100vw - 28px))!important;max-width:760px!important}
+.ncf-list-content{padding:17px 22px 22px;max-height:68vh;overflow:auto}
+.ncf-list-meta{font-size:12px;color:#62799a;margin-bottom:13px;overflow-wrap:anywhere}
+.ncf-list-summary{display:flex;justify-content:space-between;align-items:center;margin:0 0 11px;gap:12px;color:#455e83;font-size:12px;font-weight:750}
+.ncf-list-items{display:grid;gap:9px}
+.ncf-list-item{border:1px solid #e1e9f3;background:#fff;border-radius:10px;padding:13px;display:flex;align-items:center;gap:12px;justify-content:space-between}
+.ncf-list-item-main{flex:1;min-width:0}
+.ncf-list-item-top{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-bottom:5px}
+.ncf-list-item-title{font-size:12px;font-weight:800;color:#193b69;overflow-wrap:anywhere}
+.ncf-list-item-sub{font-size:11px;color:#7186a3;overflow-wrap:anywhere;margin-top:3px}
+.ncf-list-status{font-size:10px;font-weight:800;padding:4px 8px;border-radius:6px}
+.ncf-list-status.open{background:#fff1f3;color:#c93654}
+.ncf-list-status.close{background:#e8f7f0;color:#11876d}
+.ncf-list-empty{background:#f8faff;border:1px dashed #d6e4f5;border-radius:10px;padding:26px;text-align:center;color:#687f9c;font-size:12px}
+.ncf-list-item-action{white-space:nowrap;font-weight:800;font-size:11px;border:1px solid #d4e3f5;border-radius:7px;color:#22549b;padding:9px 11px;text-decoration:none;background:#f2f7ff}
+.ncf-list-item-action:hover{background:#e8f2ff}
+.ncf-list-footer{display:flex;gap:9px;justify-content:flex-end;align-items:center;padding:15px 22px;border-top:1px solid #e5ebf4}
+@media(max-width:560px){.ncf-list-item{align-items:flex-start;flex-direction:column}.ncf-list-item-action{align-self:flex-end}.ncf-list-footer{flex-wrap:wrap}.ncf-list-footer .btn{flex:1;justify-content:center}}
 </style>
 </head>
 <body>
@@ -426,6 +458,20 @@ body{background:linear-gradient(180deg,#f6f8fc 0%,#f2f5fb 88%)}
       </div>
     </div>
     <div class="sku-footer"><span id="skuFoot">—</span><button type="button" class="btn btn-outline btn-sm" data-close="skuDialog">Tutup</button></div>
+  </dialog>
+
+
+  <dialog id="ncfListDialog" class="modal modal-ncf-list" aria-labelledby="ncfListTitle">
+    <div class="modal-head">
+      <div><div class="modal-eyebrow">TINDAK LANJUT · FTQ</div><h2 id="ncfListTitle">Daftar NCF SKU</h2></div>
+      <button type="button" class="icon-close" data-close="ncfListDialog" aria-label="Tutup daftar NCF">×</button>
+    </div>
+    <div class="ncf-list-content">
+      <div class="ncf-list-meta" id="ncfListMeta">—</div>
+      <div class="ncf-list-summary"><span id="ncfListCount">0 laporan NCF</span><span id="ncfListProgress">—</span></div>
+      <div class="ncf-list-items" id="ncfListItems" aria-live="polite"></div>
+    </div>
+    <div class="ncf-list-footer"><button type="button" class="btn btn-outline" data-close="ncfListDialog">Tutup</button><a id="ncfListNew" class="btn btn-primary" href="./ncf.html">+ NCF Baru</a></div>
   </dialog>
 
   <dialog id="uploadDialog" class="modal"><form id="uploadForm"><div class="modal-head"><div><span class="modal-eyebrow">DATA SAP</span><h2>Import Excel SAP</h2></div><button type="button" class="icon-close" data-close="uploadDialog" aria-label="Tutup">×</button></div><div class="modal-body"><div class="file-drop"><input type="file" id="sapFile" accept=".xlsx,.xls" aria-label="Pilih file SAP Excel"><div class="file-icon">⇪</div><strong>Pilih file Excel dari SAP</strong><span>Format .xlsx / .xls</span></div><div class="upload-preview" id="uploadPreview" hidden></div><div class="upload-error" id="uploadError" hidden></div></div><div class="modal-actions"><button type="button" class="btn btn-outline" data-close="uploadDialog">Batal</button><button type="submit" class="btn btn-primary" id="commitImportBtn" disabled>Lanjutkan</button></div></form></dialog>
@@ -879,6 +925,7 @@ SOFTWARE.
     const fixes=Array.isArray(f.solution_rows)?f.solution_rows.map(x=>txt(x?.solution)).filter(Boolean):[];
     return {
       id:String(rec.id||''),ncf_no:txt(rec.ncf_no||f.ncf_no),updated_at:rec.updated_at||'',
+      title:txt(f.ncf_title)||txt(rec.title),
       incident_date:txt(rec.incident_date||f.incident_date).slice(0,10),
       material:txt(rec.material||f.sku),shift_no:Number(rec.shift_no||f.shift)||0,
       status:txt(rec.status||f.ncf_status),reject_qty:num(f.reject_qty),value_amount:num(f.value_amount),
@@ -916,9 +963,9 @@ SOFTWARE.
     }
     for(const key of ['issue','root_cause','corrective_action','preventive_action']){
       const parts=[];
-      for(const rec of reports){
-        const v=String(rec[key]||'').trim();
-        if(v && !parts.some(p=>p.value===v))parts.push({number:rec.ncf_no,value:v});
+      for(let i=0;i<reports.length;i++){
+        const rec=reports[i],v=String(rec[key]||'').trim();
+        if(v)parts.push({number:rec.ncf_no||`NCF ${reports.length-i}`,value:v});
       }
       summary[key]=parts.length>1?parts.map(p=>`${p.number}: ${p.value}`).join(' | '):(parts[0]?.value||'');
     }
@@ -1094,6 +1141,32 @@ SOFTWARE.
     return row.ftq_pct<state.target?{name:'Tidak tercapai',low:true,empty:false}:{name:'Tercapai',low:false,empty:false};
   }
 
+  function ncfNewUrl(date,row){
+    const q=new URLSearchParams({new:'1',date,sku:String(row.material||''),name:String(row.material_description||''),
+      shift:[1,2,3].includes(Number(row.shift_no))?String(row.shift_no):'',batch:String(row.batch_numbers||'')});
+    return './ncf.html?'+q.toString();
+  }
+  function showNcfList(row){
+    if(!row||![1,2,3].includes(Number(row.shift_no)))return;
+    const date=state.skuDate,reports=ncfReports(date,row.material,row.shift_no);
+    $('ncfListTitle').textContent='NCF · '+String(row.material||'');
+    $('ncfListMeta').textContent=[dateLabel(date),row.material_description,shiftTitle(row.shift_no)].filter(Boolean).join(' · ');
+    $('ncfListCount').textContent=reports.length+' laporan NCF';
+    const openCount=reports.filter(x=>!String(x.ncf_no||'').trim()).length;
+    $('ncfListProgress').textContent=openCount?`${openCount} Open · ${reports.length-openCount} Close`:`${reports.length} Close`;
+    $('ncfListNew').href=ncfNewUrl(date,row);
+    $('ncfListItems').innerHTML=reports.length?reports.map((rec,i)=>{
+      const numbered=!!String(rec.ncf_no||'').trim();
+      const no=numbered?rec.ncf_no:`NCF ${i+1} · Belum bernomor`;
+      const href='./ncf.html?'+new URLSearchParams({id:rec.id,date,sku:String(row.material||''),name:String(row.material_description||''),shift:String(row.shift_no),batch:String(row.batch_numbers||'')});
+      return `<div class="ncf-list-item"><div class="ncf-list-item-main"><div class="ncf-list-item-top"><strong class="ncf-list-item-title">${escapeHtml(no)}</strong><span class="ncf-list-status ${numbered?'close':'open'}">${numbered?'Close':'Open'}</span></div>`+
+        `<div class="ncf-list-item-sub">${escapeHtml(rec.title||rec.issue||'Issue belum diisi')}</div>`+
+        `<div class="ncf-list-item-sub">Update: ${escapeHtml(rec.updated_at?new Date(rec.updated_at).toLocaleString('id-ID',{dateStyle:'medium',timeStyle:'short'}):'—')}</div></div>`+
+        `<a class="ncf-list-item-action" href="${escapeHtml(href)}">Lihat / Edit</a></div>`;
+    }).join(''):'<div class="ncf-list-empty">Belum ada NCF untuk SKU dan shift ini.</div>';
+    showDialog('ncfListDialog');
+  }
+
   // Status FTQ per SKU/Shift ditentukan oleh FTQ dan No. NCF tersimpan.
   // Banyak NCF pada satu SKU/Shift tetap OPEN bila ada satu laporan tanpa nomor.
   function ncfCompletionFor(ftqStatus,action){
@@ -1134,10 +1207,8 @@ SOFTWARE.
     $('skuBody').innerHTML=shown.map(r=>{
       const a=ncfActionFor(state.skuDate,r.material,r.shift_no),status=skuStatus(r);
       const color=status.empty?'na':status.low?'low':'';
-      const latest=a.reports[0];
       const ncfProgress=ncfCompletionFor(status,a);
-      const ncfUrl=latest?'./ncf.html?'+new URLSearchParams({id:latest.id}).toString():
-        './ncf.html?'+new URLSearchParams({date:state.skuDate,sku:String(r.material||''),name:String(r.material_description||''),shift:[1,2,3].includes(Number(r.shift_no))?String(r.shift_no):'',batch:String(r.batch_numbers||'')}).toString();
+      const newUrl=ncfNewUrl(state.skuDate,r);
       return `<tr><td><span class="sku-code">${escapeHtml(r.material||'—')}</span>${a.ncf_count?`<span class="sku-ncf-saved" title="${a.ncf_count} NCF tersimpan">${a.ncf_count} NCF</span>`:''}</td>`+
         `<td><div class="sku-description">${escapeHtml(r.material_description||'Tanpa nama SKU')}</div></td>`+
         `<td><span class="sku-shift-badge ${r.shift_no===0?'unknown':''}">${escapeHtml(shiftTitle(r.shift_no))}</span></td>`+
@@ -1147,7 +1218,7 @@ SOFTWARE.
         `<td class="manual-amount">${hasManual(a.reject_qty)?fmtNumber(a.reject_qty,0):'—'}</td>`+
         `<td class="manual-amount">${fmtValue(a.value_amount)}</td>`+
         textCell(a.issue)+textCell(a.root_cause)+textCell(a.corrective_action)+textCell(a.preventive_action)+
-        `<td class="sku-ncf-col"><div class="ncf-sku-actions">${r.shift_no===0?'<span class="note-placeholder">Impor ulang</span>':`<a class="sku-ncf" href="${escapeHtml(ncfUrl)}" title="${latest?'Buka dan edit NCF tersimpan':'Buat Form NCF untuk SKU dan shift ini'}">${latest?'Lihat / Edit NCF':'Form NCF'}</a>`}</div></td>`+
+        `<td class="sku-ncf-col"><div class="ncf-sku-actions">${r.shift_no===0?'<span class="note-placeholder">Impor ulang</span>':`${a.ncf_count?`<button type="button" class="sku-ncf sku-ncf-list" data-ncf-list data-ncf-material="${escapeHtml(r.material||'')}" data-ncf-shift="${Number(r.shift_no)}" title="Lihat ${a.ncf_count} laporan NCF tersimpan">Lihat (${a.ncf_count})</button>`:''}<a class="sku-ncf sku-ncf-add" href="${escapeHtml(newUrl)}" title="Tambah laporan NCF baru untuk issue berbeda pada SKU / Shift yang sama">+ NCF Baru</a>`}</div></td>`+
         `<td class="sku-status-col"><span class="ncf-status-badge ${ncfProgress.klass}" title="${escapeHtml(ncfProgress.hint)}">${ncfProgress.text}</span></td></tr>`;
     }).join('');
     // Tindakan diperbarui hanya dari Form NCF; tombol Edit FTQ sudah dihapus.
@@ -1712,6 +1783,12 @@ if(typeof module !== 'undefined' && module.exports) module.exports = {drawFtqMee
     $('searchInput').addEventListener('input',renderTable);
     $('skuSearch').addEventListener('input',renderSkuBreakdown);
     $('skuBelowOnly').addEventListener('change',renderSkuBreakdown);
+    $('skuBody').addEventListener('click',event=>{
+      const btn=event.target.closest('button[data-ncf-list]');
+      if(!btn)return;
+      const row=state.skuRows.find(r=>String(r.material)===btn.dataset.ncfMaterial && Number(r.shift_no)===Number(btn.dataset.ncfShift));
+      showNcfList(row);
+    });
     $('skuDialog').addEventListener('close',()=>{state.skuRequestId++;});
     $('exportBtn').addEventListener('click',exportResume);
     $('exportPptBtn').addEventListener('click',exportPowerPoint);
