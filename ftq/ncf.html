@@ -188,6 +188,22 @@ body{margin:0;background:linear-gradient(180deg,#f6f8fc,#f1f5fb);font:13px/1.55 
     dirty=false;$('saveInfo').textContent='Laporan baru';hideNotice();
     window.scrollTo({top:0,behavior:'smooth'});
   }
+  function newForCurrentSku(){
+    const old={};
+    for(const key of ['incident_date','sku','sku_name','shift','batch','department','location']){
+      const el=document.querySelector(`[data-field="${key}"]`);old[key]=el?.value||'';
+    }
+    const keep=Boolean(old.incident_date&&old.sku&&['1','2','3'].includes(old.shift));
+    resetForm(true);
+    if(keep){
+      for(const [key,value] of Object.entries(old)){
+        const el=document.querySelector(`[data-field="${key}"]`);if(el&&value)el.value=value;
+      }
+    }
+    $('saveInfo').textContent='NCF baru · '+(keep?'SKU / Shift sama':'Laporan baru');
+    $('ncf_title').focus();
+    dirty=false;
+  }
   function gather(){
     const data={};document.querySelectorAll('[data-field]').forEach(el=>{data[el.dataset.field]=el.value.trim();});
     data.solution_rows=[...$('solutionBody').querySelectorAll('tr')].map(row=>{
@@ -312,15 +328,15 @@ body{margin:0;background:linear-gradient(180deg,#f6f8fc,#f1f5fb);font:13px/1.55 
     $('listBtn').addEventListener('click',history);
     $('historyClose').addEventListener('click',()=>$('historyDialog').close());
     $('historySearch').addEventListener('input',e=>renderHistory(e.target.value));
-    $('newBtn').addEventListener('click',()=>{if(dirty){$('newConfirm').showModal();return;}resetForm(false);});
+    $('newBtn').addEventListener('click',()=>{if(dirty){$('newConfirm').showModal();return;}newForCurrentSku();});
     document.querySelectorAll('[data-close-new]').forEach(b=>b.addEventListener('click',()=>$('newConfirm').close()));
-    $('discardNewBtn').addEventListener('click',()=>{$('newConfirm').close();resetForm(false);});
+    $('discardNewBtn').addEventListener('click',()=>{$('newConfirm').close();newForCurrentSku();});
     $('addSolution').addEventListener('click',()=>{if($('solutionBody').children.length>=25){toast('Maksimal 25 tindakan solusi.',true);return;}$('solutionBody').appendChild(makeRow({},$('solutionBody').children.length));dirty=true;});
     $('solutionBody').addEventListener('click',e=>{if(!e.target.closest('[data-remove-sol]'))return;const trs=$('solutionBody').querySelectorAll('tr');if(trs.length<=1){toast('Minimal satu baris solusi.',true);return;}e.target.closest('tr').remove();renumber();dirty=true;});
     $('ncfForm').addEventListener('input',()=>{dirty=true;syncNcfStatus();});
     $('printBtn').addEventListener('click',()=>window.print());$('printBottom').addEventListener('click',()=>window.print());
     $('exportNcfBtn').addEventListener('click',excelExport);
-    const existingId=(qs.get('id')||'').trim();
+    const existingId=(qs.get('new')==='1'?'':(qs.get('id')||'')).trim();
     if(existingId){
       if(!/^[0-9a-fA-F-]{36}$/.test(existingId) && !/^local-[\w-]+$/.test(existingId))throw Error('ID NCF tidak valid.');
       await openRecord(existingId);
