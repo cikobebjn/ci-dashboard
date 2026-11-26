@@ -375,6 +375,15 @@ function init(){if(!root.supabase||!$('gdNav'))return;S.db=supabase.createClient
  document.querySelectorAll('#gdNav button').forEach(b=>b.addEventListener('click',()=>{const tab=b.dataset.tab;document.querySelectorAll('#gdNav button').forEach(x=>{x.classList.toggle('active',x===b);x.setAttribute('aria-selected',String(x===b))});for(const k of ['electric','gas','density'])$('gdPanel-'+k).hidden=k!==tab;if(tab==='gas')loadGas();else if(tab==='density')loadDensity();else requestAnimationFrame(()=>root.UtilityDMC?.renderAll?.())}));
  $('gdGasRefresh').addEventListener('click',loadGas);$('gdGasMode').addEventListener('change',renderGas);$('gdGasUnit').addEventListener('change',renderGas);$('gdDensityRefresh').addEventListener('click',loadDensity);$('gdMonth').addEventListener('change',loadDensity);$('gdSkuWC').addEventListener('change',renderSku);$('gdSkuSearch').addEventListener('input',renderSku);$('gdBreakMode').addEventListener('change',renderBreak);$('gdExport').addEventListener('click',exportDensity);
  $('gdSfgFile').addEventListener('change',clearUpload);$('gdSfgMonth').addEventListener('change',()=>{const m=$('gdSfgMonth').value;if(m)$('gdSfgEnd').value=minDate(monthEnd(m),today());clearUpload()});$('gdSfgEnd').addEventListener('change',clearUpload);$('gdSfgPreviewBtn').addEventListener('click',previewSfg);$('gdSfgConfirm').addEventListener('change',()=>{$('gdSfgSave').disabled=!(S.upload&&$('gdSfgConfirm').checked)});$('gdSfgSave').addEventListener('click',saveSfg);$('gdToastClose').addEventListener('click',hideSfgToast);status('gdSfgStatus','Pilih file Excel dan periode, kemudian klik Validasi & Preview.');$('gdUiVersion').textContent='UI v1.2 · Modal notifikasi aktif';
+ // FM Index deep link: select the same month, then open the Density tab.
+ const fmParams=new URLSearchParams(root.location.search);
+ if(fmParams.get('tab')==='density'){
+   const fmMonth=fmParams.get('month');
+   if(/^\d{4}-(0[1-9]|1[0-2])$/.test(fmMonth||'')&&fmMonth<=m)$('gdMonth').value=fmMonth;
+   const densityTab=document.querySelector('#gdNav button[data-tab="density"]');
+   if(densityTab)densityTab.click();
+ }
+
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })(typeof window!=='undefined'?window:globalThis);
