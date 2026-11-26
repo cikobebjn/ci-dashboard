@@ -370,6 +370,32 @@ tbody tr:hover td {background:#f7fbff;}
 .dialog-actions {display:flex;justify-content:flex-end;gap:9px;margin-top:22px;}.dialog-actions .btn {min-height:42px;}.dialog-danger .dialog-icon {background:#ffebed;color:#b91c1c;}.dialog-danger .dialog-accent {background:#ef4444;}.dialog-danger .dialog-confirm {background:#dc2626;color:white;box-shadow:0 8px 20px rgba(220,38,38,.16);}
 @media(max-width:480px){.toast{bottom:14px;right:14px;max-width:calc(100vw - 28px);}.dialog-inner{padding:19px;}.dialog-title{font-size:18px;}.dialog-actions .btn{flex:1;}}
 
+
+/* Submit PSA: the same index visual system, grouped by form section. */
+.psa-section {border:1px solid #e3eaf5;border-radius:18px;padding:19px 20px;margin:0 0 15px;background:linear-gradient(155deg,#fff,#f8fbff);}
+.psa-section .form-grid {align-items:start;}
+.psa-section-head {display:flex;gap:11px;align-items:center;margin-bottom:18px;}
+.psa-step {display:grid;place-items:center;width:34px;height:34px;flex:none;border-radius:11px;color:#fff;background:linear-gradient(135deg,#1268e8,#7c3aed);font-size:14px;font-weight:800;box-shadow:0 5px 13px #2563eb25;}
+.psa-section-head h3 {font-size:16px;color:var(--ink);margin:0 0 3px;letter-spacing:-.02em;}
+.psa-section-head p {margin:0;font-size:11.5px;color:var(--muted);}
+.psa-hint {margin:0;color:#64748b;font-size:11.5px;line-height:1.5;}
+.psa-form-note {margin:0 0 18px;padding:12px 14px;background:#edf5ff;color:#365784;border-radius:12px;font-size:12px;line-height:1.6;}
+.psa-readonly {background:#eef3f9!important;color:#536782!important;font-weight:650;}
+.psa-impact-grid {display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;}
+.psa-impact {position:relative;display:block;cursor:pointer;min-width:0;}
+.psa-impact input {position:absolute;width:1px;height:1px;opacity:0;min-height:0;}
+.psa-impact-body {display:flex;gap:9px;align-items:center;padding:11px 10px;border:1px solid #dce4ef;background:white;border-radius:12px;color:#40546d;font-size:12px;font-weight:650;min-height:54px;transition:.15s;}
+.psa-impact-body b {display:grid;place-items:center;flex:none;width:27px;height:27px;border-radius:8px;background:#eaf3ff;color:#2563eb;font-size:15px;}
+.psa-impact input:checked+.psa-impact-body {border-color:#367eea;background:#eaf3ff;box-shadow:0 0 0 2px #2563eb15;color:#174fb6;}
+.psa-impact input:checked+.psa-impact-body b {background:#2563eb;color:#fff;}
+.psa-impact input:focus-visible+.psa-impact-body {outline:2px solid #2563eb;outline-offset:2px;}
+.psa-money {position:relative;}.psa-money span {position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#64748b;font-size:12px;font-weight:700;}.psa-money input {padding-left:36px;}
+.psa-legacy {margin-top:14px;}.psa-legacy summary {cursor:pointer;font-size:12px;font-weight:650;color:#64748b;}.psa-legacy .fg {margin-top:10px;}
+.psa-meta {font-size:11px;color:#6b7a90;line-height:1.45;margin-top:4px;overflow-wrap:anywhere;}.psa-cat {display:inline-flex;padding:3px 8px;background:#edf4ff;color:#1d4ed8;border-radius:7px;font-size:11px;font-weight:750;}.psa-saving {font-weight:700;white-space:nowrap;font-size:12px;color:#24324b;}.psa-stage {display:block;font-size:11px;color:#64748b;margin-top:5px;}
+.psa-filter {grid-template-columns:minmax(170px,1.35fr) minmax(125px,.8fr) repeat(3,minmax(125px,1fr));}.table-wrap table {min-width:1360px;}
+@media(max-width:1100px){.psa-filter{grid-template-columns:repeat(3,minmax(0,1fr));}.psa-impact-grid{grid-template-columns:repeat(3,minmax(0,1fr));}}
+@media(max-width:640px){.psa-section{padding:15px 13px;}.psa-impact-grid{grid-template-columns:repeat(2,minmax(0,1fr));}.psa-filter{grid-template-columns:repeat(2,minmax(0,1fr));}.psa-impact-body{padding:9px;}.psa-section-head h3{font-size:15px;}.psa-filter .fg:first-child{grid-column:1/-1;}}
+
 </style>
 <script src="https://cikobebjn.github.io/ci-dashboard/sidebar.js" defer></script>
 </head>
@@ -384,21 +410,27 @@ tbody tr:hover td {background:#f7fbff;}
             <div class="hero-kicker">Manufacturing Excellence</div>
             <h1>Monitoring KKM</h1>
             <span class="hero-name">Kobe Kendali Mutu</span>
-            <p>Pantau timeline, realisasi, PIC, dan progres project improvement setiap departemen dalam satu dashboard terintegrasi.</p>
+            <p>Kelola problem solving, impact SQCDP, saving, dan progres PSA dalam satu dashboard terintegrasi.</p>
         </div>
         <div class="hero-panel">
             <span class="hero-panel-label">KKM Overview</span>
             <strong class="hero-panel-value">Weekly Meeting</strong>
-            <div class="hero-panel-note">Kelola improvement dan siapkan laporan progres per departemen.</div>
-            <div class="hero-actions"><button type="button" class="btn btn-hero" onclick="focusForm(true)">+ Tambah Improvement</button></div>
+            <div class="hero-panel-note">Kelola PSA dan siapkan laporan progres per departemen.</div>
+            <div class="hero-actions"><button type="button" class="btn btn-hero" onclick="focusForm(true)">+ Submit PSA</button></div>
         </div>
     </section>
     <section class="filter-panel" aria-label="Filter dan export KKM">
         <div class="toolbar">
-            <div class="filters">
+            <div class="filters psa-filter">
                 <div class="fg">
                     <label for="search-input">Cari</label>
-                    <input type="search" id="search-input" placeholder="Index, Project, Departemen, PIC..." oninput="renderTable()">
+                    <input type="search" id="search-input" placeholder="PSA, Problem, Owner, Area..." oninput="renderTable()">
+                </div>
+                <div class="fg">
+                    <label for="plant-filter">Plant</label>
+                    <select id="plant-filter" onchange="onDepartmentFilterChange()">
+                        <option value="all">Semua Plant</option><option value="1500">1500 - Bojonegoro</option><option value="1100">1100 - Manis</option><option value="unassigned">Belum ditentukan</option>
+                    </select>
                 </div>
                 <div class="fg">
                     <label for="department-filter">Departemen</label>
@@ -415,6 +447,7 @@ tbody tr:hover td {background:#f7fbff;}
                         <option value="in-progress">On Progress</option>
                         <option value="completed">Selesai</option>
                         <option value="overdue">Terlambat</option>
+                        <optgroup label="Tahap PSA"><option value="psa:Open">Open</option><option value="psa:Analysis">Analysis</option><option value="psa:Action">Action</option><option value="psa:Monitoring">Monitoring</option><option value="psa:Closed">Closed</option></optgroup>
                     </select>
                 </div>
                 <div class="fg">
@@ -432,7 +465,7 @@ tbody tr:hover td {background:#f7fbff;}
     <h2 class="sec-title">Ringkasan Progres KKM</h2>
     <section class="summary-grid" aria-label="Ringkasan project">
         <div class="summary-card" data-kind="total">
-            <div class="summary-label">Total Project</div>
+            <div class="summary-label">Total PSA</div>
             <div class="summary-value" id="sum-total">0</div>
             <div class="summary-note"><span id="summary-scope">Seluruh improvement</span></div>
         </div>
@@ -444,7 +477,7 @@ tbody tr:hover td {background:#f7fbff;}
         <div class="summary-card" data-kind="completed">
             <div class="summary-label">Selesai</div>
             <div class="summary-value" id="sum-completed">0</div>
-            <div class="summary-note">Progres 100%</div>
+            <div class="summary-note">PSA Closed</div>
         </div>
         <div class="summary-card" data-kind="overdue">
             <div class="summary-label">Terlambat</div>
@@ -453,61 +486,55 @@ tbody tr:hover td {background:#f7fbff;}
         </div>
     </section>
     <section class="card" id="form-card" hidden>
-        <div class="card-header"><div><h2 class="card-title" id="form-title">Tambah Improvement</h2><p class="card-subtitle">Lengkapi informasi project dan progres aktual.</p></div><button type="button" class="btn btn-secondary" onclick="closeForm()">Tutup Form</button></div>
+        <div class="card-header"><div><h2 class="card-title" id="form-title">Submit PSA</h2><p class="card-subtitle">Kobe Kendali Mutu — input problem solving, impact utama, dan nilai saving dalam satu form.</p></div><button type="button" class="btn btn-secondary" onclick="closeForm()">Tutup Form</button></div>
         <form id="improvement-form" onsubmit="saveImprovement(event)">
             <input type="hidden" id="edit-id">
-            <div class="form-grid">
-                <div class="fg">
-                    <label for="no-index">No. Index</label>
-                    <input type="text" id="no-index" placeholder="Contoh: IMP-001" maxlength="50" autocomplete="off">
+            <p class="psa-form-note">Isi seluruh field bertanda (*). Nomor PSA diterbitkan otomatis oleh database saat pertama kali disimpan. Data improvement lama tetap tersedia.</p>
+            <section class="psa-section" aria-labelledby="psa-identity-heading">
+                <div class="psa-section-head"><span class="psa-step">1</span><div><h3 id="psa-identity-heading">PSA Identity</h3><p>Identitas plant, penanggung jawab, dan target penyelesaian.</p></div></div>
+                <div class="form-grid">
+                    <div class="fg"><label for="plant-index">Plant Index *</label><select id="plant-index" required onchange="updatePsaPreview()"><option value="">Pilih Plant</option><option value="1100">1100 - Manis</option><option value="1500" selected>1500 - Bojonegoro</option></select></div>
+                    <div class="fg"><label for="psa-number">PSA Number</label><input type="text" id="psa-number" class="psa-readonly" readonly placeholder="Auto: KKM-Plant-Year-Sequence"><p class="psa-hint" id="psa-number-hint">Auto: KKM-Plant-Year-Sequence</p></div>
+                    <div class="fg"><label for="timeline-start">Date Open *</label><input type="date" id="timeline-start" required onchange="updatePsaPreview()"></div>
+                    <div class="fg"><label for="timeline-end">Target Date *</label><input type="date" id="timeline-end" required></div>
+                    <div class="fg project-field"><label for="department">Department *</label><select id="department" required><option value="">Pilih Department</option></select></div>
+                    <div class="fg"><label for="area">Area *</label><input type="text" id="area" required maxlength="150" placeholder="Contoh: Gedung 4 / Packing"></div>
+                    <div class="fg"><label for="pic">Problem Owner *</label><input type="text" id="pic" required maxlength="120" placeholder="Nama Problem Owner"></div>
                 </div>
-                <div class="fg project-field">
-                    <label for="project-name">Nama Project / Improvement *</label>
-                    <input type="text" id="project-name" placeholder="Contoh: Reduksi Waste Kemasan Line 3" required maxlength="200">
+                <details class="psa-legacy" id="legacy-index-wrap"><summary>No. Index lama (opsional)</summary><div class="fg"><label for="no-index">No. Index</label><input type="text" id="no-index" maxlength="50" placeholder="No. Index existing" autocomplete="off"></div></details>
+            </section>
+            <section class="psa-section" aria-labelledby="psa-problem-heading">
+                <div class="psa-section-head"><span class="psa-step">2</span><div><h3 id="psa-problem-heading">Problem</h3><p>Definisikan problem dan target improvement secara jelas.</p></div></div>
+                <div class="form-grid">
+                    <div class="fg full"><label for="project-name">Problem Title *</label><input type="text" id="project-name" placeholder="Contoh: Reduksi waste kemasan Line 3 dari 2% menjadi 1% pada Desember 2026" required maxlength="200"><p class="psa-hint"><strong>Panduan judul:</strong> spesifik, measurable (terukur), achievable (dapat dicapai), relevant (relevan), dan time-bound (memiliki batas waktu).</p></div>
+                    <div class="fg full"><label for="problem-statement">Problem Statement</label><textarea id="problem-statement" placeholder="Jelaskan kondisi aktual, gap terhadap target, dan masalah yang perlu diselesaikan..."></textarea></div>
                 </div>
-                <div class="fg">
-                    <label for="department">Departemen *</label>
-                    <select id="department" required>
-                        <option value="">Pilih departemen</option>
-                    </select>
+            </section>
+            <section class="psa-section" aria-labelledby="psa-impact-heading">
+                <div class="psa-section-head"><span class="psa-step">3</span><div><h3 id="psa-impact-heading">Impact</h3><p>Tentukan impact utama dan nilai saving jika tersedia.</p></div></div>
+                <div class="form-grid">
+                    <div class="fg full"><label id="impact-category-label">Category Impact *</label><div class="psa-impact-grid" role="radiogroup" aria-labelledby="impact-category-label"><label class="psa-impact"><input type="radio" name="impact-category" value="S" required><span class="psa-impact-body"><b>S</b><span>Safety</span></span></label><label class="psa-impact"><input type="radio" name="impact-category" value="Q" required><span class="psa-impact-body"><b>Q</b><span>Quality</span></span></label><label class="psa-impact"><input type="radio" name="impact-category" value="C" required><span class="psa-impact-body"><b>C</b><span>Cost</span></span></label><label class="psa-impact"><input type="radio" name="impact-category" value="D" required><span class="psa-impact-body"><b>D</b><span>Delivery</span></span></label><label class="psa-impact"><input type="radio" name="impact-category" value="P" required><span class="psa-impact-body"><b>P</b><span>People</span></span></label></div></div>
+                    <div class="fg project-field"><label for="saving-type">Jenis Saving</label><select id="saving-type"><option value="N/A">Tidak Ada (N/A)</option><option value="Pengurangan Biaya">Pengurangan Biaya</option><option value="Penghindaran Biaya">Penghindaran Biaya</option><option value="Dampak Pendapatan / Kapasitas">Dampak Pendapatan / Kapasitas</option></select></div>
+                    <div class="fg"><label for="impact-cost">Impact Cost / Saving</label><div class="psa-money"><span>Rp</span><input type="number" id="impact-cost" min="0" max="999999999999999" step="0.01" inputmode="decimal" placeholder="0"></div></div>
+                    <div class="fg"><label for="saving-period">Period</label><select id="saving-period"><option value="">Pilih period</option><option value="One Time">One Time</option><option value="Monthly">Monthly</option><option value="Annual">Annual</option></select></div>
+                    <div class="fg full"><label for="saving-description">Saving / Impact Description</label><textarea id="saving-description" placeholder="Jelaskan dasar perhitungan atau manfaat improvement..."></textarea><p class="psa-hint">Nilai saving dapat tetap diisi walaupun Category Impact utama bukan Cost.</p></div>
                 </div>
-                <div class="fg">
-                    <label for="timeline-start">Mulai Timeline *</label>
-                    <input type="date" id="timeline-start" required>
+            </section>
+            <section class="psa-section" aria-labelledby="psa-status-heading">
+                <div class="psa-section-head"><span class="psa-step">4</span><div><h3 id="psa-status-heading">Status &amp; Document</h3><p>Perbarui tahap PSA, progres aktual, dan catatan realisasi.</p></div></div>
+                <div class="form-grid">
+                    <div class="fg"><label for="psa-status">Status</label><select id="psa-status"><option value="Open">Open</option><option value="Analysis">Analysis</option><option value="Action">Action</option><option value="Monitoring">Monitoring</option><option value="Closed">Closed</option></select></div>
+                    <div class="fg"><label for="realization-date">Tanggal Realisasi</label><input type="date" id="realization-date"></div>
+                    <div class="fg project-field"><label for="progress-range">Progress (%)</label><div class="progress-input-wrap"><input type="range" id="progress-range" min="0" max="100" step="1" value="0" oninput="syncProgress('range')"><input type="number" id="progress-number" class="progress-number" min="0" max="100" value="0" oninput="syncProgress('number')"><span>%</span></div></div>
+                    <div class="fg full"><label for="notes">Catatan / Realisasi</label><textarea id="notes" placeholder="Tuliskan update pekerjaan, hasil realisasi, kendala, atau tindak lanjut..."></textarea></div>
                 </div>
-                <div class="fg">
-                    <label for="timeline-end">Target Selesai *</label>
-                    <input type="date" id="timeline-end" required>
-                </div>
-                <div class="fg">
-                    <label for="realization-date">Tanggal Realisasi</label>
-                    <input type="date" id="realization-date">
-                </div>
-                <div class="fg">
-                    <label for="pic">PIC *</label>
-                    <input type="text" id="pic" placeholder="Nama PIC" required maxlength="120">
-                </div>
-                <div class="fg full">
-                    <label for="progress-range">Progres (%)</label>
-                    <div class="progress-input-wrap">
-                        <input type="range" id="progress-range" min="0" max="100" step="5" value="0" oninput="syncProgress('range')">
-                        <input type="number" id="progress-number" class="progress-number" min="0" max="100" value="0" oninput="syncProgress('number')">
-                    </div>
-                </div>
-                <div class="fg full">
-                    <label for="notes">Catatan / Realisasi</label>
-                    <textarea id="notes" placeholder="Tuliskan update pekerjaan, hasil realisasi, kendala, atau tindak lanjut..."></textarea>
-                </div>
-            </div>
-            <div class="form-actions">
-                <button type="button" class="btn btn-secondary" id="btn-cancel" onclick="closeForm()" style="display:none;">Batal</button>
-                <button type="submit" class="btn btn-primary" id="btn-save">Simpan Improvement</button>
-            </div>
+            </section>
+            <div class="form-actions"><button type="button" class="btn btn-secondary" id="btn-cancel" onclick="closeForm()">Batal</button><button type="submit" class="btn btn-primary" id="btn-save">Submit PSA</button></div>
         </form>
     </section>
     <section class="card">
         <div class="card-header">
-            <div><h2 class="card-title">Daftar Project / Improvement</h2><p class="card-subtitle">Update progres, timeline, dan tindak lanjut setiap project.</p></div>
+            <div><h2 class="card-title">Daftar PSA / Improvement</h2><p class="card-subtitle">Update progres, timeline, dan tindak lanjut setiap project.</p></div>
             <div class="result-count" id="result-count" aria-live="polite">0 data</div>
         </div>
         <div class="table-wrap">
@@ -515,11 +542,12 @@ tbody tr:hover td {background:#f7fbff;}
                 <thead>
                     <tr>
                         <th style="width:45px;">No</th>
-                        <th>No. Index</th>
-                        <th>Project / Improvement</th>
-                        <th>Departemen</th>
-                        <th>PIC</th>
+                        <th>PSA Number / Index</th>
+                        <th>Problem Title</th>
+                        <th>Plant / Department</th>
+                        <th>Problem Owner</th>
                         <th>Timeline</th>
+                        <th>Impact / Saving</th>
                         <th>Realisasi</th>
                         <th>Progres</th>
                         <th>Status</th>
@@ -527,7 +555,7 @@ tbody tr:hover td {background:#f7fbff;}
                     </tr>
                 </thead>
                 <tbody id="improvement-body">
-                    <tr class="empty-row"><td colspan="10">Memuat data...</td></tr>
+                    <tr class="empty-row"><td colspan="11">Memuat data...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -559,9 +587,29 @@ const db = createClient(SUPABASE_URL, SUPABASE_KEY, {
 });
 // Master departemen - ubah daftar ini bila nomenklatur departemen berubah.
 const DEPARTMENTS = Object.freeze([
-    'Produksi', 'MTC', 'Utility', 'QC', 'RND', 'WH', 'HSE', 'GA',
-    'Sparepart (GDSP)', 'HR', 'Project', 'RMPM', 'Lainnya'
+    'Production', 'Quality Control', 'Maintenance', 'Enginering Project', 'DC (WH & Logistik)', 'HSE',
+    'Formulation Center', 'General Affair', 'PPIC', 'Manufacture Excellence & Asset Realibility'
 ]);
+const DEPARTMENT_ALIASES = Object.freeze({'Produksi':'Production','PRD':'Production','QC':'Quality Control','MTC':'Maintenance','WH':'DC (WH & Logistik)','GA':'General Affair','Project':'Enginering Project'});
+const IMPACTS = Object.freeze({S:'Safety',Q:'Quality',C:'Cost',D:'Delivery',P:'People'});
+const PSA_STAGES = ['Open','Analysis','Action','Monitoring','Closed'];
+const PLANTS = Object.freeze({'1100':'Manis','1500':'Bojonegoro'});
+const SAVING_TYPES = ['N/A','Pengurangan Biaya','Penghindaran Biaya','Dampak Pendapatan / Kapasitas'];
+const SAVING_PERIODS = ['One Time','Monthly','Annual'];
+const el = id => document.getElementById(id);
+function plantValue(item) {const v=String(item.plant_index??'').trim();return PLANTS[v]?v:'';}
+function plantLabel(item) {const v=plantValue(item);return v ? `${v} - ${PLANTS[v]}` : 'Plant belum ditentukan';}
+function psaStage(item) {return PSA_STAGES.includes(item.psa_status)?item.psa_status:'';}
+function psaReference(item) {return item.psa_number || item.no_index || '';}
+function formatSaving(value) {if(value===null||value===undefined||value==='')return '';const n=Number(value);return Number.isFinite(n)?'Rp '+n.toLocaleString('id-ID',{maximumFractionDigits:2}):'';}
+function updatePsaPreview() {
+    const item=improvementData.find(row=>String(row.id)===el('edit-id').value);
+    const number=item?.psa_number;
+    const plant=el('plant-index').value;
+    const date=el('timeline-start').value;
+    el('psa-number').value=number || (plant&&date?`KKM-${plant}-${date.slice(0,4)}-AUTO`:'');
+    el('psa-number-hint').textContent=number?'Nomor PSA, plant, dan tahun Date Open tetap setelah diterbitkan.':'Nomor urut otomatis saat disimpan.';
+}
 let improvementData = [];
 let improvementLoaded = false;
 let toastTimeout;
@@ -649,13 +697,15 @@ function getStatus(item) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const target = item.timeline_end ? new Date(item.timeline_end + 'T00:00:00') : null;
-    if (progress >= 100) return { key:'completed', label:'Selesai', cls:'badge-completed' };
+    const stage=psaStage(item);
+    if (stage === 'Closed' || (!stage && progress >= 100)) return { key:'completed', label:'Selesai', cls:'badge-completed' };
     if (target && target < today) return { key:'overdue', label:'Terlambat', cls:'badge-overdue' };
-    if (progress > 0) return { key:'in-progress', label:'On Progress', cls:'badge-progress' };
+    if (progress > 0 || (stage && stage !== 'Open')) return { key:'in-progress', label:'On Progress', cls:'badge-progress' };
     return { key:'not-started', label:'Belum Mulai', cls:'badge-not-started' };
 }
 function departmentValue(item) {
-    return String(item.department ?? '').trim();
+    const name=String(item.department ?? '').trim();
+    return DEPARTMENT_ALIASES[name] || name;
 }
 function departmentOptions() {
     const extras = [...new Set(improvementData.map(departmentValue).filter(Boolean))]
@@ -669,17 +719,18 @@ function refreshDepartmentOptions() {
     const previousForm = formSelect.value;
     const previousFilter = filterSelect.value;
     const options = departmentOptions();
-    const html = options.map(name => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join('');
-    formSelect.innerHTML = '<option value="">Pilih departemen</option>' + html;
+    const optionHTML = names=>names.map(name=>`<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join('');
+    const html = optionHTML(options);
+    const extras=options.filter(name=>!DEPARTMENTS.includes(name));
+    formSelect.innerHTML = '<option value="">Pilih Department</option>'+optionHTML(DEPARTMENTS)+(extras.length?'<optgroup label="Departemen existing">'+optionHTML(extras)+'</optgroup>':'');
     formSelect.value = options.includes(previousForm) ? previousForm : '';
     filterSelect.innerHTML = '<option value="all">Semua Departemen</option>' + html +
         '<option value="unassigned">Belum ditentukan</option>';
     filterSelect.value = (previousFilter === 'unassigned' || options.includes(previousFilter)) ? previousFilter : 'all';
 }
 function departmentScopedData() {
-    const filter = document.getElementById('department-filter').value;
-    return improvementData.filter(item => filter === 'all' ||
-        (filter === 'unassigned' ? !departmentValue(item) : departmentValue(item) === filter));
+    const filter=el('department-filter').value, plant=el('plant-filter').value;
+    return improvementData.filter(item => (filter === 'all' || (filter === 'unassigned' ? !departmentValue(item) : departmentValue(item) === filter)) && (plant === 'all' || (plant === 'unassigned' ? !plantValue(item) : plantValue(item) === plant)));
 }
 function onDepartmentFilterChange() {
     refreshPicFilter();
@@ -690,14 +741,14 @@ async function loadImprovements() {
     improvementLoaded = false;
     document.getElementById('btn-export-ppt').disabled = true;
     const body = document.getElementById('improvement-body');
-    body.innerHTML = '<tr class="empty-row"><td colspan="10">Memuat data...</td></tr>';
+    body.innerHTML = '<tr class="empty-row"><td colspan="11">Memuat data...</td></tr>';
     const { data, error } = await db
         .from('improvement_monitoring')
         .select('*')
         .order('timeline_end', { ascending:true })
         .order('created_at', { ascending:false });
     if (error) {
-        body.innerHTML = '<tr class="empty-row"><td colspan="10">Gagal memuat data. Periksa koneksi dan tabel improvement_monitoring.</td></tr>';
+        body.innerHTML = '<tr class="empty-row"><td colspan="11">Gagal memuat data. Periksa koneksi dan tabel improvement_monitoring.</td></tr>';
         showToast('Gagal memuat data: ' + error.message, 'error');
         return;
     }
@@ -720,8 +771,9 @@ function updateSummary() {
     const scoped = departmentScopedData();
     const filter = document.getElementById('department-filter').value;
     const statuses = scoped.map(getStatus);
-    document.getElementById('summary-scope').textContent = filter === 'all' ? 'Seluruh improvement' :
-        (filter === 'unassigned' ? 'Departemen belum ditentukan' : filter);
+    const plant=el('plant-filter').value;
+    const scope=filter==='all'?'Seluruh PSA':(filter==='unassigned'?'Departemen belum ditentukan':filter);
+    el('summary-scope').textContent=scope+(plant==='all'?'':` · ${PLANTS[plant]||'Plant belum ditentukan'}`);
     document.getElementById('sum-total').textContent = scoped.length;
     document.getElementById('sum-progress').textContent = statuses.filter(s => s.key === 'in-progress').length;
     document.getElementById('sum-completed').textContent = statuses.filter(s => s.key === 'completed').length;
@@ -737,12 +789,12 @@ function filteredImprovementData() {
     return scoped.filter(item => {
         const status = getStatus(item);
         const matchesSearch = !search ||
-            String(item.no_index || '').toLowerCase().includes(search) ||
+            [item.no_index,item.psa_number,item.area,item.problem_statement,item.saving_description,plantLabel(item),IMPACTS[item.impact_category]].some(v=>String(v??'').toLowerCase().includes(search)) ||
             String(item.project_name || '').toLowerCase().includes(search) ||
             departmentValue(item).toLowerCase().includes(search) ||
             String(item.pic || '').toLowerCase().includes(search) ||
             String(item.notes || '').toLowerCase().includes(search);
-        const matchesStatus = statusFilter === 'all' || status.key === statusFilter;
+        const matchesStatus = statusFilter === 'all' || status.key === statusFilter || statusFilter === 'psa:'+psaStage(item);
         const matchesPic = picFilter === 'all' || item.pic === picFilter;
         return matchesSearch && matchesStatus && matchesPic;
     });
@@ -753,7 +805,7 @@ function renderTable() {
     const filtered = filteredImprovementData();
     document.getElementById('result-count').textContent = `${filtered.length} dari ${scoped.length} data`;
     if (filtered.length === 0) {
-        body.innerHTML = '<tr class="empty-row"><td colspan="10">Tidak ada data yang sesuai.</td></tr>';
+        body.innerHTML = '<tr class="empty-row"><td colspan="11">Tidak ada data yang sesuai.</td></tr>';
         return;
     }
     body.innerHTML = filtered.map((item, index) => {
@@ -762,23 +814,24 @@ function renderTable() {
         return `
             <tr>
                 <td>${index + 1}</td>
-                <td><span class="index-value">${escapeHtml(item.no_index || '—')}</span></td>
+                <td><span class="index-value">${escapeHtml(psaReference(item) || '—')}</span>${item.psa_number&&item.no_index?`<div class="psa-meta">Index: ${escapeHtml(item.no_index)}</div>`:''}</td>
                 <td>
                     <div class="project-name">${escapeHtml(item.project_name)}</div>
                     ${item.notes ? `<div class="notes">${escapeHtml(item.notes)}</div>` : ''}
                 </td>
-                <td class="${departmentValue(item) ? 'department-cell' : 'department-unassigned'}">${escapeHtml(departmentValue(item) || 'Belum ditentukan')}</td>
+                <td class="${departmentValue(item) ? 'department-cell' : 'department-unassigned'}">${escapeHtml(departmentValue(item) || 'Belum ditentukan')}<div class="psa-meta">${escapeHtml(plantLabel(item))}${item.area?'<br>'+escapeHtml(item.area):''}</div></td>
                 <td>${escapeHtml(item.pic)}</td>
                 <td>
                     <div>${formatDate(item.timeline_start)}</div>
                     <div style="color:#9ca3af; font-size:11px; margin-top:3px;">s.d. ${formatDate(item.timeline_end)}</div>
                 </td>
+                <td>${IMPACTS[item.impact_category]?`<span class="psa-cat">${escapeHtml(item.impact_category)} · ${escapeHtml(IMPACTS[item.impact_category])}</span>`:'<span class="psa-meta">—</span>'}${formatSaving(item.impact_cost)?`<div class="psa-saving" style="margin-top:5px">${escapeHtml(formatSaving(item.impact_cost))}</div><div class="psa-meta">${escapeHtml(item.saving_period||'')}</div>`:''}</td>
                 <td>${formatDate(item.realization_date)}</td>
                 <td>
                     <strong>${progress}%</strong>
-                    <div class="progress-bar"><div class="progress-fill ${progress >= 100 ? 'done' : status.key === 'overdue' ? 'late' : ''}" style="width:${progress}%"></div></div>
+                    <div class="progress-bar"><div class="progress-fill ${status.key === 'completed' ? 'done' : status.key === 'overdue' ? 'late' : ''}" style="width:${progress}%"></div></div>
                 </td>
-                <td><span class="badge ${status.cls}">${status.label}</span></td>
+                <td><span class="badge ${status.cls}">${status.label}</span>${psaStage(item)?`<span class="psa-stage">${escapeHtml(psaStage(item))}</span>`:''}</td>
                 <td>
                     <div class="actions">
                         <button class="btn-edit" onclick="editImprovement('${item.id}')" title="Edit" aria-label="Edit improvement"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m16 3 5 5L9 20l-6 1 1-6Z"/><path d="m13 6 5 5"/></svg></button>
@@ -797,106 +850,64 @@ function focusForm(isNew = false) {
     if (isNew) resetForm();
     document.getElementById('form-card').hidden = false;
     document.getElementById('form-card').scrollIntoView({ behavior:'smooth', block:'start' });
-    setTimeout(() => document.getElementById('no-index').focus(), 350);
+    setTimeout(() => document.getElementById('plant-index').focus(), 350);
 }
 async function saveImprovement(event) {
     event.preventDefault();
-    const id = document.getElementById('edit-id').value;
-    const noIndex = document.getElementById('no-index').value.trim() || null;
-    const projectName = document.getElementById('project-name').value.trim();
-    const timelineStart = document.getElementById('timeline-start').value;
-    const timelineEnd = document.getElementById('timeline-end').value;
-    const realizationDate = document.getElementById('realization-date').value || null;
-    const department = document.getElementById('department').value.trim();
-    const pic = document.getElementById('pic').value.trim();
-    const progress = Math.min(100, Math.max(0, Number(document.getElementById('progress-number').value) || 0));
-    const notes = document.getElementById('notes').value.trim() || null;
-    if (!projectName || !timelineStart || !timelineEnd || !pic || !department || !departmentOptions().includes(department)) {
-        showToast('Nama project, departemen, timeline, dan PIC wajib diisi.', 'error');
-        return;
+    const id=el('edit-id').value, value=key=>el(key).value.trim();
+    const noIndex=value('no-index')||null, projectName=value('project-name'), timelineStart=value('timeline-start'), timelineEnd=value('timeline-end');
+    const department=value('department'), pic=value('pic'), plant=value('plant-index'), area=value('area');
+    const progress=Number(value('progress-number')), stage=value('psa-status');
+    const impact=document.querySelector('input[name="impact-category"]:checked')?.value||'';
+    const costRaw=value('impact-cost'), cost=costRaw===''?null:Number(costRaw);
+    const savingType=value('saving-type'), savingPeriod=value('saving-period')||null;
+    if (!PLANTS[plant]||!projectName||!timelineStart||!timelineEnd||!pic||!area||!departmentOptions().includes(department)||!IMPACTS[impact]) {
+        showToast('Lengkapi Plant, Department, Area, Problem Owner, tanggal, Problem Title, dan Category Impact.','error','Field wajib belum lengkap');return;
     }
-    if (timelineEnd < timelineStart) {
-        showToast('Target selesai tidak boleh sebelum tanggal mulai.', 'error');
-        return;
-    }
-    const payload = {
-        no_index: noIndex,
-        project_name: projectName,
-        department,
-        timeline_start: timelineStart,
-        timeline_end: timelineEnd,
-        realization_date: realizationDate,
-        pic,
-        progress,
-        notes,
-        updated_at: new Date().toISOString()
-    };
-    const saveButton = document.getElementById('btn-save');
-    saveButton.disabled = true;
-    saveButton.textContent = 'Menyimpan...';
+    const existing=improvementData.find(row=>String(row.id)===id);
+    if(existing?.psa_number&&(plant!==plantValue(existing)||timelineStart.slice(0,4)!==String(existing.timeline_start||'').slice(0,4))){showToast('Plant dan tahun Date Open tidak dapat diubah setelah nomor PSA diterbitkan.','error','Identitas PSA tetap');return;}
+    if(timelineEnd<timelineStart){showToast('Target Date tidak boleh sebelum Date Open.','error');return;}
+    if(!PSA_STAGES.includes(stage)||!Number.isFinite(progress)||progress<0||progress>100){showToast('Pilih status dan progres 0–100%.','error');return;}
+    if(stage==='Closed'&&progress!==100){showToast('Status Closed memerlukan progress 100%.','error','Periksa status PSA');return;}
+    if(cost!==null&&(!Number.isFinite(cost)||cost<0||cost>999999999999999)){showToast('Masukkan nilai saving yang valid.','error');return;}
+    if(!SAVING_TYPES.includes(savingType)||(savingPeriod&&!SAVING_PERIODS.includes(savingPeriod))){showToast('Jenis saving atau period tidak valid.','error');return;}
+    const payload={no_index:noIndex,project_name:projectName,department,plant_index:plant,area,timeline_start:timelineStart,timeline_end:timelineEnd,realization_date:value('realization-date')||null,pic,progress,notes:value('notes')||null,problem_statement:value('problem-statement')||null,impact_category:impact,saving_type:savingType,impact_cost:cost,saving_period:savingPeriod,saving_description:value('saving-description')||null,psa_status:stage,updated_at:new Date().toISOString()};
+    const saveButton=el('btn-save');if(saveButton.disabled)return;saveButton.disabled=true;saveButton.textContent='Menyimpan...';
     try {
-        if (id) {
-            // RETURNING memastikan UPDATE mengenai tepat satu baris, bukan 0 baris karena RLS.
-            const { data, error } = await db
-                .from('improvement_monitoring')
-                .update(payload)
-                .eq('id', id)
-                .select('id, progress, no_index, department');
-            if (error) throw error;
-            if (!data || data.length !== 1) {
-                showToast('Perubahan belum tersimpan. UPDATE tidak mengubah data; periksa izin UPDATE/RLS di Supabase.', 'error');
-                return;
-            }
-            if (Number(data[0].progress) !== progress || (data[0].no_index || null) !== noIndex || departmentValue(data[0]) !== department) {
-                showToast('Data No. Index / departemen / progres di database berbeda dari nilai yang disimpan.', 'error');
-                return;
-            }
-        } else {
-            const { error } = await db
-                .from('improvement_monitoring')
-                .insert([payload]);
-            if (error) throw error;
-        }
-        closeForm();
-        await loadImprovements();
-        showToast(id ? 'Improvement dan progres berhasil diperbarui' : 'Improvement berhasil ditambahkan');
-    } catch (err) {
-        showToast('Gagal menyimpan: ' + (err && err.message ? err.message : String(err)), 'error');
-    } finally {
-        saveButton.disabled = false;
-        saveButton.textContent = document.getElementById('edit-id').value
-            ? 'Simpan Perubahan' : 'Simpan Improvement';
-    }
+        let query=db.from('improvement_monitoring');
+        query=id?query.update(payload).eq('id',id):query.insert([payload]);
+        const {data,error}=await query.select('*');
+        if(error)throw error;
+        if(!data||data.length!==1)throw new Error('Data belum terverifikasi. Periksa izin INSERT/UPDATE dan SELECT (RLS) di Supabase.');
+        const saved=data[0];
+        if(!saved.psa_number || Object.entries(payload).some(([key,val])=>key!=='updated_at' && (['progress','impact_cost'].includes(key)&&val!==null?Number(saved[key])!==val:(saved[key]??null)!==val)))throw new Error('Data yang diterima berbeda dari nilai yang disimpan. Periksa data sebelum mengulangi penyimpanan.');
+        closeForm();await loadImprovements();
+        showToast(saved.psa_number+' · '+(id?'Perubahan tersimpan':'PSA berhasil ditambahkan'),'success',id?'PSA diperbarui':'PSA berhasil dibuat');
+    }catch(err){showToast('Gagal menyimpan: '+(err?.message||String(err)),'error','PSA belum terverifikasi');}
+    finally{saveButton.disabled=false;saveButton.textContent=el('edit-id').value?'Simpan Perubahan':'Submit PSA';}
 }
 function editImprovement(id) {
-    const item = improvementData.find(row => String(row.id) === String(id));
-    if (!item) return;
-    document.getElementById('edit-id').value = item.id;
-    document.getElementById('no-index').value = item.no_index || '';
-    document.getElementById('project-name').value = item.project_name || '';
-    document.getElementById('department').value = departmentValue(item);
-    document.getElementById('timeline-start').value = item.timeline_start || '';
-    document.getElementById('timeline-end').value = item.timeline_end || '';
-    document.getElementById('realization-date').value = item.realization_date || '';
-    document.getElementById('pic').value = item.pic || '';
-    document.getElementById('progress-range').value = Number(item.progress) || 0;
-    document.getElementById('progress-number').value = Number(item.progress) || 0;
-    document.getElementById('notes').value = item.notes || '';
-    document.getElementById('form-title').textContent = 'Edit Improvement';
-    document.getElementById('btn-save').textContent = 'Simpan Perubahan';
-    document.getElementById('btn-cancel').style.display = 'inline-block';
-    focusForm();
+    const item=improvementData.find(row=>String(row.id)===String(id));if(!item)return;
+    resetForm();el('edit-id').value=item.id;
+    const mapping={'no-index':'no_index','project-name':'project_name','timeline-start':'timeline_start','timeline-end':'timeline_end','realization-date':'realization_date','pic':'pic','notes':'notes','area':'area','problem-statement':'problem_statement','saving-description':'saving_description','impact-cost':'impact_cost'};
+    Object.entries(mapping).forEach(([field,key])=>el(field).value=item[key]??'');
+    el('department').value=departmentValue(item);el('plant-index').value=plantValue(item)||'';
+    el('saving-type').value=SAVING_TYPES.includes(item.saving_type)?item.saving_type:'N/A';
+    el('saving-period').value=SAVING_PERIODS.includes(item.saving_period)?item.saving_period:'';
+    const prog=Number(item.progress)||0;
+    el('psa-status').value=psaStage(item)||(prog>=100?'Closed':prog>0?'Action':'Open');
+    el('progress-range').value=prog;el('progress-number').value=prog;
+    document.querySelectorAll('input[name="impact-category"]').forEach(r=>r.checked=r.value===item.impact_category);
+    el('legacy-index-wrap').open=!!item.no_index;updatePsaPreview();
+    el('form-title').textContent='Edit PSA';el('btn-save').textContent='Simpan Perubahan';focusForm();
 }
 function resetForm() {
-    document.getElementById('improvement-form').reset();
-    document.getElementById('edit-id').value = '';
-    document.getElementById('no-index').value = '';
-    document.getElementById('department').value = '';
-    document.getElementById('progress-range').value = 0;
-    document.getElementById('progress-number').value = 0;
-    document.getElementById('form-title').textContent = 'Tambah Improvement';
-    document.getElementById('btn-save').textContent = 'Simpan Improvement';
-    document.getElementById('btn-cancel').style.display = 'none';
+    el('improvement-form').reset();el('edit-id').value='';el('no-index').value='';el('department').value='';
+    const selectedPlant=el('plant-filter').value;
+    el('plant-index').value=PLANTS[selectedPlant]?selectedPlant:'1500';
+    el('timeline-start').value=kkmPeriod().date;
+    el('progress-range').value=0;el('progress-number').value=0;
+    el('form-title').textContent='Submit PSA';el('btn-save').textContent='Submit PSA';el('legacy-index-wrap').open=false;updatePsaPreview();
 }
 async function deleteImprovement(id) {
     const item = improvementData.find(row => String(row.id) === String(id));
@@ -914,7 +925,7 @@ async function deleteImprovement(id) {
 const KKM = Object.freeze({
     width: 13.333333, height: 7.5, x: .44, w: 12.45, rowStart: 2.59, rowEnd: 7.19,
     colors: {bg:'F7F9FC', white:'FFFFFF', ink:'24324B', muted:'64748B', line:'E2E8F0', blue:'2563EB', deep:'1D4ED8', purple:'6D28D9', green:'10B981', red:'EF4444', grey:'94A3B8'},
-    widths: [.85, 4.35, 1.65, 1.65, 1.25, 1.25, 1.45],
+    widths: [1.35, 4.05, 1.55, 1.65, 1.15, 1.25, 1.45],
     font: 'Arial'
 });
 let pptLibraryPromise;
@@ -1010,7 +1021,7 @@ function kkmWrap(value, width, size, bold=false) {
 function kkmLineH(size) { return size/72 * 1.23; }
 function kkmRow(item, font) {
     const pad=.14, w=KKM.widths, noteFont=Math.max(10,font-1);
-    const index=kkmWrap(item.no_index || '\u2014',w[0]-pad,font);
+    const index=kkmWrap(psaReference(item) || '\u2014',w[0]-pad,font);
     const title=kkmWrap(item.project_name || '\u2014',w[1]-pad,font,true);
     const notes=item.notes ? kkmWrap(item.notes,w[1]-pad,noteFont) : [];
     const pic=kkmWrap(item.pic || '\u2014',w[2]-pad,font);
@@ -1018,7 +1029,7 @@ function kkmRow(item, font) {
     const end=kkmWrap(kkmDate(item.timeline_end),w[3]-pad,font);
     const actual=kkmWrap(kkmDate(item.realization_date),w[4]-pad,font);
     const status=getStatus(item);
-    const statusLines=kkmWrap(status.label,w[6]-pad,font,true);
+    const statusLines=kkmWrap(psaStage(item)?(status.key==='overdue'?'Terlambat / '+psaStage(item):psaStage(item)):status.label,w[6]-pad,font,true);
     const basicH=Math.max(index.length,pic.length,start.length+end.length,actual.length,statusLines.length)*kkmLineH(font);
     const projectH=title.length*kkmLineH(font)+(notes.length?.02+notes.length*kkmLineH(noteFont):0);
     const progressH=kkmLineH(font)+.035+.065;
@@ -1067,7 +1078,7 @@ function kkmMakeSlide(pptx,plan,rows,period,gradient) {
     while(titleFont>14 && kkmWidth(heading,titleFont,true)>8.9) titleFont--;
     kkmText(slide,heading,.71,.32,9.15,.32,{fontSize:titleFont,bold:true,color:c.white});
     kkmText(slide,period.label,.72,.72,9.2,.18,{fontSize:11,color:'E0E7FF'});
-    kkmText(slide,'KOBE BOJONEGORO',10.03,.34,2.57,.22,{fontSize:12,bold:true,color:c.white,align:'right'});
+    kkmText(slide,plan.plantName||'KOBE',10.03,.34,2.57,.22,{fontSize:12,bold:true,color:c.white,align:'right'});
     kkmText(slide,period.asOf,10.03,.71,2.57,.18,{fontSize:11,color:'E0E7FF',align:'right'});
     const statuses=plan.items.map(getStatus);
     const count=key=>statuses.filter(s=>s.key===key).length;
@@ -1084,7 +1095,7 @@ function kkmMakeSlide(pptx,plan,rows,period,gradient) {
     // Native table-like shapes and text; no screenshot or flattened slide.
     const tableHeaderY=KKM.rowStart-.34;
     kkmShape(slide,pptx,KKM.x,tableHeaderY,KKM.w,.34,'E8EEF9',null,false);
-    const heads=['INDEX','PROJECT / IMPROVEMENT','PIC','MULAI / TARGET','REALISASI','PROGRES','STATUS'];
+    const heads=['PSA / INDEX','PROJECT / IMPROVEMENT','PIC','MULAI / TARGET','REALISASI','PROGRES','STATUS'];
     let x=KKM.x;
     heads.forEach((h,i)=>{kkmText(slide,h,x+.08,tableHeaderY+.045,w[i]-.16,.24,{fontSize:10,bold:true,color:c.deep});x+=w[i];});
     let y=KKM.rowStart;
@@ -1128,12 +1139,15 @@ async function exportKKMPpt() {
             return;
         }
         const [name,items]=groups[0];
+        const plants=[...new Set(items.map(plantValue))];
+        if(plants.length>1){const choose=await showKKMDialog({title:'Pilih satu plant',description:'Pilih plant agar laporan satu slide tidak mencampur data antar plant atau data lama yang belum memiliki plant.',detail:`${name} · ${items.length} PSA`,confirmText:'Pilih Plant',cancelText:'Batal',icon:'export'});if(choose)el('plant-filter').focus();return;}
         const plan=kkmPlanSingle(name,items);
         if(!plan) {
             const choose=await showKKMDialog({title:'Data terlalu padat untuk 1 slide',description:'Seluruh detail project dipertahankan agar tidak terpotong atau terlalu kecil. Persempit filter Status, PIC, atau pencarian untuk menghasilkan satu slide yang tetap terbaca.',detail:`${name} • ${items.length} project`,confirmText:'Atur Filter',cancelText:'Batal',icon:'export'});
             if(choose) document.getElementById('status-filter').focus();
             return;
         }
+        plan.plantName=plants[0]?'KOBE '+PLANTS[plants[0]].toUpperCase():'KOBE';
         const period=kkmPeriod();
         period.filtered=!!document.getElementById('search-input').value.trim() || document.getElementById('status-filter').value!=='all' || document.getElementById('pic-filter').value!=='all';
         const PptxGenJS=await loadPptLibrary();
@@ -1148,6 +1162,7 @@ async function exportKKMPpt() {
 }
 
 refreshDepartmentOptions();
+resetForm();
 loadImprovements();
 </script>
 </body>
