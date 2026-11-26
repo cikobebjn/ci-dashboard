@@ -75,6 +75,10 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; color:#1f293
 .filters { display:flex; gap:10px; flex-wrap:wrap; }
 .filters .fg input, .filters .fg select { min-width:160px; }
 .result-count { color:#6b7280; font-size:12px; }
+.toolbar-actions { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+.btn-export { background:linear-gradient(105deg,#2563eb,#6d28d9); color:#fff; display:inline-flex; align-items:center; gap:7px; box-shadow:0 2px 6px rgba(37,99,235,.15); }
+.btn-export:hover:not(:disabled) { filter:brightness(.94); }
+.btn-export span { font-size:17px; line-height:1; }
 .table-wrap { overflow:auto; border:1px solid #eef0f3; border-radius:10px; }
 table { width:100%; border-collapse:collapse; font-size:13px; min-width:1300px; }
 th {
@@ -239,7 +243,10 @@ tr:hover td { background:#fafafa; }
                     </select>
                 </div>
             </div>
-            <div class="result-count" id="result-count">0 data</div>
+            <div class="toolbar-actions">
+                <div class="result-count" id="result-count">0 data</div>
+                <button type="button" class="btn btn-export" id="btn-export-ppt" onclick="exportKKMPpt()" disabled title="Ekspor data sesuai filter untuk Weekly Meeting KKM"><span aria-hidden="true">&#8681;</span> Export PPT</button>
+            </div>
         </div>
         <div class="table-wrap">
             <table>
@@ -284,6 +291,7 @@ const DEPARTMENTS = Object.freeze([
     'Sparepart (GDSP)', 'HR', 'Project', 'RMPM', 'Lainnya'
 ]);
 let improvementData = [];
+let improvementLoaded = false;
 let toastTimeout;
 
 function showToast(message, type = 'success') {
@@ -361,6 +369,8 @@ function onDepartmentFilterChange() {
     renderTable();
 }
 async function loadImprovements() {
+    improvementLoaded = false;
+    document.getElementById('btn-export-ppt').disabled = true;
     const body = document.getElementById('improvement-body');
     body.innerHTML = '<tr class="empty-row"><td colspan="10">Memuat data...</td></tr>';
     const { data, error } = await db
@@ -374,6 +384,8 @@ async function loadImprovements() {
         return;
     }
     improvementData = data || [];
+    improvementLoaded = true;
+    document.getElementById('btn-export-ppt').disabled = false;
     refreshDepartmentOptions();
     onDepartmentFilterChange();
 }
@@ -397,13 +409,12 @@ function updateSummary() {
     document.getElementById('sum-completed').textContent = statuses.filter(s => s.key === 'completed').length;
     document.getElementById('sum-overdue').textContent = statuses.filter(s => s.key === 'overdue').length;
 }
-function renderTable() {
-    const body = document.getElementById('improvement-body');
+function filteredImprovementData() {
     const search = document.getElementById('search-input').value.trim().toLowerCase();
     const statusFilter = document.getElementById('status-filter').value;
     const picFilter = document.getElementById('pic-filter').value;
     const scoped = departmentScopedData();
-    const filtered = scoped.filter(item => {
+    return scoped.filter(item => {
         const status = getStatus(item);
         const matchesSearch = !search ||
             String(item.no_index || '').toLowerCase().includes(search) ||
@@ -415,6 +426,11 @@ function renderTable() {
         const matchesPic = picFilter === 'all' || item.pic === picFilter;
         return matchesSearch && matchesStatus && matchesPic;
     });
+}
+function renderTable() {
+    const body = document.getElementById('improvement-body');
+    const scoped = departmentScopedData();
+    const filtered = filteredImprovementData();
     document.getElementById('result-count').textContent = `${filtered.length} dari ${scoped.length} data`;
     if (filtered.length === 0) {
         body.innerHTML = '<tr class="empty-row"><td colspan="10">Tidak ada data yang sesuai.</td></tr>';
@@ -568,6 +584,262 @@ async function deleteImprovement(id) {
     showToast('🗑 Improvement dihapus');
     await loadImprovements();
 }
+// KKM weekly meeting export: one slide per department where content fits.
+const KKM = Object.freeze({
+    width: 13.333333, height: 7.5, x: .44, w: 12.45, rowStart: 3.15, rowEnd: 7.15,
+    colors: {bg:'F7F9FC', white:'FFFFFF', ink:'24324B', muted:'64748B', line:'E2E8F0', blue:'2563EB', deep:'1D4ED8', purple:'6D28D9', green:'10B981', red:'EF4444', grey:'94A3B8'},
+    widths: [1.13, 3.72, 1.47, 1.75, 1.43, 1.35, 1.60],
+    font: 'Arial'
+});
+let pptLibraryPromise;
+function loadPptLibrary() {
+    if (typeof window.PptxGenJS === 'function') return Promise.resolve(window.PptxGenJS);
+    if (pptLibraryPromise) return pptLibraryPromise;
+    const urls = [
+        'https://cdn.jsdelivr.net/npm/pptxgenjs@4.0.0/dist/pptxgen.bundle.js',
+        'https://unpkg.com/pptxgenjs@4.0.0/dist/pptxgen.bundle.js'
+    ];
+    pptLibraryPromise = new Promise((resolve,reject) => {
+        let i = 0;
+        function next() {
+            if (i >= urls.length) { reject(new Error('Library PowerPoint gagal dimuat. Periksa koneksi internet/CDN.')); return; }
+            const script = document.createElement('script');
+            script.src = urls[i++]; script.async = true;
+            let finished = false;
+            const timer = setTimeout(fail, 12000);
+            function fail() { if(finished) return; finished=true; clearTimeout(timer); script.remove(); next(); }
+            script.onerror = fail;
+            script.onload = () => {
+                if(finished) return;
+                if(typeof window.PptxGenJS !== 'function') { fail(); return; }
+                finished = true; clearTimeout(timer); resolve(window.PptxGenJS);
+            };
+            document.head.appendChild(script);
+        }
+        next();
+    }).catch(err => { pptLibraryPromise = null; throw err; });
+    return pptLibraryPromise;
+}
+function kkmDate(value) {
+    if (!value) return '\u2014';
+    const match = String(value).match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (!match) return String(value);
+    const d = new Date(Date.UTC(+match[1],+match[2]-1,+match[3]));
+    return new Intl.DateTimeFormat('id-ID',{day:'2-digit',month:'short',year:'numeric',timeZone:'UTC'}).format(d);
+}
+function kkmPeriod(now = new Date()) {
+    const p = Object.fromEntries(new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Jakarta',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(now).map(x=>[x.type,x.value]));
+    const current = new Date(Date.UTC(+p.year,+p.month-1,+p.day));
+    const start = new Date(current); start.setUTCDate(start.getUTCDate()-start.getUTCDay());
+    const end = new Date(start); end.setUTCDate(end.getUTCDate()+6);
+    const iso = d => d.toISOString().slice(0,10);
+    return {date:iso(current), label:`Weekly Meeting | ${kkmDate(iso(start))} - ${kkmDate(iso(end))}`, asOf:`Update ${kkmDate(iso(current))}`};
+}
+function kkmGroupData(rows) {
+    const groups = new Map();
+    for (const item of rows) {
+        const name = departmentValue(item) || 'Belum ditentukan';
+        if (!groups.has(name)) groups.set(name, []);
+        groups.get(name).push(item);
+    }
+    const order = [...departmentOptions(), 'Belum ditentukan'];
+    const rank = name => order.includes(name) ? order.indexOf(name) : order.length;
+    return [...groups.entries()].sort((a,b)=>rank(a[0])-rank(b[0]) || a[0].localeCompare(b[0],'id'));
+}
+function kkmStatusColor(status) {
+    return ({completed:KKM.colors.green,overdue:KKM.colors.red,'in-progress':KKM.colors.blue,'not-started':KKM.colors.grey})[status.key] || KKM.colors.grey;
+}
+// All row text is wrapped before layout. Canvas metrics are conservative; fallback for non-browser tests.
+let kkmMeasureContext;
+function kkmWidth(text, size, bold) {
+    if (kkmMeasureContext === undefined) {
+        try { kkmMeasureContext = document.createElement('canvas').getContext('2d'); } catch(e) { kkmMeasureContext = null; }
+    }
+    if (kkmMeasureContext) {
+        kkmMeasureContext.font = `${bold?'bold ':''}${size}pt Arial`;
+        return kkmMeasureContext.measureText(text).width/96;
+    }
+    return Array.from(text).reduce((s,c)=>s+(/[ilI1.,:;!| ]/.test(c)? .30 : /[MW@%]/.test(c)? .90 : .60),0)*size/72*(bold?1.04:1);
+}
+function kkmWrap(value, width, size, bold=false) {
+    const text = String(value ?? '').replace(/\r\n?/g,'\n');
+    const max = width * .91;
+    const lines = [];
+    for (const paragraph of text.split('\n')) {
+        if (!paragraph.trim()) { lines.push(''); continue; }
+        let line = '';
+        for (const word of paragraph.trim().split(/\s+/u)) {
+            if (kkmWidth(line ? line+' '+word : word,size,bold)<=max) { line = line ? line+' '+word : word; continue; }
+            if (line) { lines.push(line); line=''; }
+            if (kkmWidth(word,size,bold)<=max) { line=word; continue; }
+            for (const char of Array.from(word)) {
+                if (line && kkmWidth(line+char,size,bold)>max) { lines.push(line); line=''; }
+                line+=char;
+            }
+        }
+        lines.push(line);
+    }
+    return lines.length ? lines : [''];
+}
+function kkmLineH(size) { return size/72 * 1.32; }
+function kkmRowParts(item, font) {
+    const pad=.16, w=KKM.widths, noteFont=font-1;
+    const index=kkmWrap(item.no_index || '\u2014',w[0]-pad,font);
+    const title=kkmWrap(item.project_name || '\u2014',w[1]-pad,font,true);
+    const notes=item.notes ? kkmWrap(item.notes,w[1]-pad,noteFont) : [];
+    const pic=kkmWrap(item.pic || '\u2014',w[2]-pad,font);
+    const start=kkmWrap(kkmDate(item.timeline_start),w[3]-pad,font);
+    const end=kkmWrap(kkmDate(item.timeline_end),w[3]-pad,font);
+    const actual=kkmWrap(kkmDate(item.realization_date),w[4]-pad,font);
+    const status=getStatus(item);
+    const statusLines=kkmWrap(status.label,w[6]-pad,font,true);
+    const base=Math.max(.52, Math.max(index.length,pic.length,start.length+end.length,actual.length,statusLines.length)*kkmLineH(font)+.18);
+    const titleH=title.length*kkmLineH(font);
+    const heightFor = n=>Math.max(base,titleH+(n ? .035+n*kkmLineH(noteFont):0)+.18);
+    const cap=KKM.rowEnd-KKM.rowStart;
+    // Long notes are continued on an extra page without removing their content.
+    const maxNotes=Math.max(1,Math.floor((cap-titleH-.215-.001)/kkmLineH(noteFont)));
+    if(base>cap || heightFor(Math.min(notes.length,maxNotes))>cap+.0001) throw new Error('Detail project terlalu panjang untuk layout slide. Persempit isi catatan atau PIC.');
+    if(!notes.length) return [{item,index,title,notes:[],pic,start,end,actual,status,statusLines,h:heightFor(0),continued:false}];
+    const parts=[];
+    for(let i=0;i<notes.length;i+=maxNotes){
+        const chunk=notes.slice(i,i+maxNotes);
+        parts.push({item,index,title,notes:chunk,pic,start,end,actual,status,statusLines,h:heightFor(chunk.length),continued:i>0});
+    }
+    return parts;
+}
+function kkmPages(items, font) {
+    const pages=[]; let rows=[], used=0;
+    const cap=KKM.rowEnd-KKM.rowStart;
+    for(const item of items) for(const part of kkmRowParts(item,font)) {
+        if(rows.length && used+part.h>cap+.0001) { pages.push(rows); rows=[]; used=0; }
+        rows.push(part); used+=part.h;
+    }
+    if(rows.length) pages.push(rows);
+    return pages;
+}
+function kkmPlan(groups) {
+    return groups.map(([name,items])=>{
+        // Prefer generous type, then a compact but readable 11pt layout.
+        let font=13, pages=kkmPages(items,font);
+        if(pages.length>1){
+            for(const candidate of [12,11]) {
+                const compact=kkmPages(items,candidate);
+                if(compact.length<pages.length) { font=candidate; pages=compact; }
+                if(pages.length===1) break;
+            }
+        }
+        return {name,items,font,pages};
+    });
+}
+function kkmShape(slide,pptx,x,y,w,h,fill,stroke,radius=true) {
+    slide.addShape(radius?pptx.ShapeType.roundRect:pptx.ShapeType.rect,{x,y,w,h,rectRadius:.12,radius:.12,
+        line:{color:stroke||fill,transparency:stroke?0:100,width:.6},fill:{color:fill},radius:.12});
+}
+function kkmText(slide,text,x,y,w,h,opts={}) {
+    slide.addText(String(text??''),{x,y,w,h,fontFace:KKM.font,fontSize:12,color:KKM.colors.ink,
+        margin:0,breakLine:false,valign:'mid',align:'left',...opts});
+}
+function kkmLines(slide,lines,x,y,w,size,opts={}) {
+    const h=kkmLineH(size);
+    for(let i=0;i<lines.length;i++) kkmText(slide,lines[i],x,y+i*h,w,h,{fontSize:size,...opts});
+    return lines.length*h;
+}
+function kkmHeaderImage() {
+    // Only the decorative gradient is rasterized. All text, KPI and rows remain native/editable.
+    const canvas=document.createElement('canvas'); canvas.width=1600; canvas.height=112;
+    const ctx=canvas.getContext('2d');
+    const gradient=ctx.createLinearGradient(0,0,canvas.width,0); gradient.addColorStop(0,'#2563EB'); gradient.addColorStop(.5,'#1D4ED8'); gradient.addColorStop(1,'#6D28D9');
+    ctx.fillStyle=gradient;
+    const w=canvas.width,h=canvas.height,r=20;
+    ctx.beginPath(); ctx.moveTo(r,0);ctx.lineTo(w-r,0);ctx.quadraticCurveTo(w,0,w,r);ctx.lineTo(w,h-r);ctx.quadraticCurveTo(w,h,w-r,h);ctx.lineTo(r,h);ctx.quadraticCurveTo(0,h,0,h-r);ctx.lineTo(0,r);ctx.quadraticCurveTo(0,0,r,0);ctx.closePath();ctx.fill();
+    return canvas.toDataURL('image/png');
+}
+function kkmMakeSlide(pptx,plan,rows,pageIdx,period,gradient) {
+    const slide=pptx.addSlide(), c=KKM.colors, font=plan.font, w=KKM.widths;
+    slide.background={color:c.bg};
+    if(gradient) slide.addImage({data:gradient,x:KKM.x,y:.30,w:KKM.w,h:.91});
+    else kkmShape(slide,pptx,KKM.x,.30,KKM.w,.91,c.deep,null,true);
+    let titleFont=25;
+    const heading=`KKM | ${plan.name}`;
+    while(titleFont>14 && kkmWidth(heading,titleFont,true)>8.9) titleFont--;
+    kkmText(slide,heading,.71,.41,9.15,.38,{fontSize:titleFont,bold:true,color:c.white});
+    kkmText(slide,period.label,.72,.84,9.2,.20,{fontSize:11,color:'E0E7FF'});
+    kkmText(slide,'KOBE BOJONEGORO',10.03,.45,2.57,.25,{fontSize:12,bold:true,color:c.white,align:'right'});
+    kkmText(slide,period.asOf,10.03,.82,2.57,.21,{fontSize:11,color:'E0E7FF',align:'right'});
+    const statuses=plan.items.map(getStatus);
+    const count=key=>statuses.filter(s=>s.key===key).length;
+    const kpis=[['TOTAL PROJECT',plan.items.length,c.ink,`${count('not-started')} belum mulai`],['ON PROGRESS',count('in-progress'),c.blue,'Sedang dikerjakan'],['SELESAI',count('completed'),c.green,'Progres 100%'],['TERLAMBAT',count('overdue'),count('overdue')?c.red:c.muted,'Lewat target selesai']];
+    const gap=.14, cw=(KKM.w-3*gap)/4;
+    kpis.forEach(([label,value,color,note],i)=>{
+        const x=KKM.x+i*(cw+gap);
+        kkmShape(slide,pptx,x,1.40,cw,.93,c.white,c.line,true);
+        kkmText(slide,label,x+.18,1.50,cw-.36,.19,{fontSize:10,bold:true,color:c.muted});
+        kkmText(slide,value,x+.18,1.72,cw-.36,.36,{fontSize:27,bold:true,color});
+        kkmText(slide,note,x+.18,2.12,cw-.36,.13,{fontSize:9,color:c.muted});
+    });
+    kkmText(slide,period.filtered ? 'Update Progres Project / Improvement | Data terfilter' : 'Update Progres Project / Improvement',KKM.x+.02,2.48,10.8,.26,{fontSize:16,bold:true});
+    if(plan.pages.length>1) kkmText(slide,`${pageIdx+1} / ${plan.pages.length}`,11.85,2.48,1.03,.24,{fontSize:11,color:c.muted,align:'right'});
+    // Native table-like shapes and text; no screenshot or flattened slide.
+    const tableHeaderY=KKM.rowStart-.34;
+    kkmShape(slide,pptx,KKM.x,tableHeaderY,KKM.w,.34,'E8EEF9',null,false);
+    const heads=['INDEX','PROJECT / IMPROVEMENT','PIC','MULAI / TARGET','REALISASI','PROGRES','STATUS'];
+    let x=KKM.x;
+    heads.forEach((h,i)=>{kkmText(slide,h,x+.08,tableHeaderY+.045,w[i]-.16,.24,{fontSize:10,bold:true,color:c.deep});x+=w[i];});
+    let y=KKM.rowStart;
+    rows.forEach((r,idx)=>{
+        const fill=idx%2===0?c.white:'F3F6FB';
+        kkmShape(slide,pptx,KKM.x,y,KKM.w,r.h,fill,null,false);
+        slide.addShape(pptx.ShapeType.line,{x:KKM.x,y:y+r.h,w:KKM.w,h:0,line:{color:c.line,width:.5}});
+        const xs=[KKM.x]; for(let i=0;i<w.length;i++) xs.push(xs[i]+w[i]);
+        const tx=i=>xs[i]+.08, tw=i=>w[i]-.16, top=y+.09;
+        kkmLines(slide,r.index,tx(0),top,tw(0),font,{color:c.muted});
+        let offset=kkmLines(slide,r.title,tx(1),top,tw(1),font,{bold:true});
+        if(r.notes.length) kkmLines(slide,r.notes,tx(1),top+offset+.035,tw(1),font-1,{color:c.muted});
+        kkmLines(slide,r.pic,tx(2),top,tw(2),font);
+        offset=kkmLines(slide,r.start,tx(3),top,tw(3),font);
+        kkmLines(slide,r.end,tx(3),top+offset,tw(3),font,{color:c.muted});
+        kkmLines(slide,r.actual,tx(4),top,tw(4),font);
+        const progress=Math.min(100,Math.max(0,Number(r.item.progress)||0));
+        const color=kkmStatusColor(r.status);
+        kkmText(slide,`${progress}%`,tx(5),top,tw(5),.23,{fontSize:font,bold:true,color:c.ink});
+        const bw=tw(5)-.03, by=top+.28;
+        kkmShape(slide,pptx,tx(5),by,bw,.075,'E2E8F0',null,true);
+        if(progress>0) kkmShape(slide,pptx,tx(5),by,bw*progress/100,.075,color,null,true);
+        const statusInk=r.status.key==='completed'?'047857':r.status.key==='overdue'?'B91C1C':r.status.key==='in-progress'?'1D4ED8':c.muted;
+        kkmLines(slide,r.statusLines,tx(6),top,tw(6),font,{bold:true,color:statusInk});
+        y+=r.h;
+    });
+    return slide;
+}
+async function exportKKMPpt() {
+    const button=document.getElementById('btn-export-ppt');
+    if(!improvementLoaded){showToast('Data belum berhasil dimuat. Refresh halaman terlebih dahulu.','error');return;}
+    const rows=filteredImprovementData();
+    if(!rows.length){showToast('Tidak ada project sesuai filter untuk diekspor.','error');return;}
+    if(button.disabled)return;
+    button.disabled=true; button.textContent='Menyiapkan PPT...';
+    try{
+        const period=kkmPeriod();
+        period.filtered=!!document.getElementById('search-input').value.trim() || document.getElementById('status-filter').value!=='all' || document.getElementById('pic-filter').value!=='all';
+        const plans=kkmPlan(kkmGroupData(rows));
+        const overflow=plans.filter(p=>p.pages.length>1);
+        if(overflow.length){
+            const detail=overflow.map(p=>`${p.name}: ${p.pages.length} slide`).join('\n');
+            if(!confirm(`Agar isi tetap terbaca dan lengkap, departemen berikut memerlukan slide lanjutan:\n${detail}\n\nOK: ekspor semua data. Batal: persempit filter agar satu slide per departemen.`))return;
+        }
+        const PptxGenJS=await loadPptLibrary();
+        const pptx=new PptxGenJS(); pptx.layout='LAYOUT_WIDE'; pptx.author='KOBE Bojonegoro'; pptx.subject='Weekly Meeting KKM'; pptx.title='KKM Progress Update';
+        pptx.theme={headFontFace:KKM.font,bodyFontFace:KKM.font,lang:'id-ID'};
+        const gradient=kkmHeaderImage();
+        plans.forEach(plan=>plan.pages.forEach((page,i)=>kkmMakeSlide(pptx,plan,page,i,period,gradient)));
+        const slug=plans.length===1?plans[0].name.replace(/[^a-zA-Z0-9]+/g,'-').replace(/^-|-$/g,''):'Semua-Departemen';
+        await pptx.writeFile({fileName:`KKM_Weekly_${slug}_${period.date}.pptx`});
+        showToast(`PPT berhasil diekspor: ${plans.reduce((n,p)=>n+p.pages.length,0)} slide.`);
+    }catch(error){console.error(error);showToast('Gagal export PPT: '+(error.message||error),'error');}
+    finally{button.disabled=!improvementLoaded;button.innerHTML='<span aria-hidden="true">&#8681;</span> Export PPT';}
+}
+
 refreshDepartmentOptions();
 loadImprovements();
 </script>
