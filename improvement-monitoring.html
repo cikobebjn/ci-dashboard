@@ -3,164 +3,457 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Improvement Monitoring - Bojonegoro</title>
+<title>Monitoring KKM | Kobe Kendali Mutu - Bojonegoro</title>
 <style>
+
+:root {
+    --bg: #f5f7fb;
+    --surface: rgba(255,255,255,.92);
+    --surface-solid: #ffffff;
+    --surface-soft: #f8fafc;
+    --text: #172033;
+    --muted: #7b8799;
+    --line: #e8edf4;
+    --primary: #4f46e5;
+    --primary-2: #6366f1;
+    --green: #16a34a;
+    --red: #dc2626;
+    --amber: #d97706;
+    --teal: #0f766e;
+    --pink: #db2777;
+    --cyan: #0891b2;
+    --orange: #ea580c;
+    --sidebar: #0f172a;
+    --shadow-sm: 0 2px 10px rgba(15,23,42,.05);
+    --shadow-md: 0 12px 30px rgba(15,23,42,.08);
+    --radius: 18px;
+}
+
 * { box-sizing: border-box; }
-body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; color:#1f2937; }
+html { scroll-behavior: smooth; }
+body {
+    margin: 0;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background:
+        radial-gradient(circle at top left, rgba(99,102,241,.08), transparent 30%),
+        radial-gradient(circle at top right, rgba(14,165,233,.06), transparent 22%),
+        var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+}
+
+/* ===== Topbar ===== */
 .topbar {
-    background:#1f2937; color:white; padding:15px;
-    display:flex; align-items:center;
-    position:fixed; top:0; left:0; width:100%; z-index:1000;
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 68px;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 0 24px;
+    background: rgba(255,255,255,.82);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-bottom: 1px solid rgba(226,232,240,.9);
+    box-shadow: 0 4px 18px rgba(15,23,42,.04);
 }
-.main { padding:84px 24px 40px; max-width:1500px; margin:0 auto; }
-.page-header {
-    display:flex; justify-content:space-between; align-items:flex-start;
-    gap:16px; margin-bottom:20px; flex-wrap:wrap;
+.topbar h2 {
+    margin: 0 !important;
+    font-size: 18px;
+    font-weight: 750;
+    letter-spacing: -.02em;
+    color: #111827;
 }
-.page-title { margin:0 0 5px; font-size:24px; }
-.page-subtitle { margin:0; color:#6b7280; font-size:13px; }
-.summary-grid {
-    display:grid; grid-template-columns:repeat(4, minmax(160px, 1fr));
-    gap:14px; margin-bottom:20px;
+.topbar h2::after {
+    content: "Factory Performance Dashboard";
+    display: block;
+    margin-top: 2px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: #94a3b8;
 }
-.summary-card {
-    background:white; border-radius:12px; padding:18px;
-    box-shadow:0 1px 3px rgba(0,0,0,0.08);
+
+
+
+
+
+
+
+
+
+
+.main {
+    max-width: 1540px;
+    margin: 0 auto;
+    padding: 92px 28px 40px;
 }
-.summary-label { font-size:11px; color:#6b7280; text-transform:uppercase; letter-spacing:.05em; font-weight:700; }
-.summary-value { font-size:27px; font-weight:800; margin-top:7px; }
-.summary-note { font-size:11px; color:#9ca3af; margin-top:3px; }
-.card {
-    background:white; border-radius:12px; padding:22px;
-    box-shadow:0 1px 3px rgba(0,0,0,0.08); margin-bottom:20px;
+
+:root {
+    --primary: #1268e8;
+    --primary-dark: #0748ad;
+    --primary-soft: #eaf3ff;
+    --accent: #7c3aed;
+    --success: #16a065;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --ink: #152238;
+    --muted: #6b7a90;
+    --line: #e5ebf3;
+    --surface: rgba(255,255,255,.93);
+    --shadow-sm: 0 10px 28px rgba(26,63,114,.07);
+    --shadow-md: 0 18px 50px rgba(26,63,114,.13);
+    --radius: 22px;
 }
-.card-title { font-size:15px; font-weight:700; margin:0 0 16px; }
-.form-grid {
-    display:grid; grid-template-columns:repeat(4, minmax(0, 1fr));
-    gap:12px; align-items:end;
+
+body {
+    background:
+        radial-gradient(circle at 7% 4%, rgba(18,104,232,.14), transparent 25%),
+        radial-gradient(circle at 93% 7%, rgba(124,58,237,.11), transparent 26%),
+        linear-gradient(145deg,#eef5ff 0%,#f8fafc 44%,#f4f0ff 100%);
+    color: var(--ink);
 }
-.fg { display:flex; flex-direction:column; gap:5px; }
-.fg.full { grid-column:1 / -1; }
-.fg.project-field { grid-column:span 2; }
-.department-cell { font-weight:600; white-space:nowrap; }
-.department-unassigned { color:#9ca3af; font-weight:400; white-space:nowrap; }
-.fg label { font-size:11px; color:#6b7280; font-weight:700; text-transform:uppercase; letter-spacing:.04em; }
-.fg input, .fg select, .fg textarea {
-    width:100%; padding:9px 11px; border:1px solid #d1d5db;
-    border-radius:8px; font-size:13px; color:#1f2937; background:white;
+body::before,
+body::after {
+    content:"";
+    position:fixed;
+    z-index:-1;
+    border-radius:50%;
+    pointer-events:none;
 }
-.fg textarea { min-height:72px; resize:vertical; }
-.fg input:focus, .fg select:focus, .fg textarea:focus {
-    outline:none; border-color:#3b82f6; box-shadow:0 0 0 2px #dbeafe;
+body::before {
+    width:270px;height:270px;left:-110px;bottom:8%;
+    background:rgba(18,104,232,.07);
 }
-.progress-input-wrap { display:flex; gap:8px; align-items:center; }
-.progress-input-wrap input[type="range"] { padding:0; }
-.progress-number { width:75px !important; text-align:right; }
-.form-actions { display:flex; justify-content:flex-end; gap:8px; margin-top:14px; }
-.btn {
-    border:none; border-radius:8px; padding:9px 15px; cursor:pointer;
-    font-size:13px; font-weight:700; white-space:nowrap;
+body::after {
+    width:330px;height:330px;right:-145px;top:34%;
+    background:rgba(124,58,237,.06);
 }
-.btn:disabled { opacity:.65; cursor:not-allowed; }
-.btn-primary { background:#1f2937; color:white; }
-.btn-primary:hover { background:#374151; }
-.btn-secondary { background:#f3f4f6; color:#4b5563; }
-.btn-secondary:hover { background:#e5e7eb; }
-.btn-edit { background:#eff6ff; color:#2563eb; border:1px solid #bfdbfe; padding:5px 10px; border-radius:6px; cursor:pointer; }
-.btn-delete { background:#fff5f5; color:#dc2626; border:1px solid #fecaca; padding:5px 10px; border-radius:6px; cursor:pointer; }
-.toolbar {
-    display:flex; justify-content:space-between; gap:12px; align-items:end;
-    margin-bottom:14px; flex-wrap:wrap;
+
+.topbar {
+    height:72px;
+    padding:0 28px;
+    background:rgba(255,255,255,.80);
+    border-bottom:1px solid rgba(229,235,243,.9);
+    box-shadow:0 7px 26px rgba(26,63,114,.05);
 }
-.filters { display:flex; gap:10px; flex-wrap:wrap; }
-.filters .fg input, .filters .fg select { min-width:160px; }
-.result-count { color:#6b7280; font-size:12px; }
-.toolbar-actions { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
-.btn-export { background:linear-gradient(105deg,#2563eb,#6d28d9); color:#fff; display:inline-flex; align-items:center; gap:7px; box-shadow:0 2px 6px rgba(37,99,235,.15); }
-.btn-export:hover:not(:disabled) { filter:brightness(.94); }
-.btn-export span { font-size:17px; line-height:1; }
-.table-wrap { overflow:auto; border:1px solid #eef0f3; border-radius:10px; }
-table { width:100%; border-collapse:collapse; font-size:13px; min-width:1300px; }
-th {
-    background:#f9fafb; color:#6b7280; font-size:11px; font-weight:700;
-    text-align:left; padding:11px 12px; border-bottom:2px solid #e5e7eb;
-    text-transform:uppercase; letter-spacing:.04em; white-space:nowrap;
+.topbar h2 { color:var(--ink); font-size:19px; }
+.topbar h2::after { content:"Factory Bojonegoro · Performance Monitoring"; color:#8b9ab0; }
+
+
+
+
+
+
+
+
+
+
+.main { max-width:1520px; padding:94px 26px 44px; }
+
+/* Hero inspired by the Presensi DOR dashboard */
+.dashboard-hero {
+    position:relative;
+    overflow:hidden;
+    min-height:224px;
+    display:grid;
+    grid-template-columns:minmax(0,1fr) 300px;
+    align-items:center;
+    gap:28px;
+    margin-bottom:20px;
+    padding:36px 40px;
+    border:1px solid rgba(255,255,255,.42);
+    border-radius:28px;
+    color:#fff;
+    background:
+        linear-gradient(120deg,rgba(0,32,91,.18),rgba(61,16,135,.14)),
+        linear-gradient(135deg,#0b63dc 0%,#174fb6 50%,#7338d2 100%);
+    box-shadow:0 24px 60px rgba(25,73,157,.25);
 }
-td { padding:11px 12px; border-bottom:1px solid #f3f4f6; vertical-align:top; color:#374151; }
-tr:last-child td { border-bottom:none; }
-tr:hover td { background:#fafafa; }
-.project-name { font-weight:700; min-width:200px; }
-.index-value { font-weight:700; color:#1f2937; white-space:nowrap; }
-.notes { color:#6b7280; font-size:12px; margin-top:4px; max-width:280px; white-space:pre-wrap; }
-.badge { display:inline-flex; align-items:center; border-radius:999px; padding:3px 9px; font-size:11px; font-weight:700; white-space:nowrap; }
-.badge-not-started { background:#f3f4f6; color:#6b7280; }
-.badge-progress { background:#dbeafe; color:#1d4ed8; }
-.badge-completed { background:#d1fae5; color:#065f46; }
-.badge-overdue { background:#fee2e2; color:#b91c1c; }
-.progress-bar { height:8px; min-width:120px; background:#e5e7eb; border-radius:999px; overflow:hidden; margin-top:5px; }
-.progress-fill { height:100%; background:#3b82f6; border-radius:999px; }
-.progress-fill.done { background:#16a34a; }
-.actions { display:flex; gap:6px; }
-.empty-row td { text-align:center; color:#9ca3af; padding:30px; }
-.toast {
-    position:fixed; bottom:24px; right:24px; background:#1f2937; color:white;
-    padding:12px 20px; border-radius:10px; font-size:13px; font-weight:700;
-    box-shadow:0 4px 12px rgba(0,0,0,.2); z-index:9999;
-    opacity:0; transform:translateY(10px); transition:.3s; pointer-events:none;
+.dashboard-hero::before,
+.dashboard-hero::after {
+    content:"";
+    position:absolute;
+    border-radius:50%;
+    border:1px solid rgba(255,255,255,.14);
+    pointer-events:none;
 }
-.toast.show { opacity:1; transform:translateY(0); }
-.toast.success { background:#15803d; }
-.toast.error { background:#dc2626; }
-@media (max-width:1100px) {
-    .summary-grid { grid-template-columns:repeat(2, minmax(150px, 1fr)); }
-    .form-grid { grid-template-columns:1fr 1fr; }
-    .fg.project-field { grid-column:auto; }
+.dashboard-hero::before {
+    width:380px;height:380px;top:-220px;right:-50px;
+    box-shadow:0 0 0 44px rgba(255,255,255,.035),0 0 0 92px rgba(255,255,255,.022);
 }
-@media (max-width:620px) {
-    .main { padding-left:14px; padding-right:14px; }
-    .summary-grid, .form-grid { grid-template-columns:1fr; }
-    .fg.full { grid-column:auto; }
+.dashboard-hero::after {
+    width:220px;height:220px;left:43%;bottom:-176px;
+    box-shadow:0 0 0 40px rgba(255,255,255,.025);
 }
+.hero-copy,.hero-panel { position:relative; z-index:1; }
+.hero-kicker {
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:15px;
+    padding:7px 12px;
+    border:1px solid rgba(255,255,255,.24);
+    border-radius:999px;
+    background:rgba(255,255,255,.12);
+    backdrop-filter:blur(10px);
+    font-size:11px;
+    font-weight:800;
+    letter-spacing:.10em;
+    text-transform:uppercase;
+}
+.hero-kicker::before {
+    content:"";
+    width:8px;height:8px;border-radius:50%;
+    background:#6df1ad;
+    box-shadow:0 0 0 5px rgba(109,241,173,.16);
+}
+.dashboard-hero h1 {
+    margin:0;
+    font-size:clamp(32px,4.5vw,54px);
+    line-height:1;
+    letter-spacing:-.045em;
+}
+.dashboard-hero p {
+    max-width:680px;
+    margin:12px 0 0;
+    color:rgba(255,255,255,.78);
+    font-size:14px;
+    line-height:1.6;
+}
+.hero-panel {
+    min-width:0;
+    padding:22px;
+    border:1px solid rgba(255,255,255,.22);
+    border-radius:22px;
+    background:rgba(255,255,255,.12);
+    backdrop-filter:blur(15px);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.14);
+}
+.hero-panel-label {
+    color:rgba(255,255,255,.70);
+    font-size:11px;
+    font-weight:800;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+}
+.hero-panel-value {
+    display:block;
+    margin:7px 0 5px;
+    font-size:25px;
+    font-weight:850;
+    letter-spacing:-.035em;
+}
+.hero-panel-note { color:rgba(255,255,255,.77); font-size:12px; line-height:1.5; }
+.hero-mini-row { display:flex; flex-wrap:wrap; gap:7px; margin-top:16px; }
+.hero-mini-chip {
+    padding:6px 9px;
+    border:1px solid rgba(255,255,255,.17);
+    border-radius:999px;
+    background:rgba(255,255,255,.10);
+    color:rgba(255,255,255,.88);
+    font-size:10px;
+    font-weight:750;
+}
+
+
+/* KKM page components, using the shared index design language. */
+.topbar h2::after { content:"Kobe Kendali Mutu · Bojonegoro"; }
+.main { min-width:0; }
+.dashboard-hero h1 { font-size:clamp(32px,4.4vw,52px); }
+.hero-name {display:block; margin:9px 0 0; font-size:clamp(16px,2vw,21px); color:#e5eeff; font-weight:650; letter-spacing:-.02em;}
+.hero-panel-value { font-size:23px; }
+.hero-panel-note { margin-bottom:16px; }
+.hero-actions { display:flex; gap:8px; flex-wrap:wrap; }
+.sec-title {margin:24px 0 13px; display:flex; align-items:center; gap:10px; color:#3f5068; font-size:12px; font-weight:800; letter-spacing:.065em; text-transform:uppercase;}
+.sec-title::before {content:"";width:8px;height:8px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--accent));box-shadow:0 0 0 5px rgba(18,104,232,.09);}
+.summary-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:15px; margin-bottom:22px; }
+.summary-card, .card, .filter-panel {min-width:0;background:var(--surface);border:1px solid rgba(226,233,243,.98); border-radius:22px; box-shadow:0 14px 34px rgba(38,70,113,.08);}
+.summary-card {position:relative; overflow:hidden;min-height:147px;padding:20px 21px;--card-soft:#eaf3ff;transition:transform .2s ease,box-shadow .2s ease;}
+.summary-card::after {content:"";position:absolute;width:96px;height:96px;right:-38px;bottom:-44px;border-radius:50%;background:var(--card-soft);pointer-events:none;}
+.summary-card:hover {transform:translateY(-2px);box-shadow:var(--shadow-md);}
+.summary-card > * {position:relative;z-index:1;}
+.summary-card[data-kind="progress"] {--card-soft:#f1eaff;}
+.summary-card[data-kind="completed"] {--card-soft:#e9f9f1;}
+.summary-card[data-kind="overdue"] {--card-soft:#edf1f7;}
+.summary-card[data-kind="overdue"].has-overdue {--card-soft:#ffebed;}
+.summary-label {font-size:11px;color:var(--muted);font-weight:780;letter-spacing:.055em;text-transform:uppercase;}
+.summary-value {font-size:38px;line-height:1.14;font-weight:850;letter-spacing:-.045em;margin:12px 0 6px;font-variant-numeric:tabular-nums;}
+#sum-progress {color:var(--primary);}
+#sum-completed {color:var(--success);}
+#sum-overdue {color:#64748b;}
+.has-overdue #sum-overdue {color:#dc2626;}
+.summary-note {font-size:11px;color:#6b7a90;line-height:1.45;}
+.card {padding:22px 24px;margin-bottom:18px;}
+.card-header {display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:17px;}
+.card-title {font-size:17px;font-weight:800;letter-spacing:-.025em;margin:0;color:var(--ink);}
+.card-subtitle {font-size:12px;color:var(--muted);margin:5px 0 0;line-height:1.45;}
+.form-grid {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;align-items:end;}
+.fg {min-width:0;display:flex;flex-direction:column;gap:6px;}
+.fg.full {grid-column:1/-1;}
+.fg.project-field {grid-column:span 2;}
+.fg label {font-size:11px;color:#607188;font-weight:750;letter-spacing:.045em;text-transform:uppercase;}
+.fg input,.fg select,.fg textarea {width:100%;min-width:0;min-height:40px;padding:9px 11px;border:1px solid #dce4ef;border-radius:12px;font:inherit;font-size:13px;color:var(--ink);background:#fbfdff;transition:border-color .18s,box-shadow .18s;}
+.fg textarea {min-height:82px;resize:vertical;}
+.fg input:focus,.fg select:focus,.fg textarea:focus {outline:none;border-color:#61a2f8;box-shadow:0 0 0 4px rgba(18,104,232,.11);}
+.progress-input-wrap {display:flex;gap:12px;align-items:center;}
+.progress-input-wrap input[type="range"] {padding:0;accent-color:var(--primary);}
+.progress-number {width:85px!important;text-align:right;}
+.form-actions {display:flex;justify-content:flex-end;gap:9px;margin-top:16px;}
+.btn {border:0;border-radius:12px;min-height:40px;padding:9px 15px;cursor:pointer;font:inherit;font-size:12px;font-weight:750;white-space:nowrap;transition:transform .18s,box-shadow .18s,background .18s;display:inline-flex;align-items:center;justify-content:center;gap:7px;}
+.btn:hover:not(:disabled) {transform:translateY(-1px);}
+.btn:disabled {opacity:.6;cursor:not-allowed;}
+.btn-primary,.btn-export {background:linear-gradient(135deg,var(--primary),var(--accent));color:white;box-shadow:0 10px 22px rgba(18,104,232,.17);}
+.btn-primary:hover:not(:disabled),.btn-export:hover:not(:disabled) {box-shadow:0 12px 25px rgba(18,104,232,.25);}
+.btn-export:disabled {background:#94a3b8;box-shadow:none;}
+.btn-hero {background:#fff;color:#174fb6;box-shadow:0 5px 16px rgba(0,32,91,.14);width:100%;}
+.btn-secondary {background:#edf5ff;color:var(--primary-dark);border:1px solid #d5e6ff;}
+.btn-edit,.btn-delete {display:grid;place-items:center;width:34px;height:32px;border:1px solid #dbe7f6;border-radius:9px;background:#edf5ff;color:#2563eb;cursor:pointer;}
+.btn-delete {background:#fff7f7;color:#b91c1c;border-color:#fbe2e2;}
+.btn-edit svg,.btn-delete svg {width:15px;height:15px;}
+.filter-panel {padding:15px 17px;margin-bottom:20px;border-radius:18px;}
+.toolbar {display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap;}
+.filters {display:grid;grid-template-columns:minmax(180px,1.5fr) repeat(3,minmax(125px,1fr));gap:10px;flex:1 1 670px;}
+.toolbar-actions {display:flex;align-items:center;gap:9px;flex-wrap:wrap;}
+.result-count {font-size:12px;color:#64748b;background:#f3f6fb;border:1px solid #e5ebf3;border-radius:999px;padding:6px 10px;white-space:nowrap;}
+.table-wrap {overflow:auto;border:1px solid #e8edf4;border-radius:16px;background:white;}
+table {width:100%;border-collapse:collapse;font-size:13px;min-width:1130px;}
+th {background:#f7f9fc;color:#66758a;font-size:10.5px;font-weight:780;text-align:left;padding:12px 10px;border-bottom:1px solid #e4eaf2;text-transform:uppercase;letter-spacing:.035em;white-space:nowrap;}
+td {padding:12px 10px;border-bottom:1px solid #eef2f7;vertical-align:top;color:#374151;line-height:1.45;}
+tr:last-child td {border-bottom:0;}
+tbody tr:hover td {background:#f7fbff;}
+.project-name {font-weight:750;min-width:185px;overflow-wrap:anywhere;}
+.index-value {font-weight:700;color:var(--ink);overflow-wrap:anywhere;display:block;min-width:66px;}
+.notes {color:#6b7a90;font-size:11.5px;margin-top:5px;max-width:300px;white-space:pre-wrap;overflow-wrap:anywhere;}
+.department-cell {font-weight:650;}
+.department-unassigned {color:#94a3b8;font-weight:400;}
+.badge {display:inline-flex;align-items:center;border-radius:999px;padding:4px 9px;font-size:10.5px;font-weight:750;white-space:nowrap;}
+.badge-not-started {background:#f1f5f9;color:#64748b;}
+.badge-progress {background:#eaf3ff;color:#1d4ed8;}
+.badge-completed {background:#e9f9f1;color:#047857;}
+.badge-overdue {background:#ffebed;color:#b91c1c;}
+.progress-bar {height:7px;min-width:94px;background:#e5ebf3;border-radius:999px;overflow:hidden;margin-top:6px;}
+.progress-fill {height:100%;background:linear-gradient(90deg,var(--primary),#818cf8);border-radius:999px;}
+.progress-fill.done {background:#16a065;}
+.progress-fill.late {background:#ef4444;}
+.actions {display:flex;gap:5px;}
+.empty-row td {text-align:center;color:#94a3b8;padding:38px 20px;}
+#form-card {scroll-margin-top:88px;}
+[hidden] {display:none!important;}
+.toast {position:fixed;bottom:24px;right:24px;max-width:calc(100vw - 48px);background:#152238;color:white;padding:13px 19px;border:1px solid rgba(255,255,255,.18);border-radius:15px;font-size:13px;font-weight:650;box-shadow:0 16px 35px rgba(15,23,42,.18);z-index:9999;opacity:0;transform:translateY(10px);transition:.24s;pointer-events:none;}
+.toast.show {opacity:1;transform:translateY(0);}
+.toast.success {background:#0f766e;}
+.toast.error {background:#b91c1c;}
+@media(max-width:1050px) {.dashboard-hero{grid-template-columns:1fr;padding:31px 30px;}.hero-panel{width:min(100%,420px);}.form-grid{grid-template-columns:repeat(2,minmax(0,1fr));}.fg.project-field{grid-column:auto;}.filters{grid-template-columns:repeat(2,minmax(0,1fr));}.summary-grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media(max-width:640px) {.main{padding:82px 10px 30px;}.topbar{height:62px;padding:0 12px;}.topbar h2{font-size:15px;}.topbar h2::after{font-size:8px;}.dashboard-hero{min-height:auto;padding:26px 22px;border-radius:22px;gap:18px;}.dashboard-hero h1{font-size:34px;}.dashboard-hero p{font-size:12px;}.hero-panel{padding:17px;border-radius:18px;}.summary-grid{gap:10px;}.summary-card{padding:16px;min-height:130px;border-radius:18px;}.summary-value{font-size:32px;}.summary-note{font-size:10px;}.card{padding:17px;border-radius:20px;}.filter-panel{padding:14px;}.form-grid{grid-template-columns:1fr;}.fg.full{grid-column:auto;}.toolbar-actions{width:100%;}.btn-export{flex:1;}.card-header{align-items:flex-start;}.form-actions .btn{flex:1;}.filters{grid-template-columns:repeat(2,minmax(0,1fr));}.filters .fg:first-child{grid-column:1/-1;}}
+@media(max-width:360px){.filters{grid-template-columns:1fr;}.filters .fg:first-child{grid-column:auto;}.summary-grid{grid-template-columns:1fr;}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;}}
+
+
+/* KKM feedback system: no browser alert/confirm dialogs. */
+.toast {display:flex;align-items:flex-start;gap:12px;background:#fff!important;color:#24324b;max-width:min(440px,calc(100vw - 32px));width:max-content;padding:15px 14px 15px 15px;border:1px solid #dce6f3;border-left:4px solid #2563eb;border-radius:16px;box-shadow:0 18px 50px rgba(21,34,56,.18);font-weight:500;visibility:hidden;pointer-events:none;}
+.toast.show {visibility:visible;pointer-events:auto;}
+.toast.success {border-left-color:#10b981;}.toast.error {border-left-color:#ef4444;}.toast.info {border-left-color:#2563eb;}
+.toast-icon,.dialog-icon {display:grid;place-items:center;flex:none;width:38px;height:38px;border-radius:12px;background:#eaf3ff;color:#2563eb;}
+.toast-icon svg,.dialog-icon svg {width:22px;height:22px;}
+.toast.success .toast-icon {background:#e9f9f1;color:#047857;}.toast.error .toast-icon {background:#ffebed;color:#b91c1c;}
+.toast-copy {min-width:0;max-width:340px;}.toast-title {font-size:13px;font-weight:800;line-height:1.3;margin-bottom:4px;}.toast-message {font-size:12px;line-height:1.5;color:#64748b;overflow-wrap:anywhere;}
+.feedback-close {display:grid;place-items:center;width:28px;height:28px;flex:none;border:0;background:transparent;border-radius:8px;color:#64748b;cursor:pointer;}.feedback-close:hover {background:#f1f5f9;color:#24324b;}.feedback-close svg {width:18px;height:18px;}
+.kkm-dialog {width:min(470px,calc(100vw - 32px));max-height:calc(100dvh - 32px);overflow:auto;padding:0;border:1px solid #dbe5f2;border-radius:22px;background:white;color:#24324b;box-shadow:0 28px 90px rgba(15,23,42,.28);}
+.kkm-dialog::backdrop {background:rgba(16,29,52,.52);backdrop-filter:blur(3px);}
+.dialog-accent {height:6px;background:linear-gradient(105deg,var(--primary),var(--accent));}
+.dialog-inner {padding:24px;}.dialog-heading {display:flex;align-items:flex-start;gap:13px;}.dialog-heading .dialog-icon {width:47px;height:47px;border-radius:15px;}.dialog-heading .feedback-close {margin-left:auto;}
+.dialog-kicker {font-size:10px;letter-spacing:.1em;font-weight:800;color:#64748b;text-transform:uppercase;margin:1px 0 4px;}.dialog-title {font-size:20px;font-weight:800;line-height:1.25;margin:0;}.dialog-description {font-size:13px;line-height:1.65;color:#64748b;margin:17px 0 0;white-space:pre-line;overflow-wrap:anywhere;}
+.dialog-detail {margin-top:14px;padding:12px 14px;border:1px solid #dce8f8;background:#f5f8fd;border-radius:12px;font-size:12px;line-height:1.6;font-weight:650;color:#334155;white-space:pre-line;overflow-wrap:anywhere;}
+.dialog-actions {display:flex;justify-content:flex-end;gap:9px;margin-top:22px;}.dialog-actions .btn {min-height:42px;}.dialog-danger .dialog-icon {background:#ffebed;color:#b91c1c;}.dialog-danger .dialog-accent {background:#ef4444;}.dialog-danger .dialog-confirm {background:#dc2626;color:white;box-shadow:0 8px 20px rgba(220,38,38,.16);}
+@media(max-width:480px){.toast{bottom:14px;right:14px;max-width:calc(100vw - 28px);}.dialog-inner{padding:19px;}.dialog-title{font-size:18px;}.dialog-actions .btn{flex:1;}}
+
 </style>
 <script src="https://cikobebjn.github.io/ci-dashboard/sidebar.js" defer></script>
 </head>
 <body>
 <!-- Navigasi disediakan oleh sidebar.js master. -->
 <div class="topbar">
-    <h2 style="margin:0;">📈 Improvement Monitoring</h2>
+    <h2>Monitoring KKM</h2>
 </div>
 <main class="main">
-    <div class="page-header">
-        <div>
-            <h1 class="page-title">Monitoring Project &amp; Improvement</h1>
-            <p class="page-subtitle">Pantau timeline, realisasi, departemen, PIC, dan progres setiap improvement.</p>
+    <section class="dashboard-hero" aria-label="Monitoring KKM Kobe Kendali Mutu">
+        <div class="hero-copy">
+            <div class="hero-kicker">Manufacturing Excellence</div>
+            <h1>Monitoring KKM</h1>
+            <span class="hero-name">Kobe Kendali Mutu</span>
+            <p>Pantau timeline, realisasi, PIC, dan progres project improvement setiap departemen dalam satu dashboard terintegrasi.</p>
         </div>
-        <button class="btn btn-primary" onclick="focusForm()">+ Tambah Improvement</button>
-    </div>
-    <section class="summary-grid">
-        <div class="summary-card">
+        <div class="hero-panel">
+            <span class="hero-panel-label">KKM Overview</span>
+            <strong class="hero-panel-value">Weekly Meeting</strong>
+            <div class="hero-panel-note">Kelola improvement dan siapkan laporan progres per departemen.</div>
+            <div class="hero-actions"><button type="button" class="btn btn-hero" onclick="focusForm(true)">+ Tambah Improvement</button></div>
+        </div>
+    </section>
+    <section class="filter-panel" aria-label="Filter dan export KKM">
+        <div class="toolbar">
+            <div class="filters">
+                <div class="fg">
+                    <label for="search-input">Cari</label>
+                    <input type="search" id="search-input" placeholder="Index, Project, Departemen, PIC..." oninput="renderTable()">
+                </div>
+                <div class="fg">
+                    <label for="department-filter">Departemen</label>
+                    <select id="department-filter" onchange="onDepartmentFilterChange()">
+                        <option value="all">Semua Departemen</option>
+                        <option value="unassigned">Belum ditentukan</option>
+                    </select>
+                </div>
+                <div class="fg">
+                    <label for="status-filter">Status</label>
+                    <select id="status-filter" onchange="renderTable()">
+                        <option value="all">Semua status</option>
+                        <option value="not-started">Belum Mulai</option>
+                        <option value="in-progress">On Progress</option>
+                        <option value="completed">Selesai</option>
+                        <option value="overdue">Terlambat</option>
+                    </select>
+                </div>
+                <div class="fg">
+                    <label for="pic-filter">PIC</label>
+                    <select id="pic-filter" onchange="renderTable()">
+                        <option value="all">Semua PIC</option>
+                    </select>
+                </div>
+            </div>
+            <div class="toolbar-actions">
+                <button type="button" class="btn btn-export" id="btn-export-ppt" onclick="exportKKMPpt()" disabled title="Export 1 slide PPT berdasarkan departemen dan filter"><span aria-hidden="true">&#8681;</span> Export PPT</button>
+            </div>
+        </div>
+    </section>
+    <h2 class="sec-title">Ringkasan Progres KKM</h2>
+    <section class="summary-grid" aria-label="Ringkasan project">
+        <div class="summary-card" data-kind="total">
             <div class="summary-label">Total Project</div>
             <div class="summary-value" id="sum-total">0</div>
             <div class="summary-note"><span id="summary-scope">Seluruh improvement</span></div>
         </div>
-        <div class="summary-card">
+        <div class="summary-card" data-kind="progress">
             <div class="summary-label">On Progress</div>
             <div class="summary-value" id="sum-progress">0</div>
             <div class="summary-note">Sedang dikerjakan</div>
         </div>
-        <div class="summary-card">
+        <div class="summary-card" data-kind="completed">
             <div class="summary-label">Selesai</div>
             <div class="summary-value" id="sum-completed">0</div>
             <div class="summary-note">Progres 100%</div>
         </div>
-        <div class="summary-card">
+        <div class="summary-card" data-kind="overdue">
             <div class="summary-label">Terlambat</div>
             <div class="summary-value" id="sum-overdue">0</div>
             <div class="summary-note">Lewat target selesai</div>
         </div>
     </section>
-    <section class="card" id="form-card">
-        <h2 class="card-title" id="form-title">➕ Tambah Improvement</h2>
+    <section class="card" id="form-card" hidden>
+        <div class="card-header"><div><h2 class="card-title" id="form-title">Tambah Improvement</h2><p class="card-subtitle">Lengkapi informasi project dan progres aktual.</p></div><button type="button" class="btn btn-secondary" onclick="closeForm()">Tutup Form</button></div>
         <form id="improvement-form" onsubmit="saveImprovement(event)">
             <input type="hidden" id="edit-id">
             <div class="form-grid">
@@ -207,46 +500,15 @@ tr:hover td { background:#fafafa; }
                 </div>
             </div>
             <div class="form-actions">
-                <button type="button" class="btn btn-secondary" id="btn-cancel" onclick="resetForm()" style="display:none;">Batal</button>
+                <button type="button" class="btn btn-secondary" id="btn-cancel" onclick="closeForm()" style="display:none;">Batal</button>
                 <button type="submit" class="btn btn-primary" id="btn-save">Simpan Improvement</button>
             </div>
         </form>
     </section>
     <section class="card">
-        <div class="toolbar">
-            <div class="filters">
-                <div class="fg">
-                    <label for="search-input">Cari</label>
-                    <input type="search" id="search-input" placeholder="Index, Project, Departemen, PIC..." oninput="renderTable()">
-                </div>
-                <div class="fg">
-                    <label for="department-filter">Departemen</label>
-                    <select id="department-filter" onchange="onDepartmentFilterChange()">
-                        <option value="all">Semua Departemen</option>
-                        <option value="unassigned">Belum ditentukan</option>
-                    </select>
-                </div>
-                <div class="fg">
-                    <label for="status-filter">Status</label>
-                    <select id="status-filter" onchange="renderTable()">
-                        <option value="all">Semua status</option>
-                        <option value="not-started">Belum Mulai</option>
-                        <option value="in-progress">On Progress</option>
-                        <option value="completed">Selesai</option>
-                        <option value="overdue">Terlambat</option>
-                    </select>
-                </div>
-                <div class="fg">
-                    <label for="pic-filter">PIC</label>
-                    <select id="pic-filter" onchange="renderTable()">
-                        <option value="all">Semua PIC</option>
-                    </select>
-                </div>
-            </div>
-            <div class="toolbar-actions">
-                <div class="result-count" id="result-count">0 data</div>
-                <button type="button" class="btn btn-export" id="btn-export-ppt" onclick="exportKKMPpt()" disabled title="Ekspor data sesuai filter untuk Weekly Meeting KKM"><span aria-hidden="true">&#8681;</span> Export PPT</button>
-            </div>
+        <div class="card-header">
+            <div><h2 class="card-title">Daftar Project / Improvement</h2><p class="card-subtitle">Update progres, timeline, dan tindak lanjut setiap project.</p></div>
+            <div class="result-count" id="result-count" aria-live="polite">0 data</div>
         </div>
         <div class="table-wrap">
             <table>
@@ -271,7 +533,17 @@ tr:hover td { background:#fafafa; }
         </div>
     </section>
 </main>
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true">
+    <span class="toast-icon" id="toast-icon" aria-hidden="true"></span><div class="toast-copy"><div class="toast-title" id="toast-title"></div><div class="toast-message" id="toast-message"></div></div>
+    <button type="button" class="feedback-close" onclick="hideToast()" aria-label="Tutup notifikasi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+</div>
+<dialog id="kkm-dialog" class="kkm-dialog" aria-labelledby="kkm-dialog-title" aria-describedby="kkm-dialog-description">
+    <div class="dialog-accent"></div><div class="dialog-inner">
+        <div class="dialog-heading"><span class="dialog-icon" id="kkm-dialog-icon" aria-hidden="true"></span><div><div class="dialog-kicker">Monitoring KKM</div><h2 class="dialog-title" id="kkm-dialog-title"></h2></div><button type="button" class="feedback-close" id="kkm-dialog-close" aria-label="Tutup dialog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
+        <p class="dialog-description" id="kkm-dialog-description"></p><div class="dialog-detail" id="kkm-dialog-detail" hidden></div>
+        <div class="dialog-actions"><button type="button" class="btn btn-secondary" id="kkm-dialog-cancel">Batal</button><button type="button" class="btn btn-primary dialog-confirm" id="kkm-dialog-confirm">OK</button></div>
+    </div>
+</dialog>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const SUPABASE_URL = 'https://bmnhtxalfsfaefacgtpm.supabase.co';
@@ -294,12 +566,58 @@ let improvementData = [];
 let improvementLoaded = false;
 let toastTimeout;
 
-function showToast(message, type = 'success') {
+const feedbackIcons = {
+    success: '<path d="m5 12 4 4L19 6"/>',
+    error: '<circle cx="12" cy="12" r="9"/><path d="M12 7v6m0 4h.01"/>',
+    info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5m0-9h.01"/>',
+    delete: '<path d="M4 6h16M9 6V3h6v3M6 6l1 15h10l1-15M10 10v7m4-7v7"/>',
+    export: '<path d="M12 3v12m-4-4 4 4 4-4M4 16v4h16v-4"/>'
+};
+function feedbackIcon(name) {
+    return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${feedbackIcons[name] || feedbackIcons.info}</svg>`;
+}
+function hideToast() {
+    clearTimeout(toastTimeout);
+    document.getElementById('toast').classList.remove('show');
+}
+function showToast(message, type = 'success', title = '') {
     const toast = document.getElementById('toast');
-    toast.textContent = message;
+    const titles = {success:'Berhasil',error:'Terjadi kendala',info:'Informasi'};
+    document.getElementById('toast-icon').innerHTML = feedbackIcon(type);
+    document.getElementById('toast-title').textContent = title || titles[type] || titles.info;
+    document.getElementById('toast-message').textContent = message;
     toast.className = 'toast show ' + type;
     clearTimeout(toastTimeout);
-    toastTimeout = setTimeout(() => toast.classList.remove('show'), 3000);
+    toastTimeout = setTimeout(hideToast, type === 'error' ? 8500 : 4800);
+}
+function showKKMDialog({title,description,detail='',confirmText='Mengerti',cancelText='',danger=false,icon='info'}) {
+    const dialog = document.getElementById('kkm-dialog');
+    const confirmButton = document.getElementById('kkm-dialog-confirm');
+    const cancelButton = document.getElementById('kkm-dialog-cancel');
+    const closeButton = document.getElementById('kkm-dialog-close');
+    const detailBox = document.getElementById('kkm-dialog-detail');
+    document.getElementById('kkm-dialog-title').textContent = title;
+    document.getElementById('kkm-dialog-description').textContent = description;
+    document.getElementById('kkm-dialog-icon').innerHTML = feedbackIcon(icon);
+    detailBox.textContent = detail;
+    detailBox.hidden = !detail;
+    dialog.classList.toggle('dialog-danger', danger);
+    confirmButton.textContent = confirmText;
+    cancelButton.textContent = cancelText || 'Batal';
+    cancelButton.hidden = !cancelText;
+    return new Promise(resolve => {
+        let result = false;
+        const close = () => { if(dialog.open) dialog.close(); };
+        confirmButton.onclick = () => { result = true; close(); };
+        cancelButton.onclick = close;
+        closeButton.onclick = close;
+        dialog.addEventListener('close', () => {
+            confirmButton.onclick = cancelButton.onclick = closeButton.onclick = null;
+            resolve(result);
+        }, {once:true});
+        dialog.showModal();
+        (cancelText ? cancelButton : confirmButton).focus();
+    });
 }
 function escapeHtml(value) {
     return String(value ?? '')
@@ -407,7 +725,9 @@ function updateSummary() {
     document.getElementById('sum-total').textContent = scoped.length;
     document.getElementById('sum-progress').textContent = statuses.filter(s => s.key === 'in-progress').length;
     document.getElementById('sum-completed').textContent = statuses.filter(s => s.key === 'completed').length;
-    document.getElementById('sum-overdue').textContent = statuses.filter(s => s.key === 'overdue').length;
+    const overdueCount = statuses.filter(s => s.key === 'overdue').length;
+    document.getElementById('sum-overdue').textContent = overdueCount;
+    document.querySelector('.summary-card[data-kind="overdue"]').classList.toggle('has-overdue', overdueCount > 0);
 }
 function filteredImprovementData() {
     const search = document.getElementById('search-input').value.trim().toLowerCase();
@@ -456,20 +776,26 @@ function renderTable() {
                 <td>${formatDate(item.realization_date)}</td>
                 <td>
                     <strong>${progress}%</strong>
-                    <div class="progress-bar"><div class="progress-fill ${progress >= 100 ? 'done' : ''}" style="width:${progress}%"></div></div>
+                    <div class="progress-bar"><div class="progress-fill ${progress >= 100 ? 'done' : status.key === 'overdue' ? 'late' : ''}" style="width:${progress}%"></div></div>
                 </td>
                 <td><span class="badge ${status.cls}">${status.label}</span></td>
                 <td>
                     <div class="actions">
-                        <button class="btn-edit" onclick="editImprovement('${item.id}')" title="Edit">✏️</button>
-                        <button class="btn-delete" onclick="deleteImprovement('${item.id}')" title="Hapus">🗑</button>
+                        <button class="btn-edit" onclick="editImprovement('${item.id}')" title="Edit" aria-label="Edit improvement"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m16 3 5 5L9 20l-6 1 1-6Z"/><path d="m13 6 5 5"/></svg></button>
+                        <button class="btn-delete" onclick="deleteImprovement('${item.id}')" title="Hapus" aria-label="Hapus improvement"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V3h8v3M6 6l1 15h10l1-15M10 10v7m4-7v7"/></svg></button>
                     </div>
                 </td>
             </tr>
         `;
     }).join('');
 }
-function focusForm() {
+function closeForm() {
+    resetForm();
+    document.getElementById('form-card').hidden = true;
+}
+function focusForm(isNew = false) {
+    if (isNew) resetForm();
+    document.getElementById('form-card').hidden = false;
     document.getElementById('form-card').scrollIntoView({ behavior:'smooth', block:'start' });
     setTimeout(() => document.getElementById('no-index').focus(), 350);
 }
@@ -531,7 +857,7 @@ async function saveImprovement(event) {
                 .insert([payload]);
             if (error) throw error;
         }
-        resetForm();
+        closeForm();
         await loadImprovements();
         showToast(id ? 'Improvement dan progres berhasil diperbarui' : 'Improvement berhasil ditambahkan');
     } catch (err) {
@@ -556,7 +882,7 @@ function editImprovement(id) {
     document.getElementById('progress-range').value = Number(item.progress) || 0;
     document.getElementById('progress-number').value = Number(item.progress) || 0;
     document.getElementById('notes').value = item.notes || '';
-    document.getElementById('form-title').textContent = '✏️ Edit Improvement';
+    document.getElementById('form-title').textContent = 'Edit Improvement';
     document.getElementById('btn-save').textContent = 'Simpan Perubahan';
     document.getElementById('btn-cancel').style.display = 'inline-block';
     focusForm();
@@ -568,27 +894,27 @@ function resetForm() {
     document.getElementById('department').value = '';
     document.getElementById('progress-range').value = 0;
     document.getElementById('progress-number').value = 0;
-    document.getElementById('form-title').textContent = '➕ Tambah Improvement';
+    document.getElementById('form-title').textContent = 'Tambah Improvement';
     document.getElementById('btn-save').textContent = 'Simpan Improvement';
     document.getElementById('btn-cancel').style.display = 'none';
 }
 async function deleteImprovement(id) {
     const item = improvementData.find(row => String(row.id) === String(id));
     if (!item) return;
-    if (!confirm(`Hapus improvement "${item.project_name}"?`)) return;
+    if (!await showKKMDialog({title:'Hapus improvement?',description:'Project ini akan dihapus dari Monitoring KKM. Tindakan ini tidak dapat dibatalkan.',detail:item.project_name,confirmText:'Hapus Project',cancelText:'Batal',danger:true,icon:'delete'})) return;
     const { error } = await db.from('improvement_monitoring').delete().eq('id', id);
     if (error) {
         showToast('Gagal menghapus: ' + error.message, 'error');
         return;
     }
-    showToast('🗑 Improvement dihapus');
+    showToast('Project telah dihapus dari daftar monitoring.','success','Project dihapus');
     await loadImprovements();
 }
-// KKM weekly meeting export: one slide per department where content fits.
+// KKM weekly meeting export: exactly one slide for each successful export.
 const KKM = Object.freeze({
-    width: 13.333333, height: 7.5, x: .44, w: 12.45, rowStart: 3.15, rowEnd: 7.15,
+    width: 13.333333, height: 7.5, x: .44, w: 12.45, rowStart: 2.59, rowEnd: 7.19,
     colors: {bg:'F7F9FC', white:'FFFFFF', ink:'24324B', muted:'64748B', line:'E2E8F0', blue:'2563EB', deep:'1D4ED8', purple:'6D28D9', green:'10B981', red:'EF4444', grey:'94A3B8'},
-    widths: [1.13, 3.72, 1.47, 1.75, 1.43, 1.35, 1.60],
+    widths: [.85, 4.35, 1.65, 1.65, 1.25, 1.25, 1.45],
     font: 'Arial'
 });
 let pptLibraryPromise;
@@ -681,9 +1007,9 @@ function kkmWrap(value, width, size, bold=false) {
     }
     return lines.length ? lines : [''];
 }
-function kkmLineH(size) { return size/72 * 1.32; }
-function kkmRowParts(item, font) {
-    const pad=.16, w=KKM.widths, noteFont=font-1;
+function kkmLineH(size) { return size/72 * 1.23; }
+function kkmRow(item, font) {
+    const pad=.14, w=KKM.widths, noteFont=Math.max(10,font-1);
     const index=kkmWrap(item.no_index || '\u2014',w[0]-pad,font);
     const title=kkmWrap(item.project_name || '\u2014',w[1]-pad,font,true);
     const notes=item.notes ? kkmWrap(item.notes,w[1]-pad,noteFont) : [];
@@ -693,44 +1019,20 @@ function kkmRowParts(item, font) {
     const actual=kkmWrap(kkmDate(item.realization_date),w[4]-pad,font);
     const status=getStatus(item);
     const statusLines=kkmWrap(status.label,w[6]-pad,font,true);
-    const base=Math.max(.52, Math.max(index.length,pic.length,start.length+end.length,actual.length,statusLines.length)*kkmLineH(font)+.18);
-    const titleH=title.length*kkmLineH(font);
-    const heightFor = n=>Math.max(base,titleH+(n ? .035+n*kkmLineH(noteFont):0)+.18);
-    const cap=KKM.rowEnd-KKM.rowStart;
-    // Long notes are continued on an extra page without removing their content.
-    const maxNotes=Math.max(1,Math.floor((cap-titleH-.215-.001)/kkmLineH(noteFont)));
-    if(base>cap || heightFor(Math.min(notes.length,maxNotes))>cap+.0001) throw new Error('Detail project terlalu panjang untuk layout slide. Persempit isi catatan atau PIC.');
-    if(!notes.length) return [{item,index,title,notes:[],pic,start,end,actual,status,statusLines,h:heightFor(0),continued:false}];
-    const parts=[];
-    for(let i=0;i<notes.length;i+=maxNotes){
-        const chunk=notes.slice(i,i+maxNotes);
-        parts.push({item,index,title,notes:chunk,pic,start,end,actual,status,statusLines,h:heightFor(chunk.length),continued:i>0});
-    }
-    return parts;
+    const basicH=Math.max(index.length,pic.length,start.length+end.length,actual.length,statusLines.length)*kkmLineH(font);
+    const projectH=title.length*kkmLineH(font)+(notes.length?.02+notes.length*kkmLineH(noteFont):0);
+    const progressH=kkmLineH(font)+.035+.065;
+    const h=Math.max(.35,Math.max(basicH,projectH,progressH)+.12);
+    return {item,index,title,notes,pic,start,end,actual,status,statusLines,h,noteFont};
 }
-function kkmPages(items, font) {
-    const pages=[]; let rows=[], used=0;
+function kkmPlanSingle(name,items) {
     const cap=KKM.rowEnd-KKM.rowStart;
-    for(const item of items) for(const part of kkmRowParts(item,font)) {
-        if(rows.length && used+part.h>cap+.0001) { pages.push(rows); rows=[]; used=0; }
-        rows.push(part); used+=part.h;
+    // Reflow text and rows into the available area; no omitted rows or continuation slides.
+    for(const font of [13,12,11,10]) {
+        const rows=items.map(item=>kkmRow(item,font));
+        if(rows.reduce((sum,row)=>sum+row.h,0)<=cap+.00001) return {name,items,font,rows};
     }
-    if(rows.length) pages.push(rows);
-    return pages;
-}
-function kkmPlan(groups) {
-    return groups.map(([name,items])=>{
-        // Prefer generous type, then a compact but readable 11pt layout.
-        let font=13, pages=kkmPages(items,font);
-        if(pages.length>1){
-            for(const candidate of [12,11]) {
-                const compact=kkmPages(items,candidate);
-                if(compact.length<pages.length) { font=candidate; pages=compact; }
-                if(pages.length===1) break;
-            }
-        }
-        return {name,items,font,pages};
-    });
+    return null;
 }
 function kkmShape(slide,pptx,x,y,w,h,fill,stroke,radius=true) {
     slide.addShape(radius?pptx.ShapeType.roundRect:pptx.ShapeType.rect,{x,y,w,h,rectRadius:.12,radius:.12,
@@ -755,31 +1057,30 @@ function kkmHeaderImage() {
     ctx.beginPath(); ctx.moveTo(r,0);ctx.lineTo(w-r,0);ctx.quadraticCurveTo(w,0,w,r);ctx.lineTo(w,h-r);ctx.quadraticCurveTo(w,h,w-r,h);ctx.lineTo(r,h);ctx.quadraticCurveTo(0,h,0,h-r);ctx.lineTo(0,r);ctx.quadraticCurveTo(0,0,r,0);ctx.closePath();ctx.fill();
     return canvas.toDataURL('image/png');
 }
-function kkmMakeSlide(pptx,plan,rows,pageIdx,period,gradient) {
+function kkmMakeSlide(pptx,plan,rows,period,gradient) {
     const slide=pptx.addSlide(), c=KKM.colors, font=plan.font, w=KKM.widths;
     slide.background={color:c.bg};
-    if(gradient) slide.addImage({data:gradient,x:KKM.x,y:.30,w:KKM.w,h:.91});
-    else kkmShape(slide,pptx,KKM.x,.30,KKM.w,.91,c.deep,null,true);
+    if(gradient) slide.addImage({data:gradient,x:KKM.x,y:.24,w:KKM.w,h:.76});
+    else kkmShape(slide,pptx,KKM.x,.24,KKM.w,.76,c.deep,null,true);
     let titleFont=25;
     const heading=`KKM | ${plan.name}`;
     while(titleFont>14 && kkmWidth(heading,titleFont,true)>8.9) titleFont--;
-    kkmText(slide,heading,.71,.41,9.15,.38,{fontSize:titleFont,bold:true,color:c.white});
-    kkmText(slide,period.label,.72,.84,9.2,.20,{fontSize:11,color:'E0E7FF'});
-    kkmText(slide,'KOBE BOJONEGORO',10.03,.45,2.57,.25,{fontSize:12,bold:true,color:c.white,align:'right'});
-    kkmText(slide,period.asOf,10.03,.82,2.57,.21,{fontSize:11,color:'E0E7FF',align:'right'});
+    kkmText(slide,heading,.71,.32,9.15,.32,{fontSize:titleFont,bold:true,color:c.white});
+    kkmText(slide,period.label,.72,.72,9.2,.18,{fontSize:11,color:'E0E7FF'});
+    kkmText(slide,'KOBE BOJONEGORO',10.03,.34,2.57,.22,{fontSize:12,bold:true,color:c.white,align:'right'});
+    kkmText(slide,period.asOf,10.03,.71,2.57,.18,{fontSize:11,color:'E0E7FF',align:'right'});
     const statuses=plan.items.map(getStatus);
     const count=key=>statuses.filter(s=>s.key===key).length;
     const kpis=[['TOTAL PROJECT',plan.items.length,c.ink,`${count('not-started')} belum mulai`],['ON PROGRESS',count('in-progress'),c.blue,'Sedang dikerjakan'],['SELESAI',count('completed'),c.green,'Progres 100%'],['TERLAMBAT',count('overdue'),count('overdue')?c.red:c.muted,'Lewat target selesai']];
     const gap=.14, cw=(KKM.w-3*gap)/4;
     kpis.forEach(([label,value,color,note],i)=>{
         const x=KKM.x+i*(cw+gap);
-        kkmShape(slide,pptx,x,1.40,cw,.93,c.white,c.line,true);
-        kkmText(slide,label,x+.18,1.50,cw-.36,.19,{fontSize:10,bold:true,color:c.muted});
-        kkmText(slide,value,x+.18,1.72,cw-.36,.36,{fontSize:27,bold:true,color});
-        kkmText(slide,note,x+.18,2.12,cw-.36,.13,{fontSize:9,color:c.muted});
+        kkmShape(slide,pptx,x,1.15,cw,.76,c.white,c.line,true);
+        kkmText(slide,label,x+.18,1.22,cw-.36,.16,{fontSize:10,bold:true,color:c.muted});
+        kkmText(slide,value,x+.18,1.40,cw-.36,.29,{fontSize:24,bold:true,color});
+        kkmText(slide,note,x+.18,1.74,cw-.36,.12,{fontSize:9,color:c.muted});
     });
-    kkmText(slide,period.filtered ? 'Update Progres Project / Improvement | Data terfilter' : 'Update Progres Project / Improvement',KKM.x+.02,2.48,10.8,.26,{fontSize:16,bold:true});
-    if(plan.pages.length>1) kkmText(slide,`${pageIdx+1} / ${plan.pages.length}`,11.85,2.48,1.03,.24,{fontSize:11,color:c.muted,align:'right'});
+    kkmText(slide,period.filtered ? 'Update Progres Project / Improvement | Data terfilter' : 'Update Progres Project / Improvement',KKM.x+.02,2.02,10.8,.23,{fontSize:16,bold:true});
     // Native table-like shapes and text; no screenshot or flattened slide.
     const tableHeaderY=KKM.rowStart-.34;
     kkmShape(slide,pptx,KKM.x,tableHeaderY,KKM.w,.34,'E8EEF9',null,false);
@@ -792,20 +1093,20 @@ function kkmMakeSlide(pptx,plan,rows,pageIdx,period,gradient) {
         kkmShape(slide,pptx,KKM.x,y,KKM.w,r.h,fill,null,false);
         slide.addShape(pptx.ShapeType.line,{x:KKM.x,y:y+r.h,w:KKM.w,h:0,line:{color:c.line,width:.5}});
         const xs=[KKM.x]; for(let i=0;i<w.length;i++) xs.push(xs[i]+w[i]);
-        const tx=i=>xs[i]+.08, tw=i=>w[i]-.16, top=y+.09;
+        const tx=i=>xs[i]+.07, tw=i=>w[i]-.14, top=y+.06;
         kkmLines(slide,r.index,tx(0),top,tw(0),font,{color:c.muted});
         let offset=kkmLines(slide,r.title,tx(1),top,tw(1),font,{bold:true});
-        if(r.notes.length) kkmLines(slide,r.notes,tx(1),top+offset+.035,tw(1),font-1,{color:c.muted});
+        if(r.notes.length) kkmLines(slide,r.notes,tx(1),top+offset+.02,tw(1),r.noteFont,{color:c.muted});
         kkmLines(slide,r.pic,tx(2),top,tw(2),font);
         offset=kkmLines(slide,r.start,tx(3),top,tw(3),font);
         kkmLines(slide,r.end,tx(3),top+offset,tw(3),font,{color:c.muted});
         kkmLines(slide,r.actual,tx(4),top,tw(4),font);
         const progress=Math.min(100,Math.max(0,Number(r.item.progress)||0));
         const color=kkmStatusColor(r.status);
-        kkmText(slide,`${progress}%`,tx(5),top,tw(5),.23,{fontSize:font,bold:true,color:c.ink});
-        const bw=tw(5)-.03, by=top+.28;
-        kkmShape(slide,pptx,tx(5),by,bw,.075,'E2E8F0',null,true);
-        if(progress>0) kkmShape(slide,pptx,tx(5),by,bw*progress/100,.075,color,null,true);
+        kkmText(slide,`${progress}%`,tx(5),top,tw(5),kkmLineH(font),{fontSize:font,bold:true,color:c.ink});
+        const bw=tw(5)-.03, by=top+kkmLineH(font)+.035;
+        kkmShape(slide,pptx,tx(5),by,bw,.065,'E2E8F0',null,true);
+        if(progress>0) kkmShape(slide,pptx,tx(5),by,bw*progress/100,.065,color,null,true);
         const statusInk=r.status.key==='completed'?'047857':r.status.key==='overdue'?'B91C1C':r.status.key==='in-progress'?'1D4ED8':c.muted;
         kkmLines(slide,r.statusLines,tx(6),top,tw(6),font,{bold:true,color:statusInk});
         y+=r.h;
@@ -815,28 +1116,34 @@ function kkmMakeSlide(pptx,plan,rows,pageIdx,period,gradient) {
 async function exportKKMPpt() {
     const button=document.getElementById('btn-export-ppt');
     if(!improvementLoaded){showToast('Data belum berhasil dimuat. Refresh halaman terlebih dahulu.','error');return;}
-    const rows=filteredImprovementData();
-    if(!rows.length){showToast('Tidak ada project sesuai filter untuk diekspor.','error');return;}
     if(button.disabled)return;
+    const rows=filteredImprovementData();
+    if(!rows.length){showToast('Tidak ada project sesuai filter untuk diekspor.','info','Tidak ada data');return;}
     button.disabled=true; button.textContent='Menyiapkan PPT...';
     try{
+        const groups=kkmGroupData(rows);
+        if(groups.length!==1) {
+            const choose=await showKKMDialog({title:'Pilih satu departemen',description:'Setiap export KKM menghasilkan tepat 1 slide PowerPoint. Pilih departemen yang akan dipresentasikan pada weekly meeting.',detail:`${groups.length} departemen tersedia • ${rows.length} project`,confirmText:'Pilih Departemen',cancelText:'Batal',icon:'export'});
+            if(choose) document.getElementById('department-filter').focus();
+            return;
+        }
+        const [name,items]=groups[0];
+        const plan=kkmPlanSingle(name,items);
+        if(!plan) {
+            const choose=await showKKMDialog({title:'Data terlalu padat untuk 1 slide',description:'Seluruh detail project dipertahankan agar tidak terpotong atau terlalu kecil. Persempit filter Status, PIC, atau pencarian untuk menghasilkan satu slide yang tetap terbaca.',detail:`${name} • ${items.length} project`,confirmText:'Atur Filter',cancelText:'Batal',icon:'export'});
+            if(choose) document.getElementById('status-filter').focus();
+            return;
+        }
         const period=kkmPeriod();
         period.filtered=!!document.getElementById('search-input').value.trim() || document.getElementById('status-filter').value!=='all' || document.getElementById('pic-filter').value!=='all';
-        const plans=kkmPlan(kkmGroupData(rows));
-        const overflow=plans.filter(p=>p.pages.length>1);
-        if(overflow.length){
-            const detail=overflow.map(p=>`${p.name}: ${p.pages.length} slide`).join('\n');
-            if(!confirm(`Agar isi tetap terbaca dan lengkap, departemen berikut memerlukan slide lanjutan:\n${detail}\n\nOK: ekspor semua data. Batal: persempit filter agar satu slide per departemen.`))return;
-        }
         const PptxGenJS=await loadPptLibrary();
         const pptx=new PptxGenJS(); pptx.layout='LAYOUT_WIDE'; pptx.author='KOBE Bojonegoro'; pptx.subject='Weekly Meeting KKM'; pptx.title='KKM Progress Update';
         pptx.theme={headFontFace:KKM.font,bodyFontFace:KKM.font,lang:'id-ID'};
-        const gradient=kkmHeaderImage();
-        plans.forEach(plan=>plan.pages.forEach((page,i)=>kkmMakeSlide(pptx,plan,page,i,period,gradient)));
-        const slug=plans.length===1?plans[0].name.replace(/[^a-zA-Z0-9]+/g,'-').replace(/^-|-$/g,''):'Semua-Departemen';
+        kkmMakeSlide(pptx,plan,plan.rows,period,kkmHeaderImage());
+        const slug=name.replace(/[^a-zA-Z0-9]+/g,'-').replace(/^-|-$/g,'') || 'Departemen';
         await pptx.writeFile({fileName:`KKM_Weekly_${slug}_${period.date}.pptx`});
-        showToast(`PPT berhasil diekspor: ${plans.reduce((n,p)=>n+p.pages.length,0)} slide.`);
-    }catch(error){console.error(error);showToast('Gagal export PPT: '+(error.message||error),'error');}
+        showToast(`${name} • ${items.length} project • 1 slide PowerPoint`,'success','Export PPT berhasil');
+    }catch(error){console.error(error);showToast(error.message||String(error),'error','Export PPT gagal');}
     finally{button.disabled=!improvementLoaded;button.innerHTML='<span aria-hidden="true">&#8681;</span> Export PPT';}
 }
 
