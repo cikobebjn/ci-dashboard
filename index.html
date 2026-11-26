@@ -1,8 +1,3 @@
-
-
-
-
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -2021,6 +2016,45 @@ body::after {
 }
 </style>
 <script src="sidebar.js?v=cilt-20261109-4" defer></script>
+<style id="fm-gas-density-css">
+/* Index FM review | scoped styles, no changes to existing cards. */
+#fmGasCard{margin:0 0 22px;padding:23px 24px;border:1px solid #dce7f3;border-radius:22px;background:#fff;box-shadow:0 14px 34px rgba(38,70,113,.08);cursor:pointer;transition:box-shadow .18s,border-color .18s;scroll-margin-top:86px}
+#fmGasCard:hover{border-color:#b6d1ef;box-shadow:0 18px 40px rgba(38,70,113,.12)}
+#fmGasCard .fm-gas-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-bottom:15px}
+#fmGasCard .fm-gas-heading{display:flex;align-items:center;gap:12px;min-width:0}
+#fmGasCard .fm-gas-icon{width:44px;height:44px;flex:0 0 44px;border-radius:13px;background:linear-gradient(145deg,#153d7e,#2674c4);display:grid;place-items:center;color:white}
+#fmGasCard .fm-gas-icon svg{width:24px;height:24px}
+#fmGasCard .fm-gas-kicker{font-size:9px;letter-spacing:.1em;color:#6684a6;font-weight:850;text-transform:uppercase;margin-bottom:4px}
+#fmGasCard h2{margin:0;color:#1c304e;font-size:clamp(18px,1.7vw,24px);line-height:1.25;font-weight:850;letter-spacing:-.028em}
+#fmGasCard .fm-gas-sub{font-size:11px;color:#728299;line-height:1.5;margin-top:5px}
+#fmGasCard .fm-gas-controls{display:flex;align-items:flex-end;gap:8px;flex-wrap:wrap;cursor:default}
+#fmGasCard label{display:block;font-size:9px;font-weight:800;color:#71839a;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px}
+#fmGasCard select,#fmGasCard button,#fmGasCard .fm-gas-link{font:inherit;font-size:11px;font-weight:750;border-radius:10px;min-height:38px;display:inline-flex;align-items:center;justify-content:center;padding:8px 12px;border:1px solid #dce5f0;background:#f8fbff;color:#315679;text-decoration:none;cursor:pointer}
+#fmGasCard select{background:white;min-width:144px;max-width:100%}
+#fmGasCard button:disabled,#fmGasCard select:disabled{opacity:.55;cursor:wait}
+#fmGasCard .fm-gas-link{background:#edf5ff;color:#155ab0;border-color:#cbdff9;gap:7px}
+#fmGasCard .fm-gas-link:hover{background:#dfeeff}
+#fmGasCard :is(select,button,a):focus-visible{outline:3px solid #9bc4ff;outline-offset:3px}
+#fmGasCard .fm-gas-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:14px 0}
+#fmGasCard .fm-gas-metric{min-width:0;padding:13px 15px;border:1px solid #e3ebf4;border-radius:13px;background:linear-gradient(135deg,#f8fbff,#fff)}
+#fmGasCard .fm-gas-metric span{display:block;color:#6d819c;font-size:10px;font-weight:750}
+#fmGasCard .fm-gas-metric strong{display:block;font-size:clamp(19px,2vw,27px);font-weight:850;color:#214e7e;letter-spacing:-.03em;margin:5px 0 3px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+#fmGasCard .fm-gas-metric small{font-size:9px;color:#75869c;line-height:1.4}
+#fmGasCard .fm-gas-state{display:block;border:1px solid #e1e9f3;border-radius:10px;padding:9px 12px;background:#f8fbff;color:#536b87;font-size:11px;font-weight:650;line-height:1.5;overflow-wrap:anywhere}
+#fmGasCard .fm-gas-state.warn{background:#fffbf0;border-color:#f0dfbb;color:#8c631e}
+#fmGasCard .fm-gas-state.error{background:#fff3f4;border-color:#f3cbd0;color:#a12c3b}
+#fmGasCard .fm-gas-scroll{border:1px solid #e2eaf4;border-radius:13px;overflow:auto;max-width:100%;-webkit-overflow-scrolling:touch}
+#fmGasCard table{border-collapse:collapse;width:100%;min-width:900px;font-size:12px;font-variant-numeric:tabular-nums}
+#fmGasCard th{font-size:9px;font-weight:850;line-height:1.4;background:#f3f7fc;color:#667c97;white-space:nowrap;text-transform:uppercase;letter-spacing:.035em;padding:12px 10px;text-align:right;border-bottom:1px solid #dfe8f3}
+#fmGasCard td{padding:11px 10px;text-align:right;color:#4c627f;border-bottom:1px solid #edf1f6;white-space:nowrap}
+#fmGasCard :is(th,td):first-child{text-align:left}#fmGasCard td:first-child{font-weight:850;color:#2a4768}#fmGasCard :is(th,td):nth-child(2),#fmGasCard :is(th,td):nth-child(3){text-align:center}
+#fmGasCard tbody tr:hover td{background:#f5f9fe}#fmGasCard .fm-gas-total td{background:#edf4fc;color:#1f4b79;font-weight:850;border-top:1px solid #d3e1f2;border-bottom:0}
+#fmGasCard td.fm-gas-empty{padding:25px 12px;text-align:center;white-space:normal;font-weight:600;color:#8290a2}
+#fmGasCard .fm-gas-audit{display:flex;gap:6px 20px;justify-content:space-between;flex-wrap:wrap;margin-top:10px;color:#73869e;font-size:10px;line-height:1.55}
+#fmGasCard .fm-gas-audit strong{font-weight:800;color:#3f5877}
+@media(max-width:900px){#fmGasCard{padding:19px}#fmGasCard .fm-gas-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){#fmGasCard{padding:15px;border-radius:17px}#fmGasCard .fm-gas-controls{width:100%;align-items:flex-end}#fmGasCard .fm-gas-controls>div{flex:1;min-width:130px}#fmGasCard select{width:100%;min-width:0}#fmGasCard .fm-gas-link{flex:1 1 100%}#fmGasCard .fm-gas-metric{padding:11px}#fmGasCard .fm-gas-metric strong{font-size:20px}}
+</style>
 </head>
 <body>
 <!-- Sidebar navigation is rendered and styled exclusively by sidebar.js. -->
@@ -2299,6 +2333,31 @@ body::after {
       </div>
     </div>
 
+
+
+    <!-- Gas Density | FM review (read only, same allocation as Utility) -->
+    <section id="fmGasCard" aria-labelledby="fmGasTitle">
+        <div class="fm-gas-head">
+            <div class="fm-gas-heading">
+                <span class="fm-gas-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c1 4-3 6-3 9a3 3 0 0 0 6 0c2 2 3 3 3 5a6 6 0 0 1-12 0C3 11 10 8 12 3Z"/></svg></span>
+                <div><div class="fm-gas-kicker">Utility · FM Review</div><h2 id="fmGasTitle">Rekap Density Bulanan per Cost Center</h2><div class="fm-gas-sub" id="fmGasPeriod">Memuat periode terbaru...</div></div>
+            </div>
+            <div class="fm-gas-controls" data-fm-control>
+                <div><label for="fmGasMonth">Bulan analisis</label><select id="fmGasMonth" disabled><option>Memuat...</option></select></div>
+                <button type="button" id="fmGasRefresh" disabled>Refresh</button>
+                <a id="fmGasDetailLink" class="fm-gas-link" href="utility-dmc.html?tab=density&amp;v=20261126-fm1">Buka Gas Density <span aria-hidden="true">&#8599;</span></a>
+            </div>
+        </div>
+        <div class="fm-gas-state" id="fmGasState" role="status" aria-live="polite">Memuat Energy, FG, SFG, dan master mapping...</div>
+        <div class="fm-gas-metrics" id="fmGasMetrics">
+            <div class="fm-gas-metric"><span>Gas aktual</span><strong>—</strong><small>MMBTU</small></div>
+            <div class="fm-gas-metric"><span>Output basis</span><strong>—</strong><small>Ton (FG/SFG)</small></div>
+            <div class="fm-gas-metric"><span>Density total</span><strong>—</strong><small>MMBTU/kg</small></div>
+            <div class="fm-gas-metric"><span>Gas teralokasi</span><strong>—</strong><small>MMBTU</small></div>
+        </div>
+        <div class="fm-gas-scroll"><table aria-label="Rekap density gas per cost center"><thead><tr><th>Cost Center</th><th>Work Center</th><th>Basis</th><th>Output (kg)</th><th>Density (MMBTU/kg)</th><th>PRS GD 6&amp;7 (MMBTU)</th><th>PRS GD 4 (MMBTU)</th><th>Total alokasi (MMBTU)</th><th>% alokasi</th></tr></thead><tbody id="fmGasRows"><tr><td colspan="9" class="fm-gas-empty">Memuat data...</td></tr></tbody></table></div>
+        <div class="fm-gas-audit"><span id="fmGasAudit">Gas tanpa basis: — · Gas di luar cutoff: —</span><span>Alokasi proporsional, bukan meter aktual per line. Klik kartu untuk detail.</span></div>
+    </section>
 
     <div class="card variance-card variance-card-full">
             <div class="variance-head">
@@ -6072,6 +6131,137 @@ init();
 </script>
 
 
+<script id="fm-gas-density-index">
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const number=v=>v===null||v===undefined||v===''?null:(Number.isFinite(Number(v))?Number(v):null);
+const sum=(a,k)=>a.reduce((s,r)=>s+(number(r[k])??0),0);
+const fmt=(v,d=2)=>v===null||v===undefined||!Number.isFinite(v)?'—':v.toLocaleString('id-ID',{minimumFractionDigits:d,maximumFractionDigits:d});
+const today=()=>new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Jakarta',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+const dateAdd=(d,n)=>{const t=new Date(d+'T12:00:00Z');t.setUTCDate(t.getUTCDate()+n);return t.toISOString().slice(0,10)};
+const monthEnd=m=>dateAdd(dateAdd(m+'-01',32).slice(0,7)+'-01',-1);
+const days=(a,b)=>Math.round((new Date(b+'T12:00:00Z')-new Date(a+'T12:00:00Z'))/86400000)+1;
+const weekStart=d=>dateAdd(d,-new Date(d+'T12:00:00Z').getUTCDay());
+const keyOf=(d,mode)=>mode==='daily'?d:mode==='weekly'?weekStart(d):d.slice(0,7);
+const labelOf=(k,mode)=>mode==='weekly'?k+' s.d. '+dateAdd(k,6):k;
+const minDate=(...a)=>a.filter(Boolean).sort()[0]||null;
+const maxDate=(...a)=>a.filter(Boolean).sort().at(-1)||null;
+const inRange=(r,a,b)=>r.tanggal>=a&&r.tanggal<=b;
+const uniq=a=>[...new Set(a)];
+const wcOrder=['BS205','BS202','BS203','BS207','BS204','BS208','BS209'];
+function gasValue(r,area){
+ const b=number(r['gas_gd'+area+'_mmbtu']),v=number(r['gas_gd'+area+'_nm3']);
+ return b!==null&&b>=0?b:v===0?0:null;
+}
+function gasStats(rows,start,end){
+ let g67=0,g4=0,v67=0,v4=0,n67=0,n4=0,nv67=0,nv4=0,partial=0,discrepancy=0;
+ const dates=new Set();
+ for(const r of rows){if(!inRange(r,start,end))continue;const a=gasValue(r,'67'),b=gasValue(r,'4'),x=number(r.gas_gd67_nm3),y=number(r.gas_gd4_nm3),t=number(r.gas_mmbtu);
+  if(dates.has(r.tanggal))throw Error('Tanggal Energy duplikat: '+r.tanggal);dates.add(r.tanggal);
+  if(a!==null){g67+=a;n67++}if(b!==null){g4+=b;n4++}if(x!==null&&x>=0){v67+=x;nv67++}if(y!==null&&y>=0){v4+=y;nv4++}
+  if(a===null||b===null||r.gas_mmbtu_partial===true||r.gas_mmbtu_partial==='true')partial++;
+  if(t!==null&&a!==null&&b!==null&&Math.abs(t-a-b)>0.005)discrepancy++;
+ }
+ return {g67:n67?g67:null,g4:n4?g4:null,total:n67||n4?g67+g4:null,v67:nv67?v67:null,v4:nv4?v4:null,volume:nv67||nv4?v67+v4:null,days:dates.size,expected:days(start,end),partial,discrepancy,complete:dates.size===days(start,end)&&partial===0&&discrepancy===0};
+}
+function allocate({energy,fg,sfg,wcs,fgMap,start,end}){
+ const gas=gasStats(energy,start,end),masters=new Map(wcs.map(x=>[x.work_center,x])),maps=new Map(fgMap.map(x=>[x.order_type+'|'+x.packing_wc,x]));
+ const active=wcs.filter(x=>x.basis!=='INACTIVE'&&(x.prs67||x.prs4)).sort((a,b)=>wcOrder.indexOf(a.work_center)-wcOrder.indexOf(b.work_center));
+ const totals=new Map(active.map(w=>[w.work_center,0])),detail=[],unmapped=[],provisional=[],excluded=[];
+ for(const r of fg.filter(r=>inRange(r,start,end))){const map=maps.get(r.order_type+'|'+r.packing_wc),kg=number(r.tonase)*1000;
+  if(map?.decision==='EXCLUDE'){excluded.push({...r,kg});continue}
+  const wc=map?.process_wc,w=masters.get(wc);
+  if(!map||map.decision!=='INCLUDE'||w?.basis!=='FG'||!totals.has(wc)){unmapped.push({...r,kg,reason:'Mapping FG belum disetujui'});continue}
+  const item={tanggal:r.tanggal,work_center:wc,cost_center:w.cost_center,material:r.material,description:r.material_description,production_order:r.production_order,basis:'FG',kg};
+  if(String(map.evidence||'').toLowerCase().includes('provisional'))provisional.push(item);
+  detail.push(item);totals.set(wc,totals.get(wc)+kg);
+ }
+ for(const r of sfg.filter(r=>inRange(r,start,end))){const wc=r.process_wc,w=masters.get(wc),kg=number(r.output_kg);
+  if(w?.basis!=='SFG'||!totals.has(wc)||kg===null){unmapped.push({...r,kg,reason:'Mapping SFG belum valid'});continue}
+  detail.push({tanggal:r.tanggal,work_center:wc,cost_center:w.cost_center,material:r.material,description:r.material_description,production_order:r.production_order,basis:'SFG',kg});totals.set(wc,totals.get(wc)+kg);
+ }
+ const base67=active.filter(w=>w.prs67).reduce((s,w)=>s+totals.get(w.work_center),0),base4=active.filter(w=>w.prs4).reduce((s,w)=>s+totals.get(w.work_center),0);
+ const rows=active.map(w=>{const kg=totals.get(w.work_center),a67=gas.g67!==null&&base67>0&&w.prs67?kg/base67*gas.g67:0,a4=gas.g4!==null&&base4>0&&w.prs4?kg/base4*gas.g4:0;
+  return {...w,kg,a67,a4,allocated:a67+a4,density:kg>0&&gas.total!==null?(a67+a4)/kg:null};});
+ const totalAllocated=sum(rows,'allocated'),totalKg=sum(rows,'kg'),remaining=gas.total===null?null:gas.total-totalAllocated;
+ for(const r of rows)r.share=totalAllocated>0?r.allocated/totalAllocated*100:null;
+ const byWC=new Map(rows.map(r=>[r.work_center,r]));for(const r of detail)r.allocated=r.kg*(byWC.get(r.work_center).density??0);
+ return {start,end,gas,rows,totalAllocated,totalKg,remaining,base67,base4,detail,unmapped,provisional,excluded};
+}
+
+const energyCols='tanggal,gas_gd67_mmbtu,gas_gd4_mmbtu,gas_mmbtu,gas_gd67_nm3,gas_gd4_nm3,gas_nm3,gas_mmbtu_partial';
+const state={seq:0,latest:null};
+async function read(table,cols,filter={},order='tanggal'){
+    const all=[];
+    for(let offset=0;offset<100000;offset+=1000){
+        let q=db.from(table).select(cols);
+        for(const [k,v] of Object.entries(filter)){
+            if(k.endsWith('_gte'))q=q.gte(k.slice(0,-4),v);else if(k.endsWith('_lte'))q=q.lte(k.slice(0,-4),v);else q=q.eq(k,v);
+        }
+        for(const k of order.split(','))q=q.order(k,{ascending:true});
+        const {data,error}=await q.range(offset,offset+999);
+        if(error)throw Error(table+': '+error.message);
+        if(!Array.isArray(data))throw Error(table+': respons tidak valid');
+        all.push(...data);if(data.length<1000)return all;
+    }throw Error('Data melebihi batas pembacaan.');
+}
+const monthLabel=m=>new Date(m+'-01T12:00:00Z').toLocaleDateString('id-ID',{month:'long',year:'numeric',timeZone:'UTC'});
+const dateLabel=d=>new Date(d+'T12:00:00Z').toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'});
+function validMonth(m){return /^\d{4}-(0[1-9]|1[0-2])$/.test(m||'')&&m<=today().slice(0,7)}
+function updateLink(month){$('fmGasDetailLink').href='utility-dmc.html?tab=density&month='+encodeURIComponent(month||today().slice(0,7))+'&v=20261126-fm1'}
+function setStatus(msg,cls=''){$('fmGasState').className='fm-gas-state '+cls;$('fmGasState').textContent=msg}
+function metrics(items){$('fmGasMetrics').innerHTML=items.map(([label,v,unit])=>`<div class="fm-gas-metric"><span>${esc(label)}</span><strong>${esc(v)}</strong><small>${esc(unit)}</small></div>`).join('')}
+function reset(message,actual=null){metrics([['Gas aktual tercatat',fmt(actual?.total,3),'MMBTU'],['Output basis','—','Ton (FG/SFG)'],['Density total','—','MMBTU/kg'],['Gas teralokasi','—','MMBTU']]);$('fmGasRows').innerHTML=`<tr><td colspan="9" class="fm-gas-empty">${esc(message)}</td></tr>`;$('fmGasAudit').textContent='Gas tanpa basis: — · Gas di luar cutoff: —';}
+function monthOptions(){const now=today().slice(0,7),values=[];for(let i=0;i<13;i++){const d=new Date(now+'-01T12:00:00Z');d.setUTCMonth(d.getUTCMonth()-i);values.push(d.toISOString().slice(0,7))}return values}
+async function init(){
+    const months=monthOptions(),sel=$('fmGasMonth');
+    sel.replaceChildren(...months.map(m=>new Option(monthLabel(m),m)));
+    sel.value=months[0];updateLink(sel.value);
+    sel.addEventListener('change',()=>load(sel.value));$('fmGasRefresh').addEventListener('click',()=>load(sel.value));
+    $('fmGasCard').addEventListener('click',e=>{
+        if(e.defaultPrevented||e.target.closest('[data-fm-control],a,button,input,select,textarea,label')||String(window.getSelection()||'').trim())return;
+        if(e.ctrlKey||e.metaKey)window.open($('fmGasDetailLink').href,'_blank','noopener');else window.location.assign($('fmGasDetailLink').href);
+    });
+    try{
+        const imports=await read('gas_sfg_imports','month_start,scope_confirmed,coverage_end',{scope_confirmed:true,month_start_gte:months.at(-1)+'-01',month_start_lte:months[0]+'-01'},'month_start');
+        state.latest=imports.filter(r=>r.scope_confirmed&&validMonth(String(r.month_start).slice(0,7))).map(r=>String(r.month_start).slice(0,7)).sort().at(-1)||null;
+        if(state.latest&&months.includes(state.latest))sel.value=state.latest;
+    }catch(e){console.warn('Gas Density: gagal memilih periode SFG terakhir',e)}
+    sel.disabled=false;await load(sel.value);
+}
+async function load(month){
+    const seq=++state.seq;
+    if(!validMonth(month)){setStatus('Pilih bulan yang valid.','warn');return;}
+    updateLink(month);const start=month+'-01',requested=minDate(monthEnd(month),today());
+    $('fmGasPeriod').textContent=monthLabel(month)+' · Monthly / MTD · Filter khusus Gas Density';
+    reset('Memuat data...');setStatus('Mengambil data Energy, FG, SFG, dan master mapping...');$('fmGasRefresh').disabled=true;$('fmGasCard').setAttribute('aria-busy','true');
+    try{
+        const filter={tanggal_gte:start,tanggal_lte:requested};
+        const [energy,fg,sfg,fi,si,wcs,fgMap]=await Promise.all([
+            read('energy_daily',energyCols,filter),read('tonase_fg_detail','*',filter,'tanggal,production_order'),read('tonase_sfg','*',filter,'tanggal,source_sheet,production_order,material,batch,shift'),read('gas_fg_imports','*',{month_start:start},'month_start'),read('gas_sfg_imports','*',{month_start:start},'month_start'),read('gas_work_center','*',{},'work_center'),read('gas_fg_mapping','*',{},'order_type,packing_wc')
+        ]);
+        if(seq!==state.seq)return;
+        if(!wcs.length||!fgMap.length)throw Error('Master mapping belum lengkap.');
+        const f=fi[0],s=si[0],lastGas=maxDate(...energy.map(r=>r.tanggal)),actual=gasStats(energy,start,requested);
+        if(!lastGas||!f||!s?.scope_confirmed||f.coverage_start>start){
+            const missing=[!lastGas?'Energy':null,!f||f.coverage_start>start?'FG sejak tanggal 1':null,!s?.scope_confirmed?'SFG terkonfirmasi':null].filter(Boolean).join(', ');
+            reset('Data basis belum lengkap.',actual);setStatus('Menunggu '+missing+'. Buka detail Utility untuk memeriksa cakupan.','warn');return;
+        }
+        const end=minDate(requested,lastGas,f.coverage_end,s.coverage_end);if(!end||end<start)throw Error('Tidak ada periode bersama.');
+        const a=allocate({energy,fg,sfg,wcs,fgMap,start,end}),gas=a.gas.total;
+        const unknown=a.unmapped.length,provisional=a.provisional.length,zeroBasis=(a.gas.g67>0&&a.base67===0)||(a.gas.g4>0&&a.base4===0),pending=end<requested||!a.gas.complete||unknown>0||provisional>0||zeroBasis||!(a.totalKg>0)||a.gas.g67===null||a.gas.g4===null;
+        const unallocated=a.remaining===null?null:Math.max(0,a.remaining),outside=actual.total!==null&&gas!==null?Math.max(0,actual.total-gas):null;
+        $('fmGasPeriod').textContent=monthLabel(month)+' · '+dateLabel(start)+' – '+dateLabel(end)+' · '+(end<monthEnd(month)?'MTD / cutoff':'Full month');
+        metrics([['Gas aktual periode basis',fmt(gas,3),'MMBTU'],['Output basis alokasi',fmt(a.totalKg/1000,3),'Ton (FG/SFG)'],['Density total',fmt(a.totalKg>0&&gas!==null?a.totalAllocated/a.totalKg:null,6),'MMBTU/kg'],['Gas teralokasi',fmt(gas===null?null:a.totalAllocated,3),'MMBTU']]);
+        $('fmGasRows').innerHTML=a.rows.map(r=>`<tr><td>${esc(r.cost_center)}</td><td>${esc(r.work_center)}</td><td>${esc(r.basis)}</td><td>${fmt(r.kg,3)}</td><td>${fmt(r.density,6)}</td><td>${fmt(gas===null?null:r.a67,3)}</td><td>${fmt(gas===null?null:r.a4,3)}</td><td>${fmt(gas===null?null:r.allocated,3)}</td><td>${fmt(r.share,1)}${r.share===null?'':'%'}</td></tr>`).join('')+`<tr class="fm-gas-total"><td>TOTAL</td><td></td><td></td><td>${fmt(a.totalKg,3)}</td><td>${fmt(a.totalKg>0&&gas!==null?a.totalAllocated/a.totalKg:null,6)}</td><td>${fmt(gas===null?null:sum(a.rows,'a67'),3)}</td><td>${fmt(gas===null?null:sum(a.rows,'a4'),3)}</td><td>${fmt(gas===null?null:a.totalAllocated,3)}</td><td>${a.totalAllocated>0?'100,0%':'—'}</td></tr>`;
+        setStatus((pending?'Data sementara / provisional':'Data periode tersedia · menunggu persetujuan Utility')+' · '+a.gas.days+'/'+a.gas.expected+' hari gas · '+a.gas.partial+' parsial · '+a.gas.discrepancy+' selisih meter · '+unknown+' unmapped · '+provisional+' mapping usulan'+(zeroBasis?' · gas tanpa basis output':'')+(end<requested?' · cutoff '+dateLabel(end):''),pending?'warn':'');
+        $('fmGasAudit').innerHTML=`<span>Gas tanpa basis: <strong>${fmt(unallocated,3)}</strong> MMBTU · Gas di luar cutoff: <strong>${fmt(outside,3)}</strong> MMBTU</span>`;
+    }catch(e){if(seq===state.seq){reset('Rekap belum dapat dimuat.');setStatus('Gagal memuat Gas Density: '+e.message,'error')}}finally{if(seq===state.seq){$('fmGasRefresh').disabled=false;$('fmGasCard').removeAttribute('aria-busy')}}
+}
+init().catch(e=>{reset('Rekap belum dapat dimuat.');setStatus(e.message,'error');$('fmGasRefresh').disabled=false;$('fmGasMonth').disabled=false});
+})();
+</script>
 </body>
 </html>
-                                                                                                                                      
