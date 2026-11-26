@@ -196,7 +196,7 @@ button,select,input{font-family:Arial,sans-serif}
             </div>
             <div class="scope-message" id="scope-message">Klik Proses Excel untuk menjalankan validasi.</div>
         </div>
-        <div class="warning-badge" id="warning-badge">⚠️ <strong>Perhatian:</strong> Menyimpan file baru akan menghapus data tonase lama dan menggantinya dengan data terbaru.</div>
+        <div class="warning-badge" id="warning-badge">⚠️ <strong>Perhatian:</strong> Data dalam rentang tanggal file akan diganti secara atomik (tonase harian dan detail FG). Data di luar rentang tetap aman. Gunakan snapshot SAP lengkap.</div>
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px;">
             <button class="btn-upload" id="btn-proses" onclick="prosesExcel()">Proses Excel</button>
             <button class="btn-save" id="btn-save" onclick="simpanKeSupabase()" disabled style="display:none;">Perbarui Data Supabase</button>
@@ -409,12 +409,20 @@ function prosesExcel(){
         const missingHeaders=[];if(orderTypeCol===undefined)missingHeaders.push('Order Type');if(dateCol===undefined)missingHeaders.push('Schedule Start Date');if(tonaseCol===undefined)missingHeaders.push('Tonase');
         if(missingHeaders.length)throw new Error('Kolom wajib tidak ditemukan: '+missingHeaders.join(', '));
         const outputHeadersComplete=grQtyCol!==undefined&&orderQtyCol!==undefined&&baseQtyCol!==undefined;
+        const detailHeaders=['PLANT','PRODUCTION ORDER','MATERIAL','MATERIAL DESCRIPTION','WORK CENTER','PRODUCTION VERSION'];
+        const missingDetail=detailHeaders.filter(k=>headerMap[k]===undefined);
+        if(missingDetail.length)throw new Error('Kolom detail FG tidak ditemukan: '+missingDetail.join(', '));
+        const textCell=(r,k)=>String(getCell(r,headerMap[k])?.v??'').trim();
 
-        const dailyMap={},outputMap={},orderTypeCounts={},allTypes=new Set();let positiveRows=0,firstDate=null,lastDate=null;
+        const dailyMap={},outputMap={},orderTypeCounts={},allTypes=new Set(),fgDetail=[],seenOrders=new Set();let positiveRows=0,firstDate=null,lastDate=null;
         for(let r=headerRow+1;r<=range.e.r;r++){
             const orderType=String(getCell(r,orderTypeCol)?.v??'').trim().toUpperCase();if(orderType){allTypes.add(orderType);orderTypeCounts[orderType]=(orderTypeCounts[orderType]||0)+1;}
             const tglCell=getCell(r,dateCol),tonCell=getCell(r,tonaseCol);if(!tglCell||tglCell.v===undefined)continue;
             const tglStr=excelDateToStr(tglCell.v);if(!tglStr)continue;const ton=tonCell?(parseFloat(tonCell.v)||0):0;if(ton<=0)continue;
+            const production_order=textCell(r,'PRODUCTION ORDER'),plant=textCell(r,'PLANT'),material=textCell(r,'MATERIAL'),material_description=textCell(r,'MATERIAL DESCRIPTION'),packing_wc=textCell(r,'WORK CENTER').toUpperCase(),production_version=textCell(r,'PRODUCTION VERSION');
+            if(plant!=='1500'||!REQUIRED_ORDER_TYPES.includes(orderType)||!/^\d+$/.test(production_order)||!material||!material_description||!packing_wc)throw new Error(`Baris ${r+1}: detail FG tidak lengkap atau di luar scope Plant 1500 / B103, B403, B703.`);
+            if(seenOrders.has(production_order))throw new Error(`Production Order duplikat: ${production_order}`);
+            seenOrders.add(production_order);fgDetail.push({tanggal:tglStr,plant,order_type:orderType,production_order,material,material_description,packing_wc,production_version,tonase:ton});
             positiveRows++;dailyMap[tglStr]=(dailyMap[tglStr]||0)+ton;if(!firstDate||tglStr<firstDate)firstDate=tglStr;if(!lastDate||tglStr>lastDate)lastDate=tglStr;
 
             const gedung=ORDER_TYPE_TO_GEDUNG[orderType];
@@ -430,7 +438,7 @@ function prosesExcel(){
         if(!rows.length)throw new Error('Tidak ada data tonase positif ditemukan');
         const total=+rows.reduce((s,r)=>s+r.tonase,0).toFixed(3);const orderTypes=[...allTypes].sort();const missingTypes=REQUIRED_ORDER_TYPES.filter(t=>!allTypes.has(t));const scopeComplete=missingTypes.length===0;
         const outputRows=Object.values(outputMap).sort((a,b)=>a.year-b.year||a.month-b.month||OUTPUT_GEDUNG.indexOf(a.gedung)-OUTPUT_GEDUNG.indexOf(b.gedung)).map(o=>({...o,ton:+o.ton.toFixed(3),ctn:+o.ctn.toFixed(3),pcs:+o.pcs.toFixed(3)}));
-        const validation={orderTypes,orderTypeCounts,missingTypes,scopeComplete,positiveRows,firstDate,lastDate,total,outputHeadersComplete};parsedData={rows,total,validation,outputRows};
+        const validation={orderTypes,orderTypeCounts,missingTypes,scopeComplete,positiveRows,firstDate,lastDate,total,outputHeadersComplete};parsedData={rows,total,validation,outputRows,fgDetail,sourceFile:file.name};
         outputSummaryRows=outputRows;saveOutputSummaryCache(outputRows,file.name);tampilkanData(parsedData);renderScopeValidation(validation);
         const btn=document.getElementById('btn-save');btn.style.display='inline-block';btn.disabled=!scopeComplete;btn.textContent=scopeComplete?'Perbarui Data Supabase':'Scope Belum Lengkap';
         if(scopeComplete){setStatus('active',`Validasi OK. ${rows.length} hari data · ${fmtTon(total)} ton · Order Type: ${orderTypes.join(', ')}`);document.getElementById('warning-badge').classList.add('show');}
@@ -775,12 +783,13 @@ function setStatus(type,msg){const bar=document.getElementById('status-bar'),dot
 async function simpanKeSupabase(){
     if(!parsedData)return;
     if(!parsedData.validation?.scopeComplete){setStatus('error',`Import diblokir. Scope Order Type wajib: ${REQUIRED_ORDER_TYPES.join(', ')}.`);return;}
+    if(!confirm(`Ganti tonase dan detail FG pada ${parsedData.validation.firstDate} s.d. ${parsedData.validation.lastDate}? Pastikan file SAP lengkap untuk rentang tersebut.`))return;
     const btn=document.getElementById('btn-save');btn.disabled=true;btn.textContent='Memperbarui...';setStatus('loading','Validasi scope OK. Menyimpan tonase dan menyinkronkan Cost Material...');
     try{
-        const{error:e1}=await db.from('tonase_harian').delete().gte('tanggal','2000-01-01');if(e1)throw e1;
-        const rows=parsedData.rows.map(r=>({tanggal:r.tanggal,tonase:r.tonase}));
-        const chunk=500;
-        for(let i=0;i<rows.length;i+=chunk){const{error}=await db.from('tonase_harian').insert(rows.slice(i,i+chunk));if(error)throw error}
+        if(!parsedData.fgDetail?.length)throw new Error('Detail FG kosong. Proses kembali file SAP.');
+        const {error:saveError}=await db.rpc('gas_replace_fg',{p_rows:parsedData.fgDetail,p_file:parsedData.sourceFile,p_start:parsedData.validation.firstDate,p_end:parsedData.validation.lastDate,p_order_types:parsedData.validation.orderTypes});
+        if(saveError)throw saveError;
+        const rows=await loadAllTonase();
 
         let syncInfo={matched:0,updated:0},syncError=null;
         try{syncInfo=await syncCostMaterialWeeklyTonase(rows)}catch(err){syncError=err;console.error('Sinkronisasi Cost Material gagal:',err)}
@@ -788,10 +797,10 @@ async function simpanKeSupabase(){
         document.getElementById('warning-badge').classList.remove('show');
         await loadFromSupabase();
         if(syncError){
-            setStatus('error',`Tonase tersimpan (${rows.length} hari), tetapi sinkronisasi Cost Material gagal: ${syncError.message}. Cost Material tetap akan membaca tonase live saat dibuka.`);
+            setStatus('error',`Tonase dan detail FG tersimpan (${parsedData.rows.length} hari), tetapi sinkronisasi Cost Material gagal: ${syncError.message}. Cost Material tetap akan membaca tonase live saat dibuka.`);
             btn.disabled=false;btn.textContent='Coba Sinkron Ulang';
         }else{
-            setStatus('active',`Tersimpan. ${rows.length} hari data diperbarui · ${syncInfo.matched} week Cost Material dicocokkan · ${syncInfo.updated} week tonase diperbarui otomatis.`);
+            setStatus('active',`Tersimpan. ${parsedData.fgDetail.length} detail FG · ${parsedData.rows.length} hari diperbarui · ${syncInfo.matched} week Cost Material dicocokkan · ${syncInfo.updated} week tonase diperbarui otomatis.`);
             btn.textContent='Diperbarui';
         }
     }catch(err){setStatus('error','Gagal memperbarui: '+err.message);btn.disabled=false;btn.textContent='Perbarui Data Supabase';console.error(err)}
