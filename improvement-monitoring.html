@@ -36,11 +36,14 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; color:#1f293
 }
 .card-title { font-size:15px; font-weight:700; margin:0 0 16px; }
 .form-grid {
-    display:grid; grid-template-columns:1fr 2fr repeat(4, minmax(130px, 1fr));
+    display:grid; grid-template-columns:repeat(4, minmax(0, 1fr));
     gap:12px; align-items:end;
 }
 .fg { display:flex; flex-direction:column; gap:5px; }
 .fg.full { grid-column:1 / -1; }
+.fg.project-field { grid-column:span 2; }
+.department-cell { font-weight:600; white-space:nowrap; }
+.department-unassigned { color:#9ca3af; font-weight:400; white-space:nowrap; }
 .fg label { font-size:11px; color:#6b7280; font-weight:700; text-transform:uppercase; letter-spacing:.04em; }
 .fg input, .fg select, .fg textarea {
     width:100%; padding:9px 11px; border:1px solid #d1d5db;
@@ -73,7 +76,7 @@ body { margin:0; font-family:Arial, sans-serif; background:#f3f4f6; color:#1f293
 .filters .fg input, .filters .fg select { min-width:160px; }
 .result-count { color:#6b7280; font-size:12px; }
 .table-wrap { overflow:auto; border:1px solid #eef0f3; border-radius:10px; }
-table { width:100%; border-collapse:collapse; font-size:13px; min-width:1200px; }
+table { width:100%; border-collapse:collapse; font-size:13px; min-width:1300px; }
 th {
     background:#f9fafb; color:#6b7280; font-size:11px; font-weight:700;
     text-align:left; padding:11px 12px; border-bottom:2px solid #e5e7eb;
@@ -107,6 +110,7 @@ tr:hover td { background:#fafafa; }
 @media (max-width:1100px) {
     .summary-grid { grid-template-columns:repeat(2, minmax(150px, 1fr)); }
     .form-grid { grid-template-columns:1fr 1fr; }
+    .fg.project-field { grid-column:auto; }
 }
 @media (max-width:620px) {
     .main { padding-left:14px; padding-right:14px; }
@@ -114,7 +118,7 @@ tr:hover td { background:#fafafa; }
     .fg.full { grid-column:auto; }
 }
 </style>
-<script src="sidebar.js" defer></script>
+<script src="https://cikobebjn.github.io/ci-dashboard/sidebar.js" defer></script>
 </head>
 <body>
 <!-- Navigasi disediakan oleh sidebar.js master. -->
@@ -125,7 +129,7 @@ tr:hover td { background:#fafafa; }
     <div class="page-header">
         <div>
             <h1 class="page-title">Monitoring Project &amp; Improvement</h1>
-            <p class="page-subtitle">Pantau timeline, realisasi, PIC, dan progres setiap improvement.</p>
+            <p class="page-subtitle">Pantau timeline, realisasi, departemen, PIC, dan progres setiap improvement.</p>
         </div>
         <button class="btn btn-primary" onclick="focusForm()">+ Tambah Improvement</button>
     </div>
@@ -133,7 +137,7 @@ tr:hover td { background:#fafafa; }
         <div class="summary-card">
             <div class="summary-label">Total Project</div>
             <div class="summary-value" id="sum-total">0</div>
-            <div class="summary-note">Seluruh improvement</div>
+            <div class="summary-note"><span id="summary-scope">Seluruh improvement</span></div>
         </div>
         <div class="summary-card">
             <div class="summary-label">On Progress</div>
@@ -160,9 +164,15 @@ tr:hover td { background:#fafafa; }
                     <label for="no-index">No. Index</label>
                     <input type="text" id="no-index" placeholder="Contoh: IMP-001" maxlength="50" autocomplete="off">
                 </div>
-                <div class="fg">
+                <div class="fg project-field">
                     <label for="project-name">Nama Project / Improvement *</label>
                     <input type="text" id="project-name" placeholder="Contoh: Reduksi Waste Kemasan Line 3" required maxlength="200">
+                </div>
+                <div class="fg">
+                    <label for="department">Departemen *</label>
+                    <select id="department" required>
+                        <option value="">Pilih departemen</option>
+                    </select>
                 </div>
                 <div class="fg">
                     <label for="timeline-start">Mulai Timeline *</label>
@@ -203,7 +213,14 @@ tr:hover td { background:#fafafa; }
             <div class="filters">
                 <div class="fg">
                     <label for="search-input">Cari</label>
-                    <input type="search" id="search-input" placeholder="No. Index, Project atau PIC..." oninput="renderTable()">
+                    <input type="search" id="search-input" placeholder="Index, Project, Departemen, PIC..." oninput="renderTable()">
+                </div>
+                <div class="fg">
+                    <label for="department-filter">Departemen</label>
+                    <select id="department-filter" onchange="onDepartmentFilterChange()">
+                        <option value="all">Semua Departemen</option>
+                        <option value="unassigned">Belum ditentukan</option>
+                    </select>
                 </div>
                 <div class="fg">
                     <label for="status-filter">Status</label>
@@ -231,6 +248,7 @@ tr:hover td { background:#fafafa; }
                         <th style="width:45px;">No</th>
                         <th>No. Index</th>
                         <th>Project / Improvement</th>
+                        <th>Departemen</th>
                         <th>PIC</th>
                         <th>Timeline</th>
                         <th>Realisasi</th>
@@ -240,7 +258,7 @@ tr:hover td { background:#fafafa; }
                     </tr>
                 </thead>
                 <tbody id="improvement-body">
-                    <tr class="empty-row"><td colspan="9">Memuat data...</td></tr>
+                    <tr class="empty-row"><td colspan="10">Memuat data...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -260,6 +278,11 @@ const db = createClient(SUPABASE_URL, SUPABASE_KEY, {
         detectSessionInUrl: false
     }
 });
+// Master departemen - ubah daftar ini bila nomenklatur departemen berubah.
+const DEPARTMENTS = Object.freeze([
+    'Produksi', 'MTC', 'Utility', 'QC', 'RND', 'WH', 'HSE', 'GA',
+    'Sparepart (GDSP)', 'HR', 'Project', 'RMPM', 'Lainnya'
+]);
 let improvementData = [];
 let toastTimeout;
 
@@ -305,36 +328,71 @@ function getStatus(item) {
     if (progress > 0) return { key:'in-progress', label:'On Progress', cls:'badge-progress' };
     return { key:'not-started', label:'Belum Mulai', cls:'badge-not-started' };
 }
+function departmentValue(item) {
+    return String(item.department ?? '').trim();
+}
+function departmentOptions() {
+    const extras = [...new Set(improvementData.map(departmentValue).filter(Boolean))]
+        .filter(name => !DEPARTMENTS.includes(name))
+        .sort((a, b) => a.localeCompare(b, 'id'));
+    return [...DEPARTMENTS, ...extras];
+}
+function refreshDepartmentOptions() {
+    const formSelect = document.getElementById('department');
+    const filterSelect = document.getElementById('department-filter');
+    const previousForm = formSelect.value;
+    const previousFilter = filterSelect.value;
+    const options = departmentOptions();
+    const html = options.map(name => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join('');
+    formSelect.innerHTML = '<option value="">Pilih departemen</option>' + html;
+    formSelect.value = options.includes(previousForm) ? previousForm : '';
+    filterSelect.innerHTML = '<option value="all">Semua Departemen</option>' + html +
+        '<option value="unassigned">Belum ditentukan</option>';
+    filterSelect.value = (previousFilter === 'unassigned' || options.includes(previousFilter)) ? previousFilter : 'all';
+}
+function departmentScopedData() {
+    const filter = document.getElementById('department-filter').value;
+    return improvementData.filter(item => filter === 'all' ||
+        (filter === 'unassigned' ? !departmentValue(item) : departmentValue(item) === filter));
+}
+function onDepartmentFilterChange() {
+    refreshPicFilter();
+    updateSummary();
+    renderTable();
+}
 async function loadImprovements() {
     const body = document.getElementById('improvement-body');
-    body.innerHTML = '<tr class="empty-row"><td colspan="9">Memuat data...</td></tr>';
+    body.innerHTML = '<tr class="empty-row"><td colspan="10">Memuat data...</td></tr>';
     const { data, error } = await db
         .from('improvement_monitoring')
         .select('*')
         .order('timeline_end', { ascending:true })
         .order('created_at', { ascending:false });
     if (error) {
-        body.innerHTML = '<tr class="empty-row"><td colspan="9">Gagal memuat data. Periksa koneksi dan tabel improvement_monitoring.</td></tr>';
+        body.innerHTML = '<tr class="empty-row"><td colspan="10">Gagal memuat data. Periksa koneksi dan tabel improvement_monitoring.</td></tr>';
         showToast('Gagal memuat data: ' + error.message, 'error');
         return;
     }
     improvementData = data || [];
-    refreshPicFilter();
-    updateSummary();
-    renderTable();
+    refreshDepartmentOptions();
+    onDepartmentFilterChange();
 }
 function refreshPicFilter() {
     const select = document.getElementById('pic-filter');
     const previous = select.value;
-    const pics = [...new Set(improvementData.map(item => item.pic).filter(Boolean))]
+    const pics = [...new Set(departmentScopedData().map(item => item.pic).filter(Boolean))]
         .sort((a, b) => a.localeCompare(b, 'id'));
     select.innerHTML = '<option value="all">Semua PIC</option>' +
         pics.map(pic => `<option value="${escapeHtml(pic)}">${escapeHtml(pic)}</option>`).join('');
-    if (pics.includes(previous)) select.value = previous;
+    select.value = pics.includes(previous) ? previous : 'all';
 }
 function updateSummary() {
-    const statuses = improvementData.map(getStatus);
-    document.getElementById('sum-total').textContent = improvementData.length;
+    const scoped = departmentScopedData();
+    const filter = document.getElementById('department-filter').value;
+    const statuses = scoped.map(getStatus);
+    document.getElementById('summary-scope').textContent = filter === 'all' ? 'Seluruh improvement' :
+        (filter === 'unassigned' ? 'Departemen belum ditentukan' : filter);
+    document.getElementById('sum-total').textContent = scoped.length;
     document.getElementById('sum-progress').textContent = statuses.filter(s => s.key === 'in-progress').length;
     document.getElementById('sum-completed').textContent = statuses.filter(s => s.key === 'completed').length;
     document.getElementById('sum-overdue').textContent = statuses.filter(s => s.key === 'overdue').length;
@@ -344,20 +402,22 @@ function renderTable() {
     const search = document.getElementById('search-input').value.trim().toLowerCase();
     const statusFilter = document.getElementById('status-filter').value;
     const picFilter = document.getElementById('pic-filter').value;
-    const filtered = improvementData.filter(item => {
+    const scoped = departmentScopedData();
+    const filtered = scoped.filter(item => {
         const status = getStatus(item);
         const matchesSearch = !search ||
             String(item.no_index || '').toLowerCase().includes(search) ||
             String(item.project_name || '').toLowerCase().includes(search) ||
+            departmentValue(item).toLowerCase().includes(search) ||
             String(item.pic || '').toLowerCase().includes(search) ||
             String(item.notes || '').toLowerCase().includes(search);
         const matchesStatus = statusFilter === 'all' || status.key === statusFilter;
         const matchesPic = picFilter === 'all' || item.pic === picFilter;
         return matchesSearch && matchesStatus && matchesPic;
     });
-    document.getElementById('result-count').textContent = `${filtered.length} dari ${improvementData.length} data`;
+    document.getElementById('result-count').textContent = `${filtered.length} dari ${scoped.length} data`;
     if (filtered.length === 0) {
-        body.innerHTML = '<tr class="empty-row"><td colspan="9">Tidak ada data yang sesuai.</td></tr>';
+        body.innerHTML = '<tr class="empty-row"><td colspan="10">Tidak ada data yang sesuai.</td></tr>';
         return;
     }
     body.innerHTML = filtered.map((item, index) => {
@@ -371,6 +431,7 @@ function renderTable() {
                     <div class="project-name">${escapeHtml(item.project_name)}</div>
                     ${item.notes ? `<div class="notes">${escapeHtml(item.notes)}</div>` : ''}
                 </td>
+                <td class="${departmentValue(item) ? 'department-cell' : 'department-unassigned'}">${escapeHtml(departmentValue(item) || 'Belum ditentukan')}</td>
                 <td>${escapeHtml(item.pic)}</td>
                 <td>
                     <div>${formatDate(item.timeline_start)}</div>
@@ -404,11 +465,12 @@ async function saveImprovement(event) {
     const timelineStart = document.getElementById('timeline-start').value;
     const timelineEnd = document.getElementById('timeline-end').value;
     const realizationDate = document.getElementById('realization-date').value || null;
+    const department = document.getElementById('department').value.trim();
     const pic = document.getElementById('pic').value.trim();
     const progress = Math.min(100, Math.max(0, Number(document.getElementById('progress-number').value) || 0));
     const notes = document.getElementById('notes').value.trim() || null;
-    if (!projectName || !timelineStart || !timelineEnd || !pic) {
-        showToast('Nama project, timeline, dan PIC wajib diisi.', 'error');
+    if (!projectName || !timelineStart || !timelineEnd || !pic || !department || !departmentOptions().includes(department)) {
+        showToast('Nama project, departemen, timeline, dan PIC wajib diisi.', 'error');
         return;
     }
     if (timelineEnd < timelineStart) {
@@ -418,6 +480,7 @@ async function saveImprovement(event) {
     const payload = {
         no_index: noIndex,
         project_name: projectName,
+        department,
         timeline_start: timelineStart,
         timeline_end: timelineEnd,
         realization_date: realizationDate,
@@ -436,14 +499,14 @@ async function saveImprovement(event) {
                 .from('improvement_monitoring')
                 .update(payload)
                 .eq('id', id)
-                .select('id, progress, no_index');
+                .select('id, progress, no_index, department');
             if (error) throw error;
             if (!data || data.length !== 1) {
                 showToast('Perubahan belum tersimpan. UPDATE tidak mengubah data; periksa izin UPDATE/RLS di Supabase.', 'error');
                 return;
             }
-            if (Number(data[0].progress) !== progress || (data[0].no_index || null) !== noIndex) {
-                showToast('Data No. Index / progres di database berbeda dari nilai yang disimpan.', 'error');
+            if (Number(data[0].progress) !== progress || (data[0].no_index || null) !== noIndex || departmentValue(data[0]) !== department) {
+                showToast('Data No. Index / departemen / progres di database berbeda dari nilai yang disimpan.', 'error');
                 return;
             }
         } else {
@@ -469,6 +532,7 @@ function editImprovement(id) {
     document.getElementById('edit-id').value = item.id;
     document.getElementById('no-index').value = item.no_index || '';
     document.getElementById('project-name').value = item.project_name || '';
+    document.getElementById('department').value = departmentValue(item);
     document.getElementById('timeline-start').value = item.timeline_start || '';
     document.getElementById('timeline-end').value = item.timeline_end || '';
     document.getElementById('realization-date').value = item.realization_date || '';
@@ -485,6 +549,7 @@ function resetForm() {
     document.getElementById('improvement-form').reset();
     document.getElementById('edit-id').value = '';
     document.getElementById('no-index').value = '';
+    document.getElementById('department').value = '';
     document.getElementById('progress-range').value = 0;
     document.getElementById('progress-number').value = 0;
     document.getElementById('form-title').textContent = '➕ Tambah Improvement';
@@ -503,6 +568,7 @@ async function deleteImprovement(id) {
     showToast('🗑 Improvement dihapus');
     await loadImprovements();
 }
+refreshDepartmentOptions();
 loadImprovements();
 </script>
 </body>
