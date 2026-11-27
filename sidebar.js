@@ -1,5 +1,5 @@
 /*
- * KOBE Bojonegoro | Shared Sidebar v2.9 - Accordion + DMC DOR Navigation
+ * KOBE Bojonegoro | Shared Sidebar v2.9.1 - Accordion + DMC DOR Navigation
  * The only source of truth for navigation items, sidebar CSS and interactions.
  * Install ONCE in every HTML page: <script src="sidebar.js" defer></script>
  * For a page inside a subfolder: <script src="../sidebar.js" defer></script>
@@ -7,7 +7,7 @@
  */
 (function () {
   'use strict';
-  const VERSION = '2.9';
+  const VERSION = '2.9.1';
   if (window.KobeSidebar && window.KobeSidebar.version === VERSION) return;
 
   // Accordion: grup aktif terbuka otomatis, grup lain tertutup.
@@ -53,6 +53,7 @@
       { name: 'Dashboard Downtime', url: 'downtime/downtime-dashboard.html', icon: 'chart' },
       { name: 'Form Input Downtime', url: 'downtime/downtime-form.html', icon: 'form' },
       { name: 'Improvement Monitoring', url: 'improvement-monitoring.html', icon: 'spark' },
+      { name: 'KPI Improvement (KIMS)', url: 'kpi-improvement.html', icon: 'target' },
       { name: 'Monitoring Hasil Seleksi Admin Produksi', url: 'hasil-seleksi-admin.html', icon: 'form' },
       { name: 'Monitoring Gramasi', url: 'gramasi-monitoring.html', icon: 'chart' },
       { name: 'Analisa Packaging Reject', url: 'packaging-reject-monitoring.html', icon: 'chart' },
@@ -70,6 +71,7 @@
   const ICONS = {
     home: '<path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/>',
     spark: '<path d="m12 3 1.9 6.1L20 11l-6.1 1.9L12 19l-1.9-6.1L4 11l6.1-1.9z"/>',
+    target: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',
     book: '<path d="M4 4.5h6a3 3 0 0 1 3 3V21a3 3 0 0 0-3-3H4zM20 4.5h-4a3 3 0 0 0-3 3V21a3 3 0 0 1 3-3h4z"/>',
     gauge: '<path d="M5.2 17.8a9 9 0 1 1 13.6 0"/><path d="m12 14 4-5"/><circle cx="12" cy="14" r="1"/>',
     monitor: '<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/>',
